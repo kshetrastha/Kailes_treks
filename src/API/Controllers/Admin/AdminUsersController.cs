@@ -13,7 +13,6 @@ namespace TravelCleanArch.API.Controllers.Admin;
 public sealed class AdminUsersController(IMediator mediator) : ControllerBase
 {
     public sealed record CreateUserRequest(string Email, string Password, string FullName, string Role);
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken ct)
     {
