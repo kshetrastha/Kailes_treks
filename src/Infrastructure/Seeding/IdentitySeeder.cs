@@ -18,6 +18,8 @@ public sealed class IdentitySeeder(
         await db.Database.MigrateAsync(ct);
 
         await EnsureRoleAsync(AppRoles.Admin);
+        await EnsureRoleAsync(AppRoles.Editor);
+        await EnsureRoleAsync(AppRoles.Viewer);
         await EnsureRoleAsync(AppRoles.Customer);
 
         await EnsureAdminAsync(ct);
