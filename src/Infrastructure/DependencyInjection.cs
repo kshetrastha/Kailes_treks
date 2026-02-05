@@ -11,6 +11,8 @@ using TravelCleanArch.Infrastructure.Identity;
 using TravelCleanArch.Infrastructure.Persistence;
 using TravelCleanArch.Infrastructure.Queries;
 using TravelCleanArch.Infrastructure.Seeding;
+using TravelCleanArch.Infrastructure.Services;
+using TravelCleanArch.Application.Abstractions.Travel;
 
 namespace TravelCleanArch.Infrastructure;
 
@@ -44,6 +46,8 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<IUserProfileReadRepository, UserProfileReadRepository>();
+        services.AddScoped<IExpeditionService, ExpeditionService>();
+        services.AddScoped<ITrekkingService, TrekkingService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;
