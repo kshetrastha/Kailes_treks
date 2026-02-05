@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\SharedKernel\TravelCleanArch.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>
