@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using TravelCleanArch.Application.Abstractions.Authentication;
 using TravelCleanArch.Application.Abstractions.Identity;
 using TravelCleanArch.Application.Abstractions.Queries;
@@ -25,23 +26,24 @@ public static class DependencyInjection
             opts.UseNpgsql(cs);
         });
 
-        services.AddIdentityCore<AppUser>(opts =>
-            {
-                opts.User.RequireUniqueEmail = true;
-                opts.Password.RequiredLength = 8;
-                opts.Password.RequireDigit = true;
-                opts.Password.RequireUppercase = true;
-                opts.Password.RequireNonAlphanumeric = true;
-            })
-            .AddRoles<AppRole>()
+        services.AddIdentityCore<AppUser>(options =>
+        {
+            options.User.RequireUniqueEmail = false;
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 8;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        })
+            .AddRoles<AppRole>()                         // if you use roles
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddSignInManager();
+            .AddSignInManager<SignInManager<AppUser>>() // ✅ THIS is the missing line
+            .AddDefaultTokenProviders();    
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<IUserProfileReadRepository, UserProfileReadRepository>();
-
         services.AddScoped<IdentitySeeder>();
 
         return services;
