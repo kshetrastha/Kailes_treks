@@ -12,7 +12,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" action="@(isEdit ? $"/admin/company/why-with-us/{Model.Id}/edit" : "/admin/company/why-with-us/create")" enctype="multipart/form-data">
+            <form id="whyWithUsForm" method="post" action="@(isEdit ? $"/admin/company/why-with-us/{Model.Id}/edit" : "/admin/company/why-with-us/create")" enctype="multipart/form-data" novalidate>
                 @Html.AntiForgeryToken()
                 @if (isEdit)
                 {
@@ -71,4 +71,90 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const maxFileSize = 5 * 1024 * 1024;
+
+            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return value.trim() === value;
+            }, "This field cannot start or end with spaces.");
+
+            $.validator.addMethod("iconCssSafe", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return !/[<>]/.test(value);
+            }, "Icon CSS class contains invalid characters.");
+
+            $.validator.addMethod("imageExtension", function (value, element) {
+                if (this.optional(element) || !value) {
+                    return true;
+                }
+
+                return /\.(jpg|jpeg|png|webp|gif)$/i.test(value);
+            }, "Image must be a valid image file (jpg, jpeg, png, webp, gif).");
+
+            $.validator.addMethod("fileSize", function (value, element, param) {
+                if (this.optional(element) || !element.files || element.files.length === 0) {
+                    return true;
+                }
+
+                return element.files[0].size <= param;
+            }, "Image size must be 5 MB or less.");
+
+            $("#whyWithUsForm").validate({
+                ignore: [],
+                errorClass: "text-danger",
+                rules: {
+                    Title: {
+                        required: true,
+                        maxlength: 200,
+                        noLeadingTrailingSpace: true
+                    },
+                    Description: {
+                        required: true,
+                        maxlength: 4000,
+                        noLeadingTrailingSpace: true
+                    },
+                    IconCssClass: {
+                        maxlength: 80,
+                        iconCssSafe: true
+                    },
+                    Ordering: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 999
+                    },
+                    Image: {
+                        imageExtension: true,
+                        fileSize: maxFileSize
+                    }
+                },
+                messages: {
+                    Title: {
+                        required: "Title is required.",
+                        maxlength: "Title cannot exceed 200 characters."
+                    },
+                    Description: {
+                        required: "Description is required.",
+                        maxlength: "Description cannot exceed 4000 characters."
+                    },
+                    IconCssClass: {
+                        maxlength: "Icon CSS class cannot exceed 80 characters."
+                    },
+                    Ordering: {
+                        required: "Ordering is required.",
+                        min: "Ordering cannot be below 0.",
+                        max: "Ordering cannot exceed 999."
+                    }
+                }
+            });
+        })();
+    </script>
 }

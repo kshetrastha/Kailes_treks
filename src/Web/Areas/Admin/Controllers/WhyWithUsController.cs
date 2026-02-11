@@ -19,6 +19,12 @@ public sealed class WhyWithUsController(
     IUnitOfWork unitOfWork,
     IWebHostEnvironment environment) : Controller
 {
+    private const long MaxImageSizeInBytes = 5 * 1024 * 1024;
+    private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".webp", ".gif"
+    };
+
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -48,6 +54,8 @@ public sealed class WhyWithUsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditHeader(WhyWithUsHeroFormViewModel model, CancellationToken ct)
     {
+        ValidateHeroModel(model);
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -88,6 +96,8 @@ public sealed class WhyWithUsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(WhyWithUsFormViewModel model, CancellationToken ct)
     {
+        ValidateItemModel(model);
+
         if (!ModelState.IsValid)
         {
             return View("Upsert", model);
@@ -144,6 +154,8 @@ public sealed class WhyWithUsController(
         {
             return BadRequest();
         }
+
+        ValidateItemModel(model);
 
         if (!ModelState.IsValid)
         {
@@ -209,5 +221,61 @@ public sealed class WhyWithUsController(
         await image.CopyToAsync(stream, ct);
 
         return Path.Combine("uploads", relativeDirectory, fileName).Replace('\\', '/');
+    }
+
+    private void ValidateHeroModel(WhyWithUsHeroFormViewModel model)
+    {
+        ValidateTrimmedRequiredText(nameof(model.Header), model.Header, "Header");
+        ValidateTrimmedRequiredText(nameof(model.Title), model.Title, "Title");
+        ValidateTrimmedRequiredText(nameof(model.Description), model.Description, "Description");
+
+        if (model.BackgroundImage is not null)
+        {
+            ValidateImage(model.BackgroundImage, nameof(model.BackgroundImage), "Background image");
+        }
+    }
+
+    private void ValidateItemModel(WhyWithUsFormViewModel model)
+    {
+        ValidateTrimmedRequiredText(nameof(model.Title), model.Title, "Title");
+        ValidateTrimmedRequiredText(nameof(model.Description), model.Description, "Description");
+
+        if (!string.IsNullOrWhiteSpace(model.IconCssClass) && model.IconCssClass.Contains('<'))
+        {
+            ModelState.AddModelError(nameof(model.IconCssClass), "Icon CSS class contains invalid characters.");
+        }
+
+        if (model.Image is not null)
+        {
+            ValidateImage(model.Image, nameof(model.Image), "Image");
+        }
+    }
+
+    private void ValidateTrimmedRequiredText(string propertyName, string? value, string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            ModelState.AddModelError(propertyName, $"{displayName} is required.");
+            return;
+        }
+
+        if (!string.Equals(value, value.Trim(), StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(propertyName, $"{displayName} cannot start or end with spaces.");
+        }
+    }
+
+    private void ValidateImage(IFormFile image, string propertyName, string displayName)
+    {
+        if (image.Length > MaxImageSizeInBytes)
+        {
+            ModelState.AddModelError(propertyName, $"{displayName} size must be 5 MB or less.");
+        }
+
+        var extension = Path.GetExtension(image.FileName);
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedImageExtensions.Contains(extension))
+        {
+            ModelState.AddModelError(propertyName, $"{displayName} must be a valid image file (jpg, jpeg, png, webp, gif).");
+        }
     }
 }
