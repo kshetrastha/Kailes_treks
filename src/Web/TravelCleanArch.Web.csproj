@@ -21,5 +21,7 @@
   <ItemGroup>
     <None Include="wwwroot\assets\img\.DS_Store" />
     <None Include="wwwroot\assets\img\partners\.DS_Store" />
+    <None Include="wwwroot\customer\assets\img\.DS_Store" />
+    <None Include="wwwroot\customer\assets\img\partners\.DS_Store" />
   </ItemGroup>
 </Project>

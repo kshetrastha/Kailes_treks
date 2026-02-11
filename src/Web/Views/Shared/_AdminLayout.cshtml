@@ -944,24 +944,12 @@
                         <li class="breadcrumb-item"> <a href="javascript:void(0)">Home</a> </li>
                         <li class="breadcrumb-item active">Welcome, Admin</li>
                     </ol>
-                </div>
-                <div class="col-md-7 col-12 align-self-center d-none d-md-block">
-                    <div class="d-flex mt-2 justify-content-end">
-                        <div class="d-flex text-center align-items-center">
-                            <div class="ms-3 border-end pe-3">
-                                <h6 class="fw-normal">Week End</h6> <span class="btn btn-success shine-btn">2d 0.7h 29m 33s</span>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="fw-normal">Week End (UTC)</h6> <span class="btn btn-warning shine-btn">18 Jan 2026 18:14:59</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </div>         
             </div>            
             <div class="container-fluid">
               @RenderBody()
             </div>            
-            <footer class="footer"> All Rights Reserved by Global Rewards & Discount Hub. </footer>
+            <footer class="footer"> All Rights Reserved by Visit Kailesh Treks. </footer>
         </div>
     </div>
 
@@ -981,37 +969,7 @@
     <!--Custom JavaScript -->
     <script src="~/assets/js/feather.min.js"></script>
     <script src="~/assets/js/custom.min.js"></script>
-
-    
-  <script>
-    const timerWidget = document.getElementById('timerWidget');
-    const timerToggle = document.getElementById('timerToggle');
-    function updateIcon() {
-        if (timerWidget.classList.contains('minimized')) {
-            timerToggle.innerHTML = '<i class="fa-regular fa-clock fa-xs"></i>'; // clock when minimized
-            timerToggle.title = 'Open Timer';
-        } else {
-            timerToggle.innerHTML = '<i class="fa-solid fa-minus fa-xs"></i>'; // minus when expanded
-            timerToggle.title = 'Minimize';
-        }
-    }
-
-    timerToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        timerWidget.classList.toggle('minimized');
-        updateIcon();
-    });
-    // Click bubble to restore
-    timerWidget.addEventListener('click', () => {
-        if (timerWidget.classList.contains('minimized')) {
-            timerWidget.classList.remove('minimized');
-            updateIcon();
-        }
-    });
-    // Initial state
-    updateIcon();
-</script>
-
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 
