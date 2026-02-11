@@ -10,4 +10,10 @@ public sealed class HomeIndexViewModel
     //public IReadOnlyCollection<WhyWithUsItemViewModel> WhyWithUsItems { get; init; } = [];
     public IReadOnlyList<WhyWithUsItemViewModel> WhyWithUsItems { get; init; }
 
+    public string WhoWeAreHeader { get; init; } = "Leading Expedition Operator";
+    public string WhoWeAreTitle { get; init; } = "Who we are?";
+    public string WhoWeAreDescription { get; init; } = string.Empty;
+    public string? WhoWeAreBackgroundImagePath { get; init; }
+    public IReadOnlyList<WhoWeAreItemViewModel> WhoWeAreItems { get; init; } = [];
+
 }

@@ -10,6 +10,10 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
 
     public IWhyWithUsHeroService WhyWithUsHeroService => new WhyWithUsHeroService(dbContext);
 
+    public IWhoWeAreService WhoWeAreService => new WhoWeAreService(dbContext);
+
+    public IWhoWeAreHeroService WhoWeAreHeroService => new WhoWeAreHeroService(dbContext);
+
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);
 }
