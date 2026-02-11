@@ -1,6 +1,7 @@
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using TravelCleanArch.API.Security;
 using TravelCleanArch.API.Swagger;
@@ -13,7 +14,7 @@ using TravelCleanArch.Infrastructure.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApplication();
@@ -25,7 +26,12 @@ var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOption
           ?? throw new InvalidOperationException("Jwt options are not configured.");
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(opts =>
     {
         opts.TokenValidationParameters = new TokenValidationParameters
@@ -41,6 +47,12 @@ builder.Services
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
+    })
+    .AddCookie(IdentityConstants.ApplicationScheme, opts =>
+    {
+        opts.LoginPath = "/account/login";
+        opts.AccessDeniedPath = "/account/access-denied";
+        opts.SlidingExpiration = true;
     });
 
 builder.Services.AddAuthorization(options =>
@@ -66,9 +78,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapDefaultControllerRoute();
 
 app.Run();

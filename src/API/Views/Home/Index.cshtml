@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<h1>Travel App - MVC + Clean Architecture</h1>
+<p>This MVC surface is layered over the existing Application and Infrastructure projects, using PostgreSQL-backed ASP.NET Core Identity for individual authentication.</p>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <p><strong>Status:</strong> Signed in as @User.Identity.Name.</p>
+}
+else
+{
+    <p><strong>Status:</strong> Anonymous user.</p>
+}
