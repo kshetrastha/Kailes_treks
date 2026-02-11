@@ -24,6 +24,10 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <span>@User.Identity.Name</span>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
+            }
             <form asp-controller="Account" asp-action="Logout" method="post">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn secondary">Logout</button>
