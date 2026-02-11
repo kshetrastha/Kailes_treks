@@ -39,18 +39,22 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapStaticAssets();
 
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/home");
-    return Task.CompletedTask;
-});
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
+);
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
 
-app.MapControllers();
-app.MapDefaultControllerRoute();
-app.MapRazorPages();
+app.MapRazorPages()
+   .WithStaticAssets();
 
 app.Run();
