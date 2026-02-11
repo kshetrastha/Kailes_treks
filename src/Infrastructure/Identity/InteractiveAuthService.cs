@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using TravelCleanArch.Application.Abstractions.Identity;
@@ -39,7 +40,7 @@ public sealed class InteractiveAuthService(
             return Result.Failure("user.role_failed", string.Join("; ", addRole.Errors.Select(e => e.Description)));
         }
 
-        await signInManager.SignInAsync(user, isPersistent: false);
+        await signInManager.SignInWithClaimsAsync(user, isPersistent: false, BuildRequiredClaims(user));
         return Result.Success();
     }
 
@@ -49,9 +50,12 @@ public sealed class InteractiveAuthService(
         if (user is null)
             return Result.Failure("auth.invalid", "Invalid credentials.");
 
-        var result = await signInManager.PasswordSignInAsync(user.UserName!, password, rememberMe, lockoutOnFailure: true);
+        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
         if (result.Succeeded)
+        {
+            await signInManager.SignInWithClaimsAsync(user, isPersistent: rememberMe, BuildRequiredClaims(user));
             return Result.Success();
+        }
 
         if (result.IsLockedOut)
             return Result.Failure("auth.locked_out", "The account is temporarily locked.");
@@ -62,5 +66,14 @@ public sealed class InteractiveAuthService(
     public async Task SignOutAsync(CancellationToken ct)
     {
         await signInManager.SignOutAsync();
+    }
+
+    private static IEnumerable<Claim> BuildRequiredClaims(AppUser user)
+    {
+        return
+        [
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
+        ];
     }
 }
