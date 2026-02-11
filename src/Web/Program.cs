@@ -47,13 +47,14 @@ builder.Services
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
-    })
-    .AddCookie(IdentityConstants.ApplicationScheme, opts =>
-    {
-        opts.LoginPath = "/account/login";
-        opts.AccessDeniedPath = "/account/access-denied";
-        opts.SlidingExpiration = true;
     });
+
+builder.Services.ConfigureApplicationCookie(opts =>
+{
+    opts.LoginPath = "/account/login";
+    opts.AccessDeniedPath = "/account/access-denied";
+    opts.SlidingExpiration = true;
+});
 
 builder.Services.AddAuthorization(options =>
 {
