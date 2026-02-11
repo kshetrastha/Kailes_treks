@@ -28,6 +28,7 @@ public sealed class AppDbContext:
     public DbSet<WhyWithUs> WhyWithUs => Set<WhyWithUs>();
     public DbSet<WhyWithUsHero> WhyWithUsHeroes => Set<WhyWithUsHero>();
     public DbSet<WhoWeAre> WhoWeAre => Set<WhoWeAre>();
+    public DbSet<WhoWeAreImage> WhoWeAreImages => Set<WhoWeAreImage>();
     public DbSet<WhoWeAreHero> WhoWeAreHeroes => Set<WhoWeAreHero>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -147,11 +148,25 @@ public sealed class AppDbContext:
         {
             b.ToTable("company_who_we_are");
             b.Property(x => x.Title).HasMaxLength(200).IsRequired();
-            b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.SubDescription).HasMaxLength(500);
+            b.Property(x => x.Description).IsRequired();
             b.Property(x => x.ImagePath).HasMaxLength(500);
             b.Property(x => x.ImageCaption).HasMaxLength(300);
+            b.HasMany(x => x.Images)
+                .WithOne(x => x.WhoWeAre)
+                .HasForeignKey(x => x.WhoWeAreId)
+                .OnDelete(DeleteBehavior.Cascade);
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<WhoWeAreImage>(b =>
+        {
+            b.ToTable("company_who_we_are_images");
+            b.Property(x => x.ImagePath).HasMaxLength(500).IsRequired();
+            b.Property(x => x.Caption).HasMaxLength(300);
+            b.HasIndex(x => x.WhoWeAreId);
+            b.HasIndex(x => new { x.WhoWeAreId, x.Ordering });
         });
 
         builder.Entity<WhoWeAreHero>(b =>
