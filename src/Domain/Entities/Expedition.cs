@@ -30,11 +30,7 @@ public sealed class Expedition : BaseEntity
     public string? ExpeditionStyle { get; set; }
     public bool OxygenSupport { get; set; }
     public bool SherpaSupport { get; set; }
-    public decimal? SummitBonusUsd { get; set; }
-    public DateTime CreatedAtUtc { get; set; }
-    public DateTime UpdatedAtUtc { get; set; }
-    public int? CreatedBy { get; set; }
-    public int? UpdatedBy { get; set; }
+    public decimal? SummitBonusUsd { get; set; }   
 
     public List<ExpeditionItineraryDay> ItineraryDays { get; set; } = [];
     public List<ExpeditionFaq> Faqs { get; set; } = [];
