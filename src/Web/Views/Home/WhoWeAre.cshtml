@@ -37,7 +37,7 @@
                                  src="@imageSrc" alt="@item.Title"
                                  class="w-full md:aspect-[9/11] aspect-square object-center object-cover grayscale-50 group-hover:grayscale-0 ease-in-out duration-1000">
                             <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="200" class="space-y-1.5">
-                                <p class="text-sm text-neutral-500 font-normal">@(!string.IsNullOrWhiteSpace(item.ImageCaption) ? item.ImageCaption : item.Title)</p>
+                                <p class="text-sm text-neutral-500 font-normal">@(!string.IsNullOrWhiteSpace(item.ImageCaption) ? item.ImageCaption : (!string.IsNullOrWhiteSpace(item.SubDescription) ? item.SubDescription : item.Title))</p>
                                 <div class="w-16 h-[3px] bg-[#e1a74e]"></div>
                             </div>
                         </div>
@@ -49,7 +49,28 @@
                     {
                         <div>
                             <h3 class="text-xl font-semibold text-neutral-700 mb-2">@item.Title</h3>
-                            <p class="text-base font-light text-neutral-600 text-justify">@item.Description</p>
+                            @if (!string.IsNullOrWhiteSpace(item.SubDescription))
+                            {
+                                <p class="text-sm text-neutral-500 mb-2">@item.SubDescription</p>
+                            }
+                            <div class="text-base font-light text-neutral-600 text-justify">@Html.Raw(item.Description)</div>
+
+                            @if (item.Images.Any())
+                            {
+                                <div class="grid md:grid-cols-4 grid-cols-2 gap-3 mt-4">
+                                    @foreach (var galleryImage in item.Images)
+                                    {
+                                        var gallerySrc = Url.Content($"~/{galleryImage.ImagePath}");
+                                        <div>
+                                            <img src="@gallerySrc" alt="@item.Title" class="w-full aspect-square object-cover rounded-md" />
+                                            @if (!string.IsNullOrWhiteSpace(galleryImage.Caption))
+                                            {
+                                                <p class="text-xs text-neutral-500 mt-1">@galleryImage.Caption</p>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
                         </div>
                     }
                 </div>

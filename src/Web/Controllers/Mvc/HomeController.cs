@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Entities;
@@ -80,15 +81,29 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
     {
         try
         {
-            return (await uow.WhoWeAreService.ListOrderedAsync(publishedOnly: true, ct))
+            return await uow.WhoWeAreService.Query()
+                .AsNoTracking()
+                .Where(x => x.IsPublished)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
                 .Select(x => new WhoWeAreItemViewModel
                 {
                     Title = x.Title,
+                    SubDescription = x.SubDescription,
                     Description = x.Description,
                     ImagePath = x.ImagePath,
-                    ImageCaption = x.ImageCaption
+                    ImageCaption = x.ImageCaption,
+                    Images = x.Images
+                        .OrderBy(img => img.Ordering)
+                        .ThenBy(img => img.Id)
+                        .Select(img => new WhoWeAreImageItemViewModel
+                        {
+                            ImagePath = img.ImagePath,
+                            Caption = img.Caption
+                        })
+                        .ToList()
                 })
-                .ToList();
+                .ToListAsync(ct);
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
         {

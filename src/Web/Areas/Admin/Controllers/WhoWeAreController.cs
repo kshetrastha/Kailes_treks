@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Constants;
@@ -95,6 +95,7 @@ public sealed class WhoWeAreController(
         var entity = new WhoWeAre
         {
             Title = model.Title.Trim(),
+            SubDescription = string.IsNullOrWhiteSpace(model.SubDescription) ? null : model.SubDescription.Trim(),
             Description = model.Description.Trim(),
             ImageCaption = string.IsNullOrWhiteSpace(model.ImageCaption) ? null : model.ImageCaption.Trim(),
             Ordering = model.Ordering,
@@ -108,6 +109,8 @@ public sealed class WhoWeAreController(
             entity.ImagePath = await UploadImageAsync(model.Image, "who-we-are", "who-we-are-item", ct);
         }
 
+        await AddAdditionalImagesAsync(entity, model.AdditionalImages, model.AdditionalImageCaptions, ct);
+
         await unitOfWork.WhoWeAreService.AddAsync(entity, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
@@ -120,6 +123,7 @@ public sealed class WhoWeAreController(
     {
         var entity = await unitOfWork.WhoWeAreService.Query()
             .AsNoTracking()
+            .Include(x => x.Images.OrderBy(img => img.Ordering).ThenBy(img => img.Id))
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (entity is null)
@@ -131,9 +135,20 @@ public sealed class WhoWeAreController(
         {
             Id = entity.Id,
             Title = entity.Title,
+            SubDescription = entity.SubDescription,
             Description = entity.Description,
             ImageCaption = entity.ImageCaption,
             ExistingImagePath = entity.ImagePath,
+            ExistingAdditionalImages = entity.Images
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => new WhoWeAreAdditionalImageViewModel
+                {
+                    ImagePath = x.ImagePath,
+                    Caption = x.Caption,
+                    Ordering = x.Ordering
+                })
+                .ToList(),
             Ordering = entity.Ordering,
             IsPublished = entity.IsPublished
         });
@@ -151,16 +166,32 @@ public sealed class WhoWeAreController(
         if (!ModelState.IsValid)
         {
             model.ExistingImagePath = await unitOfWork.WhoWeAreService.GetImagePathByIdAsync(id, ct);
+            model.ExistingAdditionalImages = await unitOfWork.WhoWeAreService.Query()
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .SelectMany(x => x.Images)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => new WhoWeAreAdditionalImageViewModel
+                {
+                    ImagePath = x.ImagePath,
+                    Caption = x.Caption,
+                    Ordering = x.Ordering
+                })
+                .ToListAsync(ct);
             return View("Upsert", model);
         }
 
-        var entity = await unitOfWork.WhoWeAreService.GetByIdAsync(id, ct);
+        var entity = await unitOfWork.WhoWeAreService.Query()
+            .Include(x => x.Images)
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
         if (entity is null)
         {
             return NotFound();
         }
 
         entity.Title = model.Title.Trim();
+        entity.SubDescription = string.IsNullOrWhiteSpace(model.SubDescription) ? null : model.SubDescription.Trim();
         entity.Description = model.Description.Trim();
         entity.ImageCaption = string.IsNullOrWhiteSpace(model.ImageCaption) ? null : model.ImageCaption.Trim();
         entity.Ordering = model.Ordering;
@@ -169,6 +200,12 @@ public sealed class WhoWeAreController(
         if (model.Image is { Length: > 0 })
         {
             entity.ImagePath = await UploadImageAsync(model.Image, "who-we-are", "who-we-are-item", ct);
+        }
+
+        if (model.AdditionalImages.Count != 0)
+        {
+            entity.Images.Clear();
+            await AddAdditionalImagesAsync(entity, model.AdditionalImages, model.AdditionalImageCaptions, ct);
         }
 
         entity.UpdatedAtUtc = DateTime.UtcNow;
@@ -183,7 +220,9 @@ public sealed class WhoWeAreController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var entity = await unitOfWork.WhoWeAreService.GetByIdAsync(id, ct);
+        var entity = await unitOfWork.WhoWeAreService.Query()
+            .Include(x => x.Images)
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
         if (entity is null)
         {
             return NotFound();
@@ -194,6 +233,31 @@ public sealed class WhoWeAreController(
 
         TempData["SuccessMessage"] = "Who We Are entry deleted successfully.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task AddAdditionalImagesAsync(
+        WhoWeAre entity,
+        IReadOnlyList<IFormFile> images,
+        IReadOnlyList<string?> captions,
+        CancellationToken ct)
+    {
+        for (var index = 0; index < images.Count; index++)
+        {
+            var file = images[index];
+            if (file.Length <= 0)
+            {
+                continue;
+            }
+
+            var caption = captions.Count > index ? captions[index] : null;
+            var imagePath = await UploadImageAsync(file, "who-we-are", "who-we-are-gallery", ct);
+            entity.Images.Add(new WhoWeAreImage
+            {
+                ImagePath = imagePath,
+                Caption = string.IsNullOrWhiteSpace(caption) ? null : caption.Trim(),
+                Ordering = index + 1
+            });
+        }
     }
 
     private async Task<string> UploadImageAsync(IFormFile image, string relativeDirectory, string fileNamePrefix, CancellationToken ct)
