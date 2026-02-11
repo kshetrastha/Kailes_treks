@@ -23,6 +23,14 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
+    [HttpGet("who-we-are")]
+    public async Task<IActionResult> WhoWeAre(CancellationToken ct)
+    {
+        var model = await BuildHomeIndexViewModelAsync(ct);
+
+        return View(model);
+    }
+
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
         var whyWithUsItems = (await uow.WhyWithUsService.ListOrderedAsync(publishedOnly: true, ct))
@@ -36,6 +44,10 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
 
         var whyWithUsHero = await TryGetWhyWithUsHeroAsync(ct);
 
+        var whoWeAreItems = await TryGetWhoWeAreItemsAsync(ct);
+
+        var whoWeAreHero = await TryGetWhoWeAreHeroAsync(ct);
+
         return new HomeIndexViewModel
         {
             WhyWithUsHeader = whyWithUsHero?.Header ?? "Because we are the best",
@@ -43,7 +55,12 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             WhyWithUsDescription = whyWithUsHero?.Description ??
                 "Amongst the crowd of new adventure companies sprouting every day, we are committed to responsible and sustainable tourism and have something of a history, culture, and experience that stands out for the technical infallibility, excellent management, and sincerity in providing services.",
             WhyWithUsBackgroundImagePath = whyWithUsHero?.BackgroundImagePath,
-            WhyWithUsItems = whyWithUsItems
+            WhyWithUsItems = whyWithUsItems,
+            WhoWeAreHeader = whoWeAreHero?.Header ?? "Leading Expedition Operator",
+            WhoWeAreTitle = whoWeAreHero?.Title ?? "Who we are?",
+            WhoWeAreDescription = whoWeAreHero?.Description ?? "Seven Summit Treks is a registered Nepali trek and expedition operator specializing in Himalayan climbs and personalized adventures.",
+            WhoWeAreBackgroundImagePath = whoWeAreHero?.BackgroundImagePath,
+            WhoWeAreItems = whoWeAreItems
         };
     }
 
@@ -58,4 +75,37 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             return null;
         }
     }
+
+    private async Task<List<WhoWeAreItemViewModel>> TryGetWhoWeAreItemsAsync(CancellationToken ct)
+    {
+        try
+        {
+            return (await uow.WhoWeAreService.ListOrderedAsync(publishedOnly: true, ct))
+                .Select(x => new WhoWeAreItemViewModel
+                {
+                    Title = x.Title,
+                    Description = x.Description,
+                    ImagePath = x.ImagePath,
+                    ImageCaption = x.ImageCaption
+                })
+                .ToList();
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return [];
+        }
+    }
+
+    private async Task<WhoWeAreHero?> TryGetWhoWeAreHeroAsync(CancellationToken ct)
+    {
+        try
+        {
+            return await uow.WhoWeAreHeroService.GetFirstAsync(asNoTracking: true, ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return null;
+        }
+    }
+
 }

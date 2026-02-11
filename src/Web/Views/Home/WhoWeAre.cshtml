@@ -1,0 +1,63 @@
+@model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Who We Are";
+    var heroBackgroundImage = string.IsNullOrWhiteSpace(Model.WhoWeAreBackgroundImagePath)
+        ? Url.Content("~/assets/img/contact.jpg")
+        : Url.Content($"~/{Model.WhoWeAreBackgroundImagePath}");
+}
+
+<div class="w-full min-h-screen">
+    <section class="w-full relative overflow-hidden">
+        <div class="w-full md:aspect-[16/7.38] aspect-auto bg-cover bg-center bg-no-repeat relative"
+             style="background-image: url('@heroBackgroundImage')">
+            <div class="w-full flex items-start justify-center h-full bg-black/50 md:pt-20 pt-24 md:pb-0 pb-10 md:px-39 sm:px-20 px-4 flex-col">
+                <h5 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
+                    class="text-2xl text-neutral-100 font-medium mb-0">@Model.WhoWeAreHeader</h5>
+                <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
+                    class="text-[48px] md:text-[64px] text-[#e1a74e] font-black -mt-3 mb-3">@Model.WhoWeAreTitle</h1>
+                <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
+                    class="text-2xl font-light text-neutral-200 max-w-xl leading-[1.5] tracking-wide">@Model.WhoWeAreDescription</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="w-full md:px-39 sm:px-20 px-4">
+        <div class="w-full md:py-20 py-10">
+            @if (Model.WhoWeAreItems.Any())
+            {
+                <div class="w-full grid md:grid-cols-3 grid-cols-1 gap-6 my-8">
+                    @foreach (var item in Model.WhoWeAreItems)
+                    {
+                        var imageSrc = string.IsNullOrWhiteSpace(item.ImagePath)
+                            ? Url.Content("~/assets/img/expeditions/exp2.png")
+                            : Url.Content($"~/{item.ImagePath}");
+
+                        <div class="w-full space-y-4 md:col-span-1 col-span-3 group ease-in-out duration-1000 cursor-pointer">
+                            <img data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100"
+                                 src="@imageSrc" alt="@item.Title"
+                                 class="w-full md:aspect-[9/11] aspect-square object-center object-cover grayscale-50 group-hover:grayscale-0 ease-in-out duration-1000">
+                            <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="200" class="space-y-1.5">
+                                <p class="text-sm text-neutral-500 font-normal">@(!string.IsNullOrWhiteSpace(item.ImageCaption) ? item.ImageCaption : item.Title)</p>
+                                <div class="w-16 h-[3px] bg-[#e1a74e]"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="space-y-6">
+                    @foreach (var item in Model.WhoWeAreItems)
+                    {
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-2">@item.Title</h3>
+                            <p class="text-base font-light text-neutral-600 text-justify">@item.Description</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-base font-light text-neutral-600 text-justify">Who We Are content will appear here soon.</p>
+            }
+        </div>
+    </section>
+</div>

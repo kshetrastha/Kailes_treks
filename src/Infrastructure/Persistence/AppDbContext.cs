@@ -27,6 +27,8 @@ public sealed class AppDbContext:
     public DbSet<TrekkingMedia> TrekkingMedia => Set<TrekkingMedia>();
     public DbSet<WhyWithUs> WhyWithUs => Set<WhyWithUs>();
     public DbSet<WhyWithUsHero> WhyWithUsHeroes => Set<WhyWithUsHero>();
+    public DbSet<WhoWeAre> WhoWeAre => Set<WhoWeAre>();
+    public DbSet<WhoWeAreHero> WhoWeAreHeroes => Set<WhoWeAreHero>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -40,6 +42,7 @@ public sealed class AppDbContext:
         ConfigureExpeditions(builder);
         ConfigureTrekking(builder);
         ConfigureWhyWithUs(builder);
+        ConfigureWhoWeAre(builder);
     }
 
     private static void ConfigureExpeditions(ModelBuilder builder)
@@ -134,6 +137,30 @@ public sealed class AppDbContext:
             b.Property(x => x.Url).HasMaxLength(500).IsRequired();
             b.Property(x => x.MediaType).HasMaxLength(50).IsRequired();
             b.HasIndex(x => x.TrekkingId);
+        });
+    }
+
+
+    private static void ConfigureWhoWeAre(ModelBuilder builder)
+    {
+        builder.Entity<WhoWeAre>(b =>
+        {
+            b.ToTable("company_who_we_are");
+            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.Property(x => x.ImageCaption).HasMaxLength(300);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<WhoWeAreHero>(b =>
+        {
+            b.ToTable("company_who_we_are_hero");
+            b.Property(x => x.Header).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.BackgroundImagePath).HasMaxLength(500);
         });
     }
 
