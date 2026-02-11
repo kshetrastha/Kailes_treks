@@ -28,7 +28,7 @@ public static class DependencyInjection
             opts.UseNpgsql(cs);
         });
 
-        services.AddIdentityCore<AppUser>(options =>
+        services.AddIdentity<AppUser, AppRole>(options =>
         {
             options.User.RequireUniqueEmail = false;
             options.Password.RequireDigit = true;
@@ -37,13 +37,12 @@ public static class DependencyInjection
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         })
-            .AddRoles<AppRole>()                         // if you use roles
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddSignInManager<SignInManager<AppUser>>() // ✅ THIS is the missing line
-            .AddDefaultTokenProviders();    
+            .AddDefaultTokenProviders();
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IInteractiveAuthService, InteractiveAuthService>();
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<IUserProfileReadRepository, UserProfileReadRepository>();
         services.AddScoped<IExpeditionService, ExpeditionService>();

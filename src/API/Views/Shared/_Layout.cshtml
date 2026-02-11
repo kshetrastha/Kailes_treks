@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Clean Architecture</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7fb; color: #1f2937; }
+        header { background: #0f172a; color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        main { max-width: 900px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+        a { color: #2563eb; text-decoration: none; }
+        .auth-actions { display: flex; gap: 0.75rem; align-items: center; }
+        .btn { background: #2563eb; color: #fff; border: 0; border-radius: 6px; padding: 0.5rem 0.9rem; cursor: pointer; }
+        .btn.secondary { background: #374151; }
+        .field { margin-bottom: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
+        input { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; }
+        .validation { color: #b91c1c; margin-bottom: 0.75rem; }
+    </style>
+</head>
+<body>
+<header>
+    <strong><a href="/" style="color:#fff;">Travel CleanArch MVC</a></strong>
+    <div class="auth-actions">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <span>@User.Identity.Name</span>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn secondary">Logout</button>
+            </form>
+        }
+        else
+        {
+            <a class="btn" asp-controller="Account" asp-action="Login">Login</a>
+            <a class="btn secondary" asp-controller="Account" asp-action="Register">Register</a>
+        }
+    </div>
+</header>
+<main>
+    @RenderBody()
+</main>
+</body>
+</html>
