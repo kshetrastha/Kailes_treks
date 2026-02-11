@@ -25,6 +25,7 @@ public sealed class AppDbContext:
     public DbSet<TrekkingItineraryDay> TrekkingItineraryDays => Set<TrekkingItineraryDay>();
     public DbSet<TrekkingFaq> TrekkingFaqs => Set<TrekkingFaq>();
     public DbSet<TrekkingMedia> TrekkingMedia => Set<TrekkingMedia>();
+    public DbSet<WhyWithUs> WhyWithUs => Set<WhyWithUs>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -37,6 +38,7 @@ public sealed class AppDbContext:
 
         ConfigureExpeditions(builder);
         ConfigureTrekking(builder);
+        ConfigureWhyWithUs(builder);
     }
 
     private static void ConfigureExpeditions(ModelBuilder builder)
@@ -131,6 +133,19 @@ public sealed class AppDbContext:
             b.Property(x => x.Url).HasMaxLength(500).IsRequired();
             b.Property(x => x.MediaType).HasMaxLength(50).IsRequired();
             b.HasIndex(x => x.TrekkingId);
+        });
+    }
+
+    private static void ConfigureWhyWithUs(ModelBuilder builder)
+    {
+        builder.Entity<WhyWithUs>(b =>
+        {
+            b.ToTable("company_why_with_us");
+            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.IconCssClass).HasMaxLength(80);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
         });
     }
 }

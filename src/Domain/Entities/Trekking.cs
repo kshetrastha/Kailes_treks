@@ -1,8 +1,7 @@
 namespace TravelCleanArch.Domain.Entities;
 
-public sealed class Trekking
+public sealed class Trekking : BaseEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Destination { get; set; } = string.Empty;
@@ -42,9 +41,8 @@ public sealed class Trekking
     public List<TrekkingMedia> MediaItems { get; set; } = [];
 }
 
-public sealed class TrekkingItineraryDay
+public sealed class TrekkingItineraryDay : BaseEntity
 {
-    public int Id { get; set; }
     public int TrekkingId { get; set; }
     public int DayNumber { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -54,9 +52,8 @@ public sealed class TrekkingItineraryDay
     public Trekking Trekking { get; set; } = default!;
 }
 
-public sealed class TrekkingFaq
+public sealed class TrekkingFaq : BaseEntity
 {
-    public int Id { get; set; }
     public int TrekkingId { get; set; }
     public string Question { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
@@ -65,9 +62,8 @@ public sealed class TrekkingFaq
     public Trekking Trekking { get; set; } = default!;
 }
 
-public sealed class TrekkingMedia
+public sealed class TrekkingMedia : BaseEntity
 {
-    public int Id { get; set; }
     public int TrekkingId { get; set; }
     public string Url { get; set; } = string.Empty;
     public string? Caption { get; set; }
