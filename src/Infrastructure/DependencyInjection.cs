@@ -15,6 +15,7 @@ using TravelCleanArch.Infrastructure.Queries;
 using TravelCleanArch.Infrastructure.Seeding;
 using TravelCleanArch.Infrastructure.Services;
 using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Application.Abstractions.Company;
 
 namespace TravelCleanArch.Infrastructure;
 
@@ -51,6 +52,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IExpeditionService, ExpeditionService>();
         services.AddScoped<ITrekkingService, TrekkingService>();
+        services.AddScoped<IWhyWithUsService, WhyWithUsService>();
+        services.AddScoped<IWhyWithUsHeroService, WhyWithUsHeroService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;

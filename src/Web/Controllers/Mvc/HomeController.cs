@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using TravelCleanArch.Application.Abstractions.Persistence;
+using TravelCleanArch.Application.Abstractions.Company;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
 
 public sealed class HomeController(
-    IGenericRepository<WhyWithUs> whyWithUsRepository,
-    IGenericRepository<WhyWithUsHero> whyWithUsHeroRepository) : Controller
+    IWhyWithUsService whyWithUsService,
+    IWhyWithUsHeroService whyWithUsHeroService) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -28,18 +27,14 @@ public sealed class HomeController(
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
-        var whyWithUsItems = await whyWithUsRepository.Query()
-            .AsNoTracking()
-            .Where(x => x.IsPublished)
-            .OrderBy(x => x.Ordering)
-            .ThenBy(x => x.Id)
+        var whyWithUsItems = (await whyWithUsService.ListOrderedAsync(publishedOnly: true, ct))
             .Select(x => new WhyWithUsItemViewModel
             {
                 Title = x.Title,
                 Description = x.Description,
                 IconCssClass = x.IconCssClass
             })
-            .ToListAsync(ct);
+            .ToList();
 
         var whyWithUsHero = await TryGetWhyWithUsHeroAsync(ct);
 
@@ -58,10 +53,7 @@ public sealed class HomeController(
     {
         try
         {
-            return await whyWithUsHeroRepository.Query()
-                .AsNoTracking()
-                .OrderBy(x => x.Id)
-                .FirstOrDefaultAsync(ct);
+            return await whyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
         {

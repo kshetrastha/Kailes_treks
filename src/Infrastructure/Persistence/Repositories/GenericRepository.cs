@@ -5,7 +5,7 @@ using TravelCleanArch.Domain.Entities;
 
 namespace TravelCleanArch.Infrastructure.Persistence.Repositories;
 
-public sealed class GenericRepository<TEntity>(AppDbContext dbContext) : IGenericRepository<TEntity>
+public class GenericRepository<TEntity>(AppDbContext dbContext) : IGenericRepository<TEntity>
     where TEntity : BaseEntity
 {
     private DbSet<TEntity> Set => dbContext.Set<TEntity>();

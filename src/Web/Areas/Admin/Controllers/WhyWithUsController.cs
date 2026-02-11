@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using TravelCleanArch.Application.Abstractions.Company;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
@@ -15,19 +16,15 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 [Route("admin/company/why-with-us")]
 public sealed class WhyWithUsController(
-    IGenericRepository<WhyWithUs> whyWithUsRepository,
-    IGenericRepository<WhyWithUsHero> whyWithUsHeroRepository,
+    IWhyWithUsService whyWithUsService,
+    IWhyWithUsHeroService whyWithUsHeroService,
     IUnitOfWork unitOfWork,
     IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var items = await whyWithUsRepository.Query()
-            .AsNoTracking()
-            .OrderBy(x => x.Ordering)
-            .ThenBy(x => x.Id)
-            .ToListAsync(ct);
+        var items = await whyWithUsService.ListOrderedAsync(publishedOnly: false, ct);
 
         return View(items);
     }
@@ -35,10 +32,7 @@ public sealed class WhyWithUsController(
     [HttpGet("header")]
     public async Task<IActionResult> EditHeader(CancellationToken ct)
     {
-        var hero = await whyWithUsHeroRepository.Query()
-            .AsNoTracking()
-            .OrderBy(x => x.Id)
-            .FirstOrDefaultAsync(ct);
+        var hero = await whyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
 
         var model = new WhyWithUsHeroFormViewModel
         {
@@ -61,14 +55,12 @@ public sealed class WhyWithUsController(
             return View(model);
         }
 
-        var hero = await whyWithUsHeroRepository.Query()
-            .OrderBy(x => x.Id)
-            .FirstOrDefaultAsync(ct);
+        var hero = await whyWithUsHeroService.GetFirstAsync(asNoTracking: false, ct);
 
         if (hero is null)
         {
             hero = new WhyWithUsHero();
-            await whyWithUsHeroRepository.AddAsync(hero, ct);
+            await whyWithUsHeroService.AddAsync(hero, ct);
         }
 
         hero.Header = model.Header.Trim();
@@ -115,7 +107,7 @@ public sealed class WhyWithUsController(
             UpdatedAtUtc = now
         };
 
-        await whyWithUsRepository.AddAsync(entity, ct);
+        await whyWithUsService.AddAsync(entity, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry created successfully.";
@@ -125,7 +117,7 @@ public sealed class WhyWithUsController(
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {
-        var entity = await whyWithUsRepository.Query()
+        var entity = await whyWithUsService.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -157,16 +149,13 @@ public sealed class WhyWithUsController(
 
         if (!ModelState.IsValid)
         {
-            var existingImagePath = await dbContext.WhyWithUs
-                .Where(x => x.Id == id)
-                .Select(x => x.ImagePath)
-                .FirstOrDefaultAsync(ct);
+            var existingImagePath = await whyWithUsService.GetImagePathByIdAsync(id, ct);
 
             model.ExistingImagePath = existingImagePath;
             return View("Upsert", model);
         }
 
-        var entity = await whyWithUsRepository.GetByIdAsync(id, ct);
+        var entity = await whyWithUsService.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
@@ -195,13 +184,13 @@ public sealed class WhyWithUsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var entity = await whyWithUsRepository.GetByIdAsync(id, ct);
+        var entity = await whyWithUsService.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
         }
 
-        whyWithUsRepository.Remove(entity);
+        whyWithUsService.Remove(entity);
         await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry deleted successfully.";
