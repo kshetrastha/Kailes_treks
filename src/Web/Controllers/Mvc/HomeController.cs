@@ -14,7 +14,7 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
         return View(model);
     }
 
-    [HttpGet("why-with-us.html")]
+    [HttpGet("why-with-us")]
     public async Task<IActionResult> WhyWithUs(CancellationToken ct)
     {
         var model = await BuildHomeIndexViewModelAsync(ct);
