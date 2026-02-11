@@ -37,8 +37,18 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             })
             .ToListAsync(ct);
 
+        var whyWithUsHero = await dbContext.WhyWithUsHeroes
+            .AsNoTracking()
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync(ct);
+
         return new HomeIndexViewModel
         {
+            WhyWithUsHeader = whyWithUsHero?.Header ?? "Because we are the best",
+            WhyWithUsTitle = whyWithUsHero?.Title ?? "Why with us?",
+            WhyWithUsDescription = whyWithUsHero?.Description ??
+                "Amongst the crowd of new adventure companies sprouting every day, we are committed to responsible and sustainable tourism and have something of a history, culture, and experience that stands out for the technical infallibility, excellent management, and sincerity in providing services.",
+            WhyWithUsBackgroundImagePath = whyWithUsHero?.BackgroundImagePath,
             WhyWithUsItems = whyWithUsItems
         };
     }

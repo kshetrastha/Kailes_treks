@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -11,7 +13,7 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = AppRoles.Admin)]
 [Route("admin/company/why-with-us")]
-public sealed class WhyWithUsController(AppDbContext dbContext) : Controller
+public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -23,6 +25,73 @@ public sealed class WhyWithUsController(AppDbContext dbContext) : Controller
             .ToListAsync(ct);
 
         return View(items);
+    }
+
+    [HttpGet("header")]
+    public async Task<IActionResult> EditHeader(CancellationToken ct)
+    {
+        var hero = await dbContext.WhyWithUsHeroes
+            .AsNoTracking()
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync(ct);
+
+        var model = new WhyWithUsHeroFormViewModel
+        {
+            Id = hero?.Id,
+            Header = hero?.Header ?? "Because we are the best",
+            Title = hero?.Title ?? "Why with us?",
+            Description = hero?.Description ?? "",
+            ExistingBackgroundImagePath = hero?.BackgroundImagePath
+        };
+
+        return View(model);
+    }
+
+    [HttpPost("header")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditHeader(WhyWithUsHeroFormViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var hero = await dbContext.WhyWithUsHeroes
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync(ct);
+
+        if (hero is null)
+        {
+            hero = new WhyWithUsHero();
+            dbContext.WhyWithUsHeroes.Add(hero);
+        }
+
+        hero.Header = model.Header.Trim();
+        hero.Title = model.Title.Trim();
+        hero.Description = model.Description.Trim();
+
+        if (model.BackgroundImage is { Length: > 0 })
+        {
+            var fileExtension = Path.GetExtension(model.BackgroundImage.FileName);
+            var uploadsDirectory = Path.Combine(environment.WebRootPath, "uploads", "why-with-us");
+
+            Directory.CreateDirectory(uploadsDirectory);
+
+            var fileName = $"why-with-us-hero-{Guid.NewGuid():N}{fileExtension}";
+            var filePath = Path.Combine(uploadsDirectory, fileName);
+
+            await using var stream = System.IO.File.Create(filePath);
+            await model.BackgroundImage.CopyToAsync(stream, ct);
+
+            hero.BackgroundImagePath = Path.Combine("uploads", "why-with-us", fileName).Replace('\\', '/');
+        }
+
+        hero.UpdatedAtUtc = DateTime.UtcNow;
+
+        await dbContext.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Why With Us hero section updated successfully.";
+        return RedirectToAction(nameof(EditHeader));
     }
 
     [HttpGet("create")]
