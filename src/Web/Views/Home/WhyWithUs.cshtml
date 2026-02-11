@@ -28,28 +28,70 @@
     </div>
 </section>
 
-<section class="w-full md:px-37 sm:px-20 px-6 py-14 bg-gradient-to-b from-white to-neutral-100">
-    <div class="max-w-7xl mx-auto">
-        @if (Model.WhyWithUsItems.Count > 0)
+<section class="w-full md:px-39 sm:px-20 px-4 md:py-24 py-12 bg-gradient-to-b from-white to-neutral-100">
+    <div class="max-w-7xl mx-auto space-y-10">
+
+        @if (Model.WhyWithUsItems != null && Model.WhyWithUsItems.Count > 0)
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="space-y-10">
                 @for (var i = 0; i < Model.WhyWithUsItems.Count; i++)
                 {
                     var item = Model.WhyWithUsItems[i];
-                    var offsetClass = i % 2 == 1 ? "md:translate-y-6" : string.Empty;
+                    var index = i + 1;
+                    var numberText = index.ToString("D2");
 
-                    <article data-aos="fade-up" data-aos-duration="1000"
-                        class="@offsetClass rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-lg transition duration-300">
-                        <div class="flex items-start gap-4">
-                            <div class="shrink-0 w-12 h-12 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-xl">
-                                <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-neutral-800 uppercase tracking-wide mb-2">@item.Title</h3>
-                                <p class="text-neutral-600 leading-relaxed text-sm md:text-base">@item.Description</p>
-                            </div>
+                    // Alternate layout: odd -> image left, even -> image right
+                    var isEven = index % 2 == 0;
+
+                    // If you store image path in DB; else fallback image
+                    var imageSrc = string.IsNullOrWhiteSpace(item.IconCssClass)
+                        ? "/assets/img/expeditions/exp4.png"
+                        : item.IconCssClass;
+
+                    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
+
+                        @* IMAGE *@
+                        <div data-aos="fade-right"
+                             data-aos-duration="1000"
+                             data-aos-delay="100"
+                             class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md
+                            @(isEven ? "md:order-2 order-1" : "")">
+                            <img src="@imageSrc" alt="@item.Title"
+                                 class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
                         </div>
-                    </article>
+
+                        @* CONTENT *@
+                        <div class="md:col-span-2 col-span-3 w-full md:px-16
+                            @(isEven ? "md:order-1 order-2" : "")">
+
+                            <h1 data-aos="fade-right"
+                                data-aos-duration="1000"
+                                data-aos-delay="100"
+                                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">
+                                @numberText
+                            </h1>
+
+                            <div class="flex items-center gap-3 -mt-14 mb-4">
+                                <div class="shrink-0 w-11 h-11 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-lg">
+                                    <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
+                                </div>
+
+                                <h2 data-aos="fade-right"
+                                    data-aos-duration="1100"
+                                    data-aos-delay="200"
+                                    class="text-[30px] md:text-[32px] font-bold text-neutral-900 uppercase">
+                                    @item.Title
+                                </h2>
+                            </div>
+
+                            <p data-aos="fade-right"
+                                   data-aos-duration="1200"
+                                   data-aos-delay="400"
+                                   class="text-base text-neutral-600 font-light text-justify leading-[24px]">
+                                @item.Description
+                            </p>
+                        </div>
+                    </div>
                 }
             </div>
         }
@@ -59,5 +101,6 @@
                 Why With Us content will appear here soon.
             </div>
         }
+
     </div>
 </section>
