@@ -2,15 +2,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitKaileshTreks.SharedKernel", "src\SharedKernel\TravelCleanArch.SharedKernel.csproj", "{A7C52B1D-75F0-4D59-8C6A-5D6462D7082D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelCleanArch.SharedKernel", "src\SharedKernel\TravelCleanArch.SharedKernel.csproj", "{A7C52B1D-75F0-4D59-8C6A-5D6462D7082D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitKaileshTreks.Domain", "src\Domain\TravelCleanArch.Domain.csproj", "{B9E0962D-3437-4DA3-B9B0-7AC46C771ABD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelCleanArch.Domain", "src\Domain\TravelCleanArch.Domain.csproj", "{B9E0962D-3437-4DA3-B9B0-7AC46C771ABD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitKaileshTreks.Application", "src\Application\TravelCleanArch.Application.csproj", "{740A134A-4DA5-4A64-B4C6-2D4652DF7E7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelCleanArch.Application", "src\Application\TravelCleanArch.Application.csproj", "{740A134A-4DA5-4A64-B4C6-2D4652DF7E7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitKaileshTreks.Infrastructure", "src\Infrastructure\TravelCleanArch.Infrastructure.csproj", "{8C2D3A7C-7A85-4A7D-AB52-DFB7BEA5A3C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelCleanArch.Infrastructure", "src\Infrastructure\TravelCleanArch.Infrastructure.csproj", "{8C2D3A7C-7A85-4A7D-AB52-DFB7BEA5A3C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitKaileshTreks.Web", "src\Web\TravelCleanArch.Web.csproj", "{BB28F4E2-7E01-490E-AFDE-4FA5A8A2C1B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelCleanArch.Web", "src\Web\TravelCleanArch.Web.csproj", "{BB28F4E2-7E01-490E-AFDE-4FA5A8A2C1B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,5 +41,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37C041FB-5F22-46F0-A549-E5AB5B1604B6}
 	EndGlobalSection
 EndGlobal
