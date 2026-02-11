@@ -61,7 +61,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    SubDescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     ImageCaption = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
                     Ordering = table.Column<int>(type: "integer", nullable: false),
@@ -335,6 +336,32 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "company_who_we_are_images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    WhoWeAreId = table.Column<int>(type: "integer", nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Caption = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_who_we_are_images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_company_who_we_are_images_company_who_we_are_WhoWeAreId",
+                        column: x => x.WhoWeAreId,
+                        principalTable: "company_who_we_are",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "expedition_faqs",
                 columns: table => new
                 {
@@ -542,6 +569,16 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "Ordering");
 
             migrationBuilder.CreateIndex(
+                name: "IX_company_who_we_are_images_WhoWeAreId",
+                table: "company_who_we_are_images",
+                column: "WhoWeAreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_who_we_are_images_WhoWeAreId_Ordering",
+                table: "company_who_we_are_images",
+                columns: new[] { "WhoWeAreId", "Ordering" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_company_why_with_us_IsPublished",
                 table: "company_why_with_us",
                 column: "IsPublished");
@@ -645,10 +682,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "company_who_we_are");
+                name: "company_who_we_are_hero");
 
             migrationBuilder.DropTable(
-                name: "company_who_we_are_hero");
+                name: "company_who_we_are_images");
 
             migrationBuilder.DropTable(
                 name: "company_why_with_us");
@@ -679,6 +716,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "company_who_we_are");
 
             migrationBuilder.DropTable(
                 name: "expeditions");

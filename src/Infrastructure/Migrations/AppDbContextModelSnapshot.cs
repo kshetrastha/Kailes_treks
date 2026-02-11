@@ -673,8 +673,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ImageCaption")
                         .HasMaxLength(300)
@@ -689,6 +688,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int>("Ordering")
                         .HasColumnType("integer");
+
+                    b.Property<string>("SubDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -752,6 +755,50 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("company_who_we_are_hero", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.WhoWeAreImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WhoWeAreId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WhoWeAreId");
+
+                    b.HasIndex("WhoWeAreId", "Ordering");
+
+                    b.ToTable("company_who_we_are_images", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.WhyWithUs", b =>
@@ -1069,6 +1116,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("Trekking");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.WhoWeAreImage", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.WhoWeAre", "WhoWeAre")
+                        .WithMany("Images")
+                        .HasForeignKey("WhoWeAreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WhoWeAre");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expedition", b =>
                 {
                     b.Navigation("Faqs");
@@ -1085,6 +1143,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("ItineraryDays");
 
                     b.Navigation("MediaItems");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.WhoWeAre", b =>
+                {
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }
