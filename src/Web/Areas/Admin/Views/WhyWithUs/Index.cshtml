@@ -17,64 +17,70 @@
         <div class="alert alert-success">@message</div>
     }
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">No Why With Us items found. Add your first item.</div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered align-middle">
-                <thead>
-                    <tr>
-                        <th>Order</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Image</th>
-                        <th>Icon CSS Class</th>
-                        <th>Status</th>
-                        <th style="width: 190px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Ordering</td>
-                        <td>@item.Title</td>
-                        <td>@item.Description</td>
-                        <td>
-                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width: 90px;">Order</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th style="width: 90px;">Image</th>
+                            <th style="width: 180px;">Icon CSS Class</th>
+                            <th style="width: 110px;">Status</th>
+                            <th style="width: 190px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">No Why With Us items found. Add your first item.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
                             {
-                                <img src="/@item.ImagePath" alt="@item.Title" style="width: 48px; height: 48px; object-fit: cover; border-radius: 9999px;" />
+                                <tr>
+                                    <td data-label="Order">@item.Ordering</td>
+                                    <td data-label="Title">@item.Title</td>
+                                    <td data-label="Description">@item.Description</td>
+                                    <td data-label="Image">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                        {
+                                            <img src="/@item.ImagePath" alt="@item.Title" style="width: 48px; height: 48px; object-fit: cover; border-radius: 9999px;" />
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td data-label="Icon CSS Class">@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "-" : item.IconCssClass)</td>
+                                    <td data-label="Status">
+                                        @if (item.IsPublished)
+                                        {
+                                            <span class="badge bg-success">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Draft</span>
+                                        }
+                                    </td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" href="/admin/company/why-with-us/@item.Id/edit">Edit</a>
+                                        <form method="post" action="/admin/company/why-with-us/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
                             }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
-                        <td>@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "-" : item.IconCssClass)</td>
-                        <td>
-                            @if (item.IsPublished)
-                            {
-                                <span class="badge bg-success">Published</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Draft</span>
-                            }
-                        </td>
-                        <td>
-                            <a class="btn btn-sm btn-outline-primary" href="/admin/company/why-with-us/@item.Id/edit">Edit</a>
-                            <form method="post" action="/admin/company/why-with-us/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this item?');">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    }
+    </div>
 </div>
