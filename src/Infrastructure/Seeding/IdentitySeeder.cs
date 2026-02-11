@@ -15,7 +15,9 @@ public sealed class IdentitySeeder(
 {
     public async Task MigrateAndSeedAsync(CancellationToken ct)
     {
-        await db.Database.MigrateAsync(ct);
+        if (db.Database.GetMigrations().Any())
+            if ((await db.Database.GetPendingMigrationsAsync(ct)).Any())
+                await db.Database.MigrateAsync(ct);
 
         await EnsureRoleAsync(AppRoles.Admin);
         await EnsureRoleAsync(AppRoles.Editor);

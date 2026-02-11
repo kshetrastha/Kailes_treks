@@ -59,7 +59,7 @@ public sealed class AccountController(IInteractiveAuthService interactiveAuthSer
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 
-    [Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+    //[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
     [HttpPost("logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout(CancellationToken ct)
