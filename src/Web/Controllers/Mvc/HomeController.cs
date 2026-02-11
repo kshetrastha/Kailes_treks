@@ -9,6 +9,21 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
+        var model = await BuildHomeIndexViewModelAsync(ct);
+
+        return View(model);
+    }
+
+    [HttpGet("why-with-us.html")]
+    public async Task<IActionResult> WhyWithUs(CancellationToken ct)
+    {
+        var model = await BuildHomeIndexViewModelAsync(ct);
+
+        return View(model);
+    }
+
+    private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
+    {
         var whyWithUsItems = await dbContext.WhyWithUs
             .AsNoTracking()
             .Where(x => x.IsPublished)
@@ -22,11 +37,9 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             })
             .ToListAsync(ct);
 
-        var model = new HomeIndexViewModel
+        return new HomeIndexViewModel
         {
             WhyWithUsItems = whyWithUsItems
         };
-
-        return View(model);
     }
 }
