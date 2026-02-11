@@ -28,15 +28,17 @@
     </div>
 </section>
 
-<section class="w-full md:px-37 sm:px-20 px-6 py-14 bg-gradient-to-b from-white to-neutral-100">
-    <div class="max-w-7xl mx-auto">
-        @if (Model.WhyWithUsItems.Count > 0)
+<section class="w-full md:px-39 sm:px-20 px-4 md:py-24 py-12 bg-gradient-to-b from-white to-neutral-100">
+    <div class="max-w-7xl mx-auto space-y-10">
+
+        @if (Model.WhyWithUsItems != null && Model.WhyWithUsItems.Count > 0)
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="space-y-10">
                 @for (var i = 0; i < Model.WhyWithUsItems.Count; i++)
                 {
                     var item = Model.WhyWithUsItems[i];
-                    var offsetClass = i % 2 == 1 ? "md:translate-y-6" : string.Empty;
+                    var index = i + 1;
+                    var numberText = index.ToString("D2");
 
                     <article data-aos="fade-up" data-aos-duration="1000"
                         class="@offsetClass rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-lg transition duration-300">
@@ -57,8 +59,15 @@
                                 <h3 class="text-lg font-semibold text-neutral-800 uppercase tracking-wide mb-2">@item.Title</h3>
                                 <p class="text-neutral-600 leading-relaxed text-sm md:text-base">@item.Description</p>
                             </div>
+
+                            <p data-aos="fade-right"
+                                   data-aos-duration="1200"
+                                   data-aos-delay="400"
+                                   class="text-base text-neutral-600 font-light text-justify leading-[24px]">
+                                @item.Description
+                            </p>
                         </div>
-                    </article>
+                    </div>
                 }
             </div>
         }
@@ -68,5 +77,6 @@
                 Why With Us content will appear here soon.
             </div>
         }
+
     </div>
 </section>
