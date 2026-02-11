@@ -1,28 +1,29 @@
 @model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
 @{
     ViewData["Title"] = "Why With Us";
+    var heroBackgroundImage = string.IsNullOrWhiteSpace(Model.WhyWithUsBackgroundImagePath)
+        ? Url.Content("~/assets/img/contact.jpg")
+        : Url.Content($"~/{Model.WhyWithUsBackgroundImagePath}");
 }
 
 <!-- Hero section -->
 <section class="w-full relative overflow-hidden">
     <div
-        class="w-full md:aspect-[16/7.38] aspect-[9/16] bg-[url('./assets/img/contact.jpg')] bg-cover bg-center bg-no-repeat relative">
+        class="w-full md:aspect-[16/7.38] aspect-[9/16] bg-cover bg-center bg-no-repeat relative"
+        style="background-image: url('@heroBackgroundImage')">
         <div
             class="w-full flex items-start md:justify-center justify-start md:pt-0 pt-24 h-full bg-black/50 md:px-39 sm:px-20 px-4 flex-col">
             <h5 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
                 class="text-2xl text-neutral-100 font-medium mb-0 -mt-3">
-                Because we are the best
+                @Model.WhyWithUsHeader
             </h5>
             <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
                 class="text-[48px] md:text-[64px] text-[#e1a74e] font-black -mt-3 mb-3">
-                Why with us?
+                @Model.WhyWithUsTitle
             </h1>
             <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
                 class="text-2xl font-light text-neutral-200 max-w-xl leading-[1.5] tracking-wide mb-10">
-                Amongst the crowd of new adventure companies sprouting every day, we are committed to
-                responsible and sustainable tourism and have something of a history, culture, and experience
-                that stands out for the technical infallibility, excellent management, and sincerity in
-                providing services.
+                @Model.WhyWithUsDescription
             </p>
         </div>
     </div>

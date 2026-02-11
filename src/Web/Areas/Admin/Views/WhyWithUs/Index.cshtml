@@ -6,7 +6,10 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Company / Why With Us</h2>
-        <a class="btn btn-primary" href="/admin/company/why-with-us/create">Add New</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="/admin/company/why-with-us/header">Edit Header</a>
+            <a class="btn btn-primary" href="/admin/company/why-with-us/create">Add New</a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] is string message)

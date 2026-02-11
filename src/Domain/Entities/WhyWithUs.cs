@@ -10,3 +10,12 @@ public sealed class WhyWithUs : BaseEntity
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 }
+
+public sealed class WhyWithUsHero : BaseEntity
+{
+    public string Header { get; set; } = "Because we are the best";
+    public string Title { get; set; } = "Why with us?";
+    public string Description { get; set; } = string.Empty;
+    public string? BackgroundImagePath { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+}

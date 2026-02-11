@@ -26,6 +26,7 @@ public sealed class AppDbContext:
     public DbSet<TrekkingFaq> TrekkingFaqs => Set<TrekkingFaq>();
     public DbSet<TrekkingMedia> TrekkingMedia => Set<TrekkingMedia>();
     public DbSet<WhyWithUs> WhyWithUs => Set<WhyWithUs>();
+    public DbSet<WhyWithUsHero> WhyWithUsHeroes => Set<WhyWithUsHero>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -146,6 +147,15 @@ public sealed class AppDbContext:
             b.Property(x => x.IconCssClass).HasMaxLength(80);
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<WhyWithUsHero>(b =>
+        {
+            b.ToTable("company_why_with_us_hero");
+            b.Property(x => x.Header).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.BackgroundImagePath).HasMaxLength(500);
         });
     }
 }
