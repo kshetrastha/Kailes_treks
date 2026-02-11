@@ -25,19 +25,7 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
-        var whyWithUsItems = await dbContext.WhyWithUs
-            .AsNoTracking()
-            .Where(x => x.IsPublished)
-            .OrderBy(x => x.Ordering)
-            .ThenBy(x => x.Id)
-            .Select(x => new WhyWithUsItemViewModel
-            {
-                Title = x.Title,
-                Description = x.Description,
-                IconCssClass = x.IconCssClass,
-                ImagePath = x.ImagePath
-            })
-            .ToListAsync(ct);
+        var whyWithUsItems = await TryGetWhyWithUsItemsAsync(ct);
 
         var whyWithUsHero = await TryGetWhyWithUsHeroAsync(ct);
 
@@ -50,6 +38,41 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             WhyWithUsBackgroundImagePath = whyWithUsHero?.BackgroundImagePath,
             WhyWithUsItems = whyWithUsItems
         };
+    }
+
+    private async Task<List<WhyWithUsItemViewModel>> TryGetWhyWithUsItemsAsync(CancellationToken ct)
+    {
+        try
+        {
+            return await dbContext.WhyWithUs
+                .AsNoTracking()
+                .Where(x => x.IsPublished)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => new WhyWithUsItemViewModel
+                {
+                    Title = x.Title,
+                    Description = x.Description,
+                    IconCssClass = x.IconCssClass,
+                    ImagePath = x.ImagePath
+                })
+                .ToListAsync(ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedColumn)
+        {
+            return await dbContext.WhyWithUs
+                .AsNoTracking()
+                .Where(x => x.IsPublished)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => new WhyWithUsItemViewModel
+                {
+                    Title = x.Title,
+                    Description = x.Description,
+                    IconCssClass = x.IconCssClass
+                })
+                .ToListAsync(ct);
+        }
     }
 
     private async Task<Domain.Entities.WhyWithUsHero?> TryGetWhyWithUsHeroAsync(CancellationToken ct)
