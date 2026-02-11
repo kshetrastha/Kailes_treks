@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using TravelCleanArch.Infrastructure.Persistence;
 using TravelCleanArch.Web.Models.Home;
 
@@ -37,10 +38,7 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             })
             .ToListAsync(ct);
 
-        var whyWithUsHero = await dbContext.WhyWithUsHeroes
-            .AsNoTracking()
-            .OrderBy(x => x.Id)
-            .FirstOrDefaultAsync(ct);
+        var whyWithUsHero = await TryGetWhyWithUsHeroAsync(ct);
 
         return new HomeIndexViewModel
         {
@@ -51,5 +49,20 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             WhyWithUsBackgroundImagePath = whyWithUsHero?.BackgroundImagePath,
             WhyWithUsItems = whyWithUsItems
         };
+    }
+
+    private async Task<Domain.Entities.WhyWithUsHero?> TryGetWhyWithUsHeroAsync(CancellationToken ct)
+    {
+        try
+        {
+            return await dbContext.WhyWithUsHeroes
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .FirstOrDefaultAsync(ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return null;
+        }
     }
 }
