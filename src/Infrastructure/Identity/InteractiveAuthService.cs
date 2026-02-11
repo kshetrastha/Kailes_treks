@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using TravelCleanArch.Application.Abstractions.Identity;
@@ -40,7 +41,7 @@ public sealed class InteractiveAuthService(
             return Result.Failure("user.role_failed", string.Join("; ", addRole.Errors.Select(e => e.Description)));
         }
 
-        await signInManager.SignInWithClaimsAsync(user, isPersistent: false, BuildRequiredClaims(user));
+        await SignInWithAdditionalClaimsAsync(user, isPersistent: false, BuildRequiredClaims(user));
         return Result.Success();
     }
 
@@ -53,7 +54,7 @@ public sealed class InteractiveAuthService(
         var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
         if (result.Succeeded)
         {
-            await signInManager.SignInWithClaimsAsync(user, isPersistent: rememberMe, BuildRequiredClaims(user));
+            await SignInWithAdditionalClaimsAsync(user, isPersistent: rememberMe, BuildRequiredClaims(user));
             return Result.Success();
         }
 
@@ -70,10 +71,29 @@ public sealed class InteractiveAuthService(
 
     private static IEnumerable<Claim> BuildRequiredClaims(AppUser user)
     {
-        return
-        [
+        return new[]
+        {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
-        ];
+        };
+    }
+
+    private async Task SignInWithAdditionalClaimsAsync(AppUser user, bool isPersistent, IEnumerable<Claim> additionalClaims)
+    {
+        // Create the principal using the SignInManager's claims factory (preserves roles/identity claims).
+        var principal = await signInManager.CreateUserPrincipalAsync(user);
+        if (principal?.Identity is ClaimsIdentity identity)
+        {
+            identity.AddClaims(additionalClaims);
+        }
+        else
+        {
+            // Fallback: add a new identity if none exists
+            principal ??= new ClaimsPrincipal();
+            principal.AddIdentity(new ClaimsIdentity(additionalClaims, IdentityConstants.ApplicationScheme));
+        }
+
+        var authProps = new AuthenticationProperties { IsPersistent = isPersistent };
+        await signInManager.Context.SignInAsync(IdentityConstants.ApplicationScheme, principal, authProps);
     }
 }
