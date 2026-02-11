@@ -1,10 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using TravelCleanArch.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace TravelCleanArch.Infrastructure.Migrations
 {
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260212090000_add_who_we_are")]
     public partial class add_who_we_are : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
