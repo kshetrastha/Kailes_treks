@@ -8,5 +8,11 @@ public interface IUnitOfWork
     IWhyWithUsHeroService WhyWithUsHeroService { get; }
     IWhoWeAreService WhoWeAreService { get; }
     IWhoWeAreHeroService WhoWeAreHeroService { get; }
+    IAwardService AwardService { get; }
+    IPatronService PatronService { get; }
+    IChairmanMessageService ChairmanMessageService { get; }
+    ITeamMemberService TeamMemberService { get; }
+    ICertificateDocumentService CertificateDocumentService { get; }
+    IReviewService ReviewService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

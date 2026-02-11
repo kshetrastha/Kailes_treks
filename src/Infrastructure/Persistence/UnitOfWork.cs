@@ -14,6 +14,18 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
 
     public IWhoWeAreHeroService WhoWeAreHeroService => new WhoWeAreHeroService(dbContext);
 
+    public IAwardService AwardService => new AwardService(dbContext);
+
+    public IPatronService PatronService => new PatronService(dbContext);
+
+    public IChairmanMessageService ChairmanMessageService => new ChairmanMessageService(dbContext);
+
+    public ITeamMemberService TeamMemberService => new TeamMemberService(dbContext);
+
+    public ICertificateDocumentService CertificateDocumentService => new CertificateDocumentService(dbContext);
+
+    public IReviewService ReviewService => new ReviewService(dbContext);
+
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);
 }
