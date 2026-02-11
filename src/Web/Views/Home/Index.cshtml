@@ -1,3 +1,4 @@
+@model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
 @{
     ViewData["Title"] = "Home";
 }
@@ -214,6 +215,44 @@
             <section class="w-full md:px-37 sm:px-20 px-6 py-10 bg-neutral-100">
                 <img data-aos="fade-left" data-aos-duration="1000" src="./assets/img/partner_web_view.png" alt=""
                     class="w-full h-auto object-contain object-center">
+            </section>
+
+            <!-- why with us section -->
+            <section class="w-full md:px-37 sm:px-20 px-6 py-12 bg-white">
+                <div class="max-w-7xl mx-auto">
+                    <div class="text-center mb-10">
+                        <h2 data-aos="fade-up" data-aos-duration="900"
+                            class="text-3xl md:text-4xl font-bold text-neutral-800 uppercase tracking-wide">
+                            Why With Us
+                        </h2>
+                        <p data-aos="fade-up" data-aos-duration="1000" class="mt-3 text-neutral-500 max-w-3xl mx-auto">
+                            Discover what makes our mountain journeys trusted by climbers from around the world.
+                        </p>
+                    </div>
+
+                    @if (Model.WhyWithUsItems.Count > 0)
+                    {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            @foreach (var item in Model.WhyWithUsItems)
+                            {
+                                <article data-aos="fade-up" data-aos-duration="1000"
+                                         class="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm hover:shadow-md transition duration-300">
+                                    <div class="w-12 h-12 rounded-full bg-[#e1a74e]/20 text-[#e1a74e] flex items-center justify-center mb-4 text-xl">
+                                        <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-neutral-800 mb-2">@item.Title</h3>
+                                    <p class="text-neutral-600 leading-relaxed">@item.Description</p>
+                                </article>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-8 text-center text-neutral-500">
+                            Why With Us content will appear here soon.
+                        </div>
+                    }
+                </div>
             </section>
 
             <!-- expeditions section -->
