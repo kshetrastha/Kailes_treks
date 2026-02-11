@@ -16,7 +16,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" action="/admin/company/why-with-us/header" enctype="multipart/form-data">
+            <form id="whyWithUsHeaderForm" method="post" action="/admin/company/why-with-us/header" enctype="multipart/form-data" novalidate>
                 @Html.AntiForgeryToken()
 
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -59,4 +59,73 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const maxFileSize = 5 * 1024 * 1024;
+
+            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return value.trim() === value;
+            }, "This field cannot start or end with spaces.");
+
+            $.validator.addMethod("imageExtension", function (value, element) {
+                if (this.optional(element) || !value) {
+                    return true;
+                }
+
+                return /\.(jpg|jpeg|png|webp|gif)$/i.test(value);
+            }, "Background image must be a valid image file (jpg, jpeg, png, webp, gif).");
+
+            $.validator.addMethod("fileSize", function (value, element, param) {
+                if (this.optional(element) || !element.files || element.files.length === 0) {
+                    return true;
+                }
+
+                return element.files[0].size <= param;
+            }, "Background image size must be 5 MB or less.");
+
+            $("#whyWithUsHeaderForm").validate({
+                ignore: [],
+                errorClass: "text-danger",
+                rules: {
+                    Header: {
+                        required: true,
+                        maxlength: 200,
+                        noLeadingTrailingSpace: true
+                    },
+                    Title: {
+                        required: true,
+                        maxlength: 200,
+                        noLeadingTrailingSpace: true
+                    },
+                    Description: {
+                        required: true,
+                        maxlength: 4000,
+                        noLeadingTrailingSpace: true
+                    },
+                    BackgroundImage: {
+                        imageExtension: true,
+                        fileSize: maxFileSize
+                    }
+                },
+                messages: {
+                    Header: {
+                        required: "Header is required.",
+                        maxlength: "Header cannot exceed 200 characters."
+                    },
+                    Title: {
+                        required: "Title is required.",
+                        maxlength: "Title cannot exceed 200 characters."
+                    },
+                    Description: {
+                        required: "Description is required.",
+                        maxlength: "Description cannot exceed 4000 characters."
+                    }
+                }
+            });
+        })();
+    </script>
 }

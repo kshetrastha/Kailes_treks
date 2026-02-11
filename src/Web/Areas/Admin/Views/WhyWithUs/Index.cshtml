@@ -26,6 +26,7 @@
                             <th style="width: 90px;">Order</th>
                             <th>Title</th>
                             <th>Description</th>
+                            <th style="width: 180px;">Icon CSS Class</th>
                             <th style="width: 90px;">Image</th>
                             <th style="width: 110px;">Status</th>
                             <th style="width: 190px;">Actions</th>
@@ -46,6 +47,7 @@
                                     <td data-label="Order">@item.Ordering</td>
                                     <td data-label="Title">@item.Title</td>
                                     <td data-label="Description">@item.Description</td>
+                                    <td data-label="Icon CSS Class">@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "-" : item.IconCssClass)</td>
                                     <td data-label="Image">
                                         @if (!string.IsNullOrWhiteSpace(item.ImagePath))
                                         {
