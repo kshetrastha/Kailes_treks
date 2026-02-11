@@ -12,7 +12,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" action="@(isEdit ? $"/admin/company/why-with-us/{Model.Id}/edit" : "/admin/company/why-with-us/create")">
+            <form method="post" action="@(isEdit ? $"/admin/company/why-with-us/{Model.Id}/edit" : "/admin/company/why-with-us/create")" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 @if (isEdit)
                 {
@@ -38,6 +38,18 @@
                     <input asp-for="IconCssClass" class="form-control" placeholder="e.g. fa-solid fa-medal" />
                     <small class="text-muted">Optional. Use Font Awesome class to match reference style.</small><br />
                     <span asp-validation-for="IconCssClass" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Image" class="form-label"></label>
+                    <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+                    {
+                        <div class="form-text">
+                            Current image: <a href="/@Model.ExistingImagePath" target="_blank">@Model.ExistingImagePath</a>
+                        </div>
+                    }
+                    <span asp-validation-for="Image" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -76,18 +77,7 @@ public sealed class WhyWithUsController(
 
         if (model.BackgroundImage is { Length: > 0 })
         {
-            var fileExtension = Path.GetExtension(model.BackgroundImage.FileName);
-            var uploadsDirectory = Path.Combine(environment.WebRootPath, "uploads", "why-with-us");
-
-            Directory.CreateDirectory(uploadsDirectory);
-
-            var fileName = $"why-with-us-hero-{Guid.NewGuid():N}{fileExtension}";
-            var filePath = Path.Combine(uploadsDirectory, fileName);
-
-            await using var stream = System.IO.File.Create(filePath);
-            await model.BackgroundImage.CopyToAsync(stream, ct);
-
-            hero.BackgroundImagePath = Path.Combine("uploads", "why-with-us", fileName).Replace('\\', '/');
+            hero.BackgroundImagePath = await UploadImageAsync(model.BackgroundImage, "why-with-us", "why-with-us-hero", ct);
         }
 
         hero.UpdatedAtUtc = DateTime.UtcNow;
@@ -150,6 +140,7 @@ public sealed class WhyWithUsController(
             Title = entity.Title,
             Description = entity.Description,
             IconCssClass = entity.IconCssClass,
+            ExistingImagePath = entity.ImagePath,
             Ordering = entity.Ordering,
             IsPublished = entity.IsPublished
         });
@@ -166,6 +157,12 @@ public sealed class WhyWithUsController(
 
         if (!ModelState.IsValid)
         {
+            var existingImagePath = await dbContext.WhyWithUs
+                .Where(x => x.Id == id)
+                .Select(x => x.ImagePath)
+                .FirstOrDefaultAsync(ct);
+
+            model.ExistingImagePath = existingImagePath;
             return View("Upsert", model);
         }
 
@@ -180,6 +177,12 @@ public sealed class WhyWithUsController(
         entity.IconCssClass = string.IsNullOrWhiteSpace(model.IconCssClass) ? null : model.IconCssClass.Trim();
         entity.Ordering = model.Ordering;
         entity.IsPublished = model.IsPublished;
+
+        if (model.Image is { Length: > 0 })
+        {
+            entity.ImagePath = await UploadImageAsync(model.Image, "why-with-us", "why-with-us-item", ct);
+        }
+
         entity.UpdatedAtUtc = DateTime.UtcNow;
 
         await unitOfWork.SaveChangesAsync(ct);
@@ -203,5 +206,21 @@ public sealed class WhyWithUsController(
 
         TempData["SuccessMessage"] = "Why With Us entry deleted successfully.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<string> UploadImageAsync(IFormFile image, string relativeDirectory, string fileNamePrefix, CancellationToken ct)
+    {
+        var fileExtension = Path.GetExtension(image.FileName);
+        var uploadsDirectory = Path.Combine(environment.WebRootPath, "uploads", relativeDirectory);
+
+        Directory.CreateDirectory(uploadsDirectory);
+
+        var fileName = $"{fileNamePrefix}-{Guid.NewGuid():N}{fileExtension}";
+        var filePath = Path.Combine(uploadsDirectory, fileName);
+
+        await using var stream = System.IO.File.Create(filePath);
+        await image.CopyToAsync(stream, ct);
+
+        return Path.Combine("uploads", relativeDirectory, fileName).Replace('\\', '/');
     }
 }

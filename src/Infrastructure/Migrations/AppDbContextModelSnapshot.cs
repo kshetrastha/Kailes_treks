@@ -680,6 +680,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
 
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
