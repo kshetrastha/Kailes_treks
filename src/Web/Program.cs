@@ -43,6 +43,12 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/home");
+    return Task.CompletedTask;
+});
+
 app.MapControllers();
 app.MapDefaultControllerRoute();
 app.MapRazorPages();
