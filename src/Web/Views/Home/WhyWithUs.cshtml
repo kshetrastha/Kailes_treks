@@ -41,9 +41,18 @@
                     <article data-aos="fade-up" data-aos-duration="1000"
                         class="@offsetClass rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-lg transition duration-300">
                         <div class="flex items-start gap-4">
-                            <div class="shrink-0 w-12 h-12 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-xl">
-                                <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
-                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@Url.Content($"~/{item.ImagePath}")"
+                                     alt="@item.Title"
+                                     class="shrink-0 w-12 h-12 rounded-full object-cover border border-[#e1a74e]/30" />
+                            }
+                            else
+                            {
+                                <div class="shrink-0 w-12 h-12 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-xl">
+                                    <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
+                                </div>
+                            }
                             <div>
                                 <h3 class="text-lg font-semibold text-neutral-800 uppercase tracking-wide mb-2">@item.Title</h3>
                                 <p class="text-neutral-600 leading-relaxed text-sm md:text-base">@item.Description</p>

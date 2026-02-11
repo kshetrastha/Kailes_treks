@@ -34,7 +34,8 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
             {
                 Title = x.Title,
                 Description = x.Description,
-                IconCssClass = x.IconCssClass
+                IconCssClass = x.IconCssClass,
+                ImagePath = x.ImagePath
             })
             .ToListAsync(ct);
 

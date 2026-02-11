@@ -145,6 +145,7 @@ public sealed class AppDbContext:
             b.Property(x => x.Title).HasMaxLength(200).IsRequired();
             b.Property(x => x.Description).HasMaxLength(4000).IsRequired();
             b.Property(x => x.IconCssClass).HasMaxLength(80);
+            b.Property(x => x.ImagePath).HasMaxLength(500);
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
         });
