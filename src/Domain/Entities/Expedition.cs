@@ -1,8 +1,7 @@
 namespace TravelCleanArch.Domain.Entities;
 
-public sealed class Expedition
+public sealed class Expedition : BaseEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Destination { get; set; } = string.Empty;
@@ -42,9 +41,8 @@ public sealed class Expedition
     public List<ExpeditionMedia> MediaItems { get; set; } = [];
 }
 
-public sealed class ExpeditionItineraryDay
+public sealed class ExpeditionItineraryDay : BaseEntity
 {
-    public int Id { get; set; }
     public int ExpeditionId { get; set; }
     public int DayNumber { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -54,9 +52,8 @@ public sealed class ExpeditionItineraryDay
     public Expedition Expedition { get; set; } = default!;
 }
 
-public sealed class ExpeditionFaq
+public sealed class ExpeditionFaq : BaseEntity
 {
-    public int Id { get; set; }
     public int ExpeditionId { get; set; }
     public string Question { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
@@ -65,9 +62,8 @@ public sealed class ExpeditionFaq
     public Expedition Expedition { get; set; } = default!;
 }
 
-public sealed class ExpeditionMedia
+public sealed class ExpeditionMedia : BaseEntity
 {
-    public int Id { get; set; }
     public int ExpeditionId { get; set; }
     public string Url { get; set; } = string.Empty;
     public string? Caption { get; set; }

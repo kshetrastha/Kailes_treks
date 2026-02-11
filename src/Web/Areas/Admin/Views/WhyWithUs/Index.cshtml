@@ -1,0 +1,66 @@
+@model IReadOnlyCollection<TravelCleanArch.Domain.Entities.WhyWithUs>
+@{
+    ViewData["Title"] = "Company - Why With Us";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Company / Why With Us</h2>
+        <a class="btn btn-primary" href="/admin/company/why-with-us/create">Add New</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No Why With Us items found. Add your first item.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Icon CSS Class</th>
+                        <th>Status</th>
+                        <th style="width: 190px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Ordering</td>
+                        <td>@item.Title</td>
+                        <td>@item.Description</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "-" : item.IconCssClass)</td>
+                        <td>
+                            @if (item.IsPublished)
+                            {
+                                <span class="badge bg-success">Published</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Draft</span>
+                            }
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" href="/admin/company/why-with-us/@item.Id/edit">Edit</a>
+                            <form method="post" action="/admin/company/why-with-us/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
