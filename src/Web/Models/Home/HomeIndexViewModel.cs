@@ -6,7 +6,7 @@ public sealed class HomeIndexViewModel
     public string WhyWithUsTitle { get; init; } = "Why with us?";
     public string WhyWithUsDescription { get; init; } = string.Empty;
     public string? WhyWithUsBackgroundImagePath { get; init; }
-    public IReadOnlyCollection<WhyWithUsItemViewModel> WhyWithUsItems { get; init; } = [];
+    //public IReadOnlyCollection<WhyWithUsItemViewModel> WhyWithUsItems { get; init; } = [];
     //public IReadOnlyCollection<WhyWithUsItemViewModel> WhyWithUsItems { get; init; } = [];
     public IReadOnlyList<WhyWithUsItemViewModel> WhyWithUsItems { get; init; }
 
