@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using TravelCleanArch.Application.Abstractions.Company;
+using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
 
-public sealed class HomeController(
-    IWhyWithUsService whyWithUsService,
-    IWhyWithUsHeroService whyWithUsHeroService) : Controller
+public sealed class HomeController(IUnitOfWork uow) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -27,7 +25,7 @@ public sealed class HomeController(
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
-        var whyWithUsItems = (await whyWithUsService.ListOrderedAsync(publishedOnly: true, ct))
+        var whyWithUsItems = (await uow.WhyWithUsService.ListOrderedAsync(publishedOnly: true, ct))
             .Select(x => new WhyWithUsItemViewModel
             {
                 Title = x.Title,
@@ -53,7 +51,7 @@ public sealed class HomeController(
     {
         try
         {
-            return await whyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
+            return await uow.WhyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
         {

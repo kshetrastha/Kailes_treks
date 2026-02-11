@@ -16,15 +16,13 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 [Route("admin/company/why-with-us")]
 public sealed class WhyWithUsController(
-    IWhyWithUsService whyWithUsService,
-    IWhyWithUsHeroService whyWithUsHeroService,
     IUnitOfWork unitOfWork,
     IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var items = await whyWithUsService.ListOrderedAsync(publishedOnly: false, ct);
+        var items = await unitOfWork.WhyWithUsService.ListOrderedAsync(publishedOnly: false, ct);
 
         return View(items);
     }
@@ -32,7 +30,7 @@ public sealed class WhyWithUsController(
     [HttpGet("header")]
     public async Task<IActionResult> EditHeader(CancellationToken ct)
     {
-        var hero = await whyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
+        var hero = await unitOfWork.WhyWithUsHeroService.GetFirstAsync(asNoTracking: true, ct);
 
         var model = new WhyWithUsHeroFormViewModel
         {
@@ -55,12 +53,12 @@ public sealed class WhyWithUsController(
             return View(model);
         }
 
-        var hero = await whyWithUsHeroService.GetFirstAsync(asNoTracking: false, ct);
+        var hero = await unitOfWork.WhyWithUsHeroService.GetFirstAsync(asNoTracking: false, ct);
 
         if (hero is null)
         {
             hero = new WhyWithUsHero();
-            await whyWithUsHeroService.AddAsync(hero, ct);
+            await unitOfWork.WhyWithUsHeroService.AddAsync(hero, ct);
         }
 
         hero.Header = model.Header.Trim();
@@ -107,7 +105,7 @@ public sealed class WhyWithUsController(
             UpdatedAtUtc = now
         };
 
-        await whyWithUsService.AddAsync(entity, ct);
+        await unitOfWork.WhyWithUsService.AddAsync(entity, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry created successfully.";
@@ -117,7 +115,7 @@ public sealed class WhyWithUsController(
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {
-        var entity = await whyWithUsService.Query()
+        var entity = await unitOfWork.WhyWithUsService.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -149,13 +147,13 @@ public sealed class WhyWithUsController(
 
         if (!ModelState.IsValid)
         {
-            var existingImagePath = await whyWithUsService.GetImagePathByIdAsync(id, ct);
+            var existingImagePath = await unitOfWork.WhyWithUsService.GetImagePathByIdAsync(id, ct);
 
             model.ExistingImagePath = existingImagePath;
             return View("Upsert", model);
         }
 
-        var entity = await whyWithUsService.GetByIdAsync(id, ct);
+        var entity = await unitOfWork.WhyWithUsService.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
@@ -184,13 +182,13 @@ public sealed class WhyWithUsController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var entity = await whyWithUsService.GetByIdAsync(id, ct);
+        var entity = await unitOfWork.WhyWithUsService.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
         }
 
-        whyWithUsService.Remove(entity);
+        unitOfWork.WhyWithUsService.Remove(entity);
         await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry deleted successfully.";
