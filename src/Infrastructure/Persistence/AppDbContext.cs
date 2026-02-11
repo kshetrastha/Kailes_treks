@@ -30,6 +30,12 @@ public sealed class AppDbContext:
     public DbSet<WhoWeAre> WhoWeAre => Set<WhoWeAre>();
     public DbSet<WhoWeAreImage> WhoWeAreImages => Set<WhoWeAreImage>();
     public DbSet<WhoWeAreHero> WhoWeAreHeroes => Set<WhoWeAreHero>();
+    public DbSet<Award> Awards => Set<Award>();
+    public DbSet<Patron> Patrons => Set<Patron>();
+    public DbSet<ChairmanMessage> ChairmanMessages => Set<ChairmanMessage>();
+    public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<CertificateDocument> CertificateDocuments => Set<CertificateDocument>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -44,6 +50,7 @@ public sealed class AppDbContext:
         ConfigureTrekking(builder);
         ConfigureWhyWithUs(builder);
         ConfigureWhoWeAre(builder);
+        ConfigureCompanyPages(builder);
     }
 
     private static void ConfigureExpeditions(ModelBuilder builder)
@@ -201,4 +208,81 @@ public sealed class AppDbContext:
             b.Property(x => x.BackgroundImagePath).HasMaxLength(500);
         });
     }
+
+    private static void ConfigureCompanyPages(ModelBuilder builder)
+    {
+        builder.Entity<Award>(b =>
+        {
+            b.ToTable("company_awards");
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Issuer).HasMaxLength(220);
+            b.Property(x => x.Description).HasMaxLength(4000);
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.Property(x => x.ReferenceUrl).HasMaxLength(500);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<Patron>(b =>
+        {
+            b.ToTable("company_patrons");
+            b.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Role).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.Property(x => x.Biography).HasMaxLength(4000);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<ChairmanMessage>(b =>
+        {
+            b.ToTable("company_chairman_messages");
+            b.Property(x => x.Heading).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ChairmanName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Designation).HasMaxLength(220);
+            b.Property(x => x.MessageHtml).HasMaxLength(12000).IsRequired();
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.Property(x => x.VideoUrl).HasMaxLength(500);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<TeamMember>(b =>
+        {
+            b.ToTable("company_team_members");
+            b.Property(x => x.FullName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Role).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Biography).HasMaxLength(4000);
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.Property(x => x.Email).HasMaxLength(220);
+            b.Property(x => x.LinkedInUrl).HasMaxLength(500);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<CertificateDocument>(b =>
+        {
+            b.ToTable("company_certificate_documents");
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Category).HasMaxLength(160);
+            b.Property(x => x.Description).HasMaxLength(2000);
+            b.Property(x => x.FilePath).HasMaxLength(500);
+            b.Property(x => x.ThumbnailImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<Review>(b =>
+        {
+            b.ToTable("company_reviews");
+            b.Property(x => x.ReviewerName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ReviewerRole).HasMaxLength(220);
+            b.Property(x => x.ReviewText).HasMaxLength(6000).IsRequired();
+            b.Property(x => x.ReviewerImagePath).HasMaxLength(500);
+            b.Property(x => x.SourceName).HasMaxLength(220);
+            b.Property(x => x.SourceUrl).HasMaxLength(500);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
+    }
+
 }

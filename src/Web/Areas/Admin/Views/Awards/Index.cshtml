@@ -1,0 +1,6 @@
+@model IReadOnlyCollection<TravelCleanArch.Domain.Entities.Award>
+@{ ViewData["Title"] = "Awards"; }
+<div class="container-fluid"><div class="d-flex justify-content-between mb-3"><h2>Awards</h2><a class="btn btn-primary" href="/admin/company/awards/create">Add New</a></div>
+<table class="table table-striped"><thead><tr><th>Order</th><th>Title</th><th>Issuer</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
+@foreach(var item in Model){<tr><td>@item.Ordering</td><td>@item.Title</td><td>@item.Issuer</td><td>@item.AwardedOnUtc?.ToString("yyyy-MM-dd")</td><td>@(item.IsPublished?"Published":"Draft")</td><td><a class="btn btn-sm btn-outline-primary" href="/admin/company/awards/@item.Id/edit">Edit</a><form method="post" action="/admin/company/awards/@item.Id/delete" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>}
+</tbody></table></div>

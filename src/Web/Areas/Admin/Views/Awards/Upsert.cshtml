@@ -1,0 +1,12 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.AwardFormViewModel
+@{ var isEdit = Model.Id.HasValue; }
+<div class="container-fluid"><h2>@(isEdit?"Edit":"Create") Award</h2><form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/awards/{Model.Id}/edit":"/admin/company/awards/create")">@Html.AntiForgeryToken() @if(isEdit){<input type="hidden" asp-for="Id"/>}
+<div class="mb-2"><label asp-for="Title"></label><input asp-for="Title" class="form-control"/></div>
+<div class="mb-2"><label asp-for="Issuer"></label><input asp-for="Issuer" class="form-control"/></div>
+<div class="mb-2"><label asp-for="AwardedOnUtc"></label><input asp-for="AwardedOnUtc" type="date" class="form-control"/></div>
+<div class="mb-2"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control"></textarea></div>
+<div class="mb-2"><label asp-for="ReferenceUrl"></label><input asp-for="ReferenceUrl" class="form-control"/></div>
+<div class="mb-2"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control"/></div>
+<div class="mb-2"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div>
+<div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input"/><label asp-for="IsPublished" class="form-check-label"></label></div>
+<button class="btn btn-primary">Save</button></form></div>

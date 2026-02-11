@@ -1,0 +1,5 @@
+@model IReadOnlyCollection<TravelCleanArch.Domain.Entities.Patron>
+<div class="container-fluid"><div class="d-flex justify-content-between mb-3"><h2>Patrons</h2><a class="btn btn-primary" href="/admin/company/patrons/create">Add New</a></div>
+<table class="table table-striped"><thead><tr><th>Order</th><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+@foreach(var item in Model){<tr><td>@item.Ordering</td><td>@item.Name</td><td>@item.Role</td><td>@(item.IsPublished?"Published":"Draft")</td><td><a class="btn btn-sm btn-outline-primary" href="/admin/company/patrons/@item.Id/edit">Edit</a><form method="post" action="/admin/company/patrons/@item.Id/delete" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>}
+</tbody></table></div>

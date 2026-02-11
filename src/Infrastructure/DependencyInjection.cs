@@ -56,6 +56,12 @@ public static class DependencyInjection
         services.AddScoped<IWhyWithUsHeroService, WhyWithUsHeroService>();
         services.AddScoped<IWhoWeAreService, WhoWeAreService>();
         services.AddScoped<IWhoWeAreHeroService, WhoWeAreHeroService>();
+        services.AddScoped<IAwardService, AwardService>();
+        services.AddScoped<IPatronService, PatronService>();
+        services.AddScoped<IChairmanMessageService, ChairmanMessageService>();
+        services.AddScoped<ITeamMemberService, TeamMemberService>();
+        services.AddScoped<ICertificateDocumentService, CertificateDocumentService>();
+        services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;
