@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
-using TravelCleanArch.Infrastructure.Persistence;
 using TravelCleanArch.Web.Areas.Admin.Models;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
@@ -13,12 +13,16 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = AppRoles.Admin)]
 [Route("admin/company/why-with-us")]
-public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironment environment) : Controller
+public sealed class WhyWithUsController(
+    IGenericRepository<WhyWithUs> whyWithUsRepository,
+    IGenericRepository<WhyWithUsHero> whyWithUsHeroRepository,
+    IUnitOfWork unitOfWork,
+    IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var items = await dbContext.WhyWithUs
+        var items = await whyWithUsRepository.Query()
             .AsNoTracking()
             .OrderBy(x => x.Ordering)
             .ThenBy(x => x.Id)
@@ -30,7 +34,7 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
     [HttpGet("header")]
     public async Task<IActionResult> EditHeader(CancellationToken ct)
     {
-        var hero = await dbContext.WhyWithUsHeroes
+        var hero = await whyWithUsHeroRepository.Query()
             .AsNoTracking()
             .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(ct);
@@ -56,14 +60,14 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
             return View(model);
         }
 
-        var hero = await dbContext.WhyWithUsHeroes
+        var hero = await whyWithUsHeroRepository.Query()
             .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(ct);
 
         if (hero is null)
         {
             hero = new WhyWithUsHero();
-            dbContext.WhyWithUsHeroes.Add(hero);
+            await whyWithUsHeroRepository.AddAsync(hero, ct);
         }
 
         hero.Header = model.Header.Trim();
@@ -88,7 +92,7 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
 
         hero.UpdatedAtUtc = DateTime.UtcNow;
 
-        await dbContext.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us hero section updated successfully.";
         return RedirectToAction(nameof(EditHeader));
@@ -121,8 +125,8 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
             UpdatedAtUtc = now
         };
 
-        dbContext.WhyWithUs.Add(entity);
-        await dbContext.SaveChangesAsync(ct);
+        await whyWithUsRepository.AddAsync(entity, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry created successfully.";
         return RedirectToAction(nameof(Index));
@@ -131,7 +135,7 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {
-        var entity = await dbContext.WhyWithUs
+        var entity = await whyWithUsRepository.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -165,7 +169,7 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
             return View("Upsert", model);
         }
 
-        var entity = await dbContext.WhyWithUs.FirstOrDefaultAsync(x => x.Id == id, ct);
+        var entity = await whyWithUsRepository.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
@@ -178,7 +182,7 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
         entity.IsPublished = model.IsPublished;
         entity.UpdatedAtUtc = DateTime.UtcNow;
 
-        await dbContext.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry updated successfully.";
         return RedirectToAction(nameof(Index));
@@ -188,14 +192,14 @@ public sealed class WhyWithUsController(AppDbContext dbContext, IWebHostEnvironm
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var entity = await dbContext.WhyWithUs.FirstOrDefaultAsync(x => x.Id == id, ct);
+        var entity = await whyWithUsRepository.GetByIdAsync(id, ct);
         if (entity is null)
         {
             return NotFound();
         }
 
-        dbContext.WhyWithUs.Remove(entity);
-        await dbContext.SaveChangesAsync(ct);
+        whyWithUsRepository.Remove(entity);
+        await unitOfWork.SaveChangesAsync(ct);
 
         TempData["SuccessMessage"] = "Why With Us entry deleted successfully.";
         return RedirectToAction(nameof(Index));

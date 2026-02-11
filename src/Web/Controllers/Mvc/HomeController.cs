@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using TravelCleanArch.Infrastructure.Persistence;
+using TravelCleanArch.Application.Abstractions.Persistence;
+using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
 
-public sealed class HomeController(AppDbContext dbContext) : Controller
+public sealed class HomeController(
+    IGenericRepository<WhyWithUs> whyWithUsRepository,
+    IGenericRepository<WhyWithUsHero> whyWithUsHeroRepository) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -25,7 +28,7 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
-        var whyWithUsItems = await dbContext.WhyWithUs
+        var whyWithUsItems = await whyWithUsRepository.Query()
             .AsNoTracking()
             .Where(x => x.IsPublished)
             .OrderBy(x => x.Ordering)
@@ -51,11 +54,11 @@ public sealed class HomeController(AppDbContext dbContext) : Controller
         };
     }
 
-    private async Task<Domain.Entities.WhyWithUsHero?> TryGetWhyWithUsHeroAsync(CancellationToken ct)
+    private async Task<WhyWithUsHero?> TryGetWhyWithUsHeroAsync(CancellationToken ct)
     {
         try
         {
-            return await dbContext.WhyWithUsHeroes
+            return await whyWithUsHeroRepository.Query()
                 .AsNoTracking()
                 .OrderBy(x => x.Id)
                 .FirstOrDefaultAsync(ct);
