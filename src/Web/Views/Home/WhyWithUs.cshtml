@@ -40,24 +40,48 @@
                     var index = i + 1;
                     var numberText = index.ToString("D2");
 
-                    <article data-aos="fade-up" data-aos-duration="1000"
-                        class="@offsetClass rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-lg transition duration-300">
-                        <div class="flex items-start gap-4">
-                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
-                            {
-                                <img src="@Url.Content($"~/{item.ImagePath}")"
-                                     alt="@item.Title"
-                                     class="shrink-0 w-12 h-12 rounded-full object-cover border border-[#e1a74e]/30" />
-                            }
-                            else
-                            {
-                                <div class="shrink-0 w-12 h-12 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-xl">
+                    // Alternate layout: odd -> image left, even -> image right
+                    var isEven = index % 2 == 0;
+
+                    // If you store image path in DB; else fallback image
+                    var imageSrc = string.IsNullOrWhiteSpace(item.ImagePath)
+                        ? "/assets/img/expeditions/exp4.png"
+                        : item.ImagePath;
+
+                    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
+
+                        @* IMAGE *@
+                        <div data-aos="fade-right"
+                             data-aos-duration="1000"
+                             data-aos-delay="100"
+                             class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md
+                            @(isEven ? "md:order-2 order-1" : "")">
+                            <img src="@imageSrc" alt="@item.Title"
+                                 class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
+                        </div>
+
+                        @* CONTENT *@
+                        <div class="md:col-span-2 col-span-3 w-full md:px-16
+                            @(isEven ? "md:order-1 order-2" : "")">
+
+                            <h1 data-aos="fade-right"
+                                data-aos-duration="1000"
+                                data-aos-delay="100"
+                                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">
+                                @numberText
+                            </h1>
+
+                            <div class="flex items-center gap-3 -mt-14 mb-4">
+                                <div class="shrink-0 w-11 h-11 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-lg">
                                     <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
                                 </div>
-                            }
-                            <div>
-                                <h3 class="text-lg font-semibold text-neutral-800 uppercase tracking-wide mb-2">@item.Title</h3>
-                                <p class="text-neutral-600 leading-relaxed text-sm md:text-base">@item.Description</p>
+
+                                <h2 data-aos="fade-right"
+                                    data-aos-duration="1100"
+                                    data-aos-delay="200"
+                                    class="text-[30px] md:text-[32px] font-bold text-neutral-900 uppercase">
+                                    @item.Title
+                                </h2>
                             </div>
 
                             <p data-aos="fade-right"
