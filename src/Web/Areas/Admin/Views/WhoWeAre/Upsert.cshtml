@@ -68,12 +68,13 @@
                     </div>
 
                     <div class="col-12 mt-3">
-                        <label asp-for="AdditionalImages" class="form-label"></label>
-                        <input asp-for="AdditionalImages" class="form-control" type="file" accept="image/*" multiple id="additionalImagesInput" />
-                        <small class="text-muted">Selecting new images during edit will replace existing additional images.</small>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label asp-for="AdditionalImages" class="form-label mb-0"></label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addAdditionalImageRowBtn">Add image</button>
+                        </div>
+                        <small class="text-muted d-block mb-2">Selecting new images during edit will replace existing additional images.</small>
+                        <div id="additionalImageRowsContainer" class="d-flex flex-column gap-2"></div>
                     </div>
-
-                    <div class="col-12" id="additionalCaptionsContainer"></div>
 
                     @if (Model.ExistingAdditionalImages.Any())
                     {
@@ -104,28 +105,65 @@
 @section Scripts {
     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
-        tinymce.init({
-            selector: '#descriptionEditor',
-            menubar: false,
-            plugins: 'lists link image table code',
-            toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | code'
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const descriptionEditor = document.getElementById('descriptionEditor');
 
-        const additionalImagesInput = document.getElementById('additionalImagesInput');
-        const captionsContainer = document.getElementById('additionalCaptionsContainer');
-
-        additionalImagesInput?.addEventListener('change', function () {
-            captionsContainer.innerHTML = '';
-            const files = additionalImagesInput.files || [];
-            for (let i = 0; i < files.length; i++) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'mb-2';
-                wrapper.innerHTML = `
-                    <label class="form-label">Caption for ${files[i].name}</label>
-                    <input type="text" name="AdditionalImageCaptions[${i}]" class="form-control" maxlength="300" />
-                `;
-                captionsContainer.appendChild(wrapper);
+            if (window.tinymce && descriptionEditor) {
+                tinymce.init({
+                    selector: '#descriptionEditor',
+                    menubar: false,
+                    plugins: 'lists link image table code paste',
+                    toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | code',
+                    paste_as_text: false
+                });
             }
+
+            const form = descriptionEditor?.closest('form');
+            form?.addEventListener('submit', function () {
+                if (window.tinymce) {
+                    tinymce.triggerSave();
+                }
+            });
+
+            const additionalImageRowsContainer = document.getElementById('additionalImageRowsContainer');
+            const addAdditionalImageRowBtn = document.getElementById('addAdditionalImageRowBtn');
+            let additionalImageRowCount = 0;
+
+            const buildImageRow = function () {
+                if (!additionalImageRowsContainer) {
+                    return;
+                }
+
+                const rowIndex = additionalImageRowCount;
+                additionalImageRowCount += 1;
+
+                const row = document.createElement('div');
+                row.className = 'border rounded p-3';
+                row.innerHTML = `
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">Image caption</label>
+                            <input type="text" name="AdditionalImageCaptions[${rowIndex}]" class="form-control" maxlength="300" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Upload image</label>
+                            <input type="file" name="AdditionalImages[${rowIndex}]" class="form-control" accept="image/*" />
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-danger w-100 remove-additional-image-row" title="Remove image row">✕</button>
+                        </div>
+                    </div>
+                `;
+
+                row.querySelector('.remove-additional-image-row')?.addEventListener('click', function () {
+                    row.remove();
+                });
+
+                additionalImageRowsContainer.appendChild(row);
+            };
+
+            addAdditionalImageRowBtn?.addEventListener('click', buildImageRow);
+            buildImageRow();
         });
     </script>
 }
