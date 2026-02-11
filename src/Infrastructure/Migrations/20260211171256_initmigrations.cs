@@ -55,6 +55,48 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "company_who_we_are",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ImageCaption = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_who_we_are", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_who_we_are_hero",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Header = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    BackgroundImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_who_we_are_hero", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "company_why_with_us",
                 columns: table => new
                 {
@@ -490,6 +532,16 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_company_who_we_are_IsPublished",
+                table: "company_who_we_are",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_who_we_are_Ordering",
+                table: "company_who_we_are",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_company_why_with_us_IsPublished",
                 table: "company_why_with_us",
                 column: "IsPublished");
@@ -591,6 +643,12 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "company_who_we_are");
+
+            migrationBuilder.DropTable(
+                name: "company_who_we_are_hero");
 
             migrationBuilder.DropTable(
                 name: "company_why_with_us");
