@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Web.Models.Account;
 using TravelCleanArch.Application.Abstractions.Identity;
@@ -59,7 +58,7 @@ public sealed class AccountController(IInteractiveAuthService interactiveAuthSer
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 
-    //[Authorize(AuthenticationSchemes = IdentityConstants.ApplicationScheme)]
+    [Authorize]
     [HttpPost("logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout(CancellationToken ct)
