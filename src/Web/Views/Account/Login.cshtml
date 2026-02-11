@@ -1,0 +1,30 @@
+@model TravelCleanArch.Web.Models.Account.LoginViewModel
+
+<h2>Sign in</h2>
+
+<div asp-validation-summary="ModelOnly" class="validation"></div>
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="ReturnUrl" type="hidden" />
+
+    <div class="field">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email" class="validation"></span>
+    </div>
+
+    <div class="field">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password" class="validation"></span>
+    </div>
+
+    <div class="field">
+        <label>
+            <input asp-for="RememberMe" /> Remember me
+        </label>
+    </div>
+
+    <button class="btn" type="submit">Login</button>
+</form>
