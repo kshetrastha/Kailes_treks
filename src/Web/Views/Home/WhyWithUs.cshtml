@@ -6,7 +6,6 @@
         : Url.Content($"~/{Model.WhyWithUsBackgroundImagePath}");
 }
 
-<!-- Hero section -->
 <section class="w-full relative overflow-hidden">
     <div
         class="w-full md:aspect-[16/7.38] aspect-[9/16] bg-cover bg-center bg-no-repeat relative"
@@ -27,248 +26,38 @@
             </p>
         </div>
     </div>
-
-    <div class="w-full bg-neutral-200 md:py-22 py-12">
-        <div class="w-full grid md:grid-cols-4 grid-cols-2 gap-12 md:px-39 sm:px-20 px-4">
-            <div class="w-full flex items-center justify-center flex-col space-y-4">
-                <h2 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                    class="text-2xl font-black text-[#e1a74e]">
-                    96%
-                </h2>
-                <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="200"
-                    class="text-base font-light text-center text-neutral-600">Expedition success rate</p>
-            </div>
-
-            <div class="w-full flex items-center justify-center flex-col space-y-4">
-                <h2 data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-                    class="text-2xl font-black text-[#e1a74e]">
-                    1500+
-                </h2>
-                <p data-aos="fade-right" data-aos-duration="1300" data-aos-delay="400"
-                    class="text-base font-light text-center text-neutral-600">Climbers On The Top Of 8000ers
-                </p>
-            </div>
-
-            <div class="w-full flex items-center justify-center flex-col space-y-4">
-                <h2 data-aos="fade-right" data-aos-duration="1400" data-aos-delay="500"
-                    class="text-2xl font-black text-[#e1a74e]">
-                    90%
-                </h2>
-                <p data-aos="fade-right" data-aos-duration="1500" data-aos-delay="600"
-                    class="text-base font-light text-center text-neutral-600">Climber summit rate</p>
-            </div>
-
-            <div class="w-full flex items-center justify-center flex-col space-y-4">
-                <h2 data-aos="fade-right" data-aos-duration="1600" data-aos-delay="700"
-                    class="text-2xl font-black text-[#e1a74e]">
-                    200+
-                </h2>
-                <p data-aos="fade-right" data-aos-duration="1700" data-aos-delay="800"
-                    class="text-base font-light text-center text-neutral-600">
-                    Total Expedition over 8000m
-                </p>
-            </div>
-        </div>
-    </div>
 </section>
 
-<!-- contact card section -->
-<section class="w-full md:px-39 sm:px-20 px-4 md:py-24 py-12 space-y-10">
-  @*   <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp4.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-        <div class="md:col-span-2 col-span-3 w-full md:px-16">
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">
-                01
-            </h1>
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                EXPERIENCE MATTERS
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="400"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                There is a potential risk involved when it comes to climbing the mountains. With more than
-                two decades of experience and a deep understanding of mountains, people, and local culture;
-                we provide you with the highest quality of services. Although the mountains seem serene and
-                gentle from a distance, the weather there is treacherous. The terrain can be downright
-                unforgiving and to have someone accompanying you, who has been tested by the mountains time
-                and again and has come victorious through and through, can be the greatest of advantages.
-                Our guides, Sherpas, and team leaders have years and years of experience in mountaineering,
-                and understand the whims of the Himalayas, as much as it's humanly possible. Over the years,
-                they have been trained to coordinate in hostile terrain and take immediate action. It is
-                something a recently established, youth startup cannot offer. Less demanding adventures and
-                activities also come with their risk but our staffs are always well prepared.
-            </p>
-        </div>
-    </div> *@
+<section class="w-full md:px-37 sm:px-20 px-6 py-14 bg-gradient-to-b from-white to-neutral-100">
+    <div class="max-w-7xl mx-auto">
+        @if (Model.WhyWithUsItems.Count > 0)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                @for (var i = 0; i < Model.WhyWithUsItems.Count; i++)
+                {
+                    var item = Model.WhyWithUsItems[i];
+                    var offsetClass = i % 2 == 1 ? "md:translate-y-6" : string.Empty;
 
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div class="md:col-span-2 col-span-3 w-full md:px-16 md:order-1 order-2">
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">02</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 text-start -mt-14 mb-4">
-                NETWORK AND RELIABILITY
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                We as a service provider are pleased with our experienced and professional firms offering
-                related services, which have transcended the border. A proper network is an important asset
-                considering regular information exchange, resource sharing, and coordination while
-                conducting treks and expeditions. Our network has mostly proved useful for averting foul
-                weather, route disruptions, booking flights and hotels, etc. hence, sparing the guests of
-                delays and difficulties. This enables us to provide our services with reliability.
-            </p>
-        </div>
-
-        <div data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] md:order-2 order-1 overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp7.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-    </div>
-
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp4.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-        <div class="md:col-span-2 col-span-3 w-full md:px-16">
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">03</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                PERSONALIZATION OF SERVICE
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                Every adventuring company will claim to have a ‘superior service, ‘uniqueness in
-                hospitality’, ‘satisfaction of clients’, etc. But no one can do it better than we do,
-                spending over two decades providing service in the mountaineering and trekking industry.
-                Over the years, our service system has been refined to an extent that we have been experts
-                in providing client-specific services. Although most of our packages are standardized over
-                the years, we are flexible in terms of our offer. We are mindful of the fact that all our
-                clients are different depending on time, budget, interest, and vigor and hence we readily
-                offer alterations on our itineraries and packages depending on those various factors.
-                However, one can rest assured that we also do not discriminate over the size of the group of
-                guests.
-            </p>
-        </div>
-    </div>
-
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div class="md:col-span-2 col-span-3 w-full md:px-16 md:order-1 order-2">
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">04</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                ENVIRONMENTAL COMMITMENTS
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                Tourism itself has its downsides to society and the environment. The piling of corpses and
-                garbage in the mountainous region is not certainly unheard of. We are however highly
-                cautious of the fact and exercise caution regarding the matter. At times, we have been in a
-                forefront of conducting campaigns done to protect the pristine environment near the trekking
-                and expedition area. We are a supporter of sustainable tourism and believe that the present
-                generation should utilize the resources without compromising the ability to come generations
-                to do the same. Of course, that doesn’t affect our ability to fulfill our guest’s needs in
-                any way.
-            </p>
-        </div>
-
-        <div data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] md:order-2 order-1 overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp7.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-    </div>
-
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp4.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-        <div class="md:col-span-2 col-span-3 w-full md:px-16">
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">05</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                SUPPORT TO SOCIAL CAUSES
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                We have been a great supporter of local businesses, countrymen, and service providers who
-                are essential cogs in the machine called the Nepali Tourism Industry. The Sherpas and
-                porters, who run the risk of encountering death on regular basis, most of them belong to
-                downtrodden families. The geographical features, that onlookers find so charming are not
-                bountiful. Seven Summit treks have been providing chances to such families with poor
-                economic conditions to improve the life standard of the people. In addition to that, our
-                company continues to advance the lives of people in the rural area: the people whose lives
-                have been affected by tourism in some way. During the earthquake of 2015, Seven Summit Treks
-                distributed relief to earthquake-affected tourism areas so that they can get back onto their
-                feet. Out of our satisfied clientele, some were interested in organizing charity or
-                providing donations, in which case, we made sure that they came in contact with the right
-                people.
-            </p>
-        </div>
-    </div>
-
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div class="md:col-span-2 col-span-3 w-full md:px-16 md:order-1 order-2">
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">06</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                RIGHT SERVICE AT THE RIGHT PRICE
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                People from all parts of the world choose Seven Summit Treks for assisting or guiding them
-                in their adventures in the Himalayan Region because we offer packages at reasonable prices
-                without compromising safety and quality of service to our valuable clients, we do not take
-                advantage of the naivety of our guests and provide services based strictly on company rules
-                and regulations.
-            </p>
-        </div>
-
-        <div data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] md:order-2 order-1 overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp7.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-    </div>
-
-    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
-        <div data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
-            class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md">
-            <img src="./assets/img/expeditions/exp4.png" alt=""
-                class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
-        </div>
-        <div class="md:col-span-2 col-span-3 w-full md:px-16">
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">07</h1>
-            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
-                class="text-[30px] md:text-[32px] font-bold text-neutral-900 -mt-14 mb-4">
-                GENUINE AND AUTHENTIC COMPANY
-            </h1>
-            <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
-                class="text-base text-neutral-600 font-light text-justify leading-[24px]">
-                Seven Summit Treks is established under Company Act 2053 and Tourism Act 2035 (Registration
-                No: 68492/066/067. VAT No: 304311183). The company is licensed by the Tax Department of
-                Nepal as a taxpayer, and also by the Central Bank of Nepal as a foreign currency acceptable
-                company from foreigners and members of national and international tourism umbrella
-                organizations. We follow the rules and regulations set forth by the government and strongly
-                condemn any illegal activities that might take place within the nation. We are committed to
-                the security of our guests and under no circumstance put the lives of our guests in
-                jeopardy. We are a reliable, reputed, genuine, and authentic company you can count on.
-            </p>
-        </div>
+                    <article data-aos="fade-up" data-aos-duration="1000"
+                        class="@offsetClass rounded-2xl bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-lg transition duration-300">
+                        <div class="flex items-start gap-4">
+                            <div class="shrink-0 w-12 h-12 rounded-full bg-[#e1a74e]/15 text-[#e1a74e] flex items-center justify-center text-xl">
+                                <i class="@(string.IsNullOrWhiteSpace(item.IconCssClass) ? "fa-solid fa-mountain" : item.IconCssClass)"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-neutral-800 uppercase tracking-wide mb-2">@item.Title</h3>
+                                <p class="text-neutral-600 leading-relaxed text-sm md:text-base">@item.Description</p>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center text-neutral-500">
+                Why With Us content will appear here soon.
+            </div>
+        }
     </div>
 </section>
