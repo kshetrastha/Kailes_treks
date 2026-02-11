@@ -55,6 +55,149 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "company_awards",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Issuer = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    AwardedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ReferenceUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_awards", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_certificate_documents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Category = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
+                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ThumbnailImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IssuedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_certificate_documents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_chairman_messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Heading = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    ChairmanName = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Designation = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    MessageHtml = table.Column<string>(type: "character varying(12000)", maxLength: 12000, nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    VideoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_chairman_messages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_patrons",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Role = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Biography = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_patrons", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_reviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ReviewerName = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    ReviewerRole = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    ReviewText = table.Column<string>(type: "character varying(6000)", maxLength: 6000, nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    ReviewerImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    SourceName = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    SourceUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ReviewedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_reviews", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_team_members",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FullName = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Role = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    Biography = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Email = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    LinkedInUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_team_members", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "company_who_we_are",
                 columns: table => new
                 {
@@ -559,6 +702,61 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_company_awards_IsPublished",
+                table: "company_awards",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_awards_Ordering",
+                table: "company_awards",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_certificate_documents_IsPublished",
+                table: "company_certificate_documents",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_certificate_documents_Ordering",
+                table: "company_certificate_documents",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_chairman_messages_IsPublished",
+                table: "company_chairman_messages",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_patrons_IsPublished",
+                table: "company_patrons",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_patrons_Ordering",
+                table: "company_patrons",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_reviews_IsPublished",
+                table: "company_reviews",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_reviews_Ordering",
+                table: "company_reviews",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_team_members_IsPublished",
+                table: "company_team_members",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_team_members_Ordering",
+                table: "company_team_members",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_company_who_we_are_IsPublished",
                 table: "company_who_we_are",
                 column: "IsPublished");
@@ -680,6 +878,24 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "company_awards");
+
+            migrationBuilder.DropTable(
+                name: "company_certificate_documents");
+
+            migrationBuilder.DropTable(
+                name: "company_chairman_messages");
+
+            migrationBuilder.DropTable(
+                name: "company_patrons");
+
+            migrationBuilder.DropTable(
+                name: "company_reviews");
+
+            migrationBuilder.DropTable(
+                name: "company_team_members");
 
             migrationBuilder.DropTable(
                 name: "company_who_we_are_hero");
