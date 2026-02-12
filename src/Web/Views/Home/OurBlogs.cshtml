@@ -1,0 +1,35 @@
+@model TravelCleanArch.Web.Models.Home.BlogListViewModel
+@{
+    ViewData["Title"] = "Our Blogs";
+    var featured = Model.FeaturedPost;
+}
+
+<section class="w-full pt-30 pb-16 px-6 sm:px-12 md:px-20 lg:px-28 bg-neutral-100 min-h-screen">
+    <div class="max-w-[1200px] mx-auto">
+        @if (featured is not null)
+        {
+            <a href="/our-blogs/@featured.Slug" class="block relative overflow-hidden rounded mb-8">
+                <img src="@(string.IsNullOrWhiteSpace(featured.ThumbnailImagePath) ? "/customer/assets/img/contact.jpg" : $"/{featured.ThumbnailImagePath}")" alt="@featured.Title" class="w-full h-[420px] object-cover" />
+                <div class="absolute inset-0 bg-black/45 p-10 flex flex-col justify-end text-white max-w-xl">
+                    <p class="text-sm">@featured.PublishedOnUtc?.ToString("MMMM d, yyyy")</p>
+                    <h1 class="text-4xl font-semibold leading-tight mt-2">@featured.Title</h1>
+                    @if (!string.IsNullOrWhiteSpace(featured.Summary))
+                    {
+                        <p class="mt-3 text-sm">@featured.Summary</p>
+                    }
+                </div>
+            </a>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach (var post in Model.OtherPosts)
+            {
+                <a href="/our-blogs/@post.Slug" class="block">
+                    <img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? "/customer/assets/img/skydiving.png" : $"/{post.ThumbnailImagePath}")" alt="@post.Title" class="w-full h-40 object-cover" />
+                    <p class="text-sm text-neutral-500 mt-2">@post.PublishedOnUtc?.ToString("MMMM d, yyyy")</p>
+                    <h3 class="text-2xl text-neutral-700 leading-tight mt-1">@post.Title</h3>
+                </a>
+            }
+        </div>
+    </div>
+</section>

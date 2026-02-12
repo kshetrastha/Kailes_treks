@@ -26,6 +26,8 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
 
     public IReviewService ReviewService => new ReviewService(dbContext);
 
+    public IBlogPostService BlogPostService => new BlogPostService(dbContext);
+
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);
 }

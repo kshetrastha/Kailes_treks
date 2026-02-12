@@ -86,3 +86,21 @@ public sealed class ReviewFormViewModel
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
 }
+
+
+public sealed class BlogPostFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(280)] public string Title { get; set; } = string.Empty;
+    [StringLength(320)] public string? Slug { get; set; }
+    [StringLength(2000)] public string? Summary { get; set; }
+    [Required, StringLength(40000)] public string ContentHtml { get; set; } = string.Empty;
+    [DataType(DataType.Date)] public DateTime? PublishedOnUtc { get; set; }
+    public string? ExistingHeroImagePath { get; set; }
+    public IFormFile? HeroImage { get; set; }
+    public string? ExistingThumbnailImagePath { get; set; }
+    public IFormFile? ThumbnailImage { get; set; }
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsFeatured { get; set; }
+    public bool IsPublished { get; set; } = true;
+}

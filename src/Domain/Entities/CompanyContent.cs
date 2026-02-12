@@ -82,3 +82,19 @@ public sealed class Review : BaseEntity
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 }
+
+public sealed class BlogPost : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string? Summary { get; set; }
+    public string ContentHtml { get; set; } = string.Empty;
+    public string? HeroImagePath { get; set; }
+    public string? ThumbnailImagePath { get; set; }
+    public DateTime? PublishedOnUtc { get; set; }
+    public int Ordering { get; set; }
+    public bool IsFeatured { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public DateTime CreatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+}

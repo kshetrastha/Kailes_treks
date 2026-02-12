@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<ITeamMemberService, TeamMemberService>();
         services.AddScoped<ICertificateDocumentService, CertificateDocumentService>();
         services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IBlogPostService, BlogPostService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;

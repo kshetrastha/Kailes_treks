@@ -3290,73 +3290,30 @@
             <!-- blog section -->
             <section class="w-full py-10 px-6 sm:px-12 md:px-20 lg:px-28" data-aos="fade-up" data-aos-duration="800">
                 <div class="w-full space-y-8">
-
-                    <!-- Heading -->
-                    <div class="w-full flex items-center justify-between flex-wrap gap-4" data-aos="fade-up"
-                        data-aos-delay="150">
+                    <div class="w-full flex items-center justify-between flex-wrap gap-4" data-aos="fade-up" data-aos-delay="150">
                         <div class="space-y-1">
                             <p class="text-lg sm:text-xl text-[#e1a74e] font-medium">Recent from</p>
-                            <h1 class="text-2xl sm:text-[32px] font-normal text-neutral-800">
-                                Our <span class="font-bold">Blog</span>
-                            </h1>
+                            <h1 class="text-2xl sm:text-[32px] font-normal text-neutral-800">Our <span class="font-bold">Blog</span></h1>
                         </div>
-
-                        <a href="#"
-                            class="flex w-fit items-center gap-x-4 text-base tracking-wide font-normal text-[#e1a74e] group duration-300">
-                            <div
-                                class="w-9 h-9 rounded-full bg-[#e1a74e] border border-[#e1a74e] flex group-hover:bg-transparent items-center justify-center duration-300">
-                                <i
-                                    class="fa-solid fa-chevron-right text-sm text-neutral-50 group-hover:text-[#e1a74e] duration-300"></i>
+                        <a href="/our-blogs" class="flex w-fit items-center gap-x-4 text-base tracking-wide font-normal text-[#e1a74e] group duration-300">
+                            <div class="w-9 h-9 rounded-full bg-[#e1a74e] border border-[#e1a74e] flex group-hover:bg-transparent items-center justify-center duration-300">
+                                <i class="fa-solid fa-chevron-right text-sm text-neutral-50 group-hover:text-[#e1a74e] duration-300"></i>
                             </div>
                             <span>View All</span>
                         </a>
                     </div>
 
-                    <!-- Blog Grid -->
                     <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                        <!-- Card 1 -->
-                        <a href="#"
-                            class="block w-full aspect-[16/10] md:aspect-video relative group overflow-hidden rounded-xl duration-300"
-                            data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-                            <img src="./assets/img/skydiving.png" alt="trekking img"
-                                class="w-full h-full object-cover duration-500 group-hover:scale-105">
-
-                            <div class="absolute top-0 left-0 w-full px-6 sm:px-10 py-10 sm:py-16 
-                    h-full bg-black/40 flex items-start justify-end flex-col space-y-2">
-
-                                <p class="text-sm sm:text-base text-neutral-50 font-light mb-3">
-                                    October 11, 2025
-                                </p>
-
-                                <h1
-                                    class="text-lg sm:text-2xl text-white font-semibold leading-[1.3] group-hover:text-[#e1a74e] duration-300">
-                                    First Alpine-Style Ascent of Numbur’s South Wall by Barmasse, Berg, and Bielecki
-                                </h1>
-                            </div>
-                        </a>
-
-                        <!-- Card 2 -->
-                        <a href="#"
-                            class="block w-full aspect-[16/10] md:aspect-video relative group overflow-hidden rounded-xl duration-300"
-                            data-aos="fade-up" data-aos-duration="1000" data-aos-delay="350">
-                            <img src="./assets/img/skydiving.png" alt="trekking img"
-                                class="w-full h-full object-cover duration-500 group-hover:scale-105">
-
-                            <div class="absolute top-0 left-0 w-full px-6 sm:px-10 py-10 sm:py-16 
-                    h-full bg-black/40 flex items-start justify-end flex-col space-y-2">
-
-                                <p class="text-sm sm:text-base text-neutral-50 font-light mb-3">
-                                    August 5, 2025
-                                </p>
-
-                                <h1
-                                    class="text-lg sm:text-2xl text-white font-semibold leading-[1.3] group-hover:text-[#e1a74e] duration-300">
-                                    Know Before You Go: Manaslu Edition
-                                </h1>
-                            </div>
-                        </a>
-
+                        @foreach (var post in Model.RecentBlogs)
+                        {
+                            <a href="/our-blogs/@post.Slug" class="block w-full aspect-[16/10] md:aspect-video relative group overflow-hidden rounded-xl duration-300">
+                                <img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? "./assets/img/skydiving.png" : $"/{post.ThumbnailImagePath}")" alt="@post.Title" class="w-full h-full object-cover duration-500 group-hover:scale-105">
+                                <div class="absolute top-0 left-0 w-full px-6 sm:px-10 py-10 sm:py-16 h-full bg-black/40 flex items-start justify-end flex-col space-y-2">
+                                    <p class="text-sm sm:text-base text-neutral-50 font-light mb-3">@post.PublishedOnUtc?.ToString("MMMM d, yyyy")</p>
+                                    <h1 class="text-lg sm:text-2xl text-white font-semibold leading-[1.3] group-hover:text-[#e1a74e] duration-300">@post.Title</h1>
+                                </div>
+                            </a>
+                        }
                     </div>
                 </div>
             </section>

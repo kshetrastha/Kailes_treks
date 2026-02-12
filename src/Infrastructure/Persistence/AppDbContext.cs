@@ -36,6 +36,7 @@ public sealed class AppDbContext:
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<CertificateDocument> CertificateDocuments => Set<CertificateDocument>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -211,6 +212,22 @@ public sealed class AppDbContext:
 
     private static void ConfigureCompanyPages(ModelBuilder builder)
     {
+
+
+        builder.Entity<BlogPost>(b =>
+        {
+            b.ToTable("company_blog_posts");
+            b.Property(x => x.Title).HasMaxLength(280).IsRequired();
+            b.Property(x => x.Slug).HasMaxLength(320).IsRequired();
+            b.Property(x => x.Summary).HasMaxLength(2000);
+            b.Property(x => x.ContentHtml).HasMaxLength(40000).IsRequired();
+            b.Property(x => x.HeroImagePath).HasMaxLength(500);
+            b.Property(x => x.ThumbnailImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.Slug).IsUnique();
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsFeatured);
+            b.HasIndex(x => x.IsPublished);
+        });
         builder.Entity<Award>(b =>
         {
             b.ToTable("company_awards");
