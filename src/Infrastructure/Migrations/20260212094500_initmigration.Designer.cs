@@ -12,7 +12,7 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260212092949_initmigration")]
+    [Migration("20260212094500_initmigration")]
     partial class initmigration
     {
         /// <inheritdoc />
@@ -185,6 +185,79 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasIndex("Ordering");
 
                     b.ToTable("company_awards", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.BlogPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentHtml")
+                        .IsRequired()
+                        .HasMaxLength(40000)
+                        .HasColumnType("character varying(40000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("HeroImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PublishedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ThumbnailImagePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(280)
+                        .HasColumnType("character varying(280)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsFeatured");
+
+                    b.HasIndex("IsPublished");
+
+                    b.HasIndex("Ordering");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("company_blog_posts", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.CertificateDocument", b =>
