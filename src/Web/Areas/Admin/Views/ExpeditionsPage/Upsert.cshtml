@@ -14,7 +14,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form id="expeditionForm" method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" novalidate>
+            <form id="expeditionForm" method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" novalidate>
                 @Html.AntiForgeryToken()
                 @if (isEdit)
                 {
@@ -23,118 +23,204 @@
 
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Name" class="form-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Slug" class="form-label"></label>
-                        <input asp-for="Slug" class="form-control" />
-                        <span asp-validation-for="Slug" class="text-danger"></span>
-                    </div>
+                <ul class="nav nav-tabs mb-4" id="expeditionWizardTabs" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" type="button" data-step="0">1. Basic Info</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="1" disabled>2. Overview</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="2" disabled>3. Itineraries</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="3" disabled>4. Includes/Excludes</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="4" disabled>5. Departure & Gear</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="5" disabled>6. Reviews & FAQ</button></li>
+                </ul>
 
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="ShortDescription" class="form-label"></label>
-                        <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
-                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="Destination" class="form-label"></label>
-                        <input asp-for="Destination" class="form-control" />
-                        <span asp-validation-for="Destination" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="Region" class="form-label"></label>
-                        <input asp-for="Region" class="form-control" />
-                        <span asp-validation-for="Region" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="ExpeditionTypeId" class="form-label">Expedition Type</label>
-                        <select asp-for="ExpeditionTypeId" class="form-select">
-                            <option value="">-- none --</option>
-                            @foreach (var t in types)
-                            {
-                                <option value="@t.Id">@t.Title</option>
-                            }
-                        </select>
-                        <span asp-validation-for="ExpeditionTypeId" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-3 mb-3">
-                        <label asp-for="DurationDays" class="form-label"></label>
-                        <input asp-for="DurationDays" class="form-control" type="number" min="1" max="365" />
-                        <span asp-validation-for="DurationDays" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label asp-for="MaxAltitudeMeters" class="form-label"></label>
-                        <input asp-for="MaxAltitudeMeters" class="form-control" type="number" min="0" max="12000" />
-                        <span asp-validation-for="MaxAltitudeMeters" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label asp-for="Difficulty" class="form-label"></label>
-                        <input asp-for="Difficulty" class="form-control" />
-                        <span asp-validation-for="Difficulty" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label asp-for="Price" class="form-label"></label>
-                        <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Status" class="form-label"></label>
-                        <input asp-for="Status" class="form-control" />
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Ordering" class="form-label"></label>
-                        <input asp-for="Ordering" class="form-control" type="number" min="0" max="999" />
-                        <span asp-validation-for="Ordering" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="Overview" class="form-label"></label>
-                        <textarea asp-for="Overview" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Overview" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Inclusions" class="form-label"></label>
-                        <textarea asp-for="Inclusions" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Inclusions" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Exclusions" class="form-label"></label>
-                        <textarea asp-for="Exclusions" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Exclusions" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="SectionsText" class="form-label"></label>
-                        <textarea asp-for="SectionsText" class="form-control" rows="4" placeholder="sectionType|title|content|ordering"></textarea>
-                        <span asp-validation-for="SectionsText" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="ItineraryText" class="form-label"></label>
-                        <textarea asp-for="ItineraryText" class="form-control" rows="4" placeholder="dayNumber|title|description|overnightLocation"></textarea>
-                        <span asp-validation-for="ItineraryText" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="FaqsText" class="form-label"></label>
-                        <textarea asp-for="FaqsText" class="form-control" rows="4" placeholder="question|answer|ordering"></textarea>
-                        <span asp-validation-for="FaqsText" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="MediaText" class="form-label"></label>
-                        <textarea asp-for="MediaText" class="form-control" rows="4" placeholder="url|caption|mediaType|ordering"></textarea>
-                        <span asp-validation-for="MediaText" class="text-danger"></span>
+                <div class="wizard-step" data-step="0">
+                    <h5>Basic Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control step-0-required" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Slug" class="form-label"></label>
+                            <input asp-for="Slug" class="form-control" />
+                            <span asp-validation-for="Slug" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="ShortDescription" class="form-label">Sub-description</label>
+                            <textarea asp-for="ShortDescription" class="form-control step-0-required" rows="2"></textarea>
+                            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="HeroImageUrl" class="form-label">Primary Image URL</label>
+                            <input asp-for="HeroImageUrl" class="form-control" placeholder="https://..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Image Upload (analysis preview only)</label>
+                            <input type="file" id="heroImageUpload" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload to preview and fill image-analysis notes. Persisted image source remains URL field above.</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Image Analysis</label>
+                            <textarea id="imageAnalysis" class="form-control" rows="4" placeholder="Highlights, terrain, weather cues, safety notes..."></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
-                <a asp-action="Index" class="btn btn-light">Cancel</a>
+                <div class="wizard-step d-none" data-step="1">
+                    <h5>Overview</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Destination" class="form-label"></label>
+                            <input asp-for="Destination" class="form-control step-1-required" />
+                            <span asp-validation-for="Destination" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Region" class="form-label"></label>
+                            <input asp-for="Region" class="form-control" />
+                            <span asp-validation-for="Region" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ExpeditionTypeId" class="form-label">Expedition Type</label>
+                            <select asp-for="ExpeditionTypeId" class="form-select">
+                                <option value="">-- none --</option>
+                                @foreach (var t in types)
+                                {
+                                    <option value="@t.Id">@t.Title</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ExpeditionTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="DurationDays" class="form-label"></label>
+                            <input asp-for="DurationDays" class="form-control step-1-required" type="number" min="1" max="365" />
+                            <span asp-validation-for="DurationDays" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="MaxAltitudeMeters" class="form-label"></label>
+                            <input asp-for="MaxAltitudeMeters" class="form-control" type="number" min="0" max="12000" />
+                            <span asp-validation-for="MaxAltitudeMeters" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="Difficulty" class="form-label"></label>
+                            <input asp-for="Difficulty" class="form-control step-1-required" />
+                            <span asp-validation-for="Difficulty" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="Price" class="form-label"></label>
+                            <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Status" class="form-label"></label>
+                            <input asp-for="Status" class="form-control" />
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Ordering" class="form-label"></label>
+                            <input asp-for="Ordering" class="form-control" type="number" min="0" max="999" />
+                            <span asp-validation-for="Ordering" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="Overview" class="form-label">Description / Overview</label>
+                            <textarea asp-for="Overview" class="form-control step-1-required" rows="5"></textarea>
+                            <span asp-validation-for="Overview" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-step d-none" data-step="2">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Multiple Itineraries (images + day tables)</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addItineraryVariant">Add Itinerary Variant</button>
+                    </div>
+                    <div id="itineraryVariants"></div>
+                    <textarea asp-for="ItineraryText" class="d-none"></textarea>
+                    <textarea asp-for="MediaText" class="d-none"></textarea>
+                </div>
+
+                <div class="wizard-step d-none" data-step="3">
+                    <h5>Cost Includes & Excludes</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Inclusions table</label>
+                                <button type="button" class="btn btn-outline-success btn-sm" id="addInclusion">Add Row</button>
+                            </div>
+                            <table class="table table-bordered" id="inclusionTable"><tbody></tbody></table>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Exclusions table</label>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="addExclusion">Add Row</button>
+                            </div>
+                            <table class="table table-bordered" id="exclusionTable"><tbody></tbody></table>
+                        </div>
+                    </div>
+                    <textarea asp-for="Inclusions" class="d-none"></textarea>
+                    <textarea asp-for="Exclusions" class="d-none"></textarea>
+                </div>
+
+                <div class="wizard-step d-none" data-step="4">
+                    <h5>Fixed Departure & Gear List</h5>
+                    <div class="mb-3">
+                        <label asp-for="AvailableDates" class="form-label">Fixed Departure Dates (one per line)</label>
+                        <textarea asp-for="AvailableDates" class="form-control" rows="4" placeholder="Spring 2026: Mar 20, Apr 5, Apr 19"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fixed Departure Gear List</label>
+                        <textarea id="gearList" class="form-control" rows="6">8000m down suit
+Double boots + gaiters
+Climbing harness and ascender
+Helmet, crampons, ice axe
+High-altitude gloves and mittens
+Headlamp and spare batteries
+Oxygen mask and regulator compatibility</textarea>
+                    </div>
+                </div>
+
+                <div class="wizard-step d-none" data-step="5">
+                    <h5>Reviews & FAQ (multi-value inputs)</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Reviews</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addReview">Add Review</button>
+                            </div>
+                            <table class="table table-sm table-bordered" id="reviewTable">
+                                <thead><tr><th>Reviewer</th><th>Comment</th><th></th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">FAQs</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addFaq">Add FAQ</button>
+                            </div>
+                            <table class="table table-sm table-bordered" id="faqTable">
+                                <thead><tr><th>Question</th><th>Answer</th><th></th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                            <textarea asp-for="FaqsText" class="d-none"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SectionsText" class="form-label">Additional Sections (optional raw format)</label>
+                        <textarea asp-for="SectionsText" class="form-control" rows="3" placeholder="sectionType|title|content|ordering"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-light" id="prevStep" disabled>Previous</button>
+                    <div>
+                        <button type="button" class="btn btn-primary" id="nextStep">Next</button>
+                        <button type="submit" class="btn btn-success d-none" id="submitBtn">@(isEdit ? "Update" : "Create")</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -144,95 +230,214 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function () {
-            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
-                if (this.optional(element)) {
-                    return true;
-                }
+            const tabs = Array.from(document.querySelectorAll("#expeditionWizardTabs .nav-link"));
+            const steps = Array.from(document.querySelectorAll(".wizard-step"));
+            const prevBtn = document.getElementById("prevStep");
+            const nextBtn = document.getElementById("nextStep");
+            const submitBtn = document.getElementById("submitBtn");
+            let currentStep = 0;
 
-                return value.trim() === value;
-            }, "This field cannot start or end with spaces.");
+            const sanitize = (text) => (text || "").replace(/\|/g, "/").replace(/\n/g, " ").trim();
 
-            $.validator.addMethod("pipeSeparatedRows", function (value, element, expectedParts) {
-                if (this.optional(element) || !value) {
-                    return true;
-                }
+            function renderStep() {
+                steps.forEach((step, index) => step.classList.toggle("d-none", index !== currentStep));
+                tabs.forEach((tab, index) => tab.classList.toggle("active", index === currentStep));
+                prevBtn.disabled = currentStep === 0;
+                nextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
+                submitBtn.classList.toggle("d-none", currentStep !== steps.length - 1);
+            }
 
-                const rows = value.split("\n").map(x => x.trim()).filter(Boolean);
-                for (const row of rows) {
-                    if (row.split("|").length !== expectedParts) {
+            function validateStep(stepIndex) {
+                const requiredFields = document.querySelectorAll(`.step-${stepIndex}-required`);
+                for (const field of requiredFields) {
+                    if (!field.value.trim()) {
+                        field.focus();
                         return false;
                     }
                 }
-
                 return true;
-            }, "One or more rows use an invalid format.");
+            }
 
-            $("#expeditionForm").validate({
-                ignore: [],
-                errorClass: "text-danger",
-                rules: {
-                    Name: {
-                        required: true,
-                        maxlength: 200,
-                        noLeadingTrailingSpace: true
-                    },
-                    ShortDescription: {
-                        required: true,
-                        maxlength: 600,
-                        noLeadingTrailingSpace: true
-                    },
-                    Destination: {
-                        required: true,
-                        maxlength: 200,
-                        noLeadingTrailingSpace: true
-                    },
-                    Difficulty: {
-                        required: true,
-                        maxlength: 100,
-                        noLeadingTrailingSpace: true
-                    },
-                    DurationDays: {
-                        required: true,
-                        number: true,
-                        min: 1,
-                        max: 365
-                    },
-                    MaxAltitudeMeters: {
-                        required: true,
-                        number: true,
-                        min: 0,
-                        max: 12000
-                    },
-                    Price: {
-                        required: true,
-                        number: true,
-                        min: 0,
-                        max: 999999
-                    },
-                    Status: {
-                        required: true,
-                        noLeadingTrailingSpace: true
-                    },
-                    Ordering: {
-                        required: true,
-                        number: true,
-                        min: 0,
-                        max: 999
-                    },
-                    SectionsText: {
-                        pipeSeparatedRows: 4
-                    },
-                    ItineraryText: {
-                        pipeSeparatedRows: 4
-                    },
-                    FaqsText: {
-                        pipeSeparatedRows: 3
-                    },
-                    MediaText: {
-                        pipeSeparatedRows: 4
-                    }
+            function goToStep(index) {
+                if (index > currentStep && !validateStep(currentStep)) {
+                    return;
+                }
+
+                for (let i = 0; i <= index; i += 1) {
+                    tabs[i].disabled = false;
+                }
+
+                currentStep = index;
+                renderStep();
+            }
+
+            tabs.forEach((tab, index) => tab.addEventListener("click", () => !tab.disabled && goToStep(index)));
+            prevBtn.addEventListener("click", () => goToStep(Math.max(0, currentStep - 1)));
+            nextBtn.addEventListener("click", () => goToStep(Math.min(steps.length - 1, currentStep + 1)));
+
+            const heroUpload = document.getElementById("heroImageUpload");
+            const heroPreview = document.getElementById("heroImagePreview");
+            const imageAnalysis = document.getElementById("imageAnalysis");
+            heroUpload.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    heroPreview.src = reader.result;
+                    heroPreview.classList.remove("d-none");
+                    imageAnalysis.value = `Image: ${file.name}\nSuggested usage: Hero banner + itinerary context\nNotes: Add terrain, camp-life, and summit visibility insights.`;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            function addSimpleRow(target, placeholder) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td><input class="form-control" placeholder="${placeholder}" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                target.appendChild(row);
+            }
+
+            const inclusionTableBody = document.querySelector("#inclusionTable tbody");
+            const exclusionTableBody = document.querySelector("#exclusionTable tbody");
+            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody, "Included item"));
+            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody, "Excluded item"));
+            addSimpleRow(inclusionTableBody, "Included item");
+            addSimpleRow(exclusionTableBody, "Excluded item");
+
+            function createItineraryDayRow() {
+                return `<tr>
+                    <td><input class="form-control day-number" type="number" min="1" placeholder="Day" /></td>
+                    <td><input class="form-control day-title" placeholder="Title" /></td>
+                    <td><input class="form-control day-desc" placeholder="Description" /></td>
+                    <td><input class="form-control day-night" placeholder="Overnight" /></td>
+                    <td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>
+                </tr>`;
+            }
+
+            function addItineraryVariant(seed = "") {
+                const block = document.createElement("div");
+                block.className = "border rounded p-3 mb-3 itinerary-variant";
+                block.innerHTML = `
+                    <div class="row mb-2">
+                        <div class="col-md-4"><input class="form-control variant-name" placeholder="Itinerary label (e.g. Spring 2026)" value="${seed}" /></div>
+                        <div class="col-md-6"><input class="form-control variant-image" placeholder="Itinerary image/map URL" /></div>
+                        <div class="col-md-2 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-variant">Remove Variant</button></div>
+                    </div>
+                    <table class="table table-sm table-bordered itinerary-days">
+                        <thead><tr><th>Day</th><th>Title</th><th>Description</th><th>Overnight</th><th></th></tr></thead>
+                        <tbody>${createItineraryDayRow()}</tbody>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Day</button>
+                `;
+                document.getElementById("itineraryVariants").appendChild(block);
+            }
+
+            document.getElementById("addItineraryVariant").addEventListener("click", () => addItineraryVariant(""));
+            addItineraryVariant("Default Plan");
+
+            function addReviewRow(reviewer = "", comment = "") {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td><input class="form-control reviewer" value="${reviewer}" /></td><td><input class="form-control review-comment" value="${comment}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                document.querySelector("#reviewTable tbody").appendChild(row);
+            }
+
+            function addFaqRow(q = "", a = "") {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td><input class="form-control faq-question" value="${q}" /></td><td><input class="form-control faq-answer" value="${a}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                document.querySelector("#faqTable tbody").appendChild(row);
+            }
+
+            document.getElementById("addReview").addEventListener("click", () => addReviewRow());
+            document.getElementById("addFaq").addEventListener("click", () => addFaqRow());
+            addReviewRow();
+            addFaqRow();
+
+            document.addEventListener("click", (e) => {
+                if (e.target.classList.contains("remove-row")) {
+                    e.target.closest("tr")?.remove();
+                }
+
+                if (e.target.classList.contains("add-day")) {
+                    const tbody = e.target.closest(".itinerary-variant").querySelector(".itinerary-days tbody");
+                    tbody.insertAdjacentHTML("beforeend", createItineraryDayRow());
+                }
+
+                if (e.target.classList.contains("remove-variant")) {
+                    e.target.closest(".itinerary-variant")?.remove();
                 }
             });
+
+            const form = document.getElementById("expeditionForm");
+            form.addEventListener("submit", () => {
+                const inclusionValues = Array.from(document.querySelectorAll("#inclusionTable tbody input"))
+                    .map(x => sanitize(x.value))
+                    .filter(Boolean);
+                document.getElementById("Inclusions").value = inclusionValues.join("\n");
+
+                const exclusionValues = Array.from(document.querySelectorAll("#exclusionTable tbody input"))
+                    .map(x => sanitize(x.value))
+                    .filter(Boolean);
+                document.getElementById("Exclusions").value = exclusionValues.join("\n");
+
+                let itineraryRows = [];
+                let mediaRows = [];
+                document.querySelectorAll(".itinerary-variant").forEach((variant, vIndex) => {
+                    const label = sanitize(variant.querySelector(".variant-name").value || `Itinerary ${vIndex + 1}`);
+                    const imageUrl = sanitize(variant.querySelector(".variant-image").value);
+                    if (imageUrl) {
+                        mediaRows.push(`${imageUrl}|${label} map|itinerary-map|${vIndex + 1}`);
+                    }
+
+                    variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
+                        const day = sanitize(row.querySelector(".day-number")?.value || "");
+                        const title = sanitize(row.querySelector(".day-title")?.value || "");
+                        const desc = sanitize(row.querySelector(".day-desc")?.value || "");
+                        const night = sanitize(row.querySelector(".day-night")?.value || "");
+                        if (day && title) {
+                            itineraryRows.push(`${day}|[${label}] ${title}|${desc}|${night}`);
+                        }
+                    });
+                });
+
+                document.getElementById("ItineraryText").value = itineraryRows.join("\n");
+                document.getElementById("MediaText").value = mediaRows.join("\n");
+
+                const faqRows = [];
+                document.querySelectorAll("#faqTable tbody tr").forEach((row, index) => {
+                    const q = sanitize(row.querySelector(".faq-question")?.value || "");
+                    const a = sanitize(row.querySelector(".faq-answer")?.value || "");
+                    if (q && a) {
+                        faqRows.push(`${q}|${a}|${index + 1}`);
+                    }
+                });
+                document.getElementById("FaqsText").value = faqRows.join("\n");
+
+                const sections = document.getElementById("SectionsText").value
+                    .split("\n")
+                    .map(x => x.trim())
+                    .filter(Boolean);
+
+                const gear = document.getElementById("gearList").value
+                    .split("\n")
+                    .map(x => sanitize(x))
+                    .filter(Boolean)
+                    .map((item, idx) => `Gear|Gear Item ${idx + 1}|${item}|${100 + idx}`);
+
+                const reviews = [];
+                document.querySelectorAll("#reviewTable tbody tr").forEach((row, index) => {
+                    const reviewer = sanitize(row.querySelector(".reviewer")?.value || "");
+                    const comment = sanitize(row.querySelector(".review-comment")?.value || "");
+                    if (reviewer && comment) {
+                        reviews.push(`Review|${reviewer}|${comment}|${200 + index}`);
+                    }
+                });
+
+                document.getElementById("SectionsText").value = [...sections, ...gear, ...reviews].join("\n");
+            });
+
+            renderStep();
         })();
     </script>
 }
