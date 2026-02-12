@@ -32,6 +32,45 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
+    [HttpGet("our-blogs")]
+    public async Task<IActionResult> OurBlogs(CancellationToken ct)
+    {
+        var posts = await TryGetBlogPostsAsync(ct);
+        var featured = posts.FirstOrDefault(x => x.IsFeatured) ?? posts.FirstOrDefault();
+        var model = new BlogListViewModel
+        {
+            FeaturedPost = featured,
+            OtherPosts = posts.Where(x => x.Slug != featured?.Slug).ToList()
+        };
+
+        return View(model);
+    }
+
+    [HttpGet("our-blogs/{slug}")]
+    public async Task<IActionResult> BlogDetails(string slug, CancellationToken ct)
+    {
+        var post = await TryGetBlogBySlugAsync(slug, ct);
+        if (post is null) return NotFound();
+
+        var latest = (await TryGetBlogPostsAsync(ct))
+            .Where(x => x.Slug != slug)
+            .Take(8)
+            .ToList();
+
+        var model = new BlogDetailViewModel
+        {
+            Title = post.Title,
+            Slug = post.Slug,
+            Summary = post.Summary,
+            ContentHtml = post.ContentHtml,
+            HeroImagePath = post.HeroImagePath ?? post.ThumbnailImagePath,
+            PublishedOnUtc = post.PublishedOnUtc,
+            LatestPosts = latest
+        };
+
+        return View(model);
+    }
+
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
         var whyWithUsItems = (await uow.WhyWithUsService.ListOrderedAsync(publishedOnly: true, ct))
@@ -49,6 +88,8 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
 
         var whoWeAreHero = await TryGetWhoWeAreHeroAsync(ct);
 
+        var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(2).ToList();
+
         return new HomeIndexViewModel
         {
             WhyWithUsHeader = whyWithUsHero?.Header ?? "Because we are the best",
@@ -61,7 +102,8 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             WhoWeAreTitle = whoWeAreHero?.Title ?? "Who we are?",
             WhoWeAreDescription = whoWeAreHero?.Description ?? "Seven Summit Treks is a registered Nepali trek and expedition operator specializing in Himalayan climbs and personalized adventures.",
             WhoWeAreBackgroundImagePath = whoWeAreHero?.BackgroundImagePath,
-            WhoWeAreItems = whoWeAreItems
+            WhoWeAreItems = whoWeAreItems,
+            RecentBlogs = recentBlogs
         };
     }
 
@@ -123,4 +165,37 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         }
     }
 
+    private async Task<List<BlogCardViewModel>> TryGetBlogPostsAsync(CancellationToken ct)
+    {
+        try
+        {
+            return (await uow.BlogPostService.ListOrderedAsync(true, ct))
+                .Select(x => new BlogCardViewModel
+                {
+                    Title = x.Title,
+                    Slug = x.Slug,
+                    Summary = x.Summary,
+                    ThumbnailImagePath = x.ThumbnailImagePath ?? x.HeroImagePath,
+                    PublishedOnUtc = x.PublishedOnUtc,
+                    IsFeatured = x.IsFeatured
+                })
+                .ToList();
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return [];
+        }
+    }
+
+    private async Task<BlogPost?> TryGetBlogBySlugAsync(string slug, CancellationToken ct)
+    {
+        try
+        {
+            return await uow.BlogPostService.GetBySlugAsync(slug, true, ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return null;
+        }
+    }
 }
