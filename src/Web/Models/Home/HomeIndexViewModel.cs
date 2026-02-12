@@ -15,5 +15,6 @@ public sealed class HomeIndexViewModel
     public string WhoWeAreDescription { get; init; } = string.Empty;
     public string? WhoWeAreBackgroundImagePath { get; init; }
     public IReadOnlyList<WhoWeAreItemViewModel> WhoWeAreItems { get; init; } = [];
+    public IReadOnlyList<BlogCardViewModel> RecentBlogs { get; init; } = [];
 
 }

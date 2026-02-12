@@ -1,0 +1,45 @@
+@model IReadOnlyList<TravelCleanArch.Domain.Entities.BlogPost>
+@{ ViewData["Title"] = "Our Blogs"; }
+<div class="container-fluid">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Our Blogs</h2>
+        <a class="btn btn-primary" href="/admin/company/blogs/create">Add New</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string msg)
+    {
+        <div class="alert alert-success">@msg</div>
+    }
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Published On</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Ordering</td>
+                <td>@item.Title</td>
+                <td>@item.Slug</td>
+                <td>@item.PublishedOnUtc?.ToString("yyyy-MM-dd")</td>
+                <td>@(item.IsPublished ? "Published" : "Draft")</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" href="/admin/company/blogs/@item.Id/edit">Edit</a>
+                    <form method="post" action="/admin/company/blogs/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this blog?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

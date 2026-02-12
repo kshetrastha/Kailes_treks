@@ -14,5 +14,6 @@ public interface IUnitOfWork
     ITeamMemberService TeamMemberService { get; }
     ICertificateDocumentService CertificateDocumentService { get; }
     IReviewService ReviewService { get; }
+    IBlogPostService BlogPostService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
