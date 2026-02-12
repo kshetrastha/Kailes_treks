@@ -38,15 +38,16 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
 
     public async Task<ExpeditionDetailsDto?> GetByIdAsync(int id, CancellationToken ct)
     {
-        return await db.Expeditions.AsNoTracking()
+        var entity = await db.Expeditions.AsNoTracking()
             .Include(x => x.ExpeditionType)
             .Include(x => x.Sections.OrderBy(s => s.Ordering))
             .Include(x => x.ItineraryDays.OrderBy(i => i.DayNumber))
             .Include(x => x.Faqs.OrderBy(f => f.Ordering))
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
             .Where(x => x.Id == id)
-            .Select(MapDetails)
             .FirstOrDefaultAsync(ct);
+
+        return entity is null ? null : MapDetails(entity);
     }
 
     public async Task<int> CreateAsync(ExpeditionUpsertDto request, int? userId, CancellationToken ct)
@@ -85,15 +86,18 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     }
 
     public async Task<object?> GetPublicBySlugAsync(string slug, CancellationToken ct)
-        => await db.Expeditions.AsNoTracking()
+    {
+        var entity = await db.Expeditions.AsNoTracking()
             .Include(x => x.ExpeditionType)
             .Include(x => x.Sections.OrderBy(s => s.Ordering))
             .Include(x => x.ItineraryDays.OrderBy(i => i.DayNumber))
-            .Include(x => x.Faqs.OrderBy(f => f.Ordering))
+            .Include(x => x.Faqs.OrderBy(f => f.Ordering))  
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
             .Where(x => x.Slug == slug && x.Status == TravelStatus.Published)
-            .Select(MapDetails)
             .FirstOrDefaultAsync(ct);
+
+        return entity is null ? null : MapDetails(entity);
+    }
 
     private static ExpeditionDetailsDto MapDetails(Expedition x)
         => new(

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using TravelCleanArch.Domain.Constants;
+using TravelCleanArch.Domain.Entities;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
 
