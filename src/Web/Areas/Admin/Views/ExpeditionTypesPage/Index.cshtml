@@ -1,0 +1,31 @@
+@model IReadOnlyCollection<TravelCleanArch.Application.Abstractions.Travel.ExpeditionTypeDto>
+@{
+    ViewData["Title"] = "Expedition Types";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3>Expedition Types</h3>
+    <a class="btn btn-primary" asp-action="Create">Add Type</a>
+</div>
+
+<table class="table table-striped">
+    <thead><tr><th>Title</th><th>Short Description</th><th>Order</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.ShortDescription</td>
+            <td>@item.Ordering</td>
+            <td>@(item.IsPublished ? "Published" : "Draft")</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this type?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
