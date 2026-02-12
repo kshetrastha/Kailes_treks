@@ -60,7 +60,7 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
             Slug = slug,
             Summary = m.Summary?.Trim(),
             ContentHtml = m.ContentHtml.Trim(),
-            PublishedOnUtc = m.PublishedOnUtc,
+            PublishedOnUtc = NormalizeDateToUtc(m.PublishedOnUtc),
             Ordering = m.Ordering,
             IsFeatured = m.IsFeatured,
             IsPublished = m.IsPublished,
@@ -89,7 +89,7 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
         e.Title = m.Title.Trim();
         e.Summary = m.Summary?.Trim();
         e.ContentHtml = m.ContentHtml.Trim();
-        e.PublishedOnUtc = m.PublishedOnUtc;
+        e.PublishedOnUtc = NormalizeDateToUtc(m.PublishedOnUtc);
         e.Ordering = m.Ordering;
         e.IsFeatured = m.IsFeatured;
         e.IsPublished = m.IsPublished;
@@ -132,6 +132,9 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
         var slug = InvalidSlugRegex().Replace(value.ToLowerInvariant().Trim(), "-").Trim('-');
         return string.IsNullOrWhiteSpace(slug) ? "blog" : slug;
     }
+
+    private static DateTime? NormalizeDateToUtc(DateTime? value) =>
+        value.HasValue ? DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc) : null;
 
     private async Task<string> SaveFileAsync(IFormFile file, string dir, string prefix, CancellationToken ct)
     {
