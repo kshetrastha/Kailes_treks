@@ -23,7 +23,6 @@ public sealed class IdentitySeeder(
         await EnsureRoleAsync(AppRoles.Editor);
         await EnsureRoleAsync(AppRoles.Viewer);
         await EnsureRoleAsync(AppRoles.Customer);
-
         await EnsureAdminAsync(ct);
     }
 
