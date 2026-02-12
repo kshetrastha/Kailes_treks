@@ -93,6 +93,7 @@ public sealed class AppDbContext:
             b.Property(x => x.Title).HasMaxLength(220).IsRequired();
             b.Property(x => x.ShortDescription).HasMaxLength(600).IsRequired();
             b.Property(x => x.Description).HasMaxLength(4000);
+            b.Property(x => x.ImagePath).HasMaxLength(500);
             b.HasIndex(x => x.Title).IsUnique();
             b.HasIndex(x => new { x.IsPublished, x.Ordering });
         });

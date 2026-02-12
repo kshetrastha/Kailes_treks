@@ -13,14 +13,14 @@ public sealed class ExpeditionTypeService(AppDbContext db) : IExpeditionTypeServ
         if (!includeUnpublished) query = query.Where(x => x.IsPublished);
 
         return await query.OrderBy(x => x.Ordering).ThenBy(x => x.Title)
-            .Select(x => new ExpeditionTypeDto(x.Id, x.Title, x.ShortDescription, x.Description, x.Ordering, x.IsPublished))
+            .Select(x => new ExpeditionTypeDto(x.Id, x.Title, x.ShortDescription, x.Description, x.ImagePath, x.Ordering, x.IsPublished))
             .ToListAsync(ct);
     }
 
     public async Task<ExpeditionTypeDto?> GetByIdAsync(int id, CancellationToken ct)
         => await db.ExpeditionTypes.AsNoTracking()
             .Where(x => x.Id == id)
-            .Select(x => new ExpeditionTypeDto(x.Id, x.Title, x.ShortDescription, x.Description, x.Ordering, x.IsPublished))
+            .Select(x => new ExpeditionTypeDto(x.Id, x.Title, x.ShortDescription, x.Description, x.ImagePath, x.Ordering, x.IsPublished))
             .FirstOrDefaultAsync(ct);
 
     public async Task<int> CreateAsync(ExpeditionTypeUpsertDto request, int? userId, CancellationToken ct)
@@ -30,6 +30,7 @@ public sealed class ExpeditionTypeService(AppDbContext db) : IExpeditionTypeServ
             Title = request.Title.Trim(),
             ShortDescription = request.ShortDescription.Trim(),
             Description = request.Description,
+            ImagePath = request.ImagePath,
             Ordering = request.Ordering,
             IsPublished = request.IsPublished,
             CreatedAtUtc = DateTime.UtcNow,
@@ -51,6 +52,7 @@ public sealed class ExpeditionTypeService(AppDbContext db) : IExpeditionTypeServ
         entity.Title = request.Title.Trim();
         entity.ShortDescription = request.ShortDescription.Trim();
         entity.Description = request.Description;
+        entity.ImagePath = request.ImagePath;
         entity.Ordering = request.Ordering;
         entity.IsPublished = request.IsPublished;
         entity.UpdatedAtUtc = DateTime.UtcNow;

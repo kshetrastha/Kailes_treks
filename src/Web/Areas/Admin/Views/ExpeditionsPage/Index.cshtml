@@ -3,30 +3,61 @@
     ViewData["Title"] = "Expeditions";
 }
 
-<div class="d-flex justify-content-between mb-3">
-    <h3>Expeditions</h3>
-    <a class="btn btn-primary" asp-action="Create">Add Expedition</a>
-</div>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Expeditions</h2>
+        <a class="btn btn-primary" asp-action="Create">Add Expedition</a>
+    </div>
 
-<table class="table table-striped">
-    <thead><tr><th>Name</th><th>Type</th><th>Destination</th><th>Status</th><th>Price</th><th></th></tr></thead>
-    <tbody>
-    @foreach (var item in Model.Items)
+    @if (TempData["SuccessMessage"] is string success)
     {
-        <tr>
-            <td>@item.Name</td>
-            <td>@item.ExpeditionTypeTitle</td>
-            <td>@item.Destination</td>
-            <td>@item.Status</td>
-            <td>@item.Price</td>
-            <td class="text-end">
-                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this expedition?')">Delete</button>
-                </form>
-            </td>
-        </tr>
+        <div class="alert alert-success">@success</div>
     }
-    </tbody>
-</table>
+
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Destination</th>
+                            <th style="width: 110px;">Status</th>
+                            <th style="width: 120px;">Price</th>
+                            <th style="width: 190px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Items.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No expeditions found. Add your first item.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td data-label="Name">@item.Name</td>
+                                    <td data-label="Type">@item.ExpeditionTypeTitle</td>
+                                    <td data-label="Destination">@item.Destination</td>
+                                    <td data-label="Status">@item.Status</td>
+                                    <td data-label="Price">@item.Price</td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this expedition?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
