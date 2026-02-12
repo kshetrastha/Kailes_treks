@@ -1,4 +1,7 @@
 @model IReadOnlyCollection<TravelCleanArch.Domain.Entities.ChairmanMessage>
+@{
+    ViewData["Title"] = "Chairman's Message";
+}
 <div class="container-fluid"><div class="d-flex justify-content-between mb-3"><h2>Chairman's Message</h2><a class="btn btn-primary" href="/admin/company/chairman-message/create">Add New</a></div>
 <table class="table table-striped"><thead><tr><th>Heading</th><th>Chairman</th><th>Updated</th><th>Status</th><th></th></tr></thead><tbody>
 @foreach(var item in Model){<tr><td>@item.Heading</td><td>@item.ChairmanName</td><td>@item.UpdatedAtUtc.ToString("yyyy-MM-dd")</td><td>@(item.IsPublished?"Published":"Draft")</td><td><a class="btn btn-sm btn-outline-primary" href="/admin/company/chairman-message/@item.Id/edit">Edit</a><form method="post" action="/admin/company/chairman-message/@item.Id/delete" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>}
