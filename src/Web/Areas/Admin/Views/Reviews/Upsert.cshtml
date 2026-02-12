@@ -1,4 +1,35 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.ReviewFormViewModel
-@{ var isEdit = Model.Id.HasValue; }
-<div class="container-fluid"><h2>@(isEdit?"Edit":"Create") Review</h2><form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/reviews/{Model.Id}/edit":"/admin/company/reviews/create")">@Html.AntiForgeryToken() @if(isEdit){<input type="hidden" asp-for="Id"/>}
-<div class="mb-2"><label asp-for="ReviewerName"></label><input asp-for="ReviewerName" class="form-control"/></div><div class="mb-2"><label asp-for="ReviewerRole"></label><input asp-for="ReviewerRole" class="form-control"/></div><div class="mb-2"><label asp-for="ReviewText"></label><textarea asp-for="ReviewText" rows="6" class="form-control"></textarea></div><div class="mb-2"><label asp-for="Rating"></label><input asp-for="Rating" class="form-control"/></div><div class="mb-2"><label asp-for="SourceName"></label><input asp-for="SourceName" class="form-control"/></div><div class="mb-2"><label asp-for="SourceUrl"></label><input asp-for="SourceUrl" class="form-control"/></div><div class="mb-2"><label asp-for="ReviewedOnUtc"></label><input asp-for="ReviewedOnUtc" type="date" class="form-control"/></div><div class="mb-2"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control"/></div><div class="mb-2"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input"/><label asp-for="IsPublished" class="form-check-label"></label></div><button class="btn btn-primary">Save</button></form></div>
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Review" : "Create Review";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="mb-0">@(isEdit ? "Edit" : "Create") Review</h2><a class="btn btn-outline-secondary" href="/admin/company/reviews">Back to list</a></div>
+    <div class="card"><div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/reviews/{Model.Id}/edit" : "/admin/company/reviews/create")">
+            @Html.AntiForgeryToken()
+            @if (isEdit)
+            {
+                <input type="hidden" asp-for="Id" />
+            }
+            <div class="row g-3">
+                <div class="col-md-6"><label asp-for="ReviewerName" class="form-label"></label><input asp-for="ReviewerName" class="form-control" /><span asp-validation-for="ReviewerName" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="ReviewerRole" class="form-label"></label><input asp-for="ReviewerRole" class="form-control" /><span asp-validation-for="ReviewerRole" class="text-danger"></span></div>
+                <div class="col-md-4"><label asp-for="Rating" class="form-label"></label><input asp-for="Rating" class="form-control" /><span asp-validation-for="Rating" class="text-danger"></span></div>
+                <div class="col-md-4"><label asp-for="ReviewedOnUtc" class="form-label"></label><input asp-for="ReviewedOnUtc" type="date" class="form-control" /><span asp-validation-for="ReviewedOnUtc" class="text-danger"></span></div>
+                <div class="col-md-4"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /><span asp-validation-for="Ordering" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="SourceName" class="form-label"></label><input asp-for="SourceName" class="form-control" /><span asp-validation-for="SourceName" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="SourceUrl" class="form-label"></label><input asp-for="SourceUrl" class="form-control" /><span asp-validation-for="SourceUrl" class="text-danger"></span></div>
+                <div class="col-12"><label asp-for="ReviewText" class="form-label"></label><textarea asp-for="ReviewText" rows="6" class="form-control"></textarea><span asp-validation-for="ReviewText" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="Image" class="form-label"></label><input asp-for="Image" type="file" class="form-control" accept="image/*" /><span asp-validation-for="Image" class="text-danger"></span>@if(!string.IsNullOrWhiteSpace(Model.ExistingImagePath)){<div class="mt-2"><small class="text-muted d-block">Current image</small><img src="/@Model.ExistingImagePath" alt="Current review image" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px;" /></div>}</div>
+                <div class="col-md-6 d-flex align-items-end"><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div></div>
+            </div>
+            <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button><a href="/admin/company/reviews" class="btn btn-outline-secondary">Cancel</a></div>
+        </form>
+    </div></div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

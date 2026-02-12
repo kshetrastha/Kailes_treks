@@ -12,11 +12,150 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Route("admin/company/certificates-documents")]
 public sealed class CertificatesDocumentsController(IUnitOfWork uow, IWebHostEnvironment env) : Controller
 {
-    [HttpGet("")] public async Task<IActionResult> Index(CancellationToken ct)=>View(await uow.CertificateDocumentService.ListOrderedAsync(false,ct));
-    [HttpGet("create")] public IActionResult Create()=>View("Upsert",new CertificateDocumentFormViewModel());
-    [HttpGet("{id:int}/edit")] public async Task<IActionResult> Edit(int id,CancellationToken ct){var e=await uow.CertificateDocumentService.GetByIdAsync(id,ct); if(e is null) return NotFound(); return View("Upsert",new CertificateDocumentFormViewModel{Id=e.Id,Title=e.Title,Category=e.Category,Description=e.Description,IssuedOnUtc=e.IssuedOnUtc,ExistingFilePath=e.FilePath,ExistingThumbnailPath=e.ThumbnailImagePath,Ordering=e.Ordering,IsPublished=e.IsPublished});}
-    [HttpPost("create"),ValidateAntiForgeryToken] public async Task<IActionResult> Create(CertificateDocumentFormViewModel m,CancellationToken ct){if(!ModelState.IsValid) return View("Upsert",m); var n=DateTime.UtcNow; var e=new CertificateDocument{Title=m.Title.Trim(),Category=m.Category?.Trim(),Description=m.Description?.Trim(),IssuedOnUtc=m.IssuedOnUtc,Ordering=m.Ordering,IsPublished=m.IsPublished,CreatedAtUtc=n,UpdatedAtUtc=n}; if(m.DocumentFile is {Length:>0}) e.FilePath=await SaveFileAsync(m.DocumentFile,"documents","document",ct); if(m.ThumbnailImage is {Length:>0}) e.ThumbnailImagePath=await SaveFileAsync(m.ThumbnailImage,"documents","thumb",ct); await uow.CertificateDocumentService.AddAsync(e,ct); await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    [HttpPost("{id:int}/edit"),ValidateAntiForgeryToken] public async Task<IActionResult> Edit(int id,CertificateDocumentFormViewModel m,CancellationToken ct){if(id!=m.Id) return BadRequest(); if(!ModelState.IsValid) return View("Upsert",m); var e=await uow.CertificateDocumentService.GetByIdAsync(id,ct); if(e is null) return NotFound(); e.Title=m.Title.Trim(); e.Category=m.Category?.Trim(); e.Description=m.Description?.Trim(); e.IssuedOnUtc=m.IssuedOnUtc; e.Ordering=m.Ordering; e.IsPublished=m.IsPublished; if(m.DocumentFile is {Length:>0}) e.FilePath=await SaveFileAsync(m.DocumentFile,"documents","document",ct); if(m.ThumbnailImage is {Length:>0}) e.ThumbnailImagePath=await SaveFileAsync(m.ThumbnailImage,"documents","thumb",ct); e.UpdatedAtUtc=DateTime.UtcNow; await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    [HttpPost("{id:int}/delete"),ValidateAntiForgeryToken] public async Task<IActionResult> Delete(int id,CancellationToken ct){var e=await uow.CertificateDocumentService.GetByIdAsync(id,ct); if(e is null) return NotFound(); uow.CertificateDocumentService.Remove(e); await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    private async Task<string> SaveFileAsync(IFormFile file,string dir,string prefix,CancellationToken ct){var ext=Path.GetExtension(file.FileName); var folder=Path.Combine(env.WebRootPath,"uploads",dir); Directory.CreateDirectory(folder); var name=$"{prefix}-{Guid.NewGuid():N}{ext}"; var path=Path.Combine(folder,name); await using var s=System.IO.File.Create(path); await file.CopyToAsync(s,ct); return Path.Combine("uploads",dir,name).Replace('\\','/');}
+    [HttpGet("")]
+    public async Task<IActionResult> Index(CancellationToken ct) =>
+        View(await uow.CertificateDocumentService.ListOrderedAsync(false, ct));
+
+    [HttpGet("create")]
+    public IActionResult Create() => View("Upsert", new CertificateDocumentFormViewModel());
+
+    [HttpGet("{id:int}/edit")]
+    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    {
+        var entity = await uow.CertificateDocumentService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        return View("Upsert", new CertificateDocumentFormViewModel
+        {
+            Id = entity.Id,
+            Title = entity.Title,
+            Category = entity.Category,
+            Description = entity.Description,
+            IssuedOnUtc = entity.IssuedOnUtc?.Date,
+            ExistingFilePath = entity.FilePath,
+            ExistingThumbnailPath = entity.ThumbnailImagePath,
+            Ordering = entity.Ordering,
+            IsPublished = entity.IsPublished
+        });
+    }
+
+    [HttpPost("create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CertificateDocumentFormViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Upsert", model);
+        }
+
+        var now = DateTime.UtcNow;
+        var entity = new CertificateDocument
+        {
+            Title = model.Title.Trim(),
+            Category = model.Category?.Trim(),
+            Description = model.Description?.Trim(),
+            IssuedOnUtc = NormalizeDateToUtc(model.IssuedOnUtc),
+            Ordering = model.Ordering,
+            IsPublished = model.IsPublished,
+            CreatedAtUtc = now,
+            UpdatedAtUtc = now
+        };
+
+        if (model.DocumentFile is { Length: > 0 })
+        {
+            entity.FilePath = await SaveFileAsync(model.DocumentFile, "documents", "document", ct);
+        }
+
+        if (model.ThumbnailImage is { Length: > 0 })
+        {
+            entity.ThumbnailImagePath = await SaveFileAsync(model.ThumbnailImage, "documents", "thumb", ct);
+        }
+
+        await uow.CertificateDocumentService.AddAsync(entity, ct);
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Certificate/Document created.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("{id:int}/edit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, CertificateDocumentFormViewModel model, CancellationToken ct)
+    {
+        if (id != model.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("Upsert", model);
+        }
+
+        var entity = await uow.CertificateDocumentService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        entity.Title = model.Title.Trim();
+        entity.Category = model.Category?.Trim();
+        entity.Description = model.Description?.Trim();
+        entity.IssuedOnUtc = NormalizeDateToUtc(model.IssuedOnUtc);
+        entity.Ordering = model.Ordering;
+        entity.IsPublished = model.IsPublished;
+
+        if (model.DocumentFile is { Length: > 0 })
+        {
+            entity.FilePath = await SaveFileAsync(model.DocumentFile, "documents", "document", ct);
+        }
+
+        if (model.ThumbnailImage is { Length: > 0 })
+        {
+            entity.ThumbnailImagePath = await SaveFileAsync(model.ThumbnailImage, "documents", "thumb", ct);
+        }
+
+        entity.UpdatedAtUtc = DateTime.UtcNow;
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Certificate/Document updated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("{id:int}/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var entity = await uow.CertificateDocumentService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        uow.CertificateDocumentService.Remove(entity);
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Certificate/Document deleted.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    private static DateTime? NormalizeDateToUtc(DateTime? value) =>
+        value.HasValue ? DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc) : null;
+
+    private async Task<string> SaveFileAsync(IFormFile file, string dir, string prefix, CancellationToken ct)
+    {
+        var ext = Path.GetExtension(file.FileName);
+        var folder = Path.Combine(env.WebRootPath, "uploads", dir);
+        Directory.CreateDirectory(folder);
+        var name = $"{prefix}-{Guid.NewGuid():N}{ext}";
+        var path = Path.Combine(folder, name);
+
+        await using var stream = System.IO.File.Create(path);
+        await file.CopyToAsync(stream, ct);
+
+        return Path.Combine("uploads", dir, name).Replace('\\', '/');
+    }
 }

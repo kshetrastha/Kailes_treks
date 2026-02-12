@@ -12,11 +12,133 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Route("admin/company/patrons")]
 public sealed class PatronsController(IUnitOfWork uow, IWebHostEnvironment env) : Controller
 {
-    [HttpGet("")] public async Task<IActionResult> Index(CancellationToken ct) => View(await uow.PatronService.ListOrderedAsync(false, ct));
-    [HttpGet("create")] public IActionResult Create() => View("Upsert", new PatronFormViewModel());
-    [HttpGet("{id:int}/edit")] public async Task<IActionResult> Edit(int id, CancellationToken ct){var e=await uow.PatronService.GetByIdAsync(id, ct); if(e is null) return NotFound(); return View("Upsert", new PatronFormViewModel{Id=e.Id,Name=e.Name,Role=e.Role,Biography=e.Biography,ExistingImagePath=e.ImagePath,Ordering=e.Ordering,IsPublished=e.IsPublished});}
-    [HttpPost("create"),ValidateAntiForgeryToken] public async Task<IActionResult> Create(PatronFormViewModel m, CancellationToken ct){if(!ModelState.IsValid) return View("Upsert",m); var n=DateTime.UtcNow; var e=new Patron{Name=m.Name.Trim(),Role=m.Role.Trim(),Biography=m.Biography?.Trim(),Ordering=m.Ordering,IsPublished=m.IsPublished,CreatedAtUtc=n,UpdatedAtUtc=n}; if(m.Image is {Length:>0}) e.ImagePath=await SaveFileAsync(m.Image,ct); await uow.PatronService.AddAsync(e,ct); await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    [HttpPost("{id:int}/edit"),ValidateAntiForgeryToken] public async Task<IActionResult> Edit(int id, PatronFormViewModel m, CancellationToken ct){if(id!=m.Id) return BadRequest(); if(!ModelState.IsValid) return View("Upsert",m); var e=await uow.PatronService.GetByIdAsync(id, ct); if(e is null) return NotFound(); e.Name=m.Name.Trim(); e.Role=m.Role.Trim(); e.Biography=m.Biography?.Trim(); e.Ordering=m.Ordering; e.IsPublished=m.IsPublished; if(m.Image is {Length:>0}) e.ImagePath=await SaveFileAsync(m.Image,ct); e.UpdatedAtUtc=DateTime.UtcNow; await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    [HttpPost("{id:int}/delete"),ValidateAntiForgeryToken] public async Task<IActionResult> Delete(int id, CancellationToken ct){var e=await uow.PatronService.GetByIdAsync(id, ct); if(e is null) return NotFound(); uow.PatronService.Remove(e); await uow.SaveChangesAsync(ct); return RedirectToAction(nameof(Index));}
-    private async Task<string> SaveFileAsync(IFormFile file, CancellationToken ct){var ext=Path.GetExtension(file.FileName); var folder=Path.Combine(env.WebRootPath,"uploads","patrons"); Directory.CreateDirectory(folder); var name=$"patron-{Guid.NewGuid():N}{ext}"; var path=Path.Combine(folder,name); await using var s=System.IO.File.Create(path); await file.CopyToAsync(s,ct); return Path.Combine("uploads","patrons",name).Replace('\\','/');}
+    [HttpGet("")]
+    public async Task<IActionResult> Index(CancellationToken ct) =>
+        View(await uow.PatronService.ListOrderedAsync(false, ct));
+
+    [HttpGet("create")]
+    public IActionResult Create() => View("Upsert", new PatronFormViewModel());
+
+    [HttpGet("{id:int}/edit")]
+    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    {
+        var entity = await uow.PatronService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        return View("Upsert", new PatronFormViewModel
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Role = entity.Role,
+            Biography = entity.Biography,
+            ExistingImagePath = entity.ImagePath,
+            Ordering = entity.Ordering,
+            IsPublished = entity.IsPublished
+        });
+    }
+
+    [HttpPost("create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(PatronFormViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Upsert", model);
+        }
+
+        var now = DateTime.UtcNow;
+        var entity = new Patron
+        {
+            Name = model.Name.Trim(),
+            Role = model.Role.Trim(),
+            Biography = model.Biography?.Trim(),
+            Ordering = model.Ordering,
+            IsPublished = model.IsPublished,
+            CreatedAtUtc = now,
+            UpdatedAtUtc = now
+        };
+
+        if (model.Image is { Length: > 0 })
+        {
+            entity.ImagePath = await SaveFileAsync(model.Image, ct);
+        }
+
+        await uow.PatronService.AddAsync(entity, ct);
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Patron created.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("{id:int}/edit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, PatronFormViewModel model, CancellationToken ct)
+    {
+        if (id != model.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("Upsert", model);
+        }
+
+        var entity = await uow.PatronService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        entity.Name = model.Name.Trim();
+        entity.Role = model.Role.Trim();
+        entity.Biography = model.Biography?.Trim();
+        entity.Ordering = model.Ordering;
+        entity.IsPublished = model.IsPublished;
+
+        if (model.Image is { Length: > 0 })
+        {
+            entity.ImagePath = await SaveFileAsync(model.Image, ct);
+        }
+
+        entity.UpdatedAtUtc = DateTime.UtcNow;
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Patron updated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("{id:int}/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var entity = await uow.PatronService.GetByIdAsync(id, ct);
+        if (entity is null)
+        {
+            return NotFound();
+        }
+
+        uow.PatronService.Remove(entity);
+        await uow.SaveChangesAsync(ct);
+
+        TempData["SuccessMessage"] = "Patron deleted.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<string> SaveFileAsync(IFormFile file, CancellationToken ct)
+    {
+        var ext = Path.GetExtension(file.FileName);
+        var folder = Path.Combine(env.WebRootPath, "uploads", "patrons");
+        Directory.CreateDirectory(folder);
+        var name = $"patron-{Guid.NewGuid():N}{ext}";
+        var path = Path.Combine(folder, name);
+
+        await using var stream = System.IO.File.Create(path);
+        await file.CopyToAsync(stream, ct);
+
+        return Path.Combine("uploads", "patrons", name).Replace('\\', '/');
+    }
 }

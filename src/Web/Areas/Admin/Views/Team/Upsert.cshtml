@@ -1,4 +1,33 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.TeamMemberFormViewModel
-@{ var isEdit = Model.Id.HasValue; }
-<div class="container-fluid"><h2>@(isEdit?"Edit":"Create") Team Profile</h2><form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/team/{Model.Id}/edit":"/admin/company/team/create")">@Html.AntiForgeryToken() @if(isEdit){<input type="hidden" asp-for="Id"/>}
-<div class="mb-2"><label asp-for="FullName"></label><input asp-for="FullName" class="form-control"/></div><div class="mb-2"><label asp-for="Role"></label><input asp-for="Role" class="form-control"/></div><div class="mb-2"><label asp-for="Biography"></label><textarea asp-for="Biography" class="form-control"></textarea></div><div class="mb-2"><label asp-for="Email"></label><input asp-for="Email" class="form-control"/></div><div class="mb-2"><label asp-for="LinkedInUrl"></label><input asp-for="LinkedInUrl" class="form-control"/></div><div class="mb-2"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control"/></div><div class="mb-2"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input"/><label asp-for="IsPublished" class="form-check-label"></label></div><button class="btn btn-primary">Save</button></form></div>
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Team Profile" : "Create Team Profile";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="mb-0">@(isEdit ? "Edit" : "Create") Team Profile</h2><a class="btn btn-outline-secondary" href="/admin/company/team">Back to list</a></div>
+    <div class="card"><div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/team/{Model.Id}/edit" : "/admin/company/team/create")">
+            @Html.AntiForgeryToken()
+            @if (isEdit)
+            {
+                <input type="hidden" asp-for="Id" />
+            }
+            <div class="row g-3">
+                <div class="col-md-6"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="Role" class="form-label"></label><input asp-for="Role" class="form-control" /><span asp-validation-for="Role" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="LinkedInUrl" class="form-label"></label><input asp-for="LinkedInUrl" class="form-control" /><span asp-validation-for="LinkedInUrl" class="text-danger"></span></div>
+                <div class="col-12"><label asp-for="Biography" class="form-label"></label><textarea asp-for="Biography" class="form-control" rows="5"></textarea><span asp-validation-for="Biography" class="text-danger"></span></div>
+                <div class="col-md-4"><label asp-for="Image" class="form-label"></label><input asp-for="Image" type="file" class="form-control" accept="image/*" /><span asp-validation-for="Image" class="text-danger"></span>@if(!string.IsNullOrWhiteSpace(Model.ExistingImagePath)){<div class="mt-2"><small class="text-muted d-block">Current image</small><img src="/@Model.ExistingImagePath" alt="Current member image" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px;" /></div>}</div>
+                <div class="col-md-4"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /><span asp-validation-for="Ordering" class="text-danger"></span></div>
+                <div class="col-md-4 d-flex align-items-end"><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div></div>
+            </div>
+            <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button><a href="/admin/company/team" class="btn btn-outline-secondary">Cancel</a></div>
+        </form>
+    </div></div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

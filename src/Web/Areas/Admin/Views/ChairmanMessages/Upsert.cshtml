@@ -1,4 +1,79 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.ChairmanMessageFormViewModel
-@{ var isEdit = Model.Id.HasValue; }
-<div class="container-fluid"><h2>@(isEdit?"Edit":"Create") Chairman Message</h2><form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/chairman-message/{Model.Id}/edit":"/admin/company/chairman-message/create")">@Html.AntiForgeryToken() @if(isEdit){<input type="hidden" asp-for="Id"/>}
-<div class="mb-2"><label asp-for="Heading"></label><input asp-for="Heading" class="form-control"/></div><div class="mb-2"><label asp-for="ChairmanName"></label><input asp-for="ChairmanName" class="form-control"/></div><div class="mb-2"><label asp-for="Designation"></label><input asp-for="Designation" class="form-control"/></div><div class="mb-2"><label asp-for="MessageHtml"></label><textarea asp-for="MessageHtml" rows="10" class="form-control"></textarea></div><div class="mb-2"><label asp-for="VideoUrl"></label><input asp-for="VideoUrl" class="form-control"/></div><div class="mb-2"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control"/></div><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input"/><label asp-for="IsPublished" class="form-check-label"></label></div><button class="btn btn-primary">Save</button></form></div>
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Chairman Message" : "Create Chairman Message";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Chairman Message</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/chairman-message">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/chairman-message/{Model.Id}/edit" : "/admin/company/chairman-message/create")">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Heading" class="form-label"></label>
+                        <input asp-for="Heading" class="form-control" />
+                        <span asp-validation-for="Heading" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ChairmanName" class="form-label"></label>
+                        <input asp-for="ChairmanName" class="form-control" />
+                        <span asp-validation-for="ChairmanName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Designation" class="form-label"></label>
+                        <input asp-for="Designation" class="form-control" />
+                        <span asp-validation-for="Designation" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input asp-for="IsPublished" class="form-check-input" />
+                            <label asp-for="IsPublished" class="form-check-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="MessageHtml" class="form-label"></label>
+                        <textarea asp-for="MessageHtml" rows="8" class="form-control"></textarea>
+                        <span asp-validation-for="MessageHtml" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="VideoUrl" class="form-label"></label>
+                        <input asp-for="VideoUrl" class="form-control" />
+                        <span asp-validation-for="VideoUrl" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Image" class="form-label"></label>
+                        <input asp-for="Image" type="file" class="form-control" accept="image/*" />
+                        <span asp-validation-for="Image" class="text-danger"></span>
+                        @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted d-block">Current image</small>
+                                <img src="/@Model.ExistingImagePath" alt="Current chairman image" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                    <a href="/admin/company/chairman-message" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
