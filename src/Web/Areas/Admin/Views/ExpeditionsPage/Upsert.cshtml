@@ -3,31 +3,236 @@
 @{
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+    ViewData["Title"] = isEdit ? "Edit Expedition" : "Create Expedition";
 }
-<h3>@(isEdit ? "Edit Expedition" : "Create Expedition")</h3>
-<form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
-    @Html.AntiForgeryToken()
-    <div class="row">
-        <div class="col-md-6 mb-3"><label asp-for="Name"></label><input asp-for="Name" class="form-control"/></div>
-        <div class="col-md-6 mb-3"><label asp-for="Slug"></label><input asp-for="Slug" class="form-control"/></div>
-        <div class="col-md-12 mb-3"><label asp-for="ShortDescription"></label><textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea></div>
-        <div class="col-md-4 mb-3"><label asp-for="Destination"></label><input asp-for="Destination" class="form-control"/></div>
-        <div class="col-md-4 mb-3"><label asp-for="Region"></label><input asp-for="Region" class="form-control"/></div>
-        <div class="col-md-4 mb-3"><label>Expedition Type</label><select asp-for="ExpeditionTypeId" class="form-select"><option value="">-- none --</option>@foreach (var t in types){<option value="@t.Id">@t.Title</option>}</select></div>
-        <div class="col-md-3 mb-3"><label asp-for="DurationDays"></label><input asp-for="DurationDays" class="form-control"/></div>
-        <div class="col-md-3 mb-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control"/></div>
-        <div class="col-md-3 mb-3"><label asp-for="Difficulty"></label><input asp-for="Difficulty" class="form-control"/></div>
-        <div class="col-md-3 mb-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control"/></div>
-        <div class="col-md-6 mb-3"><label asp-for="Status"></label><input asp-for="Status" class="form-control"/></div>
-        <div class="col-md-6 mb-3"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div>
-        <div class="col-md-12 mb-3"><label asp-for="Overview"></label><textarea asp-for="Overview" class="form-control" rows="3"></textarea></div>
-        <div class="col-md-6 mb-3"><label asp-for="Inclusions"></label><textarea asp-for="Inclusions" class="form-control" rows="3"></textarea></div>
-        <div class="col-md-6 mb-3"><label asp-for="Exclusions"></label><textarea asp-for="Exclusions" class="form-control" rows="3"></textarea></div>
-        <div class="col-md-12 mb-3"><label asp-for="SectionsText"></label><textarea asp-for="SectionsText" class="form-control" rows="4"></textarea></div>
-        <div class="col-md-12 mb-3"><label asp-for="ItineraryText"></label><textarea asp-for="ItineraryText" class="form-control" rows="4"></textarea></div>
-        <div class="col-md-12 mb-3"><label asp-for="FaqsText"></label><textarea asp-for="FaqsText" class="form-control" rows="4"></textarea></div>
-        <div class="col-md-12 mb-3"><label asp-for="MediaText"></label><textarea asp-for="MediaText" class="form-control" rows="4"></textarea></div>
+
+<div class="container-fluid">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Expedition</h2>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
     </div>
-    <button class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-light">Cancel</a>
-</form>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="expeditionForm" method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" novalidate>
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Slug" class="form-label"></label>
+                        <input asp-for="Slug" class="form-control" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="ShortDescription" class="form-label"></label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Destination" class="form-label"></label>
+                        <input asp-for="Destination" class="form-control" />
+                        <span asp-validation-for="Destination" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Region" class="form-label"></label>
+                        <input asp-for="Region" class="form-control" />
+                        <span asp-validation-for="Region" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ExpeditionTypeId" class="form-label">Expedition Type</label>
+                        <select asp-for="ExpeditionTypeId" class="form-select">
+                            <option value="">-- none --</option>
+                            @foreach (var t in types)
+                            {
+                                <option value="@t.Id">@t.Title</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ExpeditionTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="DurationDays" class="form-label"></label>
+                        <input asp-for="DurationDays" class="form-control" type="number" min="1" max="365" />
+                        <span asp-validation-for="DurationDays" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MaxAltitudeMeters" class="form-label"></label>
+                        <input asp-for="MaxAltitudeMeters" class="form-control" type="number" min="0" max="12000" />
+                        <span asp-validation-for="MaxAltitudeMeters" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Difficulty" class="form-label"></label>
+                        <input asp-for="Difficulty" class="form-control" />
+                        <span asp-validation-for="Difficulty" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <input asp-for="Status" class="form-control" />
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Ordering" class="form-label"></label>
+                        <input asp-for="Ordering" class="form-control" type="number" min="0" max="999" />
+                        <span asp-validation-for="Ordering" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Overview" class="form-label"></label>
+                        <textarea asp-for="Overview" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Overview" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Inclusions" class="form-label"></label>
+                        <textarea asp-for="Inclusions" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Inclusions" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Exclusions" class="form-label"></label>
+                        <textarea asp-for="Exclusions" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Exclusions" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="SectionsText" class="form-label"></label>
+                        <textarea asp-for="SectionsText" class="form-control" rows="4" placeholder="sectionType|title|content|ordering"></textarea>
+                        <span asp-validation-for="SectionsText" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="ItineraryText" class="form-label"></label>
+                        <textarea asp-for="ItineraryText" class="form-control" rows="4" placeholder="dayNumber|title|description|overnightLocation"></textarea>
+                        <span asp-validation-for="ItineraryText" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="FaqsText" class="form-label"></label>
+                        <textarea asp-for="FaqsText" class="form-control" rows="4" placeholder="question|answer|ordering"></textarea>
+                        <span asp-validation-for="FaqsText" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="MediaText" class="form-label"></label>
+                        <textarea asp-for="MediaText" class="form-control" rows="4" placeholder="url|caption|mediaType|ordering"></textarea>
+                        <span asp-validation-for="MediaText" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                <a asp-action="Index" class="btn btn-light">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return value.trim() === value;
+            }, "This field cannot start or end with spaces.");
+
+            $.validator.addMethod("pipeSeparatedRows", function (value, element, expectedParts) {
+                if (this.optional(element) || !value) {
+                    return true;
+                }
+
+                const rows = value.split("\n").map(x => x.trim()).filter(Boolean);
+                for (const row of rows) {
+                    if (row.split("|").length !== expectedParts) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }, "One or more rows use an invalid format.");
+
+            $("#expeditionForm").validate({
+                ignore: [],
+                errorClass: "text-danger",
+                rules: {
+                    Name: {
+                        required: true,
+                        maxlength: 200,
+                        noLeadingTrailingSpace: true
+                    },
+                    ShortDescription: {
+                        required: true,
+                        maxlength: 600,
+                        noLeadingTrailingSpace: true
+                    },
+                    Destination: {
+                        required: true,
+                        maxlength: 200,
+                        noLeadingTrailingSpace: true
+                    },
+                    Difficulty: {
+                        required: true,
+                        maxlength: 100,
+                        noLeadingTrailingSpace: true
+                    },
+                    DurationDays: {
+                        required: true,
+                        number: true,
+                        min: 1,
+                        max: 365
+                    },
+                    MaxAltitudeMeters: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 12000
+                    },
+                    Price: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 999999
+                    },
+                    Status: {
+                        required: true,
+                        noLeadingTrailingSpace: true
+                    },
+                    Ordering: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 999
+                    },
+                    SectionsText: {
+                        pipeSeparatedRows: 4
+                    },
+                    ItineraryText: {
+                        pipeSeparatedRows: 4
+                    },
+                    FaqsText: {
+                        pipeSeparatedRows: 3
+                    },
+                    MediaText: {
+                        pipeSeparatedRows: 4
+                    }
+                }
+            });
+        })();
+    </script>
+}
