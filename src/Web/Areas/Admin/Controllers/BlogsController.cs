@@ -5,6 +5,7 @@ using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Areas.Admin.Models;
+using TravelCleanArch.Web.Common;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 
@@ -60,7 +61,7 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
             Slug = slug,
             Summary = m.Summary?.Trim(),
             ContentHtml = m.ContentHtml.Trim(),
-            PublishedOnUtc = m.PublishedOnUtc,
+            PublishedOnUtc = m.PublishedOnUtc.AsUtc(),
             Ordering = m.Ordering,
             IsFeatured = m.IsFeatured,
             IsPublished = m.IsPublished,
@@ -89,7 +90,7 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
         e.Title = m.Title.Trim();
         e.Summary = m.Summary?.Trim();
         e.ContentHtml = m.ContentHtml.Trim();
-        e.PublishedOnUtc = m.PublishedOnUtc;
+        e.PublishedOnUtc = m.PublishedOnUtc.AsUtc();
         e.Ordering = m.Ordering;
         e.IsFeatured = m.IsFeatured;
         e.IsPublished = m.IsPublished;
