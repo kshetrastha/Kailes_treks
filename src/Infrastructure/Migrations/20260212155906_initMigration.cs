@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initmigration : Migration
+    public partial class initMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -317,6 +317,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
                     ShortDescription = table.Column<string>(type: "character varying(600)", maxLength: 600, nullable: false),
                     Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Ordering = table.Column<int>(type: "integer", nullable: false),
                     IsPublished = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
