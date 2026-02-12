@@ -12,8 +12,8 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260211175953_initmigrations")]
-    partial class initmigrations
+    [Migration("20260212092949_initmigration")]
+    partial class initmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

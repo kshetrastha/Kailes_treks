@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initmigrations : Migration
+    public partial class initmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
