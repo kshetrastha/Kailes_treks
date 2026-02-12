@@ -1,74 +1,191 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.BlogPostFormViewModel
-@{ var isEdit = Model.Id.HasValue; ViewData["Title"] = isEdit ? "Edit Blog" : "Create Blog"; }
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Blog" : "Create Blog";
+}
+
 <div class="container-fluid">
-    <h2>@(isEdit ? "Edit" : "Create") Blog</h2>
-    <form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/blogs/{Model.Id}/edit":"/admin/company/blogs/create")">
-        @Html.AntiForgeryToken()
-        @if (isEdit)
-        {
-            <input type="hidden" asp-for="Id" />
-        }
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Blog</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/blogs">Back to list</a>
+    </div>
 
-        <div class="row g-3">
-            <div class="col-md-8">
-                <label asp-for="Title" class="form-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="col-md-4">
-                <label asp-for="Slug" class="form-label">Slug (optional)</label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="col-12">
-                <label asp-for="Summary" class="form-label"></label>
-                <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Summary" class="text-danger"></span>
-            </div>
-            <div class="col-12">
-                <label asp-for="ContentHtml" class="form-label">Content (HTML allowed)</label>
-                <textarea asp-for="ContentHtml" class="form-control" rows="14"></textarea>
-                <span asp-validation-for="ContentHtml" class="text-danger"></span>
-            </div>
-            <div class="col-md-3">
-                <label asp-for="PublishedOnUtc" class="form-label"></label>
-                <input asp-for="PublishedOnUtc" type="date" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label asp-for="Ordering" class="form-label"></label>
-                <input asp-for="Ordering" class="form-control" />
-            </div>
-            <div class="col-md-3 form-check mt-5">
-                <input asp-for="IsFeatured" class="form-check-input" />
-                <label asp-for="IsFeatured" class="form-check-label"></label>
-            </div>
-            <div class="col-md-3 form-check mt-5">
-                <input asp-for="IsPublished" class="form-check-input" />
-                <label asp-for="IsPublished" class="form-check-label"></label>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="HeroImage" class="form-label">Hero image</label>
-                <input asp-for="HeroImage" type="file" class="form-control" />
-                @if (!string.IsNullOrWhiteSpace(Model.ExistingHeroImagePath))
+    <div class="card">
+        <div class="card-body">
+            <form id="blogForm" method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/blogs/{Model.Id}/edit" : "/admin/company/blogs/create")" novalidate>
+                @Html.AntiForgeryToken()
+                @if (isEdit)
                 {
-                    <img src="/@Model.ExistingHeroImagePath" class="img-thumbnail mt-2" style="max-height:180px;" />
+                    <input type="hidden" asp-for="Id" />
                 }
-            </div>
-            <div class="col-md-6">
-                <label asp-for="ThumbnailImage" class="form-label">Thumbnail image</label>
-                <input asp-for="ThumbnailImage" type="file" class="form-control" />
-                @if (!string.IsNullOrWhiteSpace(Model.ExistingThumbnailImagePath))
-                {
-                    <img src="/@Model.ExistingThumbnailImagePath" class="img-thumbnail mt-2" style="max-height:180px;" />
-                }
-            </div>
-        </div>
 
-        <div class="mt-3">
-            <button class="btn btn-primary">Save</button>
-            <a href="/admin/company/blogs" class="btn btn-outline-secondary">Cancel</a>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Slug" class="form-label">Slug (optional)</label>
+                    <input asp-for="Slug" class="form-control" />
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Summary" class="form-label"></label>
+                    <textarea asp-for="Summary" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContentHtml" class="form-label">Content (HTML allowed)</label>
+                    <textarea asp-for="ContentHtml" class="form-control" rows="14"></textarea>
+                    <span asp-validation-for="ContentHtml" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PublishedOnUtc" class="form-label"></label>
+                    <input asp-for="PublishedOnUtc" type="date" class="form-control" />
+                    <span asp-validation-for="PublishedOnUtc" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Ordering" class="form-label"></label>
+                    <input asp-for="Ordering" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="Ordering" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsFeatured" class="form-check-input" />
+                    <label asp-for="IsFeatured" class="form-check-label"></label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsPublished" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label"></label>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="HeroImage" class="form-label">Hero image</label>
+                    <input asp-for="HeroImage" type="file" class="form-control" accept="image/*" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ExistingHeroImagePath))
+                    {
+                        <div class="form-text">
+                            Current image: <a href="/@Model.ExistingHeroImagePath" target="_blank">@Model.ExistingHeroImagePath</a>
+                        </div>
+                    }
+                    <span asp-validation-for="HeroImage" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ThumbnailImage" class="form-label">Thumbnail image</label>
+                    <input asp-for="ThumbnailImage" type="file" class="form-control" accept="image/*" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ExistingThumbnailImagePath))
+                    {
+                        <div class="form-text">
+                            Current image: <a href="/@Model.ExistingThumbnailImagePath" target="_blank">@Model.ExistingThumbnailImagePath</a>
+                        </div>
+                    }
+                    <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
-<partial name="_ValidationScriptsPartial" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const maxFileSize = 5 * 1024 * 1024;
+
+            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return value.trim() === value;
+            }, "This field cannot start or end with spaces.");
+
+            $.validator.addMethod("imageExtension", function (value, element) {
+                if (this.optional(element) || !value) {
+                    return true;
+                }
+
+                return /\.(jpg|jpeg|png|webp|gif)$/i.test(value);
+            }, "Image must be a valid image file (jpg, jpeg, png, webp, gif).");
+
+            $.validator.addMethod("fileSize", function (value, element, param) {
+                if (this.optional(element) || !element.files || element.files.length === 0) {
+                    return true;
+                }
+
+                return element.files[0].size <= param;
+            }, "Image size must be 5 MB or less.");
+
+            $("#blogForm").validate({
+                ignore: [],
+                errorClass: "text-danger",
+                rules: {
+                    Title: {
+                        required: true,
+                        maxlength: 280,
+                        noLeadingTrailingSpace: true
+                    },
+                    Slug: {
+                        maxlength: 320,
+                        noLeadingTrailingSpace: true
+                    },
+                    Summary: {
+                        maxlength: 2000,
+                        noLeadingTrailingSpace: true
+                    },
+                    ContentHtml: {
+                        required: true,
+                        maxlength: 40000,
+                        noLeadingTrailingSpace: true
+                    },
+                    Ordering: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 999
+                    },
+                    HeroImage: {
+                        imageExtension: true,
+                        fileSize: maxFileSize
+                    },
+                    ThumbnailImage: {
+                        imageExtension: true,
+                        fileSize: maxFileSize
+                    }
+                },
+                messages: {
+                    Title: {
+                        required: "Title is required.",
+                        maxlength: "Title cannot exceed 280 characters."
+                    },
+                    Slug: {
+                        maxlength: "Slug cannot exceed 320 characters."
+                    },
+                    Summary: {
+                        maxlength: "Summary cannot exceed 2000 characters."
+                    },
+                    ContentHtml: {
+                        required: "Content is required.",
+                        maxlength: "Content cannot exceed 40000 characters."
+                    },
+                    Ordering: {
+                        required: "Ordering is required.",
+                        min: "Ordering cannot be below 0.",
+                        max: "Ordering cannot exceed 999."
+                    }
+                }
+            });
+        })();
+    </script>
+}
