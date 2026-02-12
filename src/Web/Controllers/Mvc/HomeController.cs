@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
+using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
@@ -66,6 +67,50 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             HeroImagePath = post.HeroImagePath ?? post.ThumbnailImagePath,
             PublishedOnUtc = post.PublishedOnUtc,
             LatestPosts = latest
+        };
+
+        return View(model);
+    }
+
+    [HttpGet("expeditions/type/{typeId:int}")]
+    public async Task<IActionResult> ExpeditionsByType(
+        int typeId,
+        [FromServices] IExpeditionTypeService expeditionTypeService,
+        [FromServices] IExpeditionService expeditionService,
+        CancellationToken ct)
+    {
+        var expeditionType = await expeditionTypeService.GetByIdAsync(typeId, ct);
+        if (expeditionType is null || !expeditionType.IsPublished)
+        {
+            return NotFound();
+        }
+
+        var publishedExpeditions = (await expeditionService.ListAsync(
+            search: null,
+            status: TravelStatus.Published,
+            destination: null,
+            featured: null,
+            page: 1,
+            pageSize: 200,
+            ct)).Items;
+
+        var model = new ExpeditionsByTypeViewModel
+        {
+            TypeId = expeditionType.Id,
+            TypeTitle = expeditionType.Title,
+            TypeDescription = expeditionType.Description,
+            Expeditions = publishedExpeditions
+                .Where(x => x.ExpeditionTypeId == expeditionType.Id)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Name)
+                .Select(x => new ExpeditionTypeCardViewModel
+                {
+                    Name = x.Name,
+                    Destination = x.Destination,
+                    DurationDays = x.DurationDays,
+                    ShortDescription = x.ShortDescription
+                })
+                .ToList()
         };
 
         return View(model);

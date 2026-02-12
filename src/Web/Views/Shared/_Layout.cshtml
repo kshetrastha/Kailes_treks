@@ -246,7 +246,7 @@
                                                 </div>
 
                                                 <div class="w-fit group">
-                                                    <a href="#"
+                                                    <a href="/expeditions/type/@group.Type.Id"
                                                         class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
                                                         <span
                                                             class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
@@ -1073,37 +1073,14 @@
                     <div>
                         <h3 class="text-xl font-semibold text-white mb-5">Expeditions</h3>
                         <ul class="space-y-3">
-                            <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    VIP & LUXURY SERVICE
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Everest Expeditions
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300">
-                                <a href="#"
-                                    class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">8000ers</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1300" data-aos-delay="400">
-                                <a href="#"
-                                    class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">7000ers</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1400" data-aos-delay="500">
-                                <a href="#"
-                                    class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">6000ers</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1500" data-aos-delay="600">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">7
-                                    Summits</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1600" data-aos-delay="700">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Double 8000ers
-                                </a>
-                            </li>
+                            @foreach (var type in expeditionTypes.OrderBy(x => x.Ordering).ThenBy(x => x.Title).Take(7))
+                            {
+                                <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
+                                    <a href="/expeditions/type/@type.Id" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
+                                        @type.Title
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </div>
 
@@ -1379,4 +1356,3 @@
 </body>
 
 </html>
-
