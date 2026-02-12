@@ -1,0 +1,33 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@using TravelCleanArch.Application.Abstractions.Travel
+@{
+    var isEdit = Model.Id.HasValue;
+    var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+}
+<h3>@(isEdit ? "Edit Expedition" : "Create Expedition")</h3>
+<form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-6 mb-3"><label asp-for="Name"></label><input asp-for="Name" class="form-control"/></div>
+        <div class="col-md-6 mb-3"><label asp-for="Slug"></label><input asp-for="Slug" class="form-control"/></div>
+        <div class="col-md-12 mb-3"><label asp-for="ShortDescription"></label><textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea></div>
+        <div class="col-md-4 mb-3"><label asp-for="Destination"></label><input asp-for="Destination" class="form-control"/></div>
+        <div class="col-md-4 mb-3"><label asp-for="Region"></label><input asp-for="Region" class="form-control"/></div>
+        <div class="col-md-4 mb-3"><label>Expedition Type</label><select asp-for="ExpeditionTypeId" class="form-select"><option value="">-- none --</option>@foreach (var t in types){<option value="@t.Id">@t.Title</option>}</select></div>
+        <div class="col-md-3 mb-3"><label asp-for="DurationDays"></label><input asp-for="DurationDays" class="form-control"/></div>
+        <div class="col-md-3 mb-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control"/></div>
+        <div class="col-md-3 mb-3"><label asp-for="Difficulty"></label><input asp-for="Difficulty" class="form-control"/></div>
+        <div class="col-md-3 mb-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control"/></div>
+        <div class="col-md-6 mb-3"><label asp-for="Status"></label><input asp-for="Status" class="form-control"/></div>
+        <div class="col-md-6 mb-3"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div>
+        <div class="col-md-12 mb-3"><label asp-for="Overview"></label><textarea asp-for="Overview" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-6 mb-3"><label asp-for="Inclusions"></label><textarea asp-for="Inclusions" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-6 mb-3"><label asp-for="Exclusions"></label><textarea asp-for="Exclusions" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-12 mb-3"><label asp-for="SectionsText"></label><textarea asp-for="SectionsText" class="form-control" rows="4"></textarea></div>
+        <div class="col-md-12 mb-3"><label asp-for="ItineraryText"></label><textarea asp-for="ItineraryText" class="form-control" rows="4"></textarea></div>
+        <div class="col-md-12 mb-3"><label asp-for="FaqsText"></label><textarea asp-for="FaqsText" class="form-control" rows="4"></textarea></div>
+        <div class="col-md-12 mb-3"><label asp-for="MediaText"></label><textarea asp-for="MediaText" class="form-control" rows="4"></textarea></div>
+    </div>
+    <button class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-light">Cancel</a>
+</form>

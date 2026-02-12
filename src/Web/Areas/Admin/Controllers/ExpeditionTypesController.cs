@@ -10,7 +10,7 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 [ApiController]
 [Route("admin/api/expedition-types")]
-public sealed class ExpeditionTypesController(IExpeditionTypeService service, ICurrentUser currentUser) : ControllerBase
+public sealed class ExpeditionTypesApiController(IExpeditionTypeService service, ICurrentUser currentUser) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] bool includeUnpublished = true, CancellationToken ct = default)

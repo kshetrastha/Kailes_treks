@@ -1,0 +1,19 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionTypeFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Expedition Type" : "Create Expedition Type";
+}
+
+<h3>@ViewData["Title"]</h3>
+<form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    <div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="ShortDescription" class="form-label"></label><textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea></div>
+    <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="5"></textarea></div>
+    <div class="row">
+        <div class="col-md-3 mb-3"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /></div>
+        <div class="col-md-3 mb-3 form-check mt-4"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div>
+    </div>
+    <button class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-light">Cancel</a>
+</form>

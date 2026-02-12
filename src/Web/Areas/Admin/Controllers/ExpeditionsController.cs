@@ -10,7 +10,7 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 [ApiController]
 [Route("admin/api/expeditions")]
-public sealed class ExpeditionsController(IExpeditionService service, ICurrentUser currentUser) : ControllerBase
+public sealed class ExpeditionsApiController(IExpeditionService service, ICurrentUser currentUser) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List(
