@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initmigrations : Migration
+    public partial class initmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -76,6 +76,32 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_company_awards", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_blog_posts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(280)", maxLength: 280, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
+                    Summary = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    ContentHtml = table.Column<string>(type: "character varying(40000)", maxLength: 40000, nullable: false),
+                    HeroImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ThumbnailImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    PublishedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_blog_posts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -712,6 +738,27 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "Ordering");
 
             migrationBuilder.CreateIndex(
+                name: "IX_company_blog_posts_IsFeatured",
+                table: "company_blog_posts",
+                column: "IsFeatured");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_blog_posts_IsPublished",
+                table: "company_blog_posts",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_blog_posts_Ordering",
+                table: "company_blog_posts",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_blog_posts_Slug",
+                table: "company_blog_posts",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_company_certificate_documents_IsPublished",
                 table: "company_certificate_documents",
                 column: "IsPublished");
@@ -881,6 +928,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "company_awards");
+
+            migrationBuilder.DropTable(
+                name: "company_blog_posts");
 
             migrationBuilder.DropTable(
                 name: "company_certificate_documents");
