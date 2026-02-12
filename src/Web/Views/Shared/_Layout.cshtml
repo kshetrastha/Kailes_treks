@@ -1,3 +1,26 @@
+@using TravelCleanArch.Application.Abstractions.Travel
+@using TravelCleanArch.Domain.Entities
+@inject IExpeditionTypeService ExpeditionTypeService
+@inject IExpeditionService ExpeditionService
+@{
+    var expeditionTypes = await ExpeditionTypeService.ListAsync(includeUnpublished: false, Context.RequestAborted);
+    var expeditions = (await ExpeditionService.ListAsync(null, TravelStatus.Published, null, null, 1, 100, Context.RequestAborted)).Items;
+
+    var expeditionNavData = expeditionTypes
+        .Select(type => new
+        {
+            Type = type,
+            Items = expeditions
+                .Where(item => item.ExpeditionTypeId == type.Id)
+                .OrderBy(item => item.Ordering)
+                .ThenBy(item => item.Name)
+                .Take(4)
+                .ToList()
+        })
+        .Where(group => group.Items.Count > 0)
+        .ToList();
+}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -176,419 +199,74 @@
                                 <!-- tabs button -->
                                 <div
                                     class="w-fit py-4 space-y-3 flex flex-col items-start border-r-2 border-neutral-900/70">
-
-                                    <button data-tab="0"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        VIP & LUXURY SERVICES
-                                    </button>
-
-                                    <button data-tab="1"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Everest Expeditions
-                                    </button>
-
-                                    <button data-tab="2"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        8000ers
-                                    </button>
-
-                                    <button data-tab="3"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        7000ers
-                                    </button>
-
-                                    <button data-tab="4"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        6000ers
-                                    </button>
-
-                                    <button data-tab="5"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        7 summits
-                                    </button>
-
-                                    <button data-tab="6"
-                                        class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Double 8000ers
-                                    </button>
+                                    @if (expeditionNavData.Count == 0)
+                                    {
+                                        <span class="text-neutral-400 pr-6">No expedition types available.</span>
+                                    }
+                                    else
+                                    {
+                                        @for (var i = 0; i < expeditionNavData.Count; i++)
+                                        {
+                                            var group = expeditionNavData[i];
+                                            <button data-tab="@i"
+                                                class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
+                                                @group.Type.Title
+                                            </button>
+                                        }
+                                    }
                                 </div>
 
                                 <!-- tabs content -->
                                 <div class="flex-1">
+                                    @if (expeditionNavData.Count == 0)
+                                    {
+                                        <div class="py-8 text-neutral-400">No expeditions are published yet.</div>
+                                    }
+                                    else
+                                    {
+                                        @for (var i = 0; i < expeditionNavData.Count; i++)
+                                        {
+                                            var group = expeditionNavData[i];
+                                            <div data-content="@i" class="tab-content w-full space-y-4 @(i == 0 ? string.Empty : "hidden")">
+                                                <div class="w-full grid grid-cols-4 gap-4 py-4">
+                                                    @foreach (var expedition in group.Items)
+                                                    {
+                                                        <a href="#" class="block w-full aspect-[3/2.7] relative">
+                                                            <img src="@(string.IsNullOrWhiteSpace(group.Type.ImagePath) ? "https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png" : group.Type.ImagePath)"
+                                                                alt="@expedition.Name" class="w-full h-full object-cover">
 
-                                    <!-- Tab 0 -->
-                                    <div data-content="0" class="tab-content w-full space-y-4">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
+                                                            <div
+                                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
+                                                                <h1 class="text-xl text-white font-medium uppercase">
+                                                                    @expedition.Name
+                                                                </h1>
+                                                            </div>
+                                                        </a>
+                                                    }
                                                 </div>
-                                            </a>
 
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
+                                                <div class="w-fit group">
+                                                    <a href="#"
+                                                        class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
+                                                        <span
+                                                            class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
+                                                        </span>
 
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
+                                                        <span
+                                                            class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
+                                                            View all
+                                                            <span class="block group-hover:hidden ease-in-out duration-300">
+                                                                <i class="fa-regular fa-circle-down"></i>
+                                                            </span>
+                                                            <span class="hidden group-hover:block ease-in-out duration-300">
+                                                                <i class="fa-solid fa-circle-down"></i>
+                                                            </span>
+                                                        </span>
+                                                    </a>
                                                 </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition premium (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2025/05/23/23/07/nepal-9618583_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Vvip Manaslu expedition (8163m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="vip-luxury-service.html"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 1 -->
-                                    <div data-content="1" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="vip-luxury-service.html"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 2 -->
-                                    <div data-content="2" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="8000ers.html"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 3 -->
-                                    <div data-content="3" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="#view-all"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 4 -->
-                                    <div data-content="4" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="#view-all"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 5 -->
-                                    <div data-content="5" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="#view-all"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tab 6 -->
-                                    <div data-content="6" class="tab-content w-full space-y-4 hidden">
-                                        <!-- your full content here -->
-                                        <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition ultimate - vvip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-
-                                            <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                    alt="trekking img" class="w-full h-full object-cover">
-
-                                                <div
-                                                    class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                    <h1 class="text-xl text-white font-medium uppercase">
-                                                        Everest Expedition Signature - vip (8848.86m)
-                                                    </h1>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="w-fit group">
-                                            <a href="#view-all"
-                                                class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                <span
-                                                    class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                </span>
-
-                                                <span
-                                                    class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                    View all
-                                                    <span class="block group-hover:hidden ease-in-out duration-300">
-                                                        <i class="fa-regular fa-circle-down"></i>
-                                                    </span>
-                                                    <span class="hidden group-hover:block ease-in-out duration-300">
-                                                        <i class="fa-solid fa-circle-down"></i>
-                                                    </span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
+                                            </div>
+                                        }
+                                    }
 
                                 </div>
 
@@ -1701,5 +1379,4 @@
 </body>
 
 </html>
-
 
