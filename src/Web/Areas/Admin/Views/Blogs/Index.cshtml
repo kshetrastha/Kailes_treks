@@ -1,45 +1,72 @@
 @model IReadOnlyList<TravelCleanArch.Domain.Entities.BlogPost>
-@{ ViewData["Title"] = "Our Blogs"; }
+@{
+    ViewData["Title"] = "Our Blogs";
+}
+
 <div class="container-fluid">
-    <div class="d-flex justify-content-between mb-3">
-        <h2>Our Blogs</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Company / Our Blogs</h2>
         <a class="btn btn-primary" href="/admin/company/blogs/create">Add New</a>
     </div>
 
-    @if (TempData["SuccessMessage"] is string msg)
+    @if (TempData["SuccessMessage"] is string message)
     {
-        <div class="alert alert-success">@msg</div>
+        <div class="alert alert-success">@message</div>
     }
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Order</th>
-                <th>Title</th>
-                <th>Slug</th>
-                <th>Published On</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Ordering</td>
-                <td>@item.Title</td>
-                <td>@item.Slug</td>
-                <td>@item.PublishedOnUtc?.ToString("yyyy-MM-dd")</td>
-                <td>@(item.IsPublished ? "Published" : "Draft")</td>
-                <td>
-                    <a class="btn btn-sm btn-outline-primary" href="/admin/company/blogs/@item.Id/edit">Edit</a>
-                    <form method="post" action="/admin/company/blogs/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this blog?');">
-                        @Html.AntiForgeryToken()
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width: 90px;">Order</th>
+                            <th>Title</th>
+                            <th style="width: 220px;">Slug</th>
+                            <th style="width: 130px;">Published On</th>
+                            <th style="width: 110px;">Status</th>
+                            <th style="width: 190px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No blog posts found. Add your first post.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td data-label="Order">@item.Ordering</td>
+                                    <td data-label="Title">@item.Title</td>
+                                    <td data-label="Slug">@item.Slug</td>
+                                    <td data-label="Published On">@item.PublishedOnUtc?.ToString("yyyy-MM-dd")</td>
+                                    <td data-label="Status">
+                                        @if (item.IsPublished)
+                                        {
+                                            <span class="badge bg-success">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Draft</span>
+                                        }
+                                    </td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" href="/admin/company/blogs/@item.Id/edit">Edit</a>
+                                        <form method="post" action="/admin/company/blogs/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this blog?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
