@@ -12,7 +12,7 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260212094500_initmigration")]
+    [Migration("20260212111647_initmigration")]
     partial class initmigration
     {
         /// <inheritdoc />
@@ -419,6 +419,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<int?>("ExpeditionTypeId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("Featured")
                         .HasColumnType("boolean");
 
@@ -472,6 +475,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<bool>("SherpaSupport")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(220)
@@ -497,6 +505,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Destination");
+
+                    b.HasIndex("ExpeditionTypeId");
 
                     b.HasIndex("Featured");
 
@@ -639,6 +649,102 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasIndex("ExpeditionId");
 
                     b.ToTable("expedition_media", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionSection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SectionType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId", "SectionType", "Ordering");
+
+                    b.ToTable("expedition_sections", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Title")
+                        .IsUnique();
+
+                    b.HasIndex("IsPublished", "Ordering");
+
+                    b.ToTable("expedition_types", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Patron", b =>
@@ -1482,6 +1588,16 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expedition", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.ExpeditionType", "ExpeditionType")
+                        .WithMany("Expeditions")
+                        .HasForeignKey("ExpeditionTypeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ExpeditionType");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionFaq", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
@@ -1508,6 +1624,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
                         .WithMany("MediaItems")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionSection", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("Sections")
                         .HasForeignKey("ExpeditionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1566,6 +1693,13 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("ItineraryDays");
 
                     b.Navigation("MediaItems");
+
+                    b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionType", b =>
+                {
+                    b.Navigation("Expeditions");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Trekking", b =>

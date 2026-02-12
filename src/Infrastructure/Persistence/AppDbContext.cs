@@ -17,6 +17,8 @@ public sealed class AppDbContext:
     }
 
     public DbSet<Expedition> Expeditions => Set<Expedition>();
+    public DbSet<ExpeditionType> ExpeditionTypes => Set<ExpeditionType>();
+    public DbSet<ExpeditionSection> ExpeditionSections => Set<ExpeditionSection>();
     public DbSet<ExpeditionItineraryDay> ExpeditionItineraryDays => Set<ExpeditionItineraryDay>();
     public DbSet<ExpeditionFaq> ExpeditionFaqs => Set<ExpeditionFaq>();
     public DbSet<ExpeditionMedia> ExpeditionMedia => Set<ExpeditionMedia>();
@@ -61,6 +63,7 @@ public sealed class AppDbContext:
             b.ToTable("expeditions");
             b.Property(x => x.Name).HasMaxLength(200).IsRequired();
             b.Property(x => x.Slug).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(600).IsRequired();
             b.Property(x => x.Destination).HasMaxLength(200).IsRequired();
             b.Property(x => x.Difficulty).HasMaxLength(100).IsRequired();
             b.Property(x => x.Status).HasMaxLength(32).IsRequired();
@@ -73,9 +76,33 @@ public sealed class AppDbContext:
             b.HasIndex(x => x.Destination);
             b.HasIndex(x => x.Featured);
 
+            b.HasOne(x => x.ExpeditionType)
+                .WithMany(x => x.Expeditions)
+                .HasForeignKey(x => x.ExpeditionTypeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasMany(x => x.Sections).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.ItineraryDays).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.Faqs).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.MediaItems).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ExpeditionType>(b =>
+        {
+            b.ToTable("expedition_types");
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(600).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(4000);
+            b.HasIndex(x => x.Title).IsUnique();
+            b.HasIndex(x => new { x.IsPublished, x.Ordering });
+        });
+
+        builder.Entity<ExpeditionSection>(b =>
+        {
+            b.ToTable("expedition_sections");
+            b.Property(x => x.SectionType).HasMaxLength(80).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.HasIndex(x => new { x.ExpeditionId, x.SectionType, x.Ordering });
         });
 
         builder.Entity<ExpeditionItineraryDay>(b =>
