@@ -6,6 +6,7 @@ public sealed record ExpeditionTypeUpsertDto(string Title, string ShortDescripti
 public sealed record ExpeditionListItemDto(
     int Id,
     string Name,
+    string HeroImageUrl,
     string Slug,
     string ShortDescription,
     string Destination,

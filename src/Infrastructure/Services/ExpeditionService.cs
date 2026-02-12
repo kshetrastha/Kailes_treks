@@ -21,6 +21,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
             .Select(x => new ExpeditionListItemDto(
                 x.Id,
                 x.Name,
+                x.HeroImageUrl,
                 x.Slug,
                 x.ShortDescription,
                 x.Destination,

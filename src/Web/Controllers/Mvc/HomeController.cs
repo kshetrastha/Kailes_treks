@@ -98,7 +98,9 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         {
             TypeId = expeditionType.Id,
             TypeTitle = expeditionType.Title,
+            ShortDescription = expeditionType.ShortDescription,
             TypeDescription = expeditionType.Description,
+            ImagePath = expeditionType.ImagePath,
             Expeditions = publishedExpeditions
                 .Where(x => x.ExpeditionTypeId == expeditionType.Id)
                 .OrderBy(x => x.Ordering)
@@ -108,7 +110,8 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
                     Name = x.Name,
                     Destination = x.Destination,
                     DurationDays = x.DurationDays,
-                    ShortDescription = x.ShortDescription
+                    ShortDescription = x.ShortDescription,
+                    ImagePath =x.HeroImageUrl
                 })
                 .ToList()
         };

@@ -232,7 +232,7 @@
                                                     @foreach (var expedition in group.Items)
                                                     {
                                                         <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                            <img src="@(string.IsNullOrWhiteSpace(group.Type.ImagePath) ? "https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png" : group.Type.ImagePath)"
+                                                            <img src="/@(string.IsNullOrWhiteSpace(group.Type.ImagePath) ? "https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png" : group.Type.ImagePath)"
                                                                 alt="@expedition.Name" class="w-full h-full object-cover">
 
                                                             <div

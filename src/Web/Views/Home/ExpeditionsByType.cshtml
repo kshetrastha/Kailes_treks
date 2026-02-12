@@ -1,19 +1,170 @@
 @model TravelCleanArch.Web.Models.Home.ExpeditionsByTypeViewModel
+@{
+    var t = Model;
+    var ts = Model;
+}
 
+<!-- Hero section -->
 <section class="w-full relative overflow-hidden">
-    <div class="w-full aspect-[16/6] bg-[url('./assets/img/contact.jpg')] bg-cover bg-center bg-no-repeat relative">
-        <div class="w-full flex items-start justify-center h-full bg-black/50 pt-8 md:px-39 sm:px-20 px-4 flex-col">
-            <h5 class="text-2xl text-neutral-100 font-medium mb-0">Expeditions</h5>
-            <h1 class="text-[48px] text-[#e1a74e] font-black -mt-1 mb-3 uppercase">@Model.TypeTitle</h1>
-            @if (!string.IsNullOrWhiteSpace(Model.TypeDescription))
+    <div class="w-full aspect-[16/6] bg-cover bg-center bg-no-repeat relative"
+         style="background-image: url('/@(string.IsNullOrWhiteSpace(Model.ImagePath)
+                                                                                                                          ? "/images/default-hero.jpg"
+                                                                                                                          : Model.ImagePath)');">
+
+        <div class="w-full flex items-start justify-center h-full bg-black/50
+            pt-8 md:px-32 sm:px-16 px-4 flex-col">
+
+            <h5 class="text-2xl text-neutral-100 font-medium mb-0">
+                Expeditions
+            </h5>
+
+            @if (!string.IsNullOrWhiteSpace(Model.TypeTitle))
             {
-                <p class="text-2xl font-light text-neutral-200 max-w-xl leading-[1.4] tracking-wide mb-10">
-                    @Model.TypeDescription
+                <h1 class="text-4xl md:text-5xl text-[#e1a74e] font-black -mt-1 mb-3">
+                    @Model.TypeTitle
+                </h1>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
+            {
+                <p class="text-xl md:text-2xl font-light text-neutral-200
+                    max-w-xl leading-relaxed tracking-wide mb-10">
+                    @Model.ShortDescription
                 </p>
             }
+
         </div>
     </div>
 </section>
+
+<section class="w-full md:px-39 sm:px-20 px-4 py-20">
+    <p class="text-base font-light text-neutral-600 text-justify mb-6">
+        @if (!string.IsNullOrWhiteSpace(Model.TypeDescription))
+        {
+            @Model.TypeDescription
+        }
+    </p>    <button class="text-2xl font-normal text-[#e1a74e] cursor-pointer">Read More +</button>
+
+    <div class="w-full space-y-10 mt-6 mb-16">
+        <div class="w-full flex items-center justify-center flex-col">
+            <button class="text-[28.8px] font-black tracking-wide roboto text-[#e1a74e] cursor-pointer uppercase">
+                All
+            </button>
+            <div class="w-20 h-[4px] bg-[#e1a74e]"></div>
+        </div>
+        <div class="w-full grid grid-cols-2 gap-4">
+            @if (Model.Expeditions.Count == 0)
+            {
+                <p class="text-lg text-neutral-600">No published expeditions are available for this type right now.</p>
+            }
+            else
+            {
+                @foreach (var expedition in Model.Expeditions)
+                {
+                    <div class="w-full aspect-[16/8] relative overflow-hidden group ease-in-out duration-300">
+                        <img src="@(string.IsNullOrWhiteSpace(expedition.ImagePath) ? "~/customer/assets/img/expeditions/exp4.png" : expedition.ImagePath)');" alt=""
+                             class="w-full h-full object-center object-cover grayscale-50 group-hover:grayscale-0 ease-in-out duration-1000">
+                        <div class="absolute top-0 left-0 w-full px-4 py-6 h-full bg-black/30 flex items-center justify-center text-center">
+                            <h2 class="text-2xl text-white font-bold">
+                                @expedition.Name
+                            </h2>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="w-full grid grid-cols-3 gap-4">
+        <div class="w-full">
+            <a href="#" class="block w-full aspect-[9/12] relative">
+                <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                     class="w-full h-full object-cover">
+
+                <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                    <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                        8000ers
+                    </h1>
+                    <p class="text-base font-normal text-neutral-100">
+                        The 14 highest mountains in the world - expedition services offered in SST's
+                        signature
+                        style.
+                    </p>
+                </div>
+            </a>
+        </div>
+        <a href="#" class="block w-full aspect-[9/12] relative">
+            <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                    7000ers
+                </h1>
+                <p class="text-base font-normal text-neutral-100">
+                    Climb either to prepare for bigger climbs or for their rugged beauty.
+                </p>
+            </div>
+        </a>
+        <a href="#" class="block w-full aspect-[9/12] relative">
+            <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                    6000ers
+                </h1>
+                <p class="text-base font-normal text-neutral-100">
+                    Perfect Himalayan starter climbs. This is where you prepare for great climbs or simply
+                    have fun in the Himalayas.
+                </p>
+            </div>
+        </a>
+        <a href="#" class="block w-full aspect-[9/12] relative">
+            <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                    7 Summits
+                </h1>
+                <p class="text-base font-normal text-neutral-100">
+                    The highest mountain in each continent - in SST's signature style.
+                </p>
+            </div>
+        </a>
+        <a href="#" class="block w-full aspect-[9/12] relative">
+            <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                    Double 8000ers
+                </h1>
+                <p class="text-base font-normal text-neutral-100">
+                    Some 8000ers are like twins. With just a slight more effort, you'll climb double 8000ers
+                    in a single attempt.
+                </p>
+            </div>
+        </a>
+        <a href="#" class="block w-full aspect-[9/12] relative">
+            <img src="./assets/img/expeditions/exp1.png" alt="trekking img"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute top-0 left-0 w-full p-6 h-full bg-black/40 flex items-center justify-center text-center flex-col space-y-2">
+                <h1 class="text-[35px] text-[#e1a74e] font-bold uppercase rubik leading-[1.2]">
+                    Everest Expeditions
+                </h1>
+                <p class="text-base font-normal text-neutral-100">
+                    An expedition to the crown jewel of the world. Available in multiple options that best
+                    suit your climbing style.
+                </p>
+            </div>
+        </a>
+    </div>
+</section>
+
+
 
 <section class="w-full md:px-39 sm:px-20 px-4 py-20">
     <div class="w-full flex items-center justify-between gap-4 mb-10 flex-wrap">
