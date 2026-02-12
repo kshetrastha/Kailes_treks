@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
@@ -10,6 +11,8 @@ public sealed class ExpeditionTypeFormViewModel
     [Required, StringLength(220)] public string Title { get; set; } = string.Empty;
     [Required, StringLength(600)] public string ShortDescription { get; set; } = string.Empty;
     [StringLength(4000)] public string? Description { get; set; }
+    public string? ExistingImagePath { get; set; }
+    [Display(Name = "Image")] public IFormFile? Image { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
 }

@@ -1,7 +1,7 @@
 namespace TravelCleanArch.Application.Abstractions.Travel;
 
-public sealed record ExpeditionTypeDto(int Id, string Title, string ShortDescription, string? Description, int Ordering, bool IsPublished);
-public sealed record ExpeditionTypeUpsertDto(string Title, string ShortDescription, string? Description, int Ordering, bool IsPublished);
+public sealed record ExpeditionTypeDto(int Id, string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished);
+public sealed record ExpeditionTypeUpsertDto(string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished);
 
 public sealed record ExpeditionListItemDto(
     int Id,
