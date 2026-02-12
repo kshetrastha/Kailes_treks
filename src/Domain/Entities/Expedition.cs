@@ -4,6 +4,7 @@ public sealed class Expedition : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
+    public string ShortDescription { get; set; } = string.Empty;
     public string Destination { get; set; } = string.Empty;
     public string? Region { get; set; }
     public int DurationDays { get; set; }
@@ -30,11 +31,36 @@ public sealed class Expedition : BaseEntity
     public string? ExpeditionStyle { get; set; }
     public bool OxygenSupport { get; set; }
     public bool SherpaSupport { get; set; }
-    public decimal? SummitBonusUsd { get; set; }   
+    public decimal? SummitBonusUsd { get; set; }
+    public int? ExpeditionTypeId { get; set; }
 
+    public ExpeditionType? ExpeditionType { get; set; }
+    public List<ExpeditionSection> Sections { get; set; } = [];
     public List<ExpeditionItineraryDay> ItineraryDays { get; set; } = [];
     public List<ExpeditionFaq> Faqs { get; set; } = [];
     public List<ExpeditionMedia> MediaItems { get; set; } = [];
+}
+
+public sealed class ExpeditionType : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string ShortDescription { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+
+    public List<Expedition> Expeditions { get; set; } = [];
+}
+
+public sealed class ExpeditionSection : BaseEntity
+{
+    public int ExpeditionId { get; set; }
+    public string SectionType { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string? Content { get; set; }
+    public int Ordering { get; set; }
+
+    public Expedition Expedition { get; set; } = default!;
 }
 
 public sealed class ExpeditionItineraryDay : BaseEntity
