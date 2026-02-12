@@ -1,12 +1,169 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.AwardFormViewModel
-@{ var isEdit = Model.Id.HasValue; }
-<div class="container-fluid"><h2>@(isEdit?"Edit":"Create") Award</h2><form method="post" enctype="multipart/form-data" action="@(isEdit?$"/admin/company/awards/{Model.Id}/edit":"/admin/company/awards/create")">@Html.AntiForgeryToken() @if(isEdit){<input type="hidden" asp-for="Id"/>}
-<div class="mb-2"><label asp-for="Title"></label><input asp-for="Title" class="form-control"/></div>
-<div class="mb-2"><label asp-for="Issuer"></label><input asp-for="Issuer" class="form-control"/></div>
-<div class="mb-2"><label asp-for="AwardedOnUtc"></label><input asp-for="AwardedOnUtc" type="date" class="form-control"/></div>
-<div class="mb-2"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control"></textarea></div>
-<div class="mb-2"><label asp-for="ReferenceUrl"></label><input asp-for="ReferenceUrl" class="form-control"/></div>
-<div class="mb-2"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control"/></div>
-<div class="mb-2"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control"/></div>
-<div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input"/><label asp-for="IsPublished" class="form-check-label"></label></div>
-<button class="btn btn-primary">Save</button></form></div>
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Award" : "Create Award";
+}
+
+<div class="container-fluid">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Award</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/awards">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="awardForm" method="post" action="@(isEdit ? $"/admin/company/awards/{Model.Id}/edit" : "/admin/company/awards/create")" enctype="multipart/form-data" novalidate>
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Issuer" class="form-label"></label>
+                    <input asp-for="Issuer" class="form-control" />
+                    <span asp-validation-for="Issuer" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AwardedOnUtc" class="form-label"></label>
+                    <input asp-for="AwardedOnUtc" type="date" class="form-control" />
+                    <span asp-validation-for="AwardedOnUtc" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ReferenceUrl" class="form-label"></label>
+                    <input asp-for="ReferenceUrl" class="form-control" placeholder="https://example.com/reference" />
+                    <span asp-validation-for="ReferenceUrl" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Image" class="form-label"></label>
+                    <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+                    {
+                        <div class="form-text">
+                            Current image: <a href="/@Model.ExistingImagePath" target="_blank" rel="noopener noreferrer">@Model.ExistingImagePath</a>
+                        </div>
+                    }
+                    <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Ordering" class="form-label"></label>
+                    <input asp-for="Ordering" class="form-control" type="number" min="0" max="999" />
+                    <span asp-validation-for="Ordering" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsPublished" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label"></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const maxFileSize = 5 * 1024 * 1024;
+
+            $.validator.addMethod("noLeadingTrailingSpace", function (value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                return value.trim() === value;
+            }, "This field cannot start or end with spaces.");
+
+            $.validator.addMethod("imageExtension", function (value, element) {
+                if (this.optional(element) || !value) {
+                    return true;
+                }
+
+                return /\.(jpg|jpeg|png|webp|gif)$/i.test(value);
+            }, "Image must be a valid image file (jpg, jpeg, png, webp, gif).");
+
+            $.validator.addMethod("fileSize", function (value, element, param) {
+                if (this.optional(element) || !element.files || element.files.length === 0) {
+                    return true;
+                }
+
+                return element.files[0].size <= param;
+            }, "Image size must be 5 MB or less.");
+
+            $("#awardForm").validate({
+                ignore: [],
+                errorClass: "text-danger",
+                rules: {
+                    Title: {
+                        required: true,
+                        maxlength: 220,
+                        noLeadingTrailingSpace: true
+                    },
+                    Issuer: {
+                        maxlength: 220,
+                        noLeadingTrailingSpace: true
+                    },
+                    Description: {
+                        maxlength: 4000,
+                        noLeadingTrailingSpace: true
+                    },
+                    ReferenceUrl: {
+                        maxlength: 500,
+                        url: true
+                    },
+                    Ordering: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 999
+                    },
+                    Image: {
+                        imageExtension: true,
+                        fileSize: maxFileSize
+                    }
+                },
+                messages: {
+                    Title: {
+                        required: "Title is required.",
+                        maxlength: "Title cannot exceed 220 characters."
+                    },
+                    Issuer: {
+                        maxlength: "Issuer cannot exceed 220 characters."
+                    },
+                    Description: {
+                        maxlength: "Description cannot exceed 4000 characters."
+                    },
+                    ReferenceUrl: {
+                        maxlength: "Reference URL cannot exceed 500 characters.",
+                        url: "Reference URL must be a valid URL."
+                    },
+                    Ordering: {
+                        required: "Ordering is required.",
+                        min: "Ordering cannot be below 0.",
+                        max: "Ordering cannot exceed 999."
+                    }
+                }
+            });
+        })();
+    </script>
+}

@@ -1,6 +1,96 @@
 @model IReadOnlyCollection<TravelCleanArch.Domain.Entities.Award>
-@{ ViewData["Title"] = "Awards"; }
-<div class="container-fluid"><div class="d-flex justify-content-between mb-3"><h2>Awards</h2><a class="btn btn-primary" href="/admin/company/awards/create">Add New</a></div>
-<table class="table table-striped"><thead><tr><th>Order</th><th>Title</th><th>Issuer</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
-@foreach(var item in Model){<tr><td>@item.Ordering</td><td>@item.Title</td><td>@item.Issuer</td><td>@item.AwardedOnUtc?.ToString("yyyy-MM-dd")</td><td>@(item.IsPublished?"Published":"Draft")</td><td><a class="btn btn-sm btn-outline-primary" href="/admin/company/awards/@item.Id/edit">Edit</a><form method="post" action="/admin/company/awards/@item.Id/delete" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>}
-</tbody></table></div>
+@{
+    ViewData["Title"] = "Awards";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Company / Awards</h2>
+        <a class="btn btn-primary" href="/admin/company/awards/create">Add New</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width: 90px;">Order</th>
+                            <th>Title</th>
+                            <th style="width: 200px;">Issuer</th>
+                            <th style="width: 120px;">Awarded On</th>
+                            <th>Description</th>
+                            <th style="width: 210px;">Reference Url</th>
+                            <th style="width: 90px;">Image</th>
+                            <th style="width: 110px;">Status</th>
+                            <th style="width: 190px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">No awards found. Add your first award.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td data-label="Order">@item.Ordering</td>
+                                    <td data-label="Title">@item.Title</td>
+                                    <td data-label="Issuer">@(string.IsNullOrWhiteSpace(item.Issuer) ? "-" : item.Issuer)</td>
+                                    <td data-label="Awarded On">@(item.AwardedOnUtc?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                    <td data-label="Description">@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                                    <td data-label="Reference Url">
+                                        @if (!string.IsNullOrWhiteSpace(item.ReferenceUrl))
+                                        {
+                                            <a href="@item.ReferenceUrl" target="_blank" rel="noopener noreferrer">@item.ReferenceUrl</a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td data-label="Image">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                        {
+                                            <img src="/@item.ImagePath" alt="@item.Title" style="width: 48px; height: 48px; object-fit: cover; border-radius: 9999px;" />
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td data-label="Status">
+                                        @if (item.IsPublished)
+                                        {
+                                            <span class="badge bg-success">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Draft</span>
+                                        }
+                                    </td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" href="/admin/company/awards/@item.Id/edit">Edit</a>
+                                        <form method="post" action="/admin/company/awards/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
