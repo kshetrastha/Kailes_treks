@@ -5,15 +5,41 @@
 }
 
 <h3>@ViewData["Title"]</h3>
-<form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+<form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
     @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
     <div class="mb-3"><label asp-for="ShortDescription" class="form-label"></label><textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea></div>
     <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="5"></textarea></div>
-    <div class="row">
-        <div class="col-md-3 mb-3"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /></div>
-        <div class="col-md-3 mb-3 form-check mt-4"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div>
+    <div class="mb-3"><label asp-for="Image" class="form-label"></label><input asp-for="Image" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" /></div>
+
+    <h5>Additional Images</h5>
+    <div id="imagesWrap">
+        @for (var i = 0; i < Model.Images.Count; i++)
+        {
+            <div class="row border rounded p-2 mb-2">
+                <div class="col-md-4"><input name="Images[@i].File" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" /><input type="hidden" name="Images[@i].ExistingPath" value="@Model.Images[i].ExistingPath" /></div>
+                <div class="col-md-3"><input name="Images[@i].AltText" value="@Model.Images[i].AltText" class="form-control" placeholder="Alt text" /></div>
+                <div class="col-md-2"><input name="Images[@i].SortOrder" value="@Model.Images[i].SortOrder" class="form-control" type="number" /></div>
+                <div class="col-md-2 form-check mt-2"><input name="Images[@i].IsCover" class="form-check-input" type="checkbox" @(Model.Images[i].IsCover ? "checked" : "") /><label class="form-check-label">Cover</label></div>
+            </div>
+        }
     </div>
+    <button class="btn btn-outline-secondary btn-sm mb-3" type="button" id="addImage">Add image</button>
+
+    <div class="row"><div class="col-md-3 mb-3"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /></div><div class="col-md-3 mb-3 form-check mt-4"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div></div>
     <button class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-light">Cancel</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let idx = @Model.Images.Count;
+        document.getElementById('addImage').addEventListener('click', () => {
+            const wrap = document.getElementById('imagesWrap');
+            wrap.insertAdjacentHTML('beforeend', `<div class="row border rounded p-2 mb-2"><div class="col-md-4"><input name="Images[${idx}].File" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" /></div><div class="col-md-3"><input name="Images[${idx}].AltText" class="form-control" placeholder="Alt text" /></div><div class="col-md-2"><input name="Images[${idx}].SortOrder" class="form-control" type="number" value="${idx}" /></div><div class="col-md-2 form-check mt-2"><input name="Images[${idx}].IsCover" class="form-check-input" type="checkbox" /><label class="form-check-label">Cover</label></div></div>`);
+            idx++;
+        });
+    </script>
+}

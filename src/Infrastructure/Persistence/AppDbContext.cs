@@ -22,6 +22,15 @@ public sealed class AppDbContext:
     public DbSet<ExpeditionItineraryDay> ExpeditionItineraryDays => Set<ExpeditionItineraryDay>();
     public DbSet<ExpeditionFaq> ExpeditionFaqs => Set<ExpeditionFaq>();
     public DbSet<ExpeditionMedia> ExpeditionMedia => Set<ExpeditionMedia>();
+    public DbSet<ExpeditionTypeImage> ExpeditionTypeImages => Set<ExpeditionTypeImage>();
+    public DbSet<Itinerary> Itineraries => Set<Itinerary>();
+    public DbSet<ItineraryDay> ItineraryDays => Set<ItineraryDay>();
+    public DbSet<ExpeditionMap> ExpeditionMaps => Set<ExpeditionMap>();
+    public DbSet<CostItem> CostItems => Set<CostItem>();
+    public DbSet<FixedDeparture> FixedDepartures => Set<FixedDeparture>();
+    public DbSet<GearList> GearLists => Set<GearList>();
+    public DbSet<ExpeditionHighlight> ExpeditionHighlights => Set<ExpeditionHighlight>();
+    public DbSet<ExpeditionReview> ExpeditionReviews => Set<ExpeditionReview>();
 
     public DbSet<Trekking> Trekking => Set<Trekking>();
     public DbSet<TrekkingItineraryDay> TrekkingItineraryDays => Set<TrekkingItineraryDay>();
@@ -70,6 +79,18 @@ public sealed class AppDbContext:
             b.Property(x => x.Price).HasColumnType("numeric(12,2)");
             b.Property(x => x.SummitBonusUsd).HasColumnType("numeric(12,2)");
             b.Property(x => x.ExpeditionStyle).HasMaxLength(120);
+            b.Property(x => x.OverviewCountry).HasMaxLength(150);
+            b.Property(x => x.PeakName).HasMaxLength(160);
+            b.Property(x => x.OverviewDuration).HasMaxLength(100);
+            b.Property(x => x.Route).HasMaxLength(160);
+            b.Property(x => x.Rank).HasMaxLength(80);
+            b.Property(x => x.WeatherReport).HasMaxLength(500);
+            b.Property(x => x.Range).HasMaxLength(150);
+            b.Property(x => x.WalkingPerDay).HasMaxLength(120);
+            b.Property(x => x.Accommodation).HasMaxLength(200);
+            b.Property(x => x.GroupSizeText).HasMaxLength(80);
+            b.Property(x => x.Latitude).HasColumnType("numeric(10,6)");
+            b.Property(x => x.Longitude).HasColumnType("numeric(10,6)");
 
             b.HasIndex(x => x.Slug).IsUnique();
             b.HasIndex(x => x.Status);
@@ -85,6 +106,13 @@ public sealed class AppDbContext:
             b.HasMany(x => x.ItineraryDays).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.Faqs).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.MediaItems).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Itineraries).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Maps).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.CostItems).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.FixedDepartures).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.GearLists).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Highlights).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Reviews).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<ExpeditionType>(b =>
@@ -96,6 +124,16 @@ public sealed class AppDbContext:
             b.Property(x => x.ImagePath).HasMaxLength(500);
             b.HasIndex(x => x.Title).IsUnique();
             b.HasIndex(x => new { x.IsPublished, x.Ordering });
+            b.HasMany(x => x.Images).WithOne(x => x.ExpeditionType).HasForeignKey(x => x.ExpeditionTypeId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ExpeditionTypeImage>(b =>
+        {
+            b.ToTable("expedition_type_images");
+            b.Property(x => x.FilePath).HasMaxLength(500).IsRequired();
+            b.Property(x => x.AltText).HasMaxLength(220);
+            b.HasIndex(x => new { x.ExpeditionTypeId, x.SortOrder });
+            b.HasIndex(x => new { x.ExpeditionTypeId, x.IsCover });
         });
 
         builder.Entity<ExpeditionSection>(b =>
@@ -126,6 +164,69 @@ public sealed class AppDbContext:
             b.Property(x => x.Url).HasMaxLength(500).IsRequired();
             b.Property(x => x.MediaType).HasMaxLength(50).IsRequired();
             b.HasIndex(x => x.ExpeditionId);
+        });
+
+        builder.Entity<Itinerary>(b =>
+        {
+            b.ToTable("expedition_itineraries");
+            b.Property(x => x.SeasonTitle).HasMaxLength(120).IsRequired();
+            b.HasMany(x => x.Days).WithOne(x => x.Itinerary).HasForeignKey(x => x.ItineraryId).OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(x => new { x.ExpeditionId, x.SortOrder });
+        });
+
+        builder.Entity<ItineraryDay>(b =>
+        {
+            b.ToTable("expedition_itinerary_items");
+            b.Property(x => x.ShortDescription).HasMaxLength(400);
+            b.Property(x => x.Meals).HasMaxLength(50);
+            b.Property(x => x.AccommodationType).HasMaxLength(100);
+            b.HasIndex(x => new { x.ItineraryId, x.DayNumber }).IsUnique();
+        });
+
+        builder.Entity<ExpeditionMap>(b =>
+        {
+            b.ToTable("expedition_maps");
+            b.Property(x => x.FilePath).HasMaxLength(500).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(220);
+            b.Property(x => x.Notes).HasMaxLength(4000);
+        });
+
+        builder.Entity<CostItem>(b =>
+        {
+            b.ToTable("expedition_cost_items");
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(800);
+            b.HasIndex(x => new { x.ExpeditionId, x.Type, x.SortOrder });
+        });
+
+        builder.Entity<FixedDeparture>(b =>
+        {
+            b.ToTable("expedition_fixed_departures");
+            b.HasIndex(x => new { x.ExpeditionId, x.StartDate, x.EndDate });
+        });
+
+        builder.Entity<GearList>(b =>
+        {
+            b.ToTable("expedition_gear_lists");
+            b.Property(x => x.ShortDescription).HasMaxLength(800);
+            b.Property(x => x.FilePath).HasMaxLength(500).IsRequired();
+        });
+
+        builder.Entity<ExpeditionHighlight>(b =>
+        {
+            b.ToTable("expedition_highlights");
+            b.Property(x => x.Text).HasMaxLength(500).IsRequired();
+            b.HasIndex(x => new { x.ExpeditionId, x.SortOrder });
+        });
+
+        builder.Entity<ExpeditionReview>(b =>
+        {
+            b.ToTable("expedition_reviews");
+            b.Property(x => x.FullName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.EmailAddress).HasMaxLength(220).IsRequired();
+            b.Property(x => x.UserPhotoPath).HasMaxLength(500);
+            b.Property(x => x.VideoUrl).HasMaxLength(500);
+            b.Property(x => x.ReviewText).HasMaxLength(4000).IsRequired();
         });
     }
 
