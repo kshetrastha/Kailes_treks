@@ -1,7 +1,8 @@
 namespace TravelCleanArch.Application.Abstractions.Travel;
 
-public sealed record ExpeditionTypeDto(int Id, string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished);
-public sealed record ExpeditionTypeUpsertDto(string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished);
+public sealed record ExpeditionTypeImageDto(int Id, string FilePath, string? AltText, int SortOrder, bool IsCover);
+public sealed record ExpeditionTypeDto(int Id, string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished, IReadOnlyCollection<ExpeditionTypeImageDto>? Images = null);
+public sealed record ExpeditionTypeUpsertDto(string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished, IReadOnlyCollection<ExpeditionTypeImageDto>? Images = null);
 
 public sealed record ExpeditionListItemDto(
     int Id,
@@ -16,12 +17,22 @@ public sealed record ExpeditionListItemDto(
     bool Featured,
     int Ordering,
     int? ExpeditionTypeId,
-    string? ExpeditionTypeTitle);
+    string? ExpeditionTypeTitle,
+    string? DifficultyLevel,
+    string? Country);
 
 public sealed record ExpeditionSectionDto(string SectionType, string Title, string? Content, int Ordering);
 public sealed record ExpeditionItineraryDayDto(int DayNumber, string Title, string? Description, string? OvernightLocation);
 public sealed record ExpeditionFaqDto(string Question, string Answer, int Ordering);
-public sealed record ExpeditionMediaDto(string Url, string? Caption, string MediaType, int Ordering);
+public sealed record ExpeditionMediaDto(string Url, string? Caption, string MediaType, int Ordering, string? FilePath = null, string? VideoUrl = null);
+public sealed record ItineraryDayDto(int Id, int DayNumber, string? ShortDescription, string? Description, string? Meals, string? AccommodationType);
+public sealed record ItineraryDto(int Id, string SeasonTitle, int SortOrder, IReadOnlyCollection<ItineraryDayDto> Days);
+public sealed record ExpeditionMapDto(int Id, string FilePath, string? Title, string? Notes);
+public sealed record CostItemDto(int Id, string Title, string? ShortDescription, bool IsActive, string Type, int SortOrder);
+public sealed record FixedDepartureDto(int Id, DateTime StartDate, DateTime EndDate, int ForDays, string Status, int? GroupSize);
+public sealed record GearListDto(int Id, string? ShortDescription, string FilePath);
+public sealed record ExpeditionHighlightDto(int Id, string Text, int SortOrder);
+public sealed record ExpeditionReviewDto(int Id, string FullName, string EmailAddress, string? UserPhotoPath, string? VideoUrl, int Rating, string ReviewText, string ModerationStatus);
 
 public sealed record ExpeditionUpsertDto(
     string Name,
@@ -58,7 +69,27 @@ public sealed record ExpeditionUpsertDto(
     IReadOnlyCollection<ExpeditionSectionDto> Sections,
     IReadOnlyCollection<ExpeditionItineraryDayDto> ItineraryDays,
     IReadOnlyCollection<ExpeditionFaqDto> Faqs,
-    IReadOnlyCollection<ExpeditionMediaDto> MediaItems);
+    IReadOnlyCollection<ExpeditionMediaDto> MediaItems,
+    string? OverviewCountry = null,
+    string? PeakName = null,
+    string? OverviewDuration = null,
+    string? Route = null,
+    string? Rank = null,
+    decimal? Latitude = null,
+    decimal? Longitude = null,
+    string? WeatherReport = null,
+    string? Range = null,
+    string? WalkingPerDay = null,
+    string? Accommodation = null,
+    string? GroupSizeText = null,
+    string? DifficultyLevel = null,
+    IReadOnlyCollection<ItineraryDto>? Itineraries = null,
+    IReadOnlyCollection<ExpeditionMapDto>? Maps = null,
+    IReadOnlyCollection<CostItemDto>? CostItems = null,
+    IReadOnlyCollection<FixedDepartureDto>? FixedDepartures = null,
+    IReadOnlyCollection<GearListDto>? GearLists = null,
+    IReadOnlyCollection<ExpeditionHighlightDto>? Highlights = null,
+    IReadOnlyCollection<ExpeditionReviewDto>? Reviews = null);
 
 public sealed record ExpeditionDetailsDto(
     int Id,
@@ -97,6 +128,26 @@ public sealed record ExpeditionDetailsDto(
     IReadOnlyCollection<ExpeditionSectionDto> Sections,
     IReadOnlyCollection<ExpeditionItineraryDayDto> ItineraryDays,
     IReadOnlyCollection<ExpeditionFaqDto> Faqs,
-    IReadOnlyCollection<ExpeditionMediaDto> MediaItems);
+    IReadOnlyCollection<ExpeditionMediaDto> MediaItems,
+    string? OverviewCountry,
+    string? PeakName,
+    string? OverviewDuration,
+    string? Route,
+    string? Rank,
+    decimal? Latitude,
+    decimal? Longitude,
+    string? WeatherReport,
+    string? Range,
+    string? WalkingPerDay,
+    string? Accommodation,
+    string? GroupSizeText,
+    string? DifficultyLevel,
+    IReadOnlyCollection<ItineraryDto> Itineraries,
+    IReadOnlyCollection<ExpeditionMapDto> Maps,
+    IReadOnlyCollection<CostItemDto> CostItems,
+    IReadOnlyCollection<FixedDepartureDto> FixedDepartures,
+    IReadOnlyCollection<GearListDto> GearLists,
+    IReadOnlyCollection<ExpeditionHighlightDto> Highlights,
+    IReadOnlyCollection<ExpeditionReviewDto> Reviews);
 
 public sealed record ExpeditionPagedResult(IReadOnlyCollection<ExpeditionListItemDto> Items, int Page, int PageSize, int TotalCount);

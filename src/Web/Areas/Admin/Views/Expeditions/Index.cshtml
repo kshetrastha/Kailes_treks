@@ -8,23 +8,27 @@
     <a class="btn btn-primary" asp-action="Create">Add Expedition</a>
 </div>
 
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3"><input class="form-control" name="search" value="@Context.Request.Query["search"]" placeholder="Search by name" /></div>
+    <div class="col-md-3"><input class="form-control" name="destination" value="@Context.Request.Query["destination"]" placeholder="Country" /></div>
+    <div class="col-md-3"><input class="form-control" name="difficulty" value="@Context.Request.Query["difficulty"]" placeholder="Difficulty" /></div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary">Filter</button></div>
+</form>
+
 <table class="table table-striped">
-    <thead><tr><th>Name</th><th>Type</th><th>Destination</th><th>Status</th><th>Price</th><th></th></tr></thead>
+    <thead><tr><th>Name</th><th>Type</th><th>Country</th><th>Difficulty</th><th>Status</th><th></th></tr></thead>
     <tbody>
     @foreach (var item in Model.Items)
     {
         <tr>
             <td>@item.Name</td>
             <td>@item.ExpeditionTypeTitle</td>
-            <td>@item.Destination</td>
+            <td>@item.Country</td>
+            <td>@item.DifficultyLevel</td>
             <td>@item.Status</td>
-            <td>@item.Price</td>
             <td class="text-end">
                 <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this expedition?')">Delete</button>
-                </form>
+                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this expedition?')">Delete</button></form>
             </td>
         </tr>
     }
