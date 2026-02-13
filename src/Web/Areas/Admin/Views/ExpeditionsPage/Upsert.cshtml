@@ -143,20 +143,50 @@
 
                 <div class="wizard-step d-none" data-step="3">
                     <h5>Cost Includes & Excludes</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <ul class="nav nav-pills mb-3" id="includeExcludeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="inclusions-tab" data-bs-toggle="pill" data-bs-target="#inclusions-panel" type="button" role="tab" aria-controls="inclusions-panel" aria-selected="true">Inclusions</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="exclusions-tab" data-bs-toggle="pill" data-bs-target="#exclusions-panel" type="button" role="tab" aria-controls="exclusions-panel" aria-selected="false">Exclusions</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="inclusions-panel" role="tabpanel" aria-labelledby="inclusions-tab">
+                            <p class="text-muted small mb-2">Add each included service with a short title and brief description.</p>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">Inclusions table</label>
                                 <button type="button" class="btn btn-outline-success btn-sm" id="addInclusion">Add Row</button>
                             </div>
-                            <table class="table table-bordered" id="inclusionTable"><tbody></tbody></table>
+                            <table class="table table-bordered" id="inclusionTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%">Title</th>
+                                        <th>Short Description</th>
+                                        <th style="width: 90px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                        <div class="col-md-6 mb-3">
+
+                        <div class="tab-pane fade" id="exclusions-panel" role="tabpanel" aria-labelledby="exclusions-tab">
+                            <p class="text-muted small mb-2">Add each excluded service with a short title and brief description.</p>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">Exclusions table</label>
                                 <button type="button" class="btn btn-outline-danger btn-sm" id="addExclusion">Add Row</button>
                             </div>
-                            <table class="table table-bordered" id="exclusionTable"><tbody></tbody></table>
+                            <table class="table table-bordered" id="exclusionTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%">Title</th>
+                                        <th>Short Description</th>
+                                        <th style="width: 90px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                     <textarea asp-for="Inclusions" class="d-none"></textarea>
@@ -293,18 +323,18 @@ Oxygen mask and regulator compatibility</textarea>
                 reader.readAsDataURL(file);
             });
 
-            function addSimpleRow(target, placeholder) {
+            function addSimpleRow(target, titlePlaceholder, descriptionPlaceholder) {
                 const row = document.createElement("tr");
-                row.innerHTML = `<td><input class="form-control" placeholder="${placeholder}" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                row.innerHTML = `<td><input class="form-control item-title" placeholder="${titlePlaceholder}" /></td><td><input class="form-control item-description" placeholder="${descriptionPlaceholder}" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
                 target.appendChild(row);
             }
 
             const inclusionTableBody = document.querySelector("#inclusionTable tbody");
             const exclusionTableBody = document.querySelector("#exclusionTable tbody");
-            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody, "Included item"));
-            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody, "Excluded item"));
-            addSimpleRow(inclusionTableBody, "Included item");
-            addSimpleRow(exclusionTableBody, "Excluded item");
+            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody, "Title", "Short description"));
+            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody, "Title", "Short description"));
+            addSimpleRow(inclusionTableBody, "Title", "Short description");
+            addSimpleRow(exclusionTableBody, "Title", "Short description");
 
             function createItineraryDayRow() {
                 return `<tr>
@@ -371,13 +401,21 @@ Oxygen mask and regulator compatibility</textarea>
 
             const form = document.getElementById("expeditionForm");
             form.addEventListener("submit", () => {
-                const inclusionValues = Array.from(document.querySelectorAll("#inclusionTable tbody input"))
-                    .map(x => sanitize(x.value))
+                const inclusionValues = Array.from(document.querySelectorAll("#inclusionTable tbody tr"))
+                    .map((row) => {
+                        const title = sanitize(row.querySelector(".item-title")?.value || "");
+                        const description = sanitize(row.querySelector(".item-description")?.value || "");
+                        return title && description ? `${title}|${description}` : title || description;
+                    })
                     .filter(Boolean);
                 document.getElementById("Inclusions").value = inclusionValues.join("\n");
 
-                const exclusionValues = Array.from(document.querySelectorAll("#exclusionTable tbody input"))
-                    .map(x => sanitize(x.value))
+                const exclusionValues = Array.from(document.querySelectorAll("#exclusionTable tbody tr"))
+                    .map((row) => {
+                        const title = sanitize(row.querySelector(".item-title")?.value || "");
+                        const description = sanitize(row.querySelector(".item-description")?.value || "");
+                        return title && description ? `${title}|${description}` : title || description;
+                    })
                     .filter(Boolean);
                 document.getElementById("Exclusions").value = exclusionValues.join("\n");
 
