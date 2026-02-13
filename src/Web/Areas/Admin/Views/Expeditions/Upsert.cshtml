@@ -10,12 +10,12 @@
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
-    <ul class="nav nav-tabs mb-2">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">Basic</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-itin">Itineraries</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-cost">Cost/Departures</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-files">Gear/Maps/Media</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reviews">Highlights/Reviews</a></li>
+    <ul class="nav nav-tabs expedition-tabs mb-2">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic + Overview</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-itin">2. Itineraries</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-cost">3. Cost + Departures</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-files">4. Gear + Maps + Media</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reviews">5. Highlights + Reviews</a></li>
     </ul>
 
     <div class="tab-content border p-3 mb-3">
@@ -67,4 +67,27 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/expeditions-edit.js"></script>
+}
+
+@section Styles {
+    <style>
+        .expedition-tabs .nav-link {
+            color: #1f2937;
+            background-color: #f8fafc;
+            border-color: #dee2e6;
+        }
+
+        .expedition-tabs .nav-link:hover,
+        .expedition-tabs .nav-link:focus {
+            color: #0d6efd;
+            background-color: #ffffff;
+        }
+
+        .expedition-tabs .nav-link.active {
+            color: #0d6efd;
+            background-color: #ffffff;
+            border-bottom-color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
 }
