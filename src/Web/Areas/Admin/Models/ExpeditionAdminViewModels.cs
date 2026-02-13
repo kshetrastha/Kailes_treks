@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using TravelCleanArch.Domain.Constants;
+using TravelCleanArch.Domain.Entities;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
 
@@ -148,7 +149,7 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
     public string? BookingCtaUrl { get; set; }
     public string? SeoTitle { get; set; }
     public string? SeoDescription { get; set; }
-    [Required] public string Status { get; set; } = TravelStatus.Draft;
+    [Required] public string Status { get; set; } = TravelStatus.Published;
     public bool Featured { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public string? SummitRoute { get; set; }
