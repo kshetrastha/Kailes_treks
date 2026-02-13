@@ -373,6 +373,54 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("company_chairman_messages", (string)null);
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.CostItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(800)
+                        .HasColumnType("character varying(800)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId", "Type", "SortOrder");
+
+                    b.ToTable("expedition_cost_items", (string)null);
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expedition", b =>
                 {
                     b.Property<int>("Id")
@@ -380,6 +428,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Accommodation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("AvailableDates")
                         .HasColumnType("text");
@@ -406,6 +458,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int?>("DifficultyLevel")
+                        .HasColumnType("integer");
+
                     b.Property<int>("DurationDays")
                         .HasColumnType("integer");
 
@@ -422,11 +477,21 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<bool>("Featured")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("GroupSizeText")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<string>("HeroImageUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Inclusions")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("numeric(10,6)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("numeric(10,6)");
 
                     b.Property<int>("MaxAltitudeMeters")
                         .HasColumnType("integer");
@@ -448,8 +513,20 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("Overview")
                         .HasColumnType("text");
 
+                    b.Property<string>("OverviewCountry")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("OverviewDuration")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<bool>("OxygenSupport")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PeakName")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
 
                     b.Property<string>("Permits")
                         .HasColumnType("text");
@@ -457,11 +534,23 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric(12,2)");
 
+                    b.Property<string>("Range")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Rank")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<string>("Region")
                         .HasColumnType("text");
 
                     b.Property<bool>("RequiresClimbingPermit")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Route")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
 
                     b.Property<string>("SeoDescription")
                         .HasColumnType("text");
@@ -498,6 +587,14 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("integer");
+
+                    b.Property<string>("WalkingPerDay")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("WeatherReport")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -557,6 +654,44 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("expedition_faqs", (string)null);
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionHighlight", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId", "SortOrder");
+
+                    b.ToTable("expedition_highlights", (string)null);
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionItineraryDay", b =>
                 {
                     b.Property<int>("Id")
@@ -602,6 +737,49 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("expedition_itinerary_days", (string)null);
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId");
+
+                    b.ToTable("expedition_maps", (string)null);
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionMedia", b =>
                 {
                     b.Property<int>("Id")
@@ -620,6 +798,12 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MediaKind")
                         .HasColumnType("integer");
 
                     b.Property<string>("MediaType")
@@ -641,11 +825,73 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("VideoUrl")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ExpeditionId");
 
                     b.ToTable("expedition_media", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<int>("ModerationStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserPhotoPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId");
+
+                    b.ToTable("expedition_reviews", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionSection", b =>
@@ -746,6 +992,224 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasIndex("IsPublished", "Ordering");
 
                     b.ToTable("expedition_types", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionTypeImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltText")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsCover")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionTypeId", "IsCover");
+
+                    b.HasIndex("ExpeditionTypeId", "SortOrder");
+
+                    b.ToTable("expedition_type_images", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.FixedDeparture", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ForDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("GroupSize")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId", "StartDate", "EndDate");
+
+                    b.ToTable("expedition_fixed_departures", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.GearList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(800)
+                        .HasColumnType("character varying(800)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId");
+
+                    b.ToTable("expedition_gear_lists", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Itinerary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpeditionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SeasonTitle")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId", "SortOrder");
+
+                    b.ToTable("expedition_itineraries", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ItineraryDay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccommodationType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ItineraryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Meals")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItineraryId", "DayNumber")
+                        .IsUnique();
+
+                    b.ToTable("expedition_itinerary_items", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Patron", b =>
@@ -1589,6 +2053,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.CostItem", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("CostItems")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expedition", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.ExpeditionType", "ExpeditionType")
@@ -1610,10 +2085,32 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("Expedition");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionHighlight", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("Highlights")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionItineraryDay", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
                         .WithMany("ItineraryDays")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionMap", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("Maps")
                         .HasForeignKey("ExpeditionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1632,6 +2129,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("Expedition");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionReview", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionSection", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
@@ -1641,6 +2149,61 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionTypeImage", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.ExpeditionType", "ExpeditionType")
+                        .WithMany("Images")
+                        .HasForeignKey("ExpeditionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExpeditionType");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.FixedDeparture", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("FixedDepartures")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.GearList", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("GearLists")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Itinerary", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expedition", "Expedition")
+                        .WithMany("Itineraries")
+                        .HasForeignKey("ExpeditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expedition");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.ItineraryDay", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Itinerary", "Itinerary")
+                        .WithMany("Days")
+                        .HasForeignKey("ItineraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Itinerary");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.TrekkingFaq", b =>
@@ -1689,11 +2252,25 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expedition", b =>
                 {
+                    b.Navigation("CostItems");
+
                     b.Navigation("Faqs");
+
+                    b.Navigation("FixedDepartures");
+
+                    b.Navigation("GearLists");
+
+                    b.Navigation("Highlights");
+
+                    b.Navigation("Itineraries");
 
                     b.Navigation("ItineraryDays");
 
+                    b.Navigation("Maps");
+
                     b.Navigation("MediaItems");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("Sections");
                 });
@@ -1701,6 +2278,13 @@ namespace TravelCleanArch.Infrastructure.Migrations
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionType", b =>
                 {
                     b.Navigation("Expeditions");
+
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Itinerary", b =>
+                {
+                    b.Navigation("Days");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Trekking", b =>

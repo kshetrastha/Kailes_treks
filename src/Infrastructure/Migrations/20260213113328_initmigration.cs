@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initMigration : Migration
+    public partial class initmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -508,6 +508,33 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "expedition_type_images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionTypeId = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    AltText = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    IsCover = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_type_images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_type_images_expedition_types_ExpeditionTypeId",
+                        column: x => x.ExpeditionTypeId,
+                        principalTable: "expedition_types",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "expeditions",
                 columns: table => new
                 {
@@ -521,14 +548,25 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     DurationDays = table.Column<int>(type: "integer", nullable: false),
                     MaxAltitudeMeters = table.Column<int>(type: "integer", nullable: false),
                     Difficulty = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    DifficultyLevel = table.Column<int>(type: "integer", nullable: true),
                     BestSeason = table.Column<string>(type: "text", nullable: true),
                     Overview = table.Column<string>(type: "text", nullable: true),
+                    OverviewCountry = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    PeakName = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
+                    OverviewDuration = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Route = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
+                    Rank = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: true),
+                    Latitude = table.Column<decimal>(type: "numeric(10,6)", nullable: true),
+                    Longitude = table.Column<decimal>(type: "numeric(10,6)", nullable: true),
+                    WeatherReport = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Range = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
                     Inclusions = table.Column<string>(type: "text", nullable: true),
                     Exclusions = table.Column<string>(type: "text", nullable: true),
                     HeroImageUrl = table.Column<string>(type: "text", nullable: true),
                     Permits = table.Column<string>(type: "text", nullable: true),
                     MinGroupSize = table.Column<int>(type: "integer", nullable: false),
                     MaxGroupSize = table.Column<int>(type: "integer", nullable: false),
+                    GroupSizeText = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: true),
                     Price = table.Column<decimal>(type: "numeric(12,2)", nullable: false),
                     AvailableDates = table.Column<string>(type: "text", nullable: true),
                     BookingCtaUrl = table.Column<string>(type: "text", nullable: true),
@@ -543,6 +581,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     OxygenSupport = table.Column<bool>(type: "boolean", nullable: false),
                     SherpaSupport = table.Column<bool>(type: "boolean", nullable: false),
                     SummitBonusUsd = table.Column<decimal>(type: "numeric(12,2)", nullable: true),
+                    WalkingPerDay = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
+                    Accommodation = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     ExpeditionTypeId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -641,6 +681,34 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "expedition_cost_items",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    ShortDescription = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_cost_items", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_cost_items_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "expedition_faqs",
                 columns: table => new
                 {
@@ -660,6 +728,109 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     table.PrimaryKey("PK_expedition_faqs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_expedition_faqs_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_fixed_departures",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ForDays = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    GroupSize = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_fixed_departures", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_fixed_departures_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_gear_lists",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    ShortDescription = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: true),
+                    FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_gear_lists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_gear_lists_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_highlights",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_highlights", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_highlights_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_itineraries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    SeasonTitle = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_itineraries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_itineraries_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -694,6 +865,32 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "expedition_maps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: true),
+                    Notes = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_maps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_maps_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "expedition_media",
                 columns: table => new
                 {
@@ -704,6 +901,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     Caption = table.Column<string>(type: "text", nullable: true),
                     MediaType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Ordering = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: true),
+                    VideoUrl = table.Column<string>(type: "text", nullable: true),
+                    MediaKind = table.Column<int>(type: "integer", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: true),
@@ -714,6 +914,36 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     table.PrimaryKey("PK_expedition_media", x => x.Id);
                     table.ForeignKey(
                         name: "FK_expedition_media_expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_reviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: false),
+                    FullName = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    EmailAddress = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    UserPhotoPath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    VideoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    ReviewText = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    ModerationStatus = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_reviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_reviews_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -743,6 +973,34 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         name: "FK_expedition_sections_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "expedition_itinerary_items",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ItineraryId = table.Column<int>(type: "integer", nullable: false),
+                    DayNumber = table.Column<int>(type: "integer", nullable: false),
+                    ShortDescription = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Meals = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    AccommodationType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_expedition_itinerary_items", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_expedition_itinerary_items_expedition_itineraries_Itinerary~",
+                        column: x => x.ItineraryId,
+                        principalTable: "expedition_itineraries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -891,9 +1149,34 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "Ordering");
 
             migrationBuilder.CreateIndex(
+                name: "IX_expedition_cost_items_ExpeditionId_Type_SortOrder",
+                table: "expedition_cost_items",
+                columns: new[] { "ExpeditionId", "Type", "SortOrder" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_expedition_faqs_ExpeditionId",
                 table: "expedition_faqs",
                 column: "ExpeditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_fixed_departures_ExpeditionId_StartDate_EndDate",
+                table: "expedition_fixed_departures",
+                columns: new[] { "ExpeditionId", "StartDate", "EndDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_gear_lists_ExpeditionId",
+                table: "expedition_gear_lists",
+                column: "ExpeditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_highlights_ExpeditionId_SortOrder",
+                table: "expedition_highlights",
+                columns: new[] { "ExpeditionId", "SortOrder" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_itineraries_ExpeditionId_SortOrder",
+                table: "expedition_itineraries",
+                columns: new[] { "ExpeditionId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_expedition_itinerary_days_ExpeditionId_DayNumber",
@@ -902,14 +1185,40 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_expedition_itinerary_items_ItineraryId_DayNumber",
+                table: "expedition_itinerary_items",
+                columns: new[] { "ItineraryId", "DayNumber" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_maps_ExpeditionId",
+                table: "expedition_maps",
+                column: "ExpeditionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_expedition_media_ExpeditionId",
                 table: "expedition_media",
+                column: "ExpeditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_reviews_ExpeditionId",
+                table: "expedition_reviews",
                 column: "ExpeditionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_expedition_sections_ExpeditionId_SectionType_Ordering",
                 table: "expedition_sections",
                 columns: new[] { "ExpeditionId", "SectionType", "Ordering" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_type_images_ExpeditionTypeId_IsCover",
+                table: "expedition_type_images",
+                columns: new[] { "ExpeditionTypeId", "IsCover" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_expedition_type_images_ExpeditionTypeId_SortOrder",
+                table: "expedition_type_images",
+                columns: new[] { "ExpeditionTypeId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_expedition_types_IsPublished_Ordering",
@@ -1038,16 +1347,40 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "company_why_with_us_hero");
 
             migrationBuilder.DropTable(
+                name: "expedition_cost_items");
+
+            migrationBuilder.DropTable(
                 name: "expedition_faqs");
+
+            migrationBuilder.DropTable(
+                name: "expedition_fixed_departures");
+
+            migrationBuilder.DropTable(
+                name: "expedition_gear_lists");
+
+            migrationBuilder.DropTable(
+                name: "expedition_highlights");
 
             migrationBuilder.DropTable(
                 name: "expedition_itinerary_days");
 
             migrationBuilder.DropTable(
+                name: "expedition_itinerary_items");
+
+            migrationBuilder.DropTable(
+                name: "expedition_maps");
+
+            migrationBuilder.DropTable(
                 name: "expedition_media");
 
             migrationBuilder.DropTable(
+                name: "expedition_reviews");
+
+            migrationBuilder.DropTable(
                 name: "expedition_sections");
+
+            migrationBuilder.DropTable(
+                name: "expedition_type_images");
 
             migrationBuilder.DropTable(
                 name: "trekking_faqs");
@@ -1068,10 +1401,13 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "company_who_we_are");
 
             migrationBuilder.DropTable(
-                name: "expeditions");
+                name: "expedition_itineraries");
 
             migrationBuilder.DropTable(
                 name: "trekking");
+
+            migrationBuilder.DropTable(
+                name: "expeditions");
 
             migrationBuilder.DropTable(
                 name: "expedition_types");
