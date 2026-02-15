@@ -178,7 +178,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         if (isCreate) { e.CreatedAtUtc = DateTime.UtcNow; e.CreatedBy = userId; }
 
         e.Sections.Clear(); foreach (var s in r.Sections) e.Sections.Add(new ExpeditionSection { SectionType = s.SectionType, Title = s.Title, Content = s.Content, Ordering = s.Ordering });
-        e.ItineraryDays.Clear(); foreach (var i in r.ItineraryDays) e.ItineraryDays.Add(new ExpeditionItineraryDay { DayNumber = i.DayNumber, Title = i.Title, Description = i.Description, OvernightLocation = i.OvernightLocation });
+        SyncItineraryDays(e.ItineraryDays, r.ItineraryDays);
         e.Faqs.Clear(); foreach (var f in r.Faqs) e.Faqs.Add(new ExpeditionFaq { Question = f.Question, Answer = f.Answer, Ordering = f.Ordering });
         e.MediaItems.Clear(); foreach (var m in r.MediaItems) e.MediaItems.Add(new ExpeditionMedia { Url = m.Url, Caption = m.Caption, MediaType = m.MediaType, Ordering = m.Ordering, FilePath = m.FilePath, VideoUrl = m.VideoUrl });
 
@@ -304,6 +304,35 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         var prop = typeof(TDto).GetProperty("Id");
         if (prop?.PropertyType != typeof(int)) return 0;
         return (int)(prop.GetValue(dto) ?? 0);
+    }
+
+    private static void SyncItineraryDays(
+        IList<ExpeditionItineraryDay> entities,
+        IReadOnlyCollection<ExpeditionItineraryDayDto> dtos)
+    {
+        var requestedDayNumbers = dtos.Select(x => x.DayNumber).ToHashSet();
+
+        for (var i = entities.Count - 1; i >= 0; i--)
+        {
+            if (!requestedDayNumbers.Contains(entities[i].DayNumber))
+            {
+                entities.RemoveAt(i);
+            }
+        }
+
+        foreach (var dto in dtos)
+        {
+            var existing = entities.FirstOrDefault(x => x.DayNumber == dto.DayNumber);
+            if (existing is null)
+            {
+                existing = new ExpeditionItineraryDay { DayNumber = dto.DayNumber };
+                entities.Add(existing);
+            }
+
+            existing.Title = dto.Title;
+            existing.Description = dto.Description;
+            existing.OvernightLocation = dto.OvernightLocation;
+        }
     }
 
     private string ResolveSlug(string? customSlug, string name, int currentId)
