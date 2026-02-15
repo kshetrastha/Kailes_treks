@@ -142,8 +142,8 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Image Upload (analysis preview only)</label>
-                            <input type="file" id="heroImageUpload" class="form-control" accept="image/*" />
-                            <small class="text-muted">Upload to preview and fill image-analysis notes. Persisted image source remains URL field above.</small>
+                            <input type="file" id="heroImageUpload" asp-for="HeroImageFile" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload to preview and fill image-analysis notes. Upload to save as primary image when URL is empty. If no video is provided, this image is used for media display.</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Image Analysis</label>
@@ -499,6 +499,12 @@
             const heroUpload = document.getElementById("heroImageUpload");
             const heroPreview = document.getElementById("heroImagePreview");
             const imageAnalysis = document.getElementById("imageAnalysis");
+            const heroUrlInput = document.getElementById("HeroImageUrl");
+            if (heroUrlInput?.value) {
+                heroPreview.src = heroUrlInput.value;
+                heroPreview.classList.remove("d-none");
+            }
+
             heroUpload.addEventListener("change", (e) => {
                 const file = e.target.files[0];
                 if (!file) {
@@ -514,18 +520,35 @@
                 reader.readAsDataURL(file);
             });
 
-            function addSimpleRow(target, titlePlaceholder, descriptionPlaceholder) {
+            function addSimpleRow(target, title = "", description = "") {
                 const row = document.createElement("tr");
-                row.innerHTML = `<td><input class="form-control item-title" placeholder="${titlePlaceholder}" /></td><td><input class="form-control item-description" placeholder="${descriptionPlaceholder}" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                row.innerHTML = `<td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
                 target.appendChild(row);
             }
 
             const inclusionTableBody = document.querySelector("#inclusionTable tbody");
             const exclusionTableBody = document.querySelector("#exclusionTable tbody");
-            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody, "Title", "Short description"));
-            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody, "Title", "Short description"));
-            addSimpleRow(inclusionTableBody, "Title", "Short description");
-            addSimpleRow(exclusionTableBody, "Title", "Short description");
+            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody));
+            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody));
+            const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+            if (inclusionSeed.length) {
+                inclusionSeed.forEach((line) => {
+                    const [title, description] = line.split("|");
+                    addSimpleRow(inclusionTableBody, title || "", description || "");
+                });
+            } else {
+                addSimpleRow(inclusionTableBody, "", "");
+            }
+
+            const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+            if (exclusionSeed.length) {
+                exclusionSeed.forEach((line) => {
+                    const [title, description] = line.split("|");
+                    addSimpleRow(exclusionTableBody, title || "", description || "");
+                });
+            } else {
+                addSimpleRow(exclusionTableBody, "", "");
+            }
 
             function createItineraryDayRow() {
                 return `<tr>
@@ -572,8 +595,26 @@
 
             document.getElementById("addReview").addEventListener("click", () => addReviewRow());
             document.getElementById("addFaq").addEventListener("click", () => addFaqRow());
-            addReviewRow();
-            addFaqRow();
+
+            const reviewSeed = `@Model.ReviewsText`.split("\n").map((line) => line.trim()).filter(Boolean);
+            if (reviewSeed.length) {
+                reviewSeed.forEach((line) => {
+                    const [reviewer, comment] = line.split("|");
+                    addReviewRow(reviewer || "", comment || "");
+                });
+            } else {
+                addReviewRow();
+            }
+
+            const faqSeed = `@Model.FaqsText`.split("\n").map((line) => line.trim()).filter(Boolean);
+            if (faqSeed.length) {
+                faqSeed.forEach((line) => {
+                    const [q, a] = line.split("|");
+                    addFaqRow(q || "", a || "");
+                });
+            } else {
+                addFaqRow();
+            }
 
             const departureTableBody = document.querySelector("#departureTable tbody");
             function createDepartureRow(data = {}) {
@@ -728,8 +769,12 @@
                     });
                 });
 
-                document.getElementById("ItineraryText").value = itineraryRows.join("\n");
-                document.getElementById("MediaText").value = mediaRows.join("\n");
+                const itineraryTextInput = document.getElementById("ItineraryText");
+                const mediaTextInput = document.getElementById("MediaText");
+                const existingItineraryRows = (itineraryTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+                const existingMediaRows = (mediaTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+                itineraryTextInput.value = Array.from(new Set([...existingItineraryRows, ...itineraryRows])).join("\n");
+                mediaTextInput.value = Array.from(new Set([...existingMediaRows, ...mediaRows])).join("\n");
 
                 normalizeDepartureIndexes();
                 const availableDateRows = [];
@@ -741,7 +786,7 @@
                     const status = sanitize(row.querySelector(".departure-status")?.value || "BookingOpen");
                     const group = sanitize(row.querySelector(".departure-group")?.value || "");
                     if (start && end) {
-                        availableDateRows.push(`${days}|${start}|${end}|${status}|${group}|${image}`);
+                        availableDateRows.push(`${start}|${end}|${days}|${status}|${group}`);
                     }
                 });
                 document.getElementById("AvailableDates").value = availableDateRows.join("\n");

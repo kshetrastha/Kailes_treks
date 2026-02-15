@@ -113,10 +113,10 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     {
         try
         {
-            var sections = ParseLines(m.SectionsText, p => new ExpeditionSectionDto(p[0], p[1], p[2], int.Parse(p[3])));
-            var itinerary = ParseLines(m.ItineraryText, p => new ExpeditionItineraryDayDto(int.Parse(p[0]), p[1], p[2], p[3]));
-            var faqs = ParseLines(m.FaqsText, p => new ExpeditionFaqDto(p[0], p[1], int.Parse(p[2])));
-            var mediaLegacy = ParseLines(m.MediaText, p => new ExpeditionMediaDto(p[0], p[1], p[2], int.Parse(p[3])));
+            var sections = ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])));
+            var itinerary = ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]));
+            var faqs = ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])));
+            var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3])));
 
             var maps = new List<ExpeditionMapDto>();
             foreach (var map in m.Maps)
@@ -148,10 +148,33 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             {
                 var filePath = item.ExistingPath;
                 if (item.PhotoFile is { Length: > 0 }) filePath = await SaveFileAsync(item.PhotoFile, "expedition-media", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
-                if (!string.IsNullOrWhiteSpace(filePath) || !string.IsNullOrWhiteSpace(item.VideoUrl)) media.Add(new ExpeditionMediaDto(filePath ?? item.VideoUrl ?? string.Empty, item.Caption, string.IsNullOrWhiteSpace(item.VideoUrl) ? "photo" : "video", item.SortOrder, filePath, item.VideoUrl));
+
+                var hasVideo = !string.IsNullOrWhiteSpace(item.VideoUrl);
+                var hasImage = !string.IsNullOrWhiteSpace(filePath);
+                if (hasImage || hasVideo)
+                {
+                    var mediaType = hasVideo ? "video" : "photo";
+                    media.Add(new ExpeditionMediaDto(filePath ?? item.VideoUrl ?? string.Empty, item.Caption, mediaType, item.SortOrder, filePath, item.VideoUrl));
+                }
             }
 
-            var reviews = ParseLines(m.ReviewsText, p => new ExpeditionReviewDto(0, p[0], $"{Guid.NewGuid():N}@placeholder.local", null, null, 5, p[1], "Approved"));
+            string? heroImagePath = null;
+            if (m.HeroImageFile is { Length: > 0 })
+            {
+                heroImagePath = await SaveFileAsync(m.HeroImageFile, "expeditions", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
+            }
+
+            if (!string.IsNullOrWhiteSpace(heroImagePath))
+            {
+                m.HeroImageUrl = heroImagePath;
+            }
+
+            if (mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0 && !string.IsNullOrWhiteSpace(m.HeroImageUrl))
+            {
+                mediaLegacy = [new ExpeditionMediaDto(m.HeroImageUrl, "Primary image", "photo", 0, m.HeroImageUrl, null)];
+            }
+
+            var reviews = BuildReviews(m.Reviews, m.ReviewsText);
 
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
@@ -161,7 +184,10 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
                 m.Itineraries.Select(i => new ItineraryDto(0, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(0, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
                 maps, m.CostItems.Select(c => new CostItemDto(0, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
-                m.FixedDepartures.Select(f => new FixedDepartureDto(0, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize)).ToList(),
+                m.FixedDepartures
+                    .Where(f => f.StartDate.Year > 1900 && f.EndDate.Year > 1900)
+                    .Select(f => new FixedDepartureDto(0, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize))
+                    .ToList(),
                 gear, m.Highlights.Select(h => new ExpeditionHighlightDto(0, h.Text, h.SortOrder)).ToList(), reviews);
 
             return (true, dto, null);
@@ -172,6 +198,26 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             return (false, null, error);
         }
     }
+
+    private static IReadOnlyCollection<ExpeditionReviewDto> BuildReviews(IReadOnlyCollection<ReviewInput> reviewInputs, string reviewsText)
+    {
+        var reviews = new List<ExpeditionReviewDto>();
+        foreach (var review in reviewInputs.Where(r => !string.IsNullOrWhiteSpace(r.FullName) && !string.IsNullOrWhiteSpace(r.ReviewText)))
+        {
+            var email = string.IsNullOrWhiteSpace(review.EmailAddress) ? $"{Guid.NewGuid():N}@placeholder.local" : review.EmailAddress;
+            reviews.Add(new ExpeditionReviewDto(0, review.FullName, email, review.ExistingPhotoPath, review.VideoUrl, review.Rating, review.ReviewText, review.ModerationStatus));
+        }
+
+        if (reviews.Count > 0)
+        {
+            return reviews;
+        }
+
+        return ParseLines(reviewsText, 2, p => new ExpeditionReviewDto(0, p[0], $"{Guid.NewGuid():N}@placeholder.local", null, null, 5, p[1], "Approved"));
+    }
+
+    private static int ParseInt(string value)
+        => int.TryParse(value, out var parsed) ? parsed : 0;
 
     private async Task<string> SaveFileAsync(IFormFile file, string folder, IEnumerable<string> exts, CancellationToken ct)
     {
@@ -187,15 +233,23 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         return Path.Combine("uploads", folder, name).Replace('\\', '/');
     }
 
-    private static IReadOnlyCollection<T> ParseLines<T>(string text, Func<string[], T> map)
+    private static IReadOnlyCollection<T> ParseLines<T>(string text, int minParts, Func<string[], T> map)
     {
         var rows = new List<T>();
         if (string.IsNullOrWhiteSpace(text)) return rows;
+
         foreach (var raw in text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            var parts = raw.Split('|');
-            rows.Add(map(parts.Select(x => x.Trim()).ToArray()));
+            var parts = raw.Split('|').Select(x => x.Trim()).ToArray();
+            if (parts.Length < minParts)
+            {
+                continue;
+            }
+
+            rows.Add(map(parts));
         }
+
         return rows;
     }
+
 }

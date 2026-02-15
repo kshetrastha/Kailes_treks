@@ -142,6 +142,7 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
     public string? Inclusions { get; set; }
     public string? Exclusions { get; set; }
     public string? HeroImageUrl { get; set; }
+    public IFormFile? HeroImageFile { get; set; }
     public string? Permits { get; set; }
     [Range(1, 100)] public int MinGroupSize { get; set; } = 1;
     [Range(1, 100)] public int MaxGroupSize { get; set; } = 20;
