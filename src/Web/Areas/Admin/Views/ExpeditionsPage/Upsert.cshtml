@@ -949,7 +949,7 @@
                 reviews.forEach((line, index) => {
                     const [fullName, reviewText] = line.split("|");
                     createHiddenInput(reviewInputContainer, `Reviews[${index}].FullName`, fullName || "");
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].EmailAddress`, `reviewer${index + 1}@placeholder.local`);
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].EmailAddress`, `reviewer${index + 1}@@placeholder.local`);
                     createHiddenInput(reviewInputContainer, `Reviews[${index}].Rating`, "5");
                     createHiddenInput(reviewInputContainer, `Reviews[${index}].ReviewText`, reviewText || "");
                     createHiddenInput(reviewInputContainer, `Reviews[${index}].ModerationStatus`, "Approved");
