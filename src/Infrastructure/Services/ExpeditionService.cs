@@ -191,7 +191,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         }
         e.Maps.Clear(); foreach (var m in r.Maps ?? []) e.Maps.Add(new ExpeditionMap { FilePath = m.FilePath, Title = m.Title, Notes = m.Notes });
         e.CostItems.Clear(); foreach (var c in r.CostItems ?? []) e.CostItems.Add(new CostItem { Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = Enum.TryParse<CostItemType>(c.Type, out var type) ? type : CostItemType.Inclusion, SortOrder = c.SortOrder });
-        e.FixedDepartures.Clear(); foreach (var f in r.FixedDepartures ?? []) e.FixedDepartures.Add(new FixedDeparture { StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = Enum.TryParse<DepartureStatus>(f.Status, out var st) ? st : DepartureStatus.BookingOpen, GroupSize = f.GroupSize });
+        e.FixedDepartures.Clear(); foreach (var f in r.FixedDepartures ?? []) e.FixedDepartures.Add(new FixedDeparture { StartDate = NormalizeDateTimeToUtc(f.StartDate), EndDate = NormalizeDateTimeToUtc(f.EndDate), ForDays = f.ForDays, Status = Enum.TryParse<DepartureStatus>(f.Status, out var st) ? st : DepartureStatus.BookingOpen, GroupSize = f.GroupSize });
         e.GearLists.Clear(); foreach (var g in r.GearLists ?? []) e.GearLists.Add(new GearList { ShortDescription = g.ShortDescription, FilePath = g.FilePath });
         e.Highlights.Clear(); foreach (var h in r.Highlights ?? []) e.Highlights.Add(new ExpeditionHighlight { Text = h.Text, SortOrder = h.SortOrder });
         e.Reviews.Clear(); foreach (var rv in r.Reviews ?? []) e.Reviews.Add(new ExpeditionReview { FullName = rv.FullName, EmailAddress = rv.EmailAddress, UserPhotoPath = rv.UserPhotoPath, VideoUrl = rv.VideoUrl, Rating = rv.Rating, ReviewText = rv.ReviewText, ModerationStatus = Enum.TryParse<ReviewModerationStatus>(rv.ModerationStatus, out var ms) ? ms : ReviewModerationStatus.Pending });
@@ -205,4 +205,12 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         while (db.Expeditions.Any(x => x.Slug == slug && x.Id != currentId)) slug = $"{baseSlug}-{suffix++}";
         return slug;
     }
+
+    private static DateTime NormalizeDateTimeToUtc(DateTime value)
+        => value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
 }
