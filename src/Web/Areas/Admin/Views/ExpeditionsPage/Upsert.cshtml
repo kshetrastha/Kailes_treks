@@ -6,6 +6,18 @@
     ViewData["Title"] = isEdit ? "Edit Expedition" : "Create Expedition";
 }
 
+<style>
+    #departureGearTabContent > .tab-pane,
+    #reviewsFaqTabContent > .tab-pane {
+        display: none;
+    }
+
+    #departureGearTabContent > .tab-pane.active,
+    #reviewsFaqTabContent > .tab-pane.active {
+        display: block;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Expedition</h2>
@@ -206,10 +218,50 @@
 
                     <div class="tab-content border border-top-0 rounded-bottom p-3 mb-3" id="departureGearTabContent">
                         <div class="tab-pane fade show active" id="departure-pane" role="tabpanel" aria-labelledby="departure-tab">
-                            <div class="mb-0">
-                                <label asp-for="AvailableDates" class="form-label">Fixed Departure Dates (one per line)</label>
-                                <textarea asp-for="AvailableDates" class="form-control" rows="6" placeholder="Spring 2026: Mar 20, Apr 5, Apr 19"></textarea>
+                            <p class="text-muted small mb-2">Add each departure separately (image, days, dates, status, and group size).</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Departure Rows</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addDepartureRow">Add Departure</button>
                             </div>
+                            <table class="table table-sm table-bordered" id="departureTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 22%;">Image URL</th>
+                                        <th style="width: 10%;">Days</th>
+                                        <th style="width: 16%;">Start Date</th>
+                                        <th style="width: 16%;">End Date</th>
+                                        <th style="width: 16%;">Status</th>
+                                        <th style="width: 12%;">Group Size</th>
+                                        <th style="width: 8%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.FixedDepartures.Any())
+                                    {
+                                        for (var i = 0; i < Model.FixedDepartures.Count; i++)
+                                        {
+                                            var departure = Model.FixedDepartures[i];
+                                            <tr class="departure-row">
+                                                <td><input class="form-control departure-image" placeholder="https://..." /></td>
+                                                <td><input class="form-control departure-days" name="FixedDepartures[@i].ForDays" type="number" min="0" value="@departure.ForDays" /></td>
+                                                <td><input class="form-control departure-start" name="FixedDepartures[@i].StartDate" type="date" value="@departure.StartDate.ToString("yyyy-MM-dd")" /></td>
+                                                <td><input class="form-control departure-end" name="FixedDepartures[@i].EndDate" type="date" value="@departure.EndDate.ToString("yyyy-MM-dd")" /></td>
+                                                <td>
+                                                    <select class="form-select departure-status" name="FixedDepartures[@i].Status">
+                                                        <option value="BookingOpen" @(departure.Status == "BookingOpen" ? "selected" : null)>BookingOpen</option>
+                                                        <option value="Limited" @(departure.Status == "Limited" ? "selected" : null)>Limited</option>
+                                                        <option value="SoldOut" @(departure.Status == "SoldOut" ? "selected" : null)>SoldOut</option>
+                                                        <option value="Closed" @(departure.Status == "Closed" ? "selected" : null)>Closed</option>
+                                                    </select>
+                                                </td>
+                                                <td><input class="form-control departure-group" name="FixedDepartures[@i].GroupSize" type="number" min="1" value="@departure.GroupSize" /></td>
+                                                <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-departure-row">Remove</button></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                            <textarea asp-for="AvailableDates" class="d-none"></textarea>
                         </div>
                         <div class="tab-pane fade" id="gear-pane" role="tabpanel" aria-labelledby="gear-tab">
                             <p class="text-muted small mb-2">Add gear documents with a short title and upload PDF/DOC/DOCX files.</p>
@@ -255,8 +307,17 @@
 
                 <div class="wizard-step d-none" data-step="5">
                     <h5>Reviews & FAQ (multi-value inputs)</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <ul class="nav nav-tabs mb-3" id="reviewsFaqTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab" aria-controls="reviews-pane" aria-selected="true">Reviews</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq-pane" type="button" role="tab" aria-controls="faq-pane" aria-selected="false">FAQs</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content border border-top-0 rounded-bottom p-3 mb-3" id="reviewsFaqTabContent">
+                        <div class="tab-pane fade show active" id="reviews-pane" role="tabpanel" aria-labelledby="reviews-tab">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">Reviews</label>
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="addReview">Add Review</button>
@@ -266,7 +327,8 @@
                                 <tbody></tbody>
                             </table>
                         </div>
-                        <div class="col-md-6 mb-3">
+
+                        <div class="tab-pane fade" id="faq-pane" role="tabpanel" aria-labelledby="faq-tab">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">FAQs</label>
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="addFaq">Add FAQ</button>
@@ -275,9 +337,9 @@
                                 <thead><tr><th>Question</th><th>Answer</th><th></th></tr></thead>
                                 <tbody></tbody>
                             </table>
-                            <textarea asp-for="FaqsText" class="d-none"></textarea>
                         </div>
                     </div>
+                    <textarea asp-for="FaqsText" class="d-none"></textarea>
 
                     <div class="mb-3">
                         <label asp-for="SectionsText" class="form-label">Additional Sections (optional raw format)</label>
@@ -426,6 +488,48 @@
             addReviewRow();
             addFaqRow();
 
+            const departureTableBody = document.querySelector("#departureTable tbody");
+            function createDepartureRow(data = {}) {
+                const row = document.createElement("tr");
+                row.className = "departure-row";
+                row.innerHTML = `<td><input class="form-control departure-image" placeholder="https://..." value="${data.image || ""}" /></td>
+                    <td><input class="form-control departure-days" type="number" min="0" value="${data.days || 0}" /></td>
+                    <td><input class="form-control departure-start" type="date" value="${data.startDate || ""}" /></td>
+                    <td><input class="form-control departure-end" type="date" value="${data.endDate || ""}" /></td>
+                    <td>
+                        <select class="form-select departure-status">
+                            <option value="BookingOpen">BookingOpen</option>
+                            <option value="Limited">Limited</option>
+                            <option value="SoldOut">SoldOut</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </td>
+                    <td><input class="form-control departure-group" type="number" min="1" value="${data.groupSize || ""}" /></td>
+                    <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-departure-row">Remove</button></td>`;
+                row.querySelector(".departure-status").value = data.status || "BookingOpen";
+                return row;
+            }
+
+            function normalizeDepartureIndexes() {
+                Array.from(document.querySelectorAll("#departureTable tbody .departure-row")).forEach((row, idx) => {
+                    row.querySelector(".departure-days").setAttribute("name", `FixedDepartures[${idx}].ForDays`);
+                    row.querySelector(".departure-start").setAttribute("name", `FixedDepartures[${idx}].StartDate`);
+                    row.querySelector(".departure-end").setAttribute("name", `FixedDepartures[${idx}].EndDate`);
+                    row.querySelector(".departure-status").setAttribute("name", `FixedDepartures[${idx}].Status`);
+                    row.querySelector(".departure-group").setAttribute("name", `FixedDepartures[${idx}].GroupSize`);
+                });
+            }
+
+            document.getElementById("addDepartureRow").addEventListener("click", () => {
+                departureTableBody.appendChild(createDepartureRow());
+                normalizeDepartureIndexes();
+            });
+
+            if (!departureTableBody.querySelector(".departure-row")) {
+                departureTableBody.appendChild(createDepartureRow());
+            }
+            normalizeDepartureIndexes();
+
             const gearTableBody = document.querySelector("#gearTable tbody");
             function createGearRow(title = "", existingPath = "") {
                 const row = document.createElement("tr");
@@ -481,6 +585,14 @@
                     }
                     normalizeGearIndexes();
                 }
+
+                if (e.target.classList.contains("remove-departure-row")) {
+                    e.target.closest(".departure-row")?.remove();
+                    if (!departureTableBody.querySelector(".departure-row")) {
+                        departureTableBody.appendChild(createDepartureRow());
+                    }
+                    normalizeDepartureIndexes();
+                }
             });
 
             const form = document.getElementById("expeditionForm");
@@ -525,6 +637,21 @@
 
                 document.getElementById("ItineraryText").value = itineraryRows.join("\n");
                 document.getElementById("MediaText").value = mediaRows.join("\n");
+
+                normalizeDepartureIndexes();
+                const availableDateRows = [];
+                document.querySelectorAll("#departureTable tbody tr").forEach((row) => {
+                    const image = sanitize(row.querySelector(".departure-image")?.value || "");
+                    const days = sanitize(row.querySelector(".departure-days")?.value || "");
+                    const start = sanitize(row.querySelector(".departure-start")?.value || "");
+                    const end = sanitize(row.querySelector(".departure-end")?.value || "");
+                    const status = sanitize(row.querySelector(".departure-status")?.value || "BookingOpen");
+                    const group = sanitize(row.querySelector(".departure-group")?.value || "");
+                    if (start && end) {
+                        availableDateRows.push(`${days}|${start}|${end}|${status}|${group}|${image}`);
+                    }
+                });
+                document.getElementById("AvailableDates").value = availableDateRows.join("\n");
 
                 const faqRows = [];
                 document.querySelectorAll("#faqTable tbody tr").forEach((row, index) => {
