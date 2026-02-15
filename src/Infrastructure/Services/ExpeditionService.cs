@@ -182,19 +182,128 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.Faqs.Clear(); foreach (var f in r.Faqs) e.Faqs.Add(new ExpeditionFaq { Question = f.Question, Answer = f.Answer, Ordering = f.Ordering });
         e.MediaItems.Clear(); foreach (var m in r.MediaItems) e.MediaItems.Add(new ExpeditionMedia { Url = m.Url, Caption = m.Caption, MediaType = m.MediaType, Ordering = m.Ordering, FilePath = m.FilePath, VideoUrl = m.VideoUrl });
 
-        e.Itineraries.Clear();
-        foreach (var it in r.Itineraries ?? [])
+        SyncById(e.Itineraries, r.Itineraries ?? [], x => x.Id,
+            () => new Itinerary(),
+            (entity, dto) =>
+            {
+                entity.SeasonTitle = dto.SeasonTitle;
+                entity.SortOrder = dto.SortOrder;
+                SyncById(entity.Days, dto.Days, d => d.Id,
+                    () => new ItineraryDay(),
+                    (dayEntity, dayDto) =>
+                    {
+                        dayEntity.DayNumber = dayDto.DayNumber;
+                        dayEntity.ShortDescription = dayDto.ShortDescription;
+                        dayEntity.Description = dayDto.Description;
+                        dayEntity.Meals = dayDto.Meals;
+                        dayEntity.AccommodationType = dayDto.AccommodationType;
+                    });
+            });
+
+        SyncById(e.Maps, r.Maps ?? [], x => x.Id,
+            () => new ExpeditionMap(),
+            (entity, dto) =>
+            {
+                entity.FilePath = dto.FilePath;
+                entity.Title = dto.Title;
+                entity.Notes = dto.Notes;
+            });
+
+        SyncById(e.CostItems, r.CostItems ?? [], x => x.Id,
+            () => new CostItem(),
+            (entity, dto) =>
+            {
+                entity.Title = dto.Title;
+                entity.ShortDescription = dto.ShortDescription;
+                entity.IsActive = dto.IsActive;
+                entity.Type = Enum.TryParse<CostItemType>(dto.Type, out var type) ? type : CostItemType.Inclusion;
+                entity.SortOrder = dto.SortOrder;
+            });
+
+        SyncById(e.FixedDepartures, r.FixedDepartures ?? [], x => x.Id,
+            () => new FixedDeparture(),
+            (entity, dto) =>
+            {
+                entity.StartDate = NormalizeDateTimeToUtc(dto.StartDate);
+                entity.EndDate = NormalizeDateTimeToUtc(dto.EndDate);
+                entity.ForDays = dto.ForDays;
+                entity.Status = Enum.TryParse<DepartureStatus>(dto.Status, out var st) ? st : DepartureStatus.BookingOpen;
+                entity.GroupSize = dto.GroupSize;
+            });
+
+        SyncById(e.GearLists, r.GearLists ?? [], x => x.Id,
+            () => new GearList(),
+            (entity, dto) =>
+            {
+                entity.ShortDescription = dto.ShortDescription;
+                entity.FilePath = dto.FilePath;
+            });
+
+        SyncById(e.Highlights, r.Highlights ?? [], x => x.Id,
+            () => new ExpeditionHighlight(),
+            (entity, dto) =>
+            {
+                entity.Text = dto.Text;
+                entity.SortOrder = dto.SortOrder;
+            });
+
+        SyncById(e.Reviews, r.Reviews ?? [], x => x.Id,
+            () => new ExpeditionReview(),
+            (entity, dto) =>
+            {
+                entity.FullName = dto.FullName;
+                entity.EmailAddress = dto.EmailAddress;
+                entity.UserPhotoPath = dto.UserPhotoPath;
+                entity.VideoUrl = dto.VideoUrl;
+                entity.Rating = dto.Rating;
+                entity.ReviewText = dto.ReviewText;
+                entity.ModerationStatus = Enum.TryParse<ReviewModerationStatus>(dto.ModerationStatus, out var ms) ? ms : ReviewModerationStatus.Pending;
+            });
+    }
+
+
+    private static void SyncById<TEntity, TDto>(
+        IList<TEntity> entities,
+        IReadOnlyCollection<TDto> dtos,
+        Func<TEntity, int> entityId,
+        Func<TEntity> createEntity,
+        Action<TEntity, TDto> map)
+        where TEntity : class
+    {
+        var dtoById = dtos
+            .Select(dto => (dto, id: GetId(dto)))
+            .Where(x => x.id > 0)
+            .ToDictionary(x => x.id, x => x.dto);
+
+        for (var i = entities.Count - 1; i >= 0; i--)
         {
-            var itinerary = new Itinerary { SeasonTitle = it.SeasonTitle, SortOrder = it.SortOrder };
-            foreach (var d in it.Days) itinerary.Days.Add(new ItineraryDay { DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType });
-            e.Itineraries.Add(itinerary);
+            var existing = entities[i];
+            var id = entityId(existing);
+            if (id > 0 && !dtoById.ContainsKey(id))
+            {
+                entities.RemoveAt(i);
+            }
         }
-        e.Maps.Clear(); foreach (var m in r.Maps ?? []) e.Maps.Add(new ExpeditionMap { FilePath = m.FilePath, Title = m.Title, Notes = m.Notes });
-        e.CostItems.Clear(); foreach (var c in r.CostItems ?? []) e.CostItems.Add(new CostItem { Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = Enum.TryParse<CostItemType>(c.Type, out var type) ? type : CostItemType.Inclusion, SortOrder = c.SortOrder });
-        e.FixedDepartures.Clear(); foreach (var f in r.FixedDepartures ?? []) e.FixedDepartures.Add(new FixedDeparture { StartDate = NormalizeDateTimeToUtc(f.StartDate), EndDate = NormalizeDateTimeToUtc(f.EndDate), ForDays = f.ForDays, Status = Enum.TryParse<DepartureStatus>(f.Status, out var st) ? st : DepartureStatus.BookingOpen, GroupSize = f.GroupSize });
-        e.GearLists.Clear(); foreach (var g in r.GearLists ?? []) e.GearLists.Add(new GearList { ShortDescription = g.ShortDescription, FilePath = g.FilePath });
-        e.Highlights.Clear(); foreach (var h in r.Highlights ?? []) e.Highlights.Add(new ExpeditionHighlight { Text = h.Text, SortOrder = h.SortOrder });
-        e.Reviews.Clear(); foreach (var rv in r.Reviews ?? []) e.Reviews.Add(new ExpeditionReview { FullName = rv.FullName, EmailAddress = rv.EmailAddress, UserPhotoPath = rv.UserPhotoPath, VideoUrl = rv.VideoUrl, Rating = rv.Rating, ReviewText = rv.ReviewText, ModerationStatus = Enum.TryParse<ReviewModerationStatus>(rv.ModerationStatus, out var ms) ? ms : ReviewModerationStatus.Pending });
+
+        foreach (var dto in dtos)
+        {
+            var id = GetId(dto);
+            var existing = id > 0 ? entities.FirstOrDefault(x => entityId(x) == id) : null;
+            if (existing is null)
+            {
+                existing = createEntity();
+                entities.Add(existing);
+            }
+
+            map(existing, dto);
+        }
+    }
+
+    private static int GetId<TDto>(TDto dto)
+    {
+        var prop = typeof(TDto).GetProperty("Id");
+        if (prop?.PropertyType != typeof(int)) return 0;
+        return (int)(prop.GetValue(dto) ?? 0);
     }
 
     private string ResolveSlug(string? customSlug, string name, int currentId)
