@@ -54,7 +54,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList(),
             GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList(),
             Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList(),
-            Media = e.MediaItems.Select(m => new MediaInput { Id = m.Id, ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
+            Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
             Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList(),
             Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
             SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
