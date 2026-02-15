@@ -326,7 +326,7 @@
                                                         <option value="Limited" @(departure.Status == "Limited" ? "selected" : null)>Limited</option>
                                                         <option value="SoldOut" @(departure.Status == "SoldOut" ? "selected" : null)>SoldOut</option>
                                                         <option value="Closed" @(departure.Status == "Closed" ? "selected" : null)>Closed</option> *@
-                                                        <select asp-for="FixedDepartures[@i].Status" class="form-select">
+                                                        <select asp-for="FixedDepartures[@i].Status" class="form-select departure-status">
                                                             <option value="BookingOpen">BookingOpen</option>
                                                             <option value="Limited">Limited</option>
                                                             <option value="SoldOut">SoldOut</option>
@@ -353,7 +353,8 @@
                             <table class="table table-sm table-bordered" id="gearTable">
                                 <thead>
                                     <tr>
-                                        <th style="width: 35%;">Title</th>
+                                        <th style="width: 30%;">Title</th>
+                                        <th style="width: 30%;">Display Image</th>
                                         <th>File Upload (PDF / DOC / DOCX)</th>
                                         <th style="width: 90px;"></th>
                                     </tr>
@@ -368,6 +369,14 @@
                                                 <td>
                                                     <input class="form-control gear-title" name="GearLists[@i].ShortDescription" value="@gear.ShortDescription" placeholder="Gear document title" />
                                                     <input type="hidden" class="gear-existing-path" name="GearLists[@i].ExistingPath" value="@gear.ExistingPath" />
+                                                    <input type="hidden" class="gear-existing-image-path" name="GearLists[@i].ExistingImagePath" value="@gear.ExistingImagePath" />
+                                                </td>
+                                                <td>
+                                                    <input type="file" class="form-control gear-image" name="GearLists[@i].UploadImage" accept=".jpg,.jpeg,.png,.webp" />
+                                                    @if (!string.IsNullOrWhiteSpace(gear.ExistingImagePath))
+                                                    {
+                                                        <small class="text-muted d-block mt-1">Current image: <a href="~/@gear.ExistingImagePath" target="_blank">@gear.ExistingImagePath</a></small>
+                                                    }
                                                 </td>
                                                 <td>
                                                     <input type="file" class="form-control gear-file" name="GearLists[@i].UploadFile" accept=".pdf,.doc,.docx" />
@@ -609,12 +618,16 @@
             normalizeDepartureIndexes();
 
             const gearTableBody = document.querySelector("#gearTable tbody");
-            function createGearRow(title = "", existingPath = "") {
+            function createGearRow(title = "", existingPath = "", existingImagePath = "") {
                 const row = document.createElement("tr");
                 row.className = "gear-row";
                 row.innerHTML = `<td>
                         <input class="form-control gear-title" placeholder="Gear document title" />
                         <input type="hidden" class="gear-existing-path" value="${existingPath}" />
+                        <input type="hidden" class="gear-existing-image-path" value="${existingImagePath}" />
+                    </td>
+                    <td>
+                        <input type="file" class="form-control gear-image" accept=".jpg,.jpeg,.png,.webp" />
                     </td>
                     <td>
                         <input type="file" class="form-control gear-file" accept=".pdf,.doc,.docx" />
@@ -628,6 +641,8 @@
                 Array.from(document.querySelectorAll("#gearTable tbody .gear-row")).forEach((row, idx) => {
                     row.querySelector(".gear-title").setAttribute("name", `GearLists[${idx}].ShortDescription`);
                     row.querySelector(".gear-existing-path").setAttribute("name", `GearLists[${idx}].ExistingPath`);
+                    row.querySelector(".gear-existing-image-path").setAttribute("name", `GearLists[${idx}].ExistingImagePath`);
+                    row.querySelector(".gear-image").setAttribute("name", `GearLists[${idx}].UploadImage`);
                     row.querySelector(".gear-file").setAttribute("name", `GearLists[${idx}].UploadFile`);
                 });
             }

@@ -127,11 +127,20 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             }
 
             var gear = new List<GearListDto>();
+            var gearImageMedia = new List<ExpeditionMediaDto>();
             foreach (var item in m.GearLists)
             {
                 var path = item.ExistingPath;
                 if (item.UploadFile is { Length: > 0 }) path = await SaveFileAsync(item.UploadFile, "gear", new[] { ".pdf", ".doc", ".docx" }, ct);
                 if (!string.IsNullOrWhiteSpace(path)) gear.Add(new GearListDto(0, item.ShortDescription, path));
+
+                var imagePath = item.ExistingImagePath;
+                if (item.UploadImage is { Length: > 0 }) imagePath = await SaveFileAsync(item.UploadImage, "gear-images", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
+                if (!string.IsNullOrWhiteSpace(imagePath))
+                {
+                    var caption = string.IsNullOrWhiteSpace(item.ShortDescription) ? "Gear display image" : $"Gear image: {item.ShortDescription}";
+                    gearImageMedia.Add(new ExpeditionMediaDto(imagePath, caption, "photo", 0, imagePath, null));
+                }
             }
 
             var media = new List<ExpeditionMediaDto>();
@@ -148,7 +157,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
                 m.BookingCtaUrl, m.SeoTitle, m.SeoDescription, m.Status, m.Featured, m.Ordering, m.SummitRoute, m.RequiresClimbingPermit,
                 m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, sections, itinerary, faqs,
-                mediaLegacy.Concat(media).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
+                mediaLegacy.Concat(media).Concat(gearImageMedia).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
                 m.Itineraries.Select(i => new ItineraryDto(0, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(0, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
                 maps, m.CostItems.Select(c => new CostItemDto(0, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
