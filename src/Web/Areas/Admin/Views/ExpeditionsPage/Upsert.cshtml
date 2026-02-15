@@ -194,20 +194,62 @@
                 </div>
 
                 <div class="wizard-step d-none" data-step="4">
-                    <h5>Fixed Departure & Gear List</h5>
-                    <div class="mb-3">
-                        <label asp-for="AvailableDates" class="form-label">Fixed Departure Dates (one per line)</label>
-                        <textarea asp-for="AvailableDates" class="form-control" rows="4" placeholder="Spring 2026: Mar 20, Apr 5, Apr 19"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Fixed Departure Gear List</label>
-                        <textarea id="gearList" class="form-control" rows="6">8000m down suit
-Double boots + gaiters
-Climbing harness and ascender
-Helmet, crampons, ice axe
-High-altitude gloves and mittens
-Headlamp and spare batteries
-Oxygen mask and regulator compatibility</textarea>
+                    <h5>Departure & Gear</h5>
+                    <ul class="nav nav-tabs mb-3" id="departureGearTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="departure-tab" data-bs-toggle="tab" data-bs-target="#departure-pane" type="button" role="tab" aria-controls="departure-pane" aria-selected="true">Departure</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gear-tab" data-bs-toggle="tab" data-bs-target="#gear-pane" type="button" role="tab" aria-controls="gear-pane" aria-selected="false">Gear List</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content border border-top-0 rounded-bottom p-3 mb-3" id="departureGearTabContent">
+                        <div class="tab-pane fade show active" id="departure-pane" role="tabpanel" aria-labelledby="departure-tab">
+                            <div class="mb-0">
+                                <label asp-for="AvailableDates" class="form-label">Fixed Departure Dates (one per line)</label>
+                                <textarea asp-for="AvailableDates" class="form-control" rows="6" placeholder="Spring 2026: Mar 20, Apr 5, Apr 19"></textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="gear-pane" role="tabpanel" aria-labelledby="gear-tab">
+                            <p class="text-muted small mb-2">Add gear documents with a short title and upload PDF/DOC/DOCX files.</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Gear Documents</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addGearRow">Add Gear</button>
+                            </div>
+                            <table class="table table-sm table-bordered" id="gearTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35%;">Title</th>
+                                        <th>File Upload (PDF / DOC / DOCX)</th>
+                                        <th style="width: 90px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.GearLists.Any())
+                                    {
+                                        for (var i = 0; i < Model.GearLists.Count; i++)
+                                        {
+                                            var gear = Model.GearLists[i];
+                                            <tr class="gear-row">
+                                                <td>
+                                                    <input class="form-control gear-title" name="GearLists[@i].ShortDescription" value="@gear.ShortDescription" placeholder="Gear document title" />
+                                                    <input type="hidden" class="gear-existing-path" name="GearLists[@i].ExistingPath" value="@gear.ExistingPath" />
+                                                </td>
+                                                <td>
+                                                    <input type="file" class="form-control gear-file" name="GearLists[@i].UploadFile" accept=".pdf,.doc,.docx" />
+                                                    @if (!string.IsNullOrWhiteSpace(gear.ExistingPath))
+                                                    {
+                                                        <small class="text-muted d-block mt-1">Current file: <a href="~/@gear.ExistingPath" target="_blank">@gear.ExistingPath</a></small>
+                                                    }
+                                                </td>
+                                                <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-gear-row">Remove</button></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -384,6 +426,40 @@ Oxygen mask and regulator compatibility</textarea>
             addReviewRow();
             addFaqRow();
 
+            const gearTableBody = document.querySelector("#gearTable tbody");
+            function createGearRow(title = "", existingPath = "") {
+                const row = document.createElement("tr");
+                row.className = "gear-row";
+                row.innerHTML = `<td>
+                        <input class="form-control gear-title" placeholder="Gear document title" />
+                        <input type="hidden" class="gear-existing-path" value="${existingPath}" />
+                    </td>
+                    <td>
+                        <input type="file" class="form-control gear-file" accept=".pdf,.doc,.docx" />
+                    </td>
+                    <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-gear-row">Remove</button></td>`;
+                row.querySelector(".gear-title").value = title;
+                return row;
+            }
+
+            function normalizeGearIndexes() {
+                Array.from(document.querySelectorAll("#gearTable tbody .gear-row")).forEach((row, idx) => {
+                    row.querySelector(".gear-title").setAttribute("name", `GearLists[${idx}].ShortDescription`);
+                    row.querySelector(".gear-existing-path").setAttribute("name", `GearLists[${idx}].ExistingPath`);
+                    row.querySelector(".gear-file").setAttribute("name", `GearLists[${idx}].UploadFile`);
+                });
+            }
+
+            document.getElementById("addGearRow").addEventListener("click", () => {
+                gearTableBody.appendChild(createGearRow());
+                normalizeGearIndexes();
+            });
+
+            if (!gearTableBody.querySelector(".gear-row")) {
+                gearTableBody.appendChild(createGearRow());
+            }
+            normalizeGearIndexes();
+
             document.addEventListener("click", (e) => {
                 if (e.target.classList.contains("remove-row")) {
                     e.target.closest("tr")?.remove();
@@ -396,6 +472,14 @@ Oxygen mask and regulator compatibility</textarea>
 
                 if (e.target.classList.contains("remove-variant")) {
                     e.target.closest(".itinerary-variant")?.remove();
+                }
+
+                if (e.target.classList.contains("remove-gear-row")) {
+                    e.target.closest(".gear-row")?.remove();
+                    if (!gearTableBody.querySelector(".gear-row")) {
+                        gearTableBody.appendChild(createGearRow());
+                    }
+                    normalizeGearIndexes();
                 }
             });
 
@@ -457,11 +541,7 @@ Oxygen mask and regulator compatibility</textarea>
                     .map(x => x.trim())
                     .filter(Boolean);
 
-                const gear = document.getElementById("gearList").value
-                    .split("\n")
-                    .map(x => sanitize(x))
-                    .filter(Boolean)
-                    .map((item, idx) => `Gear|Gear Item ${idx + 1}|${item}|${100 + idx}`);
+                normalizeGearIndexes();
 
                 const reviews = [];
                 document.querySelectorAll("#reviewTable tbody tr").forEach((row, index) => {
@@ -472,7 +552,7 @@ Oxygen mask and regulator compatibility</textarea>
                     }
                 });
 
-                document.getElementById("SectionsText").value = [...sections, ...gear, ...reviews].join("\n");
+                document.getElementById("SectionsText").value = [...sections, ...reviews].join("\n");
             });
 
             renderStep();
