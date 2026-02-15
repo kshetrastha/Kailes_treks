@@ -138,13 +138,13 @@
                             <span asp-validation-for="ShortDescription" class="text-danger"></span>
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label asp-for="HeroImageUrl" class="form-label">Primary Image URL</label>
+                            <label asp-for="HeroImageUrl" class="form-label">Primary Video URL</label>
                             <input asp-for="HeroImageUrl" class="form-control" placeholder="https://..." />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Image Upload (analysis preview only)</label>
+                            <label class="form-label">Primary Image Upload</label>
                             <input type="file" id="heroImageUpload" asp-for="HeroImageFile" class="form-control" accept="image/*" />
-                            <small class="text-muted">Upload to preview and fill image-analysis notes. Upload to save as primary image when URL is empty. If no video is provided, this image is used for media display.</small>
+                            <small class="text-muted">You can save just a video URL, just an image upload, or both together.</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Image Analysis</label>

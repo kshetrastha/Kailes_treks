@@ -158,20 +158,33 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 }
             }
 
+            var primaryMediaUrl = m.HeroImageUrl?.Trim();
+
             string? heroImagePath = null;
             if (m.HeroImageFile is { Length: > 0 })
             {
                 heroImagePath = await SaveFileAsync(m.HeroImageFile, "expeditions", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
             }
 
-            if (!string.IsNullOrWhiteSpace(heroImagePath))
-            {
-                m.HeroImageUrl = heroImagePath;
-            }
+            m.HeroImageUrl = !string.IsNullOrWhiteSpace(primaryMediaUrl)
+                ? primaryMediaUrl
+                : heroImagePath;
 
-            if (mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0 && !string.IsNullOrWhiteSpace(m.HeroImageUrl))
+            if (mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0)
             {
-                mediaLegacy = [new ExpeditionMediaDto(m.HeroImageUrl, "Primary image", "photo", 0, m.HeroImageUrl, null)];
+                if (!string.IsNullOrWhiteSpace(primaryMediaUrl))
+                {
+                    var isVideoUrl = Uri.TryCreate(primaryMediaUrl, UriKind.Absolute, out var mediaUri)
+                        && !string.IsNullOrWhiteSpace(mediaUri.AbsolutePath)
+                        && !new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif" }
+                            .Any(ext => mediaUri.AbsolutePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+                    mediaLegacy.Add(new ExpeditionMediaDto(primaryMediaUrl, "Primary media", isVideoUrl ? "video" : "photo", 0, isVideoUrl ? null : primaryMediaUrl, isVideoUrl ? primaryMediaUrl : null));
+                }
+
+                if (!string.IsNullOrWhiteSpace(heroImagePath))
+                {
+                    mediaLegacy.Add(new ExpeditionMediaDto(heroImagePath, "Primary image", "photo", 1, heroImagePath, null));
+                }
             }
 
             var reviews = BuildReviews(m.Reviews, m.ReviewsText);
