@@ -247,12 +247,19 @@
                                                 <td><input class="form-control departure-start" name="FixedDepartures[@i].StartDate" type="date" value="@departure.StartDate.ToString("yyyy-MM-dd")" /></td>
                                                 <td><input class="form-control departure-end" name="FixedDepartures[@i].EndDate" type="date" value="@departure.EndDate.ToString("yyyy-MM-dd")" /></td>
                                                 <td>
-                                                    <select class="form-select departure-status" name="FixedDepartures[@i].Status">
-                                                        <option value="BookingOpen" @(departure.Status == "BookingOpen" ? "selected" : null)>BookingOpen</option>
+                                                    @* <select class="form-select departure-status" name="FixedDepartures[@i].Status"> *@
+                                                       @*  <option value="BookingOpen" @(departure.Status == "BookingOpen" ? "selected" : null)>BookingOpen</option>
                                                         <option value="Limited" @(departure.Status == "Limited" ? "selected" : null)>Limited</option>
                                                         <option value="SoldOut" @(departure.Status == "SoldOut" ? "selected" : null)>SoldOut</option>
-                                                        <option value="Closed" @(departure.Status == "Closed" ? "selected" : null)>Closed</option>
-                                                    </select>
+                                                        <option value="Closed" @(departure.Status == "Closed" ? "selected" : null)>Closed</option> *@
+                                                        <select asp-for="FixedDepartures[@i].Status" class="form-select">
+                                                            <option value="BookingOpen">BookingOpen</option>
+                                                            <option value="Limited">Limited</option>
+                                                            <option value="SoldOut">SoldOut</option>
+                                                            <option value="Closed">Closed</option>
+                                                        </select>
+
+                                                    @* </select> *@
                                                 </td>
                                                 <td><input class="form-control departure-group" name="FixedDepartures[@i].GroupSize" type="number" min="1" value="@departure.GroupSize" /></td>
                                                 <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-departure-row">Remove</button></td>
