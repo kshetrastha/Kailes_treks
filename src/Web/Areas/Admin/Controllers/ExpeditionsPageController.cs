@@ -57,9 +57,10 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
             Highlights = e.Highlights.Select(h => new HighlightInput { Text = h.Text, SortOrder = h.SortOrder }).ToList(),
             Reviews = e.Reviews.Select(r => new ReviewInput { FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
-            SectionsText = string.Join('\n', e.Sections.Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
+            SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
             ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}")),
             FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}")),
+            ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}")),
             MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"))
         });
     }
@@ -141,13 +142,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 if (!string.IsNullOrWhiteSpace(filePath) || !string.IsNullOrWhiteSpace(item.VideoUrl)) media.Add(new ExpeditionMediaDto(filePath ?? item.VideoUrl ?? string.Empty, item.Caption, string.IsNullOrWhiteSpace(item.VideoUrl) ? "photo" : "video", item.SortOrder, filePath, item.VideoUrl));
             }
 
-            var reviews = new List<ExpeditionReviewDto>();
-            foreach (var r in m.Reviews)
-            {
-                var photo = r.ExistingPhotoPath;
-                if (r.UserPhoto is { Length: > 0 }) photo = await SaveFileAsync(r.UserPhoto, "review-users", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
-                reviews.Add(new ExpeditionReviewDto(0, r.FullName, r.EmailAddress, photo, r.VideoUrl, r.Rating, r.ReviewText, r.ModerationStatus));
-            }
+            var reviews = ParseLines(m.ReviewsText, p => new ExpeditionReviewDto(0, p[0], $"{Guid.NewGuid():N}@placeholder.local", null, null, 5, p[1], "Approved"));
 
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,

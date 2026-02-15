@@ -421,11 +421,8 @@
                         </div>
                     </div>
                     <textarea asp-for="FaqsText" class="d-none"></textarea>
+                    <textarea asp-for="ReviewsText" class="d-none"></textarea>
 
-                    <div class="mb-3">
-                        <label asp-for="SectionsText" class="form-label">Additional Sections (optional raw format)</label>
-                        <textarea asp-for="SectionsText" class="form-control" rows="3" placeholder="sectionType|title|content|ordering"></textarea>
-                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between">
@@ -744,23 +741,18 @@
                 });
                 document.getElementById("FaqsText").value = faqRows.join("\n");
 
-                const sections = document.getElementById("SectionsText").value
-                    .split("\n")
-                    .map(x => x.trim())
-                    .filter(Boolean);
-
                 normalizeGearIndexes();
 
                 const reviews = [];
-                document.querySelectorAll("#reviewTable tbody tr").forEach((row, index) => {
+                document.querySelectorAll("#reviewTable tbody tr").forEach((row) => {
                     const reviewer = sanitize(row.querySelector(".reviewer")?.value || "");
                     const comment = sanitize(row.querySelector(".review-comment")?.value || "");
                     if (reviewer && comment) {
-                        reviews.push(`Review|${reviewer}|${comment}|${200 + index}`);
+                        reviews.push(`${reviewer}|${comment}`);
                     }
                 });
 
-                document.getElementById("SectionsText").value = [...sections, ...reviews].join("\n");
+                document.getElementById("ReviewsText").value = reviews.join("\n");
             });
 
             renderStep();

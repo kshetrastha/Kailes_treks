@@ -174,6 +174,7 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
     public string SectionsText { get; set; } = string.Empty;
     public string ItineraryText { get; set; } = string.Empty;
     public string FaqsText { get; set; } = string.Empty;
+    public string ReviewsText { get; set; } = string.Empty;
     public string MediaText { get; set; } = string.Empty;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
