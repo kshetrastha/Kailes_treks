@@ -191,6 +191,11 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
+        if (string.IsNullOrWhiteSpace(HeroImageUrl) && HeroImageFile is null)
+        {
+            yield return new ValidationResult("Provide at least one primary media source: URL (image/video) or uploaded image.", [nameof(HeroImageUrl), nameof(HeroImageFile)]);
+        }
+
         foreach (var fd in FixedDepartures)
         {
             if (fd.EndDate < fd.StartDate)

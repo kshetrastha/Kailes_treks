@@ -3,8 +3,12 @@
 @{
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+    var faqRows = (Model.FaqsText ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(x => x.Split('|'))
+        .Where(x => x.Length >= 3)
+        .ToList();
 }
-
 <h3>@(isEdit ? "Edit" : "Create") Expedition</h3>
 <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
     @Html.AntiForgeryToken()
@@ -13,7 +17,7 @@
     <ul class="nav nav-tabs expedition-tabs mb-2">
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic + Overview</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-itin">2. Itineraries</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-cost">3. Cost + Departures</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-cost">3. Inclusions + Exclusions + Departures</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-files">4. Gear + Maps + Media</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reviews">5. Highlights + Reviews</a></li>
     </ul>
@@ -22,29 +26,89 @@
         <div class="tab-pane fade show active" id="tab-basic">
             <div class="row g-2">
                 <div class="col-md-6"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /></div>
-                <div class="col-md-6"><label asp-for="ExpeditionTypeId"></label><select asp-for="ExpeditionTypeId" class="form-select"><option value="">--select--</option>@foreach (var t in types){<option value="@t.Id">@t.Title</option>}</select></div>
+                <div class="col-md-6"><label asp-for="ExpeditionTypeId"></label><select asp-for="ExpeditionTypeId" class="form-select"><option value="">--select--</option>@foreach (var t in types)
+                    {
+                        <option value="@t.Id">@t.Title</option>
+                    }</select></div>
                 <div class="col-md-6"><label asp-for="ShortDescription"></label><textarea asp-for="ShortDescription" class="form-control"></textarea></div>
                 <div class="col-md-3"><label asp-for="OverviewCountry">Country</label><input asp-for="OverviewCountry" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="PeakName"></label><input asp-for="PeakName" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="DifficultyLevel"></label><select asp-for="DifficultyLevel" class="form-select"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>HardDifficult</option><option>VeryHard</option></select></div>
                 <div class="col-md-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="HeroImageUrl">Primary Image/Video URL</label><input asp-for="HeroImageUrl" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="HeroImageFile">Primary Image Upload</label><input asp-for="HeroImageFile" type="file" class="form-control" /></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-itin">
-            <table class="table" id="itineraryTable"><thead><tr><th>Season</th><th>Sort</th><th>Days (d#:short:meals:acc)</th></tr></thead><tbody>
-                @for (var i=0;i<Model.Itineraries.Count;i++){
-                    <tr><td><input type="hidden" name="Itineraries[@i].Id" value="@Model.Itineraries[i].Id" /><input name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" class="form-control"/></td><td><input name="Itineraries[@i].SortOrder" value="@Model.Itineraries[i].SortOrder" class="form-control"/></td><td><textarea class="form-control itin-days" data-index="@i">@string.Join("\n", Model.Itineraries[i].Days.Select(d=>$"{d.Id}:{d.DayNumber}:{d.ShortDescription}:{d.Meals}:{d.AccommodationType}"))</textarea></td></tr>
-                }
-            </tbody></table>
+            <table class="table" id="itineraryTable">
+                <thead><tr><th>Season</th><th>Sort</th><th>Days (id:day:short:meals:accommodation)</th><th></th></tr></thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Itineraries.Count; i++)
+                    {
+                        <tr class="itinerary-row" data-index="@i">
+                            <td>
+                                <input type="hidden" name="Itineraries[@i].Id" value="@Model.Itineraries[i].Id" />
+                                <input name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" class="form-control" />
+                            </td>
+                            <td><input name="Itineraries[@i].SortOrder" value="@Model.Itineraries[i].SortOrder" class="form-control" /></td>
+                            <td><textarea class="form-control itin-days" data-index="@i">@string.Join("\n", Model.Itineraries[i].Days.Select(d => $"{d.Id}:{d.DayNumber}:{d.ShortDescription}:{d.Meals}:{d.AccommodationType}"))</textarea></td>
+                            <td><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="addItinerary">Add itinerary</button>
         </div>
 
         <div class="tab-pane fade" id="tab-cost">
             <textarea asp-for="Inclusions" class="form-control mb-2" placeholder="Inclusions"></textarea>
-            <textarea asp-for="Exclusions" class="form-control mb-2" placeholder="Exclusions"></textarea>
-            <h6>Cost Items (title|type|sort)</h6><textarea id="costText" class="form-control" rows="4">@string.Join("\n", Model.CostItems.Select(c=>$"{c.Id}|{c.Title}|{c.Type}|{c.SortOrder}"))</textarea>
-            <h6 class="mt-2">Fixed Departures (start|end|days|status|group)</h6><textarea id="departureText" class="form-control" rows="3">@string.Join("\n", Model.FixedDepartures.Select(d=>$"{d.Id}|{d.StartDate:yyyy-MM-dd}|{d.EndDate:yyyy-MM-dd}|{d.ForDays}|{d.Status}|{d.GroupSize}"))</textarea>
+            <textarea asp-for="Exclusions" class="form-control mb-3" placeholder="Exclusions"></textarea>
+
+            <h6>Cost Items</h6>
+            <div id="costWrap">
+                @for (var i = 0; i < Model.CostItems.Count; i++)
+                {
+                    <div class="row g-1 mb-2 cost-row">
+                        <input type="hidden" name="CostItems[@i].Id" value="@Model.CostItems[i].Id" />
+                        <div class="col-md-3"><input name="CostItems[@i].Title" value="@Model.CostItems[i].Title" class="form-control" placeholder="title" /></div>
+                        <div class="col-md-2"><input name="CostItems[@i].Type" value="@Model.CostItems[i].Type" class="form-control" placeholder="Inclusion/Exclusion" /></div>
+                        <div class="col-md-2"><input name="CostItems[@i].SortOrder" value="@Model.CostItems[i].SortOrder" class="form-control" placeholder="sort" /></div>
+                        <div class="col-md-2">
+                            <select name="CostItems[@i].IsActive" class="form-select">
+                                @if (Model.CostItems[i].IsActive)
+                                {
+                                    <option value="true" selected>Active</option><option value="false">Inactive</option>
+                                }
+                                else
+                                {
+                                    <option value="true">Active</option><option value="false" selected>Inactive</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3"><input name="CostItems[@i].ShortDescription" value="@Model.CostItems[i].ShortDescription" class="form-control" placeholder="description" /></div>
+                        <div class="col-12 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addCost">Add Cost Item</button>
+
+            <h6 class="mt-3">Fixed Departures</h6>
+            <div id="departureWrap">
+                @for (var i = 0; i < Model.FixedDepartures.Count; i++)
+                {
+                    <div class="row g-1 mb-2 departure-row">
+                        <input type="hidden" name="FixedDepartures[@i].Id" value="@Model.FixedDepartures[i].Id" />
+                        <div class="col-md-2"><input type="date" name="FixedDepartures[@i].StartDate" value="@Model.FixedDepartures[i].StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div>
+                        <div class="col-md-2"><input type="date" name="FixedDepartures[@i].EndDate" value="@Model.FixedDepartures[i].EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div>
+                        <div class="col-md-2"><input name="FixedDepartures[@i].ForDays" value="@Model.FixedDepartures[i].ForDays" class="form-control" placeholder="days" /></div>
+                        <div class="col-md-3"><input name="FixedDepartures[@i].Status" value="@Model.FixedDepartures[i].Status" class="form-control" placeholder="BookingOpen" /></div>
+                        <div class="col-md-2"><input name="FixedDepartures[@i].GroupSize" value="@Model.FixedDepartures[i].GroupSize" class="form-control" placeholder="group" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addDeparture">Add Departure</button>
         </div>
 
         <div class="tab-pane fade" id="tab-files">
@@ -59,6 +123,7 @@
                         <div class='col'><input name='GearLists[@i].ShortDescription' value='@Model.GearLists[i].ShortDescription' class='form-control' placeholder='description' /></div>
                         <div class='col'><input type='file' name='GearLists[@i].UploadFile' class='form-control' /></div>
                         <div class='col'><input type='file' name='GearLists[@i].UploadImage' class='form-control' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
                     </div>
                 }
             </div>
@@ -73,6 +138,7 @@
                         <div class='col'><input name='Maps[@i].Title' value='@Model.Maps[i].Title' class='form-control' placeholder='title' /></div>
                         <div class='col'><input name='Maps[@i].Notes' value='@Model.Maps[i].Notes' class='form-control' placeholder='notes' /></div>
                         <div class='col'><input type='file' name='Maps[@i].UploadFile' class='form-control' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
                     </div>
                 }
             </div>
@@ -88,6 +154,7 @@
                         <div class='col'><input name='Media[@i].VideoUrl' value='@Model.Media[i].VideoUrl' class='form-control' placeholder='video url' /></div>
                         <div class='col'><input name='Media[@i].Caption' value='@Model.Media[i].Caption' class='form-control' placeholder='caption' /></div>
                         <div class='col'><input name='Media[@i].SortOrder' value='@Model.Media[i].SortOrder' class='form-control' placeholder='sort' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
                     </div>
                 }
             </div>
@@ -95,8 +162,51 @@
         </div>
 
         <div class="tab-pane fade" id="tab-reviews">
-            <h6>Highlights</h6><textarea id="highlightText" class="form-control" rows="3">@string.Join("\n", Model.Highlights.Select(h=>$"{h.Id}|{h.Text}|{h.SortOrder}"))</textarea>
-            <h6 class="mt-2">Reviews (name|email|rating|status|text)</h6><textarea id="reviewText" class="form-control" rows="4">@string.Join("\n", Model.Reviews.Select(r=>$"{r.Id}|{r.FullName}|{r.EmailAddress}|{r.Rating}|{r.ModerationStatus}|{r.ReviewText}"))</textarea>
+            <h6>Highlights</h6>
+            <div id="highlightWrap">
+                @for (var i = 0; i < Model.Highlights.Count; i++)
+                {
+                    <div class="row g-1 mb-2 highlight-row">
+                        <input type="hidden" name="Highlights[@i].Id" value="@Model.Highlights[i].Id" />
+                        <div class="col-md-10"><input name="Highlights[@i].Text" value="@Model.Highlights[i].Text" class="form-control" placeholder="highlight" /></div>
+                        <div class="col-md-1"><input name="Highlights[@i].SortOrder" value="@Model.Highlights[i].SortOrder" class="form-control" placeholder="sort" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addHighlight">Add Highlight</button>
+
+            <h6 class="mt-3">FAQs</h6>
+            <div id="faqWrap">
+                @for (var i = 0; i < faqRows.Count; i++)
+                {
+                    <div class="row g-1 mb-2 faq-row">
+                        <div class="col-md-4"><input value="@faqRows[i][0]" class="form-control faq-question" placeholder="question" /></div>
+                        <div class="col-md-6"><input value="@faqRows[i][1]" class="form-control faq-answer" placeholder="answer" /></div>
+                        <div class="col-md-1"><input value="@faqRows[i][2]" class="form-control faq-order" placeholder="order" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addFaq">Add FAQ</button>
+
+            <h6 class="mt-3">Reviews</h6>
+            <div id="reviewWrap">
+                @for (var i = 0; i < Model.Reviews.Count; i++)
+                {
+                    <div class="row g-1 mb-2 review-row">
+                        <input type="hidden" name="Reviews[@i].Id" value="@Model.Reviews[i].Id" />
+                        <input type="hidden" name="Reviews[@i].ExistingPhotoPath" value="@Model.Reviews[i].ExistingPhotoPath" />
+                        <div class="col-md-2"><input name="Reviews[@i].FullName" value="@Model.Reviews[i].FullName" class="form-control" placeholder="name" /></div>
+                        <div class="col-md-2"><input name="Reviews[@i].EmailAddress" value="@Model.Reviews[i].EmailAddress" class="form-control" placeholder="email" /></div>
+                        <div class="col-md-1"><input name="Reviews[@i].Rating" value="@Model.Reviews[i].Rating" class="form-control" placeholder="rating" /></div>
+                        <div class="col-md-2"><input name="Reviews[@i].ModerationStatus" value="@Model.Reviews[i].ModerationStatus" class="form-control" placeholder="status" /></div>
+                        <div class="col-md-4"><input name="Reviews[@i].ReviewText" value="@Model.Reviews[i].ReviewText" class="form-control" placeholder="review" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addReview">Add Review</button>
         </div>
     </div>
 
