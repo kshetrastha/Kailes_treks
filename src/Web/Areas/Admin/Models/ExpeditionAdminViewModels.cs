@@ -40,6 +40,7 @@ public sealed class ExpeditionTypeFormViewModel : IValidatableObject
 
 public sealed class ItineraryDayInput
 {
+    public int Id { get; set; }
     public int DayNumber { get; set; }
     public string? ShortDescription { get; set; }
     public string? Description { get; set; }
@@ -49,6 +50,7 @@ public sealed class ItineraryDayInput
 
 public sealed class ItineraryInput
 {
+    public int Id { get; set; }
     [Required] public string SeasonTitle { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public List<ItineraryDayInput> Days { get; set; } = [];
@@ -56,6 +58,7 @@ public sealed class ItineraryInput
 
 public sealed class CostItemInput
 {
+    public int Id { get; set; }
     [Required] public string Title { get; set; } = string.Empty;
     public string? ShortDescription { get; set; }
     public bool IsActive { get; set; } = true;
@@ -65,6 +68,7 @@ public sealed class CostItemInput
 
 public sealed class FixedDepartureInput
 {
+    public int Id { get; set; }
     [DataType(DataType.Date)] public DateTime StartDate { get; set; }
     [DataType(DataType.Date)] public DateTime EndDate { get; set; }
     public int ForDays { get; set; }
@@ -74,6 +78,7 @@ public sealed class FixedDepartureInput
 
 public sealed class GearListInput
 {
+    public int Id { get; set; }
     public string? ExistingPath { get; set; }
     public IFormFile? UploadFile { get; set; }
     public string? ExistingImagePath { get; set; }
@@ -83,6 +88,7 @@ public sealed class GearListInput
 
 public sealed class MapInput
 {
+    public int Id { get; set; }
     public string? ExistingPath { get; set; }
     public IFormFile? UploadFile { get; set; }
     public string? Title { get; set; }
@@ -91,6 +97,7 @@ public sealed class MapInput
 
 public sealed class MediaInput
 {
+    public int Id { get; set; }
     public string? ExistingPath { get; set; }
     public IFormFile? PhotoFile { get; set; }
     public string? VideoUrl { get; set; }
@@ -100,6 +107,7 @@ public sealed class MediaInput
 
 public sealed class ReviewInput
 {
+    public int Id { get; set; }
     [Required] public string FullName { get; set; } = string.Empty;
     [Required, EmailAddress] public string EmailAddress { get; set; } = string.Empty;
     public string? ExistingPhotoPath { get; set; }
@@ -112,6 +120,7 @@ public sealed class ReviewInput
 
 public sealed class HighlightInput
 {
+    public int Id { get; set; }
     [Required] public string Text { get; set; } = string.Empty;
     public int SortOrder { get; set; }
 }

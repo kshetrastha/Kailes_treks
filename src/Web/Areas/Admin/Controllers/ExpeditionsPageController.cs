@@ -49,14 +49,14 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             OverviewCountry = e.OverviewCountry, PeakName = e.PeakName, OverviewDuration = e.OverviewDuration, Route = e.Route, Rank = e.Rank,
             Latitude = e.Latitude, Longitude = e.Longitude, WeatherReport = e.WeatherReport, Range = e.Range, WalkingPerDay = e.WalkingPerDay,
             Accommodation = e.Accommodation, GroupSizeText = e.GroupSizeText, DifficultyLevel = e.DifficultyLevel,
-            Itineraries = e.Itineraries.Select(i => new ItineraryInput { SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList(),
-            CostItems = e.CostItems.Select(c => new CostItemInput { Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList(),
-            FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList(),
-            GearLists = e.GearLists.Select(g => new GearListInput { ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList(),
-            Maps = e.Maps.Select(m => new MapInput { ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList(),
-            Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
-            Highlights = e.Highlights.Select(h => new HighlightInput { Text = h.Text, SortOrder = h.SortOrder }).ToList(),
-            Reviews = e.Reviews.Select(r => new ReviewInput { FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
+            Itineraries = e.Itineraries.Select(i => new ItineraryInput { Id = i.Id, SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { Id = d.Id, DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList(),
+            CostItems = e.CostItems.Select(c => new CostItemInput { Id = c.Id, Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList(),
+            FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList(),
+            GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList(),
+            Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList(),
+            Media = e.MediaItems.Select(m => new MediaInput { Id = m.Id, ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
+            Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList(),
+            Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
             SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
             ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}")),
             FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}")),
@@ -123,7 +123,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             {
                 var path = map.ExistingPath;
                 if (map.UploadFile is { Length: > 0 }) path = await SaveFileAsync(map.UploadFile, "maps", new[] { ".pdf", ".jpg", ".png" }, ct);
-                if (!string.IsNullOrWhiteSpace(path)) maps.Add(new ExpeditionMapDto(0, path, map.Title, map.Notes));
+                if (!string.IsNullOrWhiteSpace(path)) maps.Add(new ExpeditionMapDto(map.Id, path, map.Title, map.Notes));
             }
 
             var gear = new List<GearListDto>();
@@ -132,7 +132,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             {
                 var path = item.ExistingPath;
                 if (item.UploadFile is { Length: > 0 }) path = await SaveFileAsync(item.UploadFile, "gear", new[] { ".pdf", ".doc", ".docx" }, ct);
-                if (!string.IsNullOrWhiteSpace(path)) gear.Add(new GearListDto(0, item.ShortDescription, path));
+                if (!string.IsNullOrWhiteSpace(path)) gear.Add(new GearListDto(item.Id, item.ShortDescription, path));
 
                 var imagePath = item.ExistingImagePath;
                 if (item.UploadImage is { Length: > 0 }) imagePath = await SaveFileAsync(item.UploadImage, "gear-images", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
@@ -182,13 +182,13 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, sections, itinerary, faqs,
                 mediaLegacy.Concat(media).Concat(gearImageMedia).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
-                m.Itineraries.Select(i => new ItineraryDto(0, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(0, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
-                maps, m.CostItems.Select(c => new CostItemDto(0, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
+                m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
+                maps, m.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
                 m.FixedDepartures
                     .Where(f => f.StartDate.Year > 1900 && f.EndDate.Year > 1900)
-                    .Select(f => new FixedDepartureDto(0, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize))
+                    .Select(f => new FixedDepartureDto(f.Id, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize))
                     .ToList(),
-                gear, m.Highlights.Select(h => new ExpeditionHighlightDto(0, h.Text, h.SortOrder)).ToList(), reviews);
+                gear, m.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList(), reviews);
 
             return (true, dto, null);
         }
@@ -205,7 +205,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         foreach (var review in reviewInputs.Where(r => !string.IsNullOrWhiteSpace(r.FullName) && !string.IsNullOrWhiteSpace(r.ReviewText)))
         {
             var email = string.IsNullOrWhiteSpace(review.EmailAddress) ? $"{Guid.NewGuid():N}@placeholder.local" : review.EmailAddress;
-            reviews.Add(new ExpeditionReviewDto(0, review.FullName, email, review.ExistingPhotoPath, review.VideoUrl, review.Rating, review.ReviewText, review.ModerationStatus));
+            reviews.Add(new ExpeditionReviewDto(review.Id, review.FullName, email, review.ExistingPhotoPath, review.VideoUrl, review.Rating, review.ReviewText, review.ModerationStatus));
         }
 
         if (reviews.Count > 0)
@@ -213,7 +213,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             return reviews;
         }
 
-        return ParseLines(reviewsText, 2, p => new ExpeditionReviewDto(0, p[0], $"{Guid.NewGuid():N}@placeholder.local", null, null, 5, p[1], "Approved"));
+        return ParseLines(reviewsText, 6, p => new ExpeditionReviewDto(ParseInt(p[0]), p[1], string.IsNullOrWhiteSpace(p[2]) ? $"{Guid.NewGuid():N}@placeholder.local" : p[2], null, null, ParseInt(p[3]) <= 0 ? 5 : ParseInt(p[3]), p[5], string.IsNullOrWhiteSpace(p[4]) ? "Approved" : p[4]));
     }
 
     private static int ParseInt(string value)
