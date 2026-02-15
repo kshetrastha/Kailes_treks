@@ -76,6 +76,8 @@ public sealed class GearListInput
 {
     public string? ExistingPath { get; set; }
     public IFormFile? UploadFile { get; set; }
+    public string? ExistingImagePath { get; set; }
+    public IFormFile? UploadImage { get; set; }
     public string? ShortDescription { get; set; }
 }
 
