@@ -1,0 +1,20 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionModuleFormViewModel
+@using TravelCleanArch.Application.Abstractions.Travel
+@{
+    var isEdit = Model.Id.HasValue;
+    var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+}
+<h3>@(isEdit ? "Edit" : "Create") Expedition Module</h3>
+<form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <partial name="Partials/_BasicInfo" model="Model" />
+    <partial name="Partials/_Overview" model="Model" />
+    <partial name="Partials/_Itineraries" model="Model" />
+    <partial name="Partials/_InclusionExclusion" model="Model" />
+    <partial name="Partials/_FixedDepartures" model="Model" />
+    <partial name="Partials/_Gear" model="Model" />
+    <partial name="Partials/_Reviews" model="Model" />
+    <partial name="Partials/_Faqs" model="Model" />
+    <button class="btn btn-primary">Save</button>
+</form>

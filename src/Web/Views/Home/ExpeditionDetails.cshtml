@@ -1,0 +1,83 @@
+@model TravelCleanArch.Web.Models.Home.ExpeditionModuleDetailsViewModel
+
+<h2>@Model.Name</h2>
+<p>@Model.ShortDescription</p>
+
+@if (!string.IsNullOrWhiteSpace(Model.FullDescription))
+{
+    <section>
+        <h4>Overview</h4>
+        <p>@Model.FullDescription</p>
+    </section>
+}
+
+<section>
+    <h4>Itineraries</h4>
+    @foreach (var season in Model.ItinerariesBySeason)
+    {
+        <h5>@season.Key</h5>
+        <ul>
+            @foreach (var day in season.Value)
+            {
+                <li>Day @day.DayNumber - @day.Title</li>
+            }
+        </ul>
+    }
+</section>
+
+<section>
+    <h4>Inclusions</h4>
+    <ul>@foreach (var item in Model.Inclusions) { <li>@item</li> }</ul>
+    <h4>Exclusions</h4>
+    <ul>@foreach (var item in Model.Exclusions) { <li>@item</li> }</ul>
+</section>
+
+<section>
+    <h4>Fixed Departures</h4>
+    <table class="table">
+        <thead><tr><th>Start</th><th>End</th><th>Status</th><th>Seats</th><th>Price</th></tr></thead>
+        <tbody>
+        @foreach (var d in Model.FixedDepartures)
+        {
+            <tr>
+                <td>@d.StartDate</td>
+                <td>@d.EndDate</td>
+                <td><span class="badge bg-secondary">@d.Status</span></td>
+                <td>@d.RemainingSeats / @d.TotalSeats</td>
+                <td>@d.Currency @d.Price</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h4>Gear List</h4>
+    @foreach (var group in Model.GearByCategory)
+    {
+        <h5>@group.Key</h5>
+        <ul>@foreach (var g in group.Value) { <li>@g.ItemName @(g.IsMandatory ? "(mandatory)" : string.Empty)</li> }</ul>
+    }
+</section>
+
+<section>
+    <h4>Reviews</h4>
+    @foreach (var review in Model.Reviews)
+    {
+        <article>
+            <strong>@review.ClientName</strong> - @review.Rating/5
+            <p>@review.Comment</p>
+        </article>
+    }
+</section>
+
+<section>
+    <h4>FAQs</h4>
+    @foreach (var faq in Model.Faqs)
+    {
+        <details>
+            <summary>@faq.Question</summary>
+            <p>@faq.Answer</p>
+        </details>
+    }
+</section>
