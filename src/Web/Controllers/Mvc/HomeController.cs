@@ -119,6 +119,47 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
+    [HttpGet("expeditions/{id:int}")]
+    public async Task<IActionResult> ExpeditionDetails(int id, [FromServices] IExpeditionModuleService expeditionModuleService, CancellationToken ct)
+    {
+        var item = await expeditionModuleService.GetDetailsAsync(id, ct);
+        if (item is null) return NotFound();
+
+        var vm = new ExpeditionModuleDetailsViewModel
+        {
+            Id = item.Id,
+            Name = item.Name,
+            ShortDescription = item.ShortDescription,
+            DifficultyLevel = item.DifficultyLevel,
+            Duration = item.Duration,
+            MaxElevation = item.MaxElevation,
+            BestSeason = item.BestSeason,
+            Accommodation = item.Accommodation,
+            WalkingHoursPerDay = item.WalkingHoursPerDay,
+            GroupSize = item.GroupSize,
+            BannerImagePath = item.BannerImagePath,
+            ThumbnailImagePath = item.ThumbnailImagePath,
+            Country = item.Overview?.Country,
+            PeakName = item.Overview?.PeakName,
+            Route = item.Overview?.Route,
+            Rank = item.Overview?.Rank,
+            Range = item.Overview?.Range,
+            Coordinates = item.Overview?.Coordinates,
+            WeatherInformation = item.Overview?.WeatherInformation,
+            FullDescription = item.Overview?.FullDescription,
+            MapEmbedCode = item.Overview?.MapEmbedCode,
+            ItinerariesBySeason = item.Itineraries.GroupBy(x => x.SeasonTitle).OrderBy(g => g.Key).ToDictionary(g => g.Key, g => g.OrderBy(x => x.DayNumber).Select(x => new ExpeditionItineraryRowViewModel { DayNumber = x.DayNumber, Title = x.Title, ShortDescription = x.ShortDescription, FullDescription = x.FullDescription, Accommodation = x.Accommodation, Meals = x.Meals, Elevation = x.Elevation }).ToList()),
+            Inclusions = item.InclusionExclusions.Where(x => x.Type == "Inclusion").OrderBy(x => x.DisplayOrder).Select(x => x.Description).ToList(),
+            Exclusions = item.InclusionExclusions.Where(x => x.Type == "Exclusion").OrderBy(x => x.DisplayOrder).Select(x => x.Description).ToList(),
+            FixedDepartures = item.FixedDepartures.OrderBy(x => x.StartDate).Select(x => new ExpeditionDepartureRowViewModel { StartDate = x.StartDate, EndDate = x.EndDate, TotalSeats = x.TotalSeats, BookedSeats = x.BookedSeats, RemainingSeats = x.TotalSeats - x.BookedSeats, Price = x.Price, Currency = x.Currency, Status = x.Status, IsGuaranteed = x.IsGuaranteed }).ToList(),
+            GearByCategory = item.Gears.GroupBy(x => x.Category).OrderBy(g => g.Key).ToDictionary(g => g.Key, g => g.OrderBy(x => x.DisplayOrder).Select(x => new ExpeditionGearRowViewModel { ItemName = x.ItemName, IsMandatory = x.IsMandatory }).ToList()),
+            Reviews = item.Reviews.Where(x => x.IsApproved).Select(x => new ExpeditionReviewRowViewModel { ClientName = x.ClientName, Country = x.Country, Rating = x.Rating, Title = x.Title, Comment = x.Comment, ImagePath = x.ImagePath }).ToList(),
+            Faqs = item.Faqs.OrderBy(x => x.DisplayOrder).Select(x => new ExpeditionFaqRowViewModel { Question = x.Question, Answer = x.Answer }).ToList()
+        };
+
+        return View(vm);
+    }
+
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
     {
         var whyWithUsItems = (await uow.WhyWithUsService.ListOrderedAsync(publishedOnly: true, ct))

@@ -31,6 +31,14 @@ public sealed class AppDbContext:
     public DbSet<GearList> GearLists => Set<GearList>();
     public DbSet<ExpeditionHighlight> ExpeditionHighlights => Set<ExpeditionHighlight>();
     public DbSet<ExpeditionReview> ExpeditionReviews => Set<ExpeditionReview>();
+    public DbSet<ExpeditionBasicInfo> ExpeditionBasicInfos => Set<ExpeditionBasicInfo>();
+    public DbSet<ExpeditionOverview> ExpeditionOverviews => Set<ExpeditionOverview>();
+    public DbSet<ExpeditionItinerary> ExpeditionItineraries => Set<ExpeditionItinerary>();
+    public DbSet<ExpeditionInclusionExclusion> ExpeditionInclusionExclusions => Set<ExpeditionInclusionExclusion>();
+    public DbSet<ExpeditionFixedDeparture> ExpeditionFixedDepartures => Set<ExpeditionFixedDeparture>();
+    public DbSet<ExpeditionGear> ExpeditionGears => Set<ExpeditionGear>();
+    public DbSet<ExpeditionReviewItem> ExpeditionReviewItems => Set<ExpeditionReviewItem>();
+    public DbSet<ExpeditionFaqItem> ExpeditionFaqItems => Set<ExpeditionFaqItem>();
 
     public DbSet<Trekking> Trekking => Set<Trekking>();
     public DbSet<TrekkingItineraryDay> TrekkingItineraryDays => Set<TrekkingItineraryDay>();
@@ -227,6 +235,99 @@ public sealed class AppDbContext:
             b.Property(x => x.UserPhotoPath).HasMaxLength(500);
             b.Property(x => x.VideoUrl).HasMaxLength(500);
             b.Property(x => x.ReviewText).HasMaxLength(4000).IsRequired();
+        });
+
+        builder.Entity<ExpeditionBasicInfo>(b =>
+        {
+            b.ToTable("expedition_basic_info");
+            b.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(800).IsRequired();
+            b.Property(x => x.Duration).HasMaxLength(120).IsRequired();
+            b.Property(x => x.WalkingHoursPerDay).HasMaxLength(120);
+            b.Property(x => x.Accommodation).HasMaxLength(200);
+            b.Property(x => x.BestSeason).HasMaxLength(200);
+            b.Property(x => x.GroupSize).HasMaxLength(80);
+            b.Property(x => x.BannerImagePath).HasMaxLength(500);
+            b.Property(x => x.ThumbnailImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.ExpeditionTypeId);
+            b.HasOne(x => x.ExpeditionType).WithMany().HasForeignKey(x => x.ExpeditionTypeId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Overview).WithOne(x => x.Expedition).HasForeignKey<ExpeditionOverview>(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Itineraries).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.InclusionExclusions).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.FixedDepartures).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.GearItems).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Reviews).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Faqs).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ExpeditionOverview>(b =>
+        {
+            b.ToTable("expedition_overviews");
+            b.Property(x => x.Country).HasMaxLength(120);
+            b.Property(x => x.PeakName).HasMaxLength(160);
+            b.Property(x => x.Route).HasMaxLength(220);
+            b.Property(x => x.Rank).HasMaxLength(80);
+            b.Property(x => x.Range).HasMaxLength(160);
+            b.Property(x => x.Coordinates).HasMaxLength(120);
+            b.Property(x => x.WeatherInformation).HasMaxLength(500);
+            b.HasIndex(x => x.ExpeditionId).IsUnique();
+        });
+
+        builder.Entity<ExpeditionItinerary>(b =>
+        {
+            b.ToTable("expedition_itineraries_v2");
+            b.Property(x => x.SeasonTitle).HasMaxLength(120).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(800);
+            b.Property(x => x.Accommodation).HasMaxLength(200);
+            b.Property(x => x.Meals).HasMaxLength(100);
+            b.Property(x => x.Elevation).HasMaxLength(120);
+            b.HasIndex(x => x.ExpeditionId);
+            b.HasIndex(x => new { x.ExpeditionId, x.SeasonTitle, x.DayNumber }).IsUnique();
+        });
+
+        builder.Entity<ExpeditionInclusionExclusion>(b =>
+        {
+            b.ToTable("expedition_inclusion_exclusions");
+            b.Property(x => x.Description).HasMaxLength(1000).IsRequired();
+            b.HasIndex(x => x.ExpeditionId);
+            b.HasIndex(x => new { x.ExpeditionId, x.Type, x.DisplayOrder });
+        });
+
+        builder.Entity<ExpeditionFixedDeparture>(b =>
+        {
+            b.ToTable("expedition_fixed_departures_v2");
+            b.Property(x => x.Price).HasColumnType("numeric(18,2)");
+            b.Property(x => x.Currency).HasMaxLength(10).HasDefaultValue("USD");
+            b.HasIndex(x => x.ExpeditionId);
+        });
+
+        builder.Entity<ExpeditionGear>(b =>
+        {
+            b.ToTable("expedition_gear_items");
+            b.Property(x => x.ItemName).HasMaxLength(220).IsRequired();
+            b.HasIndex(x => x.ExpeditionId);
+            b.HasIndex(x => new { x.ExpeditionId, x.Category, x.DisplayOrder });
+        });
+
+        builder.Entity<ExpeditionReviewItem>(b =>
+        {
+            b.ToTable("expedition_reviews_v2");
+            b.Property(x => x.ClientName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Country).HasMaxLength(120);
+            b.Property(x => x.Title).HasMaxLength(220);
+            b.Property(x => x.Comment).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.ExpeditionId);
+        });
+
+        builder.Entity<ExpeditionFaqItem>(b =>
+        {
+            b.ToTable("expedition_faqs_v2");
+            b.Property(x => x.Question).HasMaxLength(400).IsRequired();
+            b.Property(x => x.Answer).HasMaxLength(4000).IsRequired();
+            b.HasIndex(x => x.ExpeditionId);
+            b.HasIndex(x => new { x.ExpeditionId, x.DisplayOrder });
         });
     }
 
