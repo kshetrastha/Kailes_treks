@@ -1,5 +1,6 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
 @using TravelCleanArch.Application.Abstractions.Travel
+@using System.Text.Json
 @{
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
@@ -225,6 +226,7 @@
                     <div id="itineraryVariants"></div>
                     <textarea asp-for="ItineraryText" class="d-none"></textarea>
                     <textarea asp-for="MediaText" class="d-none"></textarea>
+                    <div id="itineraryInputs" class="d-none"></div>
                 </div>
 
                 <div class="wizard-step d-none" data-step="3">
@@ -277,6 +279,7 @@
                     </div>
                     <textarea asp-for="Inclusions" class="d-none"></textarea>
                     <textarea asp-for="Exclusions" class="d-none"></textarea>
+                    <div id="costItemInputs" class="d-none"></div>
                 </div>
 
                 <div class="wizard-step d-none" data-step="4">
@@ -431,6 +434,7 @@
                     </div>
                     <textarea asp-for="FaqsText" class="d-none"></textarea>
                     <textarea asp-for="ReviewsText" class="d-none"></textarea>
+                    <div id="reviewInputs" class="d-none"></div>
 
                 </div>
 
@@ -524,30 +528,62 @@
                 const row = document.createElement("tr");
                 row.innerHTML = `<td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
                 target.appendChild(row);
+                return row;
             }
 
             const inclusionTableBody = document.querySelector("#inclusionTable tbody");
             const exclusionTableBody = document.querySelector("#exclusionTable tbody");
             document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody));
             document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody));
-            const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-            if (inclusionSeed.length) {
-                inclusionSeed.forEach((line) => {
-                    const [title, description] = line.split("|");
-                    addSimpleRow(inclusionTableBody, title || "", description || "");
-                });
+            const costItemsSeed = @Html.Raw(JsonSerializer.Serialize(Model.CostItems));
+            const hasCostItems = Array.isArray(costItemsSeed) && costItemsSeed.length > 0;
+
+            if (hasCostItems) {
+                costItemsSeed
+                    .filter((item) => (item.type || "").toLowerCase() === "inclusion")
+                    .forEach((item) => {
+                        const row = addSimpleRow(inclusionTableBody, item.title || "", item.shortDescription || "");
+                        row.dataset.costId = item.id || 0;
+                        row.dataset.costType = item.type || "Inclusion";
+                    });
             } else {
-                addSimpleRow(inclusionTableBody, "", "");
+                const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+                if (inclusionSeed.length) {
+                    inclusionSeed.forEach((line) => {
+                        const [title, description] = line.split("|");
+                        const row = addSimpleRow(inclusionTableBody, title || "", description || "");
+                        row.dataset.costId = 0;
+                        row.dataset.costType = "Inclusion";
+                    });
+                } else {
+                    const row = addSimpleRow(inclusionTableBody, "", "");
+                    row.dataset.costId = 0;
+                    row.dataset.costType = "Inclusion";
+                }
             }
 
-            const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-            if (exclusionSeed.length) {
-                exclusionSeed.forEach((line) => {
-                    const [title, description] = line.split("|");
-                    addSimpleRow(exclusionTableBody, title || "", description || "");
-                });
+            if (hasCostItems) {
+                costItemsSeed
+                    .filter((item) => (item.type || "").toLowerCase() === "exclusion")
+                    .forEach((item) => {
+                        const row = addSimpleRow(exclusionTableBody, item.title || "", item.shortDescription || "");
+                        row.dataset.costId = item.id || 0;
+                        row.dataset.costType = item.type || "Exclusion";
+                    });
             } else {
-                addSimpleRow(exclusionTableBody, "", "");
+                const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+                if (exclusionSeed.length) {
+                    exclusionSeed.forEach((line) => {
+                        const [title, description] = line.split("|");
+                        const row = addSimpleRow(exclusionTableBody, title || "", description || "");
+                        row.dataset.costId = 0;
+                        row.dataset.costType = "Exclusion";
+                    });
+                } else {
+                    const row = addSimpleRow(exclusionTableBody, "", "");
+                    row.dataset.costId = 0;
+                    row.dataset.costType = "Exclusion";
+                }
             }
 
             function createItineraryDayRow() {
@@ -563,6 +599,7 @@
             function addItineraryVariant(seed = "") {
                 const block = document.createElement("div");
                 block.className = "border rounded p-3 mb-3 itinerary-variant";
+                block.dataset.itineraryId = 0;
                 block.innerHTML = `
                     <div class="row mb-2">
                         <div class="col-md-4"><input class="form-control variant-name" placeholder="Itinerary label (e.g. Spring 2026)" value="${seed}" /></div>
@@ -576,10 +613,42 @@
                     <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Day</button>
                 `;
                 document.getElementById("itineraryVariants").appendChild(block);
+                return block;
             }
 
             document.getElementById("addItineraryVariant").addEventListener("click", () => addItineraryVariant(""));
-            addItineraryVariant("Default Plan");
+
+            const itinerarySeed = @Html.Raw(JsonSerializer.Serialize(Model.Itineraries));
+            const itineraryMediaSeed = (`@Model.MediaText` || "").split("\n").map((line) => line.trim()).filter(Boolean);
+            if (Array.isArray(itinerarySeed) && itinerarySeed.length > 0) {
+                itinerarySeed.forEach((seed) => {
+                    const variant = addItineraryVariant(seed.seasonTitle || "");
+                    variant.dataset.itineraryId = seed.id || 0;
+                    const variantImage = variant.querySelector(".variant-image");
+                    const mediaMatch = itineraryMediaSeed.find((line) => line.includes(`[${seed.seasonTitle || ""}]`) && line.includes("itinerary-map"));
+                    if (variantImage && mediaMatch) {
+                        variantImage.value = mediaMatch.split("|")[0] || "";
+                    }
+
+                    const body = variant.querySelector(".itinerary-days tbody");
+                    body.innerHTML = "";
+                    (seed.days || []).forEach((day) => {
+                        body.insertAdjacentHTML("beforeend", createItineraryDayRow());
+                        const row = body.lastElementChild;
+                        row.dataset.dayId = day.id || 0;
+                        row.querySelector(".day-number").value = day.dayNumber || "";
+                        row.querySelector(".day-title").value = day.shortDescription || "";
+                        row.querySelector(".day-desc").value = day.description || "";
+                        row.querySelector(".day-night").value = day.accommodationType || "";
+                    });
+
+                    if (!body.children.length) {
+                        body.innerHTML = createItineraryDayRow();
+                    }
+                });
+            } else {
+                addItineraryVariant("Default Plan");
+            }
 
             function addReviewRow(reviewer = "", comment = "") {
                 const row = document.createElement("tr");
@@ -731,6 +800,13 @@
 
             const form = document.getElementById("expeditionForm");
             form.addEventListener("submit", () => {
+                const createHiddenInput = (container, name, value) => {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name;
+                    input.value = value;
+                    container.appendChild(input);
+                };
                 const inclusionValues = Array.from(document.querySelectorAll("#inclusionTable tbody tr"))
                     .map((row) => {
                         const title = sanitize(row.querySelector(".item-title")?.value || "");
@@ -748,6 +824,28 @@
                     })
                     .filter(Boolean);
                 document.getElementById("Exclusions").value = exclusionValues.join("\n");
+
+                const costInputContainer = document.getElementById("costItemInputs");
+                costInputContainer.innerHTML = "";
+                const saveCostRows = (selector, type) => {
+                    document.querySelectorAll(selector).forEach((row) => {
+                        const title = sanitize(row.querySelector(".item-title")?.value || "");
+                        const description = sanitize(row.querySelector(".item-description")?.value || "");
+                        if (!title && !description) {
+                            return;
+                        }
+
+                        const index = costInputContainer.querySelectorAll("input[name$='.Type']").length;
+                        createHiddenInput(costInputContainer, `CostItems[${index}].Id`, row.dataset.costId || 0);
+                        createHiddenInput(costInputContainer, `CostItems[${index}].Title`, title);
+                        createHiddenInput(costInputContainer, `CostItems[${index}].ShortDescription`, description);
+                        createHiddenInput(costInputContainer, `CostItems[${index}].Type`, row.dataset.costType || type);
+                        createHiddenInput(costInputContainer, `CostItems[${index}].IsActive`, "true");
+                        createHiddenInput(costInputContainer, `CostItems[${index}].SortOrder`, index + 1);
+                    });
+                };
+                saveCostRows("#inclusionTable tbody tr", "Inclusion");
+                saveCostRows("#exclusionTable tbody tr", "Exclusion");
 
                 let itineraryRows = [];
                 let mediaRows = [];
@@ -775,6 +873,39 @@
                 const existingMediaRows = (mediaTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
                 itineraryTextInput.value = Array.from(new Set([...existingItineraryRows, ...itineraryRows])).join("\n");
                 mediaTextInput.value = Array.from(new Set([...existingMediaRows, ...mediaRows])).join("\n");
+
+                const itineraryInputContainer = document.getElementById("itineraryInputs");
+                itineraryInputContainer.innerHTML = "";
+                let itineraryIndex = 0;
+                document.querySelectorAll(".itinerary-variant").forEach((variant) => {
+                    const seasonTitle = sanitize(variant.querySelector(".variant-name")?.value || "");
+                    if (!seasonTitle) {
+                        return;
+                    }
+
+                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].Id`, variant.dataset.itineraryId || 0);
+                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SeasonTitle`, seasonTitle);
+                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SortOrder`, itineraryIndex + 1);
+
+                    let dayIndex = 0;
+                    variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
+                        const dayNumber = sanitize(row.querySelector(".day-number")?.value || "");
+                        const title = sanitize(row.querySelector(".day-title")?.value || "");
+                        if (!dayNumber || !title) {
+                            return;
+                        }
+
+                        const baseName = `Itineraries[${itineraryIndex}].Days[${dayIndex}]`;
+                        createHiddenInput(itineraryInputContainer, `${baseName}.Id`, row.dataset.dayId || 0);
+                        createHiddenInput(itineraryInputContainer, `${baseName}.DayNumber`, dayNumber);
+                        createHiddenInput(itineraryInputContainer, `${baseName}.ShortDescription`, title);
+                        createHiddenInput(itineraryInputContainer, `${baseName}.Description`, sanitize(row.querySelector(".day-desc")?.value || ""));
+                        createHiddenInput(itineraryInputContainer, `${baseName}.AccommodationType`, sanitize(row.querySelector(".day-night")?.value || ""));
+                        dayIndex += 1;
+                    });
+
+                    itineraryIndex += 1;
+                });
 
                 normalizeDepartureIndexes();
                 const availableDateRows = [];
@@ -813,6 +944,16 @@
                 });
 
                 document.getElementById("ReviewsText").value = reviews.join("\n");
+                const reviewInputContainer = document.getElementById("reviewInputs");
+                reviewInputContainer.innerHTML = "";
+                reviews.forEach((line, index) => {
+                    const [fullName, reviewText] = line.split("|");
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].FullName`, fullName || "");
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].EmailAddress`, `reviewer${index + 1}@placeholder.local`);
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].Rating`, "5");
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].ReviewText`, reviewText || "");
+                    createHiddenInput(reviewInputContainer, `Reviews[${index}].ModerationStatus`, "Approved");
+                });
             });
 
             renderStep();
