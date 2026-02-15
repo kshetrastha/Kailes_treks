@@ -116,7 +116,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             var sections = ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])));
             var itinerary = ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]));
             var faqs = ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])));
-            var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3])));
+            var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList();
 
             var maps = new List<ExpeditionMapDto>();
             foreach (var map in m.Maps)
