@@ -24,39 +24,27 @@ public sealed class ExpeditionsController(
     public async Task<IActionResult> Index(string? search, string? destination, string? difficulty, int page = 1, CancellationToken ct = default)
         => View(await service.ListAsync(search, null, destination, null, page, 50, ct));
 
-   [HttpGet("create")]
-   public async Task<IActionResult> Create(CancellationToken ct)
+    [HttpGet("create")]
+    public async Task<IActionResult> Create(CancellationToken ct)
     {
         await LoadDropdowns(ct);
         return View(new ExpeditionCreateUpdateModel());
     }
 
-    //[HttpGet("create")]
-    //public async Task<IActionResult> Create(CancellationToken ct)
-    //{
-    //    await LoadDropdowns(ct);
-    //    return View("Upsert", new ExpeditionFormViewModel());
-    //}
+    [HttpPost("create"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(ExpeditionCreateUpdateModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            await LoadDropdowns(ct);
+            return View(model);
+        }
 
-    //[HttpPost("create"), ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Create(ExpeditionFormViewModel model, CancellationToken ct)
-    //{
-    //    NormalizeOptionalCollections(model);
-    //    ModelState.Clear();
-    //    TryValidateModel(model);
-    //    ValidateCollections(model);
-
-    //    if (!ModelState.IsValid)
-    //    {
-    //        await LoadDropdowns(ct);
-    //        return View("Upsert", model);
-    //    }
-
-    //    model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
-    //    var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
-    //    TempData["SuccessMessage"] = "Expedition created.";
-    //    return RedirectToAction(nameof(Edit), new { id });
-    //}
+        model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
+        var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
+        TempData["SuccessMessage"] = "Expedition created.";
+        return RedirectToAction(nameof(Edit), new { id });
+    }
 
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
@@ -64,21 +52,16 @@ public sealed class ExpeditionsController(
         var item = await service.GetByIdAsync(id, ct);
         if (item is null) return NotFound();
         await LoadDropdowns(ct);
-        return View("Upsert", ToViewModel(item));
+        return View("Create", ToCreateUpdateModel(item));
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel model, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, ExpeditionCreateUpdateModel model, CancellationToken ct)
     {
-        NormalizeOptionalCollections(model);
-        ModelState.Clear();
-        TryValidateModel(model);
-        ValidateCollections(model);
-
         if (!ModelState.IsValid)
         {
             await LoadDropdowns(ct);
-            return View("Upsert", model);
+            return View("Create", model);
         }
 
         model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
@@ -103,7 +86,7 @@ public sealed class ExpeditionsController(
         ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();
     }
 
-    private async Task<string?> ResolveHeroImageUrlAsync(ExpeditionFormViewModel model, CancellationToken ct)
+    private async Task<string?> ResolveHeroImageUrlAsync(ExpeditionCreateUpdateModel model, CancellationToken ct)
     {
         if (model.HeroImageFile is not { Length: > 0 }) return model.HeroImageUrl;
 
@@ -116,6 +99,75 @@ public sealed class ExpeditionsController(
         await model.HeroImageFile.CopyToAsync(stream, ct);
         return Path.Combine("uploads", "expeditions", fileName).Replace('\\', '/');
     }
+
+    private static ExpeditionUpsertDto ToDto(ExpeditionCreateUpdateModel m)
+        => new(
+            m.Name,
+            m.Slug,
+            m.ShortDescription,
+            m.Destination,
+            m.Region,
+            m.DurationDays,
+            m.MaxAltitudeMeters,
+            m.MaxAltitudeFeet,
+            m.DifficultyLevel?.ToString() ?? string.Empty,
+            m.BestSeason?.ToString(),
+            m.Overview,
+            m.Inclusions,
+            m.Exclusions,
+            m.HeroImageUrl,
+            m.HeroVideoUrl,
+            m.Permits,
+            m.MinGroupSize,
+            m.MaxGroupSize,
+            m.PriceOnRequest,
+            m.Price,
+            m.CurrencyCode,
+            m.PriceNotesUrl,
+            m.TripPdfUrl,
+            m.AvailableDates,
+            m.BookingCtaUrl,
+            m.SeoTitle,
+            m.SeoDescription,
+            m.Status.ToString(),
+            m.Featured,
+            m.Ordering,
+            m.SummitRoute,
+            m.RequiresClimbingPermit,
+            m.ExpeditionStyle,
+            m.OxygenSupport,
+            m.SherpaSupport,
+            m.SummitBonusUsd,
+            m.ExpeditionTypeId,
+            [],
+            [],
+            m.Faqs.Select(x => new ExpeditionFaqDto(x.Question, x.Answer, x.Ordering)).ToList(),
+            m.Photos.Select(x => new ExpeditionMediaDto(x.Url, x.Caption, string.IsNullOrWhiteSpace(x.VideoUrl) ? "Photo" : "Video", x.Ordering, x.FilePath, x.VideoUrl)).ToList(),
+            m.OverviewCountry.ToString(),
+            m.PeakName,
+            m.OverviewDuration,
+            m.Route,
+            m.Rank,
+            m.Latitude,
+            m.Longitude,
+            m.CoordinatesText,
+            m.WeatherReportUrl,
+            m.Range,
+            m.WalkingPerDay,
+            m.Accommodation,
+            m.GroupSizeText,
+            m.DifficultyLevel?.ToString(),
+            m.BoardBasis,
+            m.AverageRating,
+            m.RatingLabel,
+            m.ReviewCount,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []);
 
     private static ExpeditionUpsertDto ToDto(ExpeditionFormViewModel m)
         => new(
@@ -250,6 +302,33 @@ public sealed class ExpeditionsController(
             .Where(x => !string.IsNullOrWhiteSpace(x.FullName) || !string.IsNullOrWhiteSpace(x.EmailAddress) || !string.IsNullOrWhiteSpace(x.ReviewText) || !string.IsNullOrWhiteSpace(x.ExistingPhotoPath) || x.UserPhoto is { Length: > 0 })
             .ToList();
     }
+
+    private static ExpeditionCreateUpdateModel ToCreateUpdateModel(ExpeditionDetailsDto m)
+        => new()
+        {
+            Id = m.Id,
+            Name = m.Name,
+            Slug = m.Slug,
+            ExpeditionTypeId = m.ExpeditionTypeId,
+            Destination = m.Destination,
+            Region = m.Region,
+            DurationDays = m.DurationDays,
+            ShortDescription = m.ShortDescription,
+            DifficultyLevel = Enum.TryParse<DifficultyLevel>(m.DifficultyLevel, true, out var difficultyLevel) ? difficultyLevel : null,
+            BestSeason = Enum.TryParse<Season>(m.BestSeason, true, out var bestSeason) ? bestSeason : null,
+            Featured = m.Featured,
+            Status = Enum.TryParse<TravelStatus>(m.Status, true, out var status) ? status : TravelStatus.Draft,
+            OverviewCountry = Enum.TryParse<Country>(m.OverviewCountry, true, out var country) ? country : Country.Nepal,
+            PeakName = m.PeakName,
+            Route = m.Route,
+            Rank = m.Rank,
+            Range = m.Range,
+            CoordinatesText = m.CoordinatesText,
+            WeatherReportUrl = m.WeatherReport,
+            OverviewDuration = m.OverviewDuration,
+            Overview = m.Overview,
+            HeroImageUrl = m.HeroImageUrl
+        };
 
     private static ExpeditionFormViewModel ToViewModel(ExpeditionDetailsDto m)
         => new()
