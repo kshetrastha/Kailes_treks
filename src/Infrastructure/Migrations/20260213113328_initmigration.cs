@@ -709,7 +709,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "expedition_faqs",
+                name: "expedition_faqs_legacy",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -725,9 +725,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_expedition_faqs", x => x.Id);
+                    table.PrimaryKey("PK_expedition_faqs_legacy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_expedition_faqs_expeditions_ExpeditionId",
+                        name: "FK_expedition_faqs_legacy_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -735,7 +735,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "expedition_fixed_departures",
+                name: "expedition_fixed_departures_legacy",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -753,9 +753,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_expedition_fixed_departures", x => x.Id);
+                    table.PrimaryKey("PK_expedition_fixed_departures_legacy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_expedition_fixed_departures_expeditions_ExpeditionId",
+                        name: "FK_expedition_fixed_departures_legacy_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -813,7 +813,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "expedition_itineraries",
+                name: "expedition_itineraries_legacy",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -828,9 +828,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_expedition_itineraries", x => x.Id);
+                    table.PrimaryKey("PK_expedition_itineraries_legacy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_expedition_itineraries_expeditions_ExpeditionId",
+                        name: "FK_expedition_itineraries_legacy_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -921,7 +921,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "expedition_reviews",
+                name: "expedition_reviews_legacy",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -941,9 +941,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_expedition_reviews", x => x.Id);
+                    table.PrimaryKey("PK_expedition_reviews_legacy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_expedition_reviews_expeditions_ExpeditionId",
+                        name: "FK_expedition_reviews_legacy_expeditions_ExpeditionId",
                         column: x => x.ExpeditionId,
                         principalTable: "expeditions",
                         principalColumn: "Id",
@@ -1000,7 +1000,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_expedition_itinerary_items_expedition_itineraries_Itinerary~",
                         column: x => x.ItineraryId,
-                        principalTable: "expedition_itineraries",
+                        principalTable: "expedition_itineraries_legacy",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1154,13 +1154,13 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 columns: new[] { "ExpeditionId", "Type", "SortOrder" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_expedition_faqs_ExpeditionId",
-                table: "expedition_faqs",
+                name: "IX_expedition_faqs_legacy_ExpeditionId",
+                table: "expedition_faqs_legacy",
                 column: "ExpeditionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_expedition_fixed_departures_ExpeditionId_StartDate_EndDate",
-                table: "expedition_fixed_departures",
+                name: "IX_expedition_fixed_departures_legacy_ExpeditionId_StartDate_EndDate",
+                table: "expedition_fixed_departures_legacy",
                 columns: new[] { "ExpeditionId", "StartDate", "EndDate" });
 
             migrationBuilder.CreateIndex(
@@ -1174,8 +1174,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 columns: new[] { "ExpeditionId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_expedition_itineraries_ExpeditionId_SortOrder",
-                table: "expedition_itineraries",
+                name: "IX_expedition_itineraries_legacy_ExpeditionId_SortOrder",
+                table: "expedition_itineraries_legacy",
                 columns: new[] { "ExpeditionId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
@@ -1201,8 +1201,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "ExpeditionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_expedition_reviews_ExpeditionId",
-                table: "expedition_reviews",
+                name: "IX_expedition_reviews_legacy_ExpeditionId",
+                table: "expedition_reviews_legacy",
                 column: "ExpeditionId");
 
             migrationBuilder.CreateIndex(
@@ -1350,10 +1350,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "expedition_cost_items");
 
             migrationBuilder.DropTable(
-                name: "expedition_faqs");
+                name: "expedition_faqs_legacy");
 
             migrationBuilder.DropTable(
-                name: "expedition_fixed_departures");
+                name: "expedition_fixed_departures_legacy");
 
             migrationBuilder.DropTable(
                 name: "expedition_gear_lists");
@@ -1374,7 +1374,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "expedition_media");
 
             migrationBuilder.DropTable(
-                name: "expedition_reviews");
+                name: "expedition_reviews_legacy");
 
             migrationBuilder.DropTable(
                 name: "expedition_sections");
@@ -1401,7 +1401,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "company_who_we_are");
 
             migrationBuilder.DropTable(
-                name: "expedition_itineraries");
+                name: "expedition_itineraries_legacy");
 
             migrationBuilder.DropTable(
                 name: "trekking");

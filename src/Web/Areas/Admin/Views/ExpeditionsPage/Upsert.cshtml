@@ -49,14 +49,12 @@
     }
 
     #departureGearTabs,
-    #includeExcludeTabs,
     #reviewsFaqTabs {
         margin-bottom: 0 !important;
         border-bottom-color: #d0d7de;
     }
 
     #departureGearTabs .nav-link,
-    #includeExcludeTabs .nav-link,
     #reviewsFaqTabs .nav-link {
         color: #334155;
         background-color: #f8fafc;
@@ -66,8 +64,6 @@
 
     #departureGearTabs .nav-link:hover,
     #departureGearTabs .nav-link:focus-visible,
-    #includeExcludeTabs .nav-link:hover,
-    #includeExcludeTabs .nav-link:focus-visible,
     #reviewsFaqTabs .nav-link:hover,
     #reviewsFaqTabs .nav-link:focus-visible {
         color: #1d4ed8;
@@ -75,7 +71,6 @@
     }
 
     #departureGearTabs .nav-link.active,
-    #includeExcludeTabs .nav-link.active,
     #reviewsFaqTabs .nav-link.active {
         color: #1d4ed8;
         background-color: #ffffff;
@@ -231,52 +226,22 @@
 
                 <div class="wizard-step d-none" data-step="3">
                     <h5>Cost Includes & Excludes</h5>
-                    <ul class="nav nav-pills mb-3" id="includeExcludeTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="inclusions-tab" data-bs-toggle="pill" data-bs-target="#inclusions-panel" type="button" role="tab" aria-controls="inclusions-panel" aria-selected="true">Inclusions</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="exclusions-tab" data-bs-toggle="pill" data-bs-target="#exclusions-panel" type="button" role="tab" aria-controls="exclusions-panel" aria-selected="false">Exclusions</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="inclusions-panel" role="tabpanel" aria-labelledby="inclusions-tab">
-                            <p class="text-muted small mb-2">Add each included service with a short title and brief description.</p>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">Inclusions table</label>
-                                <button type="button" class="btn btn-outline-success btn-sm" id="addInclusion">Add Row</button>
-                            </div>
-                            <table class="table table-bordered" id="inclusionTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 30%">Title</th>
-                                        <th>Short Description</th>
-                                        <th style="width: 90px"></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-
-                        <div class="tab-pane fade" id="exclusions-panel" role="tabpanel" aria-labelledby="exclusions-tab">
-                            <p class="text-muted small mb-2">Add each excluded service with a short title and brief description.</p>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">Exclusions table</label>
-                                <button type="button" class="btn btn-outline-danger btn-sm" id="addExclusion">Add Row</button>
-                            </div>
-                            <table class="table table-bordered" id="exclusionTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 30%">Title</th>
-                                        <th>Short Description</th>
-                                        <th style="width: 90px"></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                    <p class="text-muted small mb-2">Use a single table to manage both included and excluded services.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Inclusions / Exclusions table</label>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addCostItem">Add Row</button>
                     </div>
+                    <table class="table table-bordered" id="costTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 16%">Type</th>
+                                <th style="width: 28%">Title</th>
+                                <th>Short Description</th>
+                                <th style="width: 90px"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                     <textarea asp-for="Inclusions" class="d-none"></textarea>
                     <textarea asp-for="Exclusions" class="d-none"></textarea>
                     <div id="costItemInputs" class="d-none"></div>
@@ -524,65 +489,45 @@
                 reader.readAsDataURL(file);
             });
 
-            function addSimpleRow(target, title = "", description = "") {
+            function addCostRow(target, type = "Inclusion", title = "", description = "") {
+                const normalizedType = `${type || "Inclusion"}`.toLowerCase() === "exclusion" ? "Exclusion" : "Inclusion";
                 const row = document.createElement("tr");
-                row.innerHTML = `<td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                row.innerHTML = `<td><select class="form-select item-type"><option value="Inclusion">Inclusion</option><option value="Exclusion">Exclusion</option></select></td><td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                row.querySelector(".item-type").value = normalizedType;
+                row.dataset.costId = 0;
+                row.dataset.costType = normalizedType;
                 target.appendChild(row);
                 return row;
             }
 
-            const inclusionTableBody = document.querySelector("#inclusionTable tbody");
-            const exclusionTableBody = document.querySelector("#exclusionTable tbody");
-            document.getElementById("addInclusion").addEventListener("click", () => addSimpleRow(inclusionTableBody));
-            document.getElementById("addExclusion").addEventListener("click", () => addSimpleRow(exclusionTableBody));
+            const costTableBody = document.querySelector("#costTable tbody");
+            document.getElementById("addCostItem").addEventListener("click", () => addCostRow(costTableBody));
             const costItemsSeed = @Html.Raw(JsonSerializer.Serialize(Model.CostItems));
             const hasCostItems = Array.isArray(costItemsSeed) && costItemsSeed.length > 0;
 
             if (hasCostItems) {
-                costItemsSeed
-                    .filter((item) => (item.type || "").toLowerCase() === "inclusion")
-                    .forEach((item) => {
-                        const row = addSimpleRow(inclusionTableBody, item.title || "", item.shortDescription || "");
-                        row.dataset.costId = item.id || 0;
-                        row.dataset.costType = item.type || "Inclusion";
-                    });
+                costItemsSeed.forEach((item) => {
+                    const row = addCostRow(costTableBody, item.type || "Inclusion", item.title || "", item.shortDescription || "");
+                    row.dataset.costId = item.id || 0;
+                    row.dataset.costType = item.type || "Inclusion";
+                });
             } else {
                 const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-                if (inclusionSeed.length) {
-                    inclusionSeed.forEach((line) => {
-                        const [title, description] = line.split("|");
-                        const row = addSimpleRow(inclusionTableBody, title || "", description || "");
-                        row.dataset.costId = 0;
-                        row.dataset.costType = "Inclusion";
-                    });
-                } else {
-                    const row = addSimpleRow(inclusionTableBody, "", "");
-                    row.dataset.costId = 0;
+                inclusionSeed.forEach((line) => {
+                    const [title, description] = line.split("|");
+                    const row = addCostRow(costTableBody, "Inclusion", title || "", description || "");
                     row.dataset.costType = "Inclusion";
-                }
-            }
+                });
 
-            if (hasCostItems) {
-                costItemsSeed
-                    .filter((item) => (item.type || "").toLowerCase() === "exclusion")
-                    .forEach((item) => {
-                        const row = addSimpleRow(exclusionTableBody, item.title || "", item.shortDescription || "");
-                        row.dataset.costId = item.id || 0;
-                        row.dataset.costType = item.type || "Exclusion";
-                    });
-            } else {
                 const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-                if (exclusionSeed.length) {
-                    exclusionSeed.forEach((line) => {
-                        const [title, description] = line.split("|");
-                        const row = addSimpleRow(exclusionTableBody, title || "", description || "");
-                        row.dataset.costId = 0;
-                        row.dataset.costType = "Exclusion";
-                    });
-                } else {
-                    const row = addSimpleRow(exclusionTableBody, "", "");
-                    row.dataset.costId = 0;
+                exclusionSeed.forEach((line) => {
+                    const [title, description] = line.split("|");
+                    const row = addCostRow(costTableBody, "Exclusion", title || "", description || "");
                     row.dataset.costType = "Exclusion";
+                });
+
+                if (!costTableBody.querySelector("tr")) {
+                    addCostRow(costTableBody, "Inclusion", "", "");
                 }
             }
 
@@ -807,45 +752,40 @@
                     input.value = value;
                     container.appendChild(input);
                 };
-                const inclusionValues = Array.from(document.querySelectorAll("#inclusionTable tbody tr"))
-                    .map((row) => {
-                        const title = sanitize(row.querySelector(".item-title")?.value || "");
-                        const description = sanitize(row.querySelector(".item-description")?.value || "");
-                        return title && description ? `${title}|${description}` : title || description;
-                    })
-                    .filter(Boolean);
-                document.getElementById("Inclusions").value = inclusionValues.join("\n");
-
-                const exclusionValues = Array.from(document.querySelectorAll("#exclusionTable tbody tr"))
-                    .map((row) => {
-                        const title = sanitize(row.querySelector(".item-title")?.value || "");
-                        const description = sanitize(row.querySelector(".item-description")?.value || "");
-                        return title && description ? `${title}|${description}` : title || description;
-                    })
-                    .filter(Boolean);
-                document.getElementById("Exclusions").value = exclusionValues.join("\n");
+                const inclusionValues = [];
+                const exclusionValues = [];
 
                 const costInputContainer = document.getElementById("costItemInputs");
                 costInputContainer.innerHTML = "";
-                const saveCostRows = (selector, type) => {
-                    document.querySelectorAll(selector).forEach((row) => {
-                        const title = sanitize(row.querySelector(".item-title")?.value || "");
-                        const description = sanitize(row.querySelector(".item-description")?.value || "");
-                        if (!title && !description) {
-                            return;
-                        }
+                Array.from(document.querySelectorAll("#costTable tbody tr")).forEach((row) => {
+                    const type = row.querySelector(".item-type")?.value === "Exclusion" ? "Exclusion" : "Inclusion";
+                    const title = sanitize(row.querySelector(".item-title")?.value || "");
+                    const description = sanitize(row.querySelector(".item-description")?.value || "");
+                    const line = title && description ? `${title}|${description}` : title || description;
 
-                        const index = costInputContainer.querySelectorAll("input[name$='.Type']").length;
-                        createHiddenInput(costInputContainer, `CostItems[${index}].Id`, row.dataset.costId || 0);
-                        createHiddenInput(costInputContainer, `CostItems[${index}].Title`, title);
-                        createHiddenInput(costInputContainer, `CostItems[${index}].ShortDescription`, description);
-                        createHiddenInput(costInputContainer, `CostItems[${index}].Type`, row.dataset.costType || type);
-                        createHiddenInput(costInputContainer, `CostItems[${index}].IsActive`, "true");
-                        createHiddenInput(costInputContainer, `CostItems[${index}].SortOrder`, index + 1);
-                    });
-                };
-                saveCostRows("#inclusionTable tbody tr", "Inclusion");
-                saveCostRows("#exclusionTable tbody tr", "Exclusion");
+                    if (line) {
+                        if (type === "Inclusion") {
+                            inclusionValues.push(line);
+                        } else {
+                            exclusionValues.push(line);
+                        }
+                    }
+
+                    if (!title && !description) {
+                        return;
+                    }
+
+                    const index = costInputContainer.querySelectorAll("input[name$='.Type']").length;
+                    createHiddenInput(costInputContainer, `CostItems[${index}].Id`, row.dataset.costId || 0);
+                    createHiddenInput(costInputContainer, `CostItems[${index}].Title`, title);
+                    createHiddenInput(costInputContainer, `CostItems[${index}].ShortDescription`, description);
+                    createHiddenInput(costInputContainer, `CostItems[${index}].Type`, type);
+                    createHiddenInput(costInputContainer, `CostItems[${index}].IsActive`, "true");
+                    createHiddenInput(costInputContainer, `CostItems[${index}].SortOrder`, index + 1);
+                });
+
+                document.getElementById("Inclusions").value = inclusionValues.join("\n");
+                document.getElementById("Exclusions").value = exclusionValues.join("\n");
 
                 let itineraryRows = [];
                 let mediaRows = [];

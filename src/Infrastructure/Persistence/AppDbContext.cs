@@ -161,7 +161,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionFaq>(b =>
         {
-            b.ToTable("expedition_faqs");
+            b.ToTable("expedition_faqs_legacy");
             b.Property(x => x.Question).HasMaxLength(300).IsRequired();
             b.HasIndex(x => x.ExpeditionId);
         });
@@ -176,7 +176,7 @@ public sealed class AppDbContext:
 
         builder.Entity<Itinerary>(b =>
         {
-            b.ToTable("expedition_itineraries");
+            b.ToTable("expedition_itineraries_legacy");
             b.Property(x => x.SeasonTitle).HasMaxLength(120).IsRequired();
             b.HasMany(x => x.Days).WithOne(x => x.Itinerary).HasForeignKey(x => x.ItineraryId).OnDelete(DeleteBehavior.Cascade);
             b.HasIndex(x => new { x.ExpeditionId, x.SortOrder });
@@ -209,7 +209,7 @@ public sealed class AppDbContext:
 
         builder.Entity<FixedDeparture>(b =>
         {
-            b.ToTable("expedition_fixed_departures");
+            b.ToTable("expedition_fixed_departures_legacy");
             b.HasIndex(x => new { x.ExpeditionId, x.StartDate, x.EndDate });
         });
 
@@ -229,7 +229,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionReview>(b =>
         {
-            b.ToTable("expedition_reviews");
+            b.ToTable("expedition_reviews_legacy");
             b.Property(x => x.FullName).HasMaxLength(220).IsRequired();
             b.Property(x => x.EmailAddress).HasMaxLength(220).IsRequired();
             b.Property(x => x.UserPhotoPath).HasMaxLength(500);
@@ -275,7 +275,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionItinerary>(b =>
         {
-            b.ToTable("expedition_itineraries_v2");
+            b.ToTable("expedition_itineraries");
             b.Property(x => x.SeasonTitle).HasMaxLength(120).IsRequired();
             b.Property(x => x.Title).HasMaxLength(220).IsRequired();
             b.Property(x => x.ShortDescription).HasMaxLength(800);
@@ -296,7 +296,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionFixedDeparture>(b =>
         {
-            b.ToTable("expedition_fixed_departures_v2");
+            b.ToTable("expedition_fixed_departures");
             b.Property(x => x.Price).HasColumnType("numeric(18,2)");
             b.Property(x => x.Currency).HasMaxLength(10).HasDefaultValue("USD");
             b.HasIndex(x => x.ExpeditionId);
@@ -312,7 +312,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionReviewItem>(b =>
         {
-            b.ToTable("expedition_reviews_v2");
+            b.ToTable("expedition_reviews");
             b.Property(x => x.ClientName).HasMaxLength(220).IsRequired();
             b.Property(x => x.Country).HasMaxLength(120);
             b.Property(x => x.Title).HasMaxLength(220);
@@ -323,7 +323,7 @@ public sealed class AppDbContext:
 
         builder.Entity<ExpeditionFaqItem>(b =>
         {
-            b.ToTable("expedition_faqs_v2");
+            b.ToTable("expedition_faqs");
             b.Property(x => x.Question).HasMaxLength(400).IsRequired();
             b.Property(x => x.Answer).HasMaxLength(4000).IsRequired();
             b.HasIndex(x => x.ExpeditionId);

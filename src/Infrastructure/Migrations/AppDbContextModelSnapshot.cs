@@ -651,7 +651,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.HasIndex("ExpeditionId");
 
-                    b.ToTable("expedition_faqs", (string)null);
+                    b.ToTable("expedition_faqs_legacy", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionHighlight", b =>
@@ -891,7 +891,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.HasIndex("ExpeditionId");
 
-                    b.ToTable("expedition_reviews", (string)null);
+                    b.ToTable("expedition_reviews_legacy", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionSection", b =>
@@ -1083,7 +1083,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.HasIndex("ExpeditionId", "StartDate", "EndDate");
 
-                    b.ToTable("expedition_fixed_departures", (string)null);
+                    b.ToTable("expedition_fixed_departures_legacy", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.GearList", b =>
@@ -1160,7 +1160,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.HasIndex("ExpeditionId", "SortOrder");
 
-                    b.ToTable("expedition_itineraries", (string)null);
+                    b.ToTable("expedition_itineraries_legacy", (string)null);
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ItineraryDay", b =>
