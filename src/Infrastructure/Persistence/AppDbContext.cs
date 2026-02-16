@@ -67,11 +67,11 @@ public sealed class AppDbContext:
             b.Property(x => x.FullName).HasMaxLength(200);
         });
 
-        //ConfigureExpeditions(builder);
-        //ConfigureTrekking(builder);
-        //ConfigureWhyWithUs(builder);
-        //ConfigureWhoWeAre(builder);
-        //ConfigureCompanyPages(builder);
+        ConfigureExpeditions(builder);
+        ConfigureTrekking(builder);
+        ConfigureWhyWithUs(builder);
+        ConfigureWhoWeAre(builder);
+        ConfigureCompanyPages(builder);
     }
 
     private static void ConfigureExpeditions(ModelBuilder builder)
