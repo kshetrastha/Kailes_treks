@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TravelCleanArch.Domain.Enumerations;
+﻿using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Domain.Entities.Expeditions;
 

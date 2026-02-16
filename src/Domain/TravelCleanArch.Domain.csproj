@@ -8,4 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\SharedKernel\TravelCleanArch.SharedKernel.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\Expeditions\NewFolder\" />
+  </ItemGroup>
 </Project>
