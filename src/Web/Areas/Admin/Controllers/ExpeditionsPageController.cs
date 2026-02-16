@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Constants;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Web.Areas.Admin.Models;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
@@ -115,7 +116,13 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task LoadTypesAsync(CancellationToken ct) => ViewBag.ExpeditionTypes = await typeService.ListAsync(true, ct);
+    private async Task LoadTypesAsync(CancellationToken ct)
+    {
+        ViewBag.ExpeditionTypes = await typeService.ListAsync(true, ct);
+        ViewBag.DifficultyLevels = Enum.GetNames<DifficultyLevel>();
+        ViewBag.Countries = Enum.GetNames<Country>();
+        ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();
+    }
 
     private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, CancellationToken ct)
     {
