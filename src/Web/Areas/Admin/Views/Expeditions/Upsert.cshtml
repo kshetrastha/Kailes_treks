@@ -1,6 +1,7 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
 @using TravelCleanArch.Application.Abstractions.Travel
 @{
+
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
     var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
@@ -291,7 +292,7 @@
     <script src="~/js/expeditions-edit.js"></script>
 }
 
-@section Styles {
+@* @section Styles { *@
     <style>
         .expedition-tabs .nav-link {
             color: #1f2937;
@@ -312,4 +313,4 @@
             font-weight: 600;
         }
     </style>
-}
+@* } *@
