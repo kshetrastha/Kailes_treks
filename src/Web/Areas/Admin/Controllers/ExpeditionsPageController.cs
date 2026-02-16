@@ -36,37 +36,12 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     [ActionName("Edit")]
     public async Task<IActionResult> EditGet(int id, int step = 0, CancellationToken ct = default)
     {
+        var normalizedStep = Math.Max(0, Math.Min(5, step));
         var e = await service.GetByIdAsync(id, ct);
         if (e is null) return NotFound();
         await LoadTypesAsync(ct);
-        ViewBag.ActiveStep = Math.Max(0, step);
-
-        return View("Upsert", new ExpeditionFormViewModel
-        {
-            Id = e.Id, Name = e.Name, Slug = e.Slug, ShortDescription = e.ShortDescription, Destination = e.Destination, Region = e.Region,
-            DurationDays = e.DurationDays, MaxAltitudeMeters = e.MaxAltitudeMeters, Difficulty = e.Difficulty, BestSeason = e.BestSeason,
-            Overview = e.Overview, Inclusions = e.Inclusions, Exclusions = e.Exclusions, HeroImageUrl = e.HeroImageUrl, Permits = e.Permits,
-            MinGroupSize = e.MinGroupSize, MaxGroupSize = e.MaxGroupSize, Price = e.Price, AvailableDates = e.AvailableDates,
-            BookingCtaUrl = e.BookingCtaUrl, SeoTitle = e.SeoTitle, SeoDescription = e.SeoDescription, Status = e.Status, Featured = e.Featured,
-            Ordering = e.Ordering, SummitRoute = e.SummitRoute, RequiresClimbingPermit = e.RequiresClimbingPermit, ExpeditionStyle = e.ExpeditionStyle,
-            OxygenSupport = e.OxygenSupport, SherpaSupport = e.SherpaSupport, SummitBonusUsd = e.SummitBonusUsd, ExpeditionTypeId = e.ExpeditionTypeId,
-            OverviewCountry = e.OverviewCountry, PeakName = e.PeakName, OverviewDuration = e.OverviewDuration, Route = e.Route, Rank = e.Rank,
-            Latitude = e.Latitude, Longitude = e.Longitude, WeatherReport = e.WeatherReport, Range = e.Range, WalkingPerDay = e.WalkingPerDay,
-            Accommodation = e.Accommodation, GroupSizeText = e.GroupSizeText, DifficultyLevel = e.DifficultyLevel,
-            Itineraries = e.Itineraries.Select(i => new ItineraryInput { Id = i.Id, SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { Id = d.Id, DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList(),
-            CostItems = e.CostItems.Select(c => new CostItemInput { Id = c.Id, Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList(),
-            FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList(),
-            GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList(),
-            Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList(),
-            Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
-            Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList(),
-            Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
-            SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
-            ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}")),
-            FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}")),
-            ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}")),
-            MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"))
-        });
+        ViewBag.ActiveStep = normalizedStep;
+        return View("Upsert", BuildModelForStep(e, normalizedStep));
     }
 
     [HttpGet("create/basic-info")]
@@ -210,6 +185,80 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     private async Task LoadTypesAsync(CancellationToken ct) => ViewBag.ExpeditionTypes = await typeService.ListAsync(true, ct);
+
+    private static ExpeditionFormViewModel BuildModelForStep(ExpeditionDetailsDto e, int step)
+    {
+        var vm = new ExpeditionFormViewModel { Id = e.Id };
+
+        switch (Math.Max(0, Math.Min(5, step)))
+        {
+            case 0:
+                vm.Name = e.Name;
+                vm.Slug = e.Slug;
+                vm.ShortDescription = e.ShortDescription;
+                vm.Destination = e.Destination;
+                vm.Region = e.Region;
+                vm.ExpeditionTypeId = e.ExpeditionTypeId;
+                break;
+            case 1:
+                vm.DurationDays = e.DurationDays;
+                vm.MaxAltitudeMeters = e.MaxAltitudeMeters;
+                vm.Difficulty = e.Difficulty;
+                vm.BestSeason = e.BestSeason;
+                vm.Overview = e.Overview;
+                vm.HeroImageUrl = e.HeroImageUrl;
+                vm.Permits = e.Permits;
+                vm.MinGroupSize = e.MinGroupSize;
+                vm.MaxGroupSize = e.MaxGroupSize;
+                vm.Price = e.Price;
+                vm.Status = e.Status;
+                vm.Ordering = e.Ordering;
+                vm.OverviewCountry = e.OverviewCountry;
+                vm.PeakName = e.PeakName;
+                vm.OverviewDuration = e.OverviewDuration;
+                vm.Route = e.Route;
+                vm.Rank = e.Rank;
+                vm.Latitude = e.Latitude;
+                vm.Longitude = e.Longitude;
+                vm.WeatherReport = e.WeatherReport;
+                vm.Range = e.Range;
+                vm.WalkingPerDay = e.WalkingPerDay;
+                vm.Accommodation = e.Accommodation;
+                vm.GroupSizeText = e.GroupSizeText;
+                vm.DifficultyLevel = e.DifficultyLevel;
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                vm.SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}"));
+                break;
+            case 2:
+                vm.Itineraries = e.Itineraries.Select(i => new ItineraryInput { Id = i.Id, SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { Id = d.Id, DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList();
+                vm.ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}"));
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                break;
+            case 3:
+                vm.Inclusions = e.Inclusions;
+                vm.Exclusions = e.Exclusions;
+                vm.CostItems = e.CostItems.Select(c => new CostItemInput { Id = c.Id, Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList();
+                break;
+            case 4:
+                vm.AvailableDates = e.AvailableDates;
+                vm.FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList();
+                vm.GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList();
+                vm.Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList();
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                break;
+            case 5:
+                vm.Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList();
+                vm.Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList();
+                vm.FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}"));
+                vm.ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}"));
+                break;
+        }
+
+        return vm;
+    }
 
     private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, int step, CancellationToken ct)
     {
