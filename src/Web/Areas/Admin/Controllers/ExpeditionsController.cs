@@ -33,6 +33,11 @@ public sealed class ExpeditionsController(
     [HttpPost("create"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ExpeditionFormViewModel model, CancellationToken ct)
     {
+        NormalizeOptionalCollections(model);
+        ModelState.Clear();
+        TryValidateModel(model);
+        ValidateCollections(model);
+
         if (!ModelState.IsValid)
         {
             await LoadDropdowns(ct);
@@ -57,6 +62,11 @@ public sealed class ExpeditionsController(
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel model, CancellationToken ct)
     {
+        NormalizeOptionalCollections(model);
+        ModelState.Clear();
+        TryValidateModel(model);
+        ValidateCollections(model);
+
         if (!ModelState.IsValid)
         {
             await LoadDropdowns(ct);
@@ -175,6 +185,63 @@ public sealed class ExpeditionsController(
             .Where(x => x.Length >= 3)
             .Select(x => new ExpeditionFaqDto(x[0].Trim(), x[1].Trim(), int.TryParse(x[2], out var order) ? order : 0))
             .ToList();
+
+    private void ValidateCollections(ExpeditionFormViewModel model)
+    {
+        for (var i = 0; i < model.FixedDepartures.Count; i++)
+        {
+            var departure = model.FixedDepartures[i];
+            if (departure.StartDate == DateTime.MinValue || departure.EndDate == DateTime.MinValue)
+            {
+                ModelState.AddModelError($"FixedDepartures[{i}]", "Departure start and end dates are required.");
+            }
+        }
+
+        for (var i = 0; i < model.Reviews.Count; i++)
+        {
+            var review = model.Reviews[i];
+            if (string.IsNullOrWhiteSpace(review.FullName) || string.IsNullOrWhiteSpace(review.EmailAddress) || string.IsNullOrWhiteSpace(review.ReviewText))
+            {
+                ModelState.AddModelError($"Reviews[{i}]", "Review name, email, and review text are required.");
+            }
+        }
+
+        if (model.PriceOnRequest)
+        {
+            model.Price = null;
+        }
+    }
+
+    private static void NormalizeOptionalCollections(ExpeditionFormViewModel model)
+    {
+        model.CostItems = model.CostItems
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.ShortDescription))
+            .ToList();
+
+        model.FixedDepartures = model.FixedDepartures
+            .Where(x => x.StartDate != DateTime.MinValue || x.EndDate != DateTime.MinValue || x.GroupSize.HasValue || x.ForDays > 0)
+            .ToList();
+
+        model.GearLists = model.GearLists
+            .Where(x => !string.IsNullOrWhiteSpace(x.ShortDescription) || !string.IsNullOrWhiteSpace(x.ExistingPath) || x.UploadFile is { Length: > 0 })
+            .ToList();
+
+        model.Maps = model.Maps
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Notes) || !string.IsNullOrWhiteSpace(x.ExistingPath) || x.UploadFile is { Length: > 0 })
+            .ToList();
+
+        model.Media = model.Media
+            .Where(x => !string.IsNullOrWhiteSpace(x.Caption) || !string.IsNullOrWhiteSpace(x.VideoUrl) || !string.IsNullOrWhiteSpace(x.ExistingPath) || x.PhotoFile is { Length: > 0 })
+            .ToList();
+
+        model.Highlights = model.Highlights
+            .Where(x => !string.IsNullOrWhiteSpace(x.Text))
+            .ToList();
+
+        model.Reviews = model.Reviews
+            .Where(x => !string.IsNullOrWhiteSpace(x.FullName) || !string.IsNullOrWhiteSpace(x.EmailAddress) || !string.IsNullOrWhiteSpace(x.ReviewText) || !string.IsNullOrWhiteSpace(x.ExistingPhotoPath) || x.UserPhoto is { Length: > 0 })
+            .ToList();
+    }
 
     private static ExpeditionFormViewModel ToViewModel(ExpeditionDetailsDto m)
         => new()
