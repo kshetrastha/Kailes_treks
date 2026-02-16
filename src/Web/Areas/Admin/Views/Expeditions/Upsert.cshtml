@@ -35,8 +35,21 @@
                 <div class="col-md-3"><label asp-for="PeakName"></label><input asp-for="PeakName" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="DifficultyLevel"></label><select asp-for="DifficultyLevel" class="form-select"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>HardDifficult</option><option>VeryHard</option></select></div>
                 <div class="col-md-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
-                <div class="col-md-6"><label asp-for="HeroImageUrl">Primary Image/Video URL</label><input asp-for="HeroImageUrl" class="form-control" /></div>
-                <div class="col-md-6"><label asp-for="HeroImageFile">Primary Image Upload</label><input asp-for="HeroImageFile" type="file" class="form-control" /></div>
+                <div class="col-md-6">
+                    <label asp-for="HeroImageUrl">Primary Video URL</label>
+                    <input asp-for="HeroImageUrl" class="form-control" placeholder="https://..." />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="HeroImageFile">Primary Image Upload</label>
+                    <input asp-for="HeroImageFile" type="file" class="form-control" accept="image/*" />
+                </div>
+                <div class="col-md-12">
+                    <small class="text-muted d-block mb-2">You can save just a video URL, just an image upload, or both together.</small>
+                    <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                        <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                    </div>
+                    <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
+                </div>
             </div>
         </div>
 
