@@ -161,7 +161,7 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
     public string? BookingCtaUrl { get; set; }
     public string? SeoTitle { get; set; }
     public string? SeoDescription { get; set; }
-    [Required] public string Status { get; set; } = "draft";
+    [Required] public string Status { get; set; } = "Draft";
     public bool Featured { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public string? SummitRoute { get; set; }

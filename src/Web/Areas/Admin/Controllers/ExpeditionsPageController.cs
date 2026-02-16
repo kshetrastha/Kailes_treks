@@ -16,11 +16,14 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     private const long MaxFileSizeInBytes = 10 * 1024 * 1024;
 
     [HttpGet("")]
-    public async Task<IActionResult> Index(string? search, string? type, string? difficulty, string? destination, CancellationToken ct)
+    public async Task<IActionResult> Index(string? search, string? type, string? difficulty, string? country, string? status, CancellationToken ct)
     {
-        var result = await service.ListAsync(search, null, destination, null, 1, 200, ct);
+        var result = await service.ListAsync(search, status, country, null, 1, 200, ct);
         if (!string.IsNullOrWhiteSpace(type)) result = result with { Items = result.Items.Where(x => string.Equals(x.ExpeditionTypeTitle, type, StringComparison.OrdinalIgnoreCase)).ToList() };
         if (!string.IsNullOrWhiteSpace(difficulty)) result = result with { Items = result.Items.Where(x => string.Equals(x.DifficultyLevel, difficulty, StringComparison.OrdinalIgnoreCase)).ToList() };
+        ViewBag.DifficultyLevels = Enum.GetNames<DifficultyLevel>();
+        ViewBag.Countries = Enum.GetNames<Country>();
+        ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();
         return View(result);
     }
 
@@ -201,6 +204,16 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             }
 
             var reviews = BuildReviews(m.Reviews, m.ReviewsText);
+
+            if (string.IsNullOrWhiteSpace(m.Difficulty) && !string.IsNullOrWhiteSpace(m.DifficultyLevel))
+            {
+                m.Difficulty = m.DifficultyLevel;
+            }
+
+            if (string.IsNullOrWhiteSpace(m.Destination) && !string.IsNullOrWhiteSpace(m.OverviewCountry))
+            {
+                m.Destination = m.OverviewCountry;
+            }
 
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
