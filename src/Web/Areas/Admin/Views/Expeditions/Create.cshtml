@@ -8,6 +8,7 @@
     var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
     var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
     var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
+    var activeTab = ViewBag.ActiveTab as string;
 }
 
 <div class="container-fluid">
@@ -23,13 +24,13 @@
                 <input asp-for="Id" type="hidden" />
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
-                <ul class="nav nav-tabs expedition-tabs mb-2">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic Info</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-facts">2. Trip Facts</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">3. Overview</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-media-group">4. Hero + Group</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-commercial">5. Pricing + SEO + Rating</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-extra">6. Extra + Legacy</a></li>
+                <ul class="nav nav-tabs expedition-tabs mb-2" role="tablist">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" id="tab-basic-link" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic">1. Basic Info</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-facts-link" data-bs-toggle="tab" href="#tab-facts" role="tab" aria-controls="tab-facts">2. Trip Facts</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-overview-link" data-bs-toggle="tab" href="#tab-overview" role="tab" aria-controls="tab-overview">3. Overview</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-media-group-link" data-bs-toggle="tab" href="#tab-media-group" role="tab" aria-controls="tab-media-group">4. Hero + Group</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-commercial-link" data-bs-toggle="tab" href="#tab-commercial" role="tab" aria-controls="tab-commercial">5. Pricing + SEO + Rating</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-extra-link" data-bs-toggle="tab" href="#tab-extra" role="tab" aria-controls="tab-extra">6. Extra + Legacy</a></li>
                 </ul>
 
                 <div class="tab-content border p-3 mb-3">
@@ -203,7 +204,14 @@
                             </div>
                             <div class="col-md-12">
                                 <label asp-for="HeroVideoUrl" class="form-label"></label>
-                                <input asp-for="HeroVideoUrl" class="form-control" />
+                                <input asp-for="HeroVideoUrl" class="form-control" placeholder="https://..." />
+                            </div>
+                            <div class="col-md-12">
+                                <small class="text-muted d-block mb-2">You can save image URL, image upload, or video URL. Preview appears below.</small>
+                                <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                                    <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                                </div>
+                                <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
                             </div>
                             <div class="col-md-4">
                                 <label asp-for="MinGroupSize" class="form-label"></label>
@@ -327,7 +335,14 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">@(isEdit ? "Update Expedition" : "Create Expedition")</button>
+                <input type="hidden" name="nextTab" id="nextTab" value="" />
+                <div class="d-flex flex-wrap gap-2 justify-content-between expedition-form-actions">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary" data-submit-mode="save">Save</button>
+                        <button type="submit" class="btn btn-outline-primary" data-submit-mode="save-next">Save and Next Tab</button>
+                    </div>
+                    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+                </div>
             </form>
         </div>
     </div>
@@ -335,4 +350,133 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/expeditions-form-validation.js"></script>
+    <script src="~/js/expeditions-edit.js"></script>
+    <script>
+        (() => {
+            const form = document.querySelector('form.needs-validation');
+            if (!form) return;
+
+            const tabOrder = ['tab-basic', 'tab-facts', 'tab-overview', 'tab-media-group', 'tab-commercial', 'tab-extra'];
+            const nextTabInput = document.getElementById('nextTab');
+            let pendingSubmitMode = 'save';
+
+            form.querySelectorAll('[data-submit-mode]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    pendingSubmitMode = button.getAttribute('data-submit-mode') || 'save';
+                });
+            });
+
+            form.addEventListener('submit', () => {
+                if (!nextTabInput) return;
+
+                if (pendingSubmitMode !== 'save-next') {
+                    nextTabInput.value = '';
+                    return;
+                }
+
+                const activePane = document.querySelector('.tab-content .tab-pane.active');
+                if (!activePane?.id) {
+                    nextTabInput.value = '';
+                    return;
+                }
+
+                const currentIndex = tabOrder.indexOf(activePane.id);
+                nextTabInput.value = currentIndex >= 0 && currentIndex < tabOrder.length - 1
+                    ? tabOrder[currentIndex + 1]
+                    : activePane.id;
+            });
+
+            const heroImageInput = document.getElementById('HeroImageFile');
+            const heroImageUrlInput = document.getElementById('HeroImageUrl');
+            const heroVideoInput = document.getElementById('HeroVideoUrl');
+            const heroImagePreview = document.getElementById('heroImagePreview');
+            const heroVideoPreviewWrap = document.getElementById('heroVideoPreviewWrap');
+            const heroVideoPreview = document.getElementById('heroVideoPreview');
+
+            const toEmbedUrl = (value) => {
+                const url = (value || '').trim();
+                if (!url) return '';
+
+                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+                if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+                const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+                if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+                return url;
+            };
+
+            const renderHeroVideoPreview = () => {
+                if (!heroVideoInput || !heroVideoPreview || !heroVideoPreviewWrap) return;
+
+                const embedUrl = toEmbedUrl(heroVideoInput.value);
+                if (!embedUrl) {
+                    heroVideoPreview.removeAttribute('src');
+                    heroVideoPreviewWrap.classList.add('d-none');
+                    return;
+                }
+
+                heroVideoPreview.src = embedUrl;
+                heroVideoPreviewWrap.classList.remove('d-none');
+            };
+
+            const renderHeroImagePreview = () => {
+                if (!heroImagePreview) return;
+
+                const imageUrl = heroImageUrlInput?.value?.trim();
+                const uploadedFile = heroImageInput instanceof HTMLInputElement ? heroImageInput.files?.[0] : null;
+
+                if (uploadedFile) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        heroImagePreview.src = reader.result;
+                        heroImagePreview.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(uploadedFile);
+                    return;
+                }
+
+                if (imageUrl) {
+                    heroImagePreview.src = imageUrl;
+                    heroImagePreview.classList.remove('d-none');
+                    return;
+                }
+
+                heroImagePreview.removeAttribute('src');
+                heroImagePreview.classList.add('d-none');
+            };
+
+            heroVideoInput?.addEventListener('input', renderHeroVideoPreview);
+            heroImageInput?.addEventListener('change', renderHeroImagePreview);
+            heroImageUrlInput?.addEventListener('input', renderHeroImagePreview);
+            renderHeroVideoPreview();
+            renderHeroImagePreview();
+
+            const activeTabFromServer = '@(activeTab ?? string.Empty)';
+            if (activeTabFromServer) {
+                const tabTrigger = document.querySelector(`[data-bs-toggle="tab"][href="#${activeTabFromServer}"]`);
+                if (tabTrigger) {
+                    bootstrap.Tab.getOrCreateInstance(tabTrigger).show();
+                }
+            }
+        })();
+    </script>
+}
+
+@section Styles {
+    <style>
+        .tab-content > .tab-pane {
+            display: none;
+        }
+
+        .tab-content > .active {
+            display: block;
+        }
+
+        .expedition-form-actions {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+        }
+    </style>
 }
