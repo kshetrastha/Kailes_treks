@@ -12,8 +12,8 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260216112717_initMigration")]
-    partial class initMigration
+    [Migration("20260216170336_initmigration")]
+    partial class initmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1329,6 +1329,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<int?>("ExpeditionId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ItineraryId")
                         .HasColumnType("integer");
 
@@ -1345,6 +1348,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExpeditionId");
 
                     b.HasIndex("ItineraryId");
 
@@ -2429,6 +2434,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Expeditions.ItineraryDay", b =>
                 {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Expeditions.Expedition", null)
+                        .WithMany("ItineraryDays")
+                        .HasForeignKey("ExpeditionId");
+
                     b.HasOne("TravelCleanArch.Domain.Entities.Master.Itinerary", "Itinerary")
                         .WithMany("Days")
                         .HasForeignKey("ItineraryId")
@@ -2534,6 +2543,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("Highlights");
 
                     b.Navigation("Itineraries");
+
+                    b.Navigation("ItineraryDays");
 
                     b.Navigation("Maps");
 

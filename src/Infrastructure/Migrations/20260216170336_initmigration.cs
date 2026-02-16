@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initMigration : Migration
+    public partial class initmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1186,6 +1186,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     Meals = table.Column<string>(type: "text", nullable: true),
                     AccommodationType = table.Column<string>(type: "text", nullable: true),
+                    ExpeditionId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: true),
@@ -1194,6 +1195,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ItineraryDays", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItineraryDays_Expeditions_ExpeditionId",
+                        column: x => x.ExpeditionId,
+                        principalTable: "Expeditions",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ItineraryDays_Itineraries_ItineraryId",
                         column: x => x.ItineraryId,
@@ -1333,6 +1339,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Itineraries_ExpeditionId",
                 table: "Itineraries",
+                column: "ExpeditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItineraryDays_ExpeditionId",
+                table: "ItineraryDays",
                 column: "ExpeditionId");
 
             migrationBuilder.CreateIndex(
