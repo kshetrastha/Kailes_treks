@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
 
 namespace TravelCleanArch.Infrastructure.Services;

@@ -3,6 +3,7 @@ using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Domain.Entities.Expeditions;
 using TravelCleanArch.Infrastructure.Persistence;
+using TravelCleanArch.Domain.Entities.Master;
 
 namespace TravelCleanArch.Infrastructure.Services;
 
@@ -34,7 +35,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
                 x.Ordering,
                 x.ExpeditionTypeId,
                 x.ExpeditionType != null ? x.ExpeditionType.Title : null,
-                x.DifficultyLevel?.ToString() ?? x.Difficulty,
+                x.DifficultyLevel.HasValue ? x.DifficultyLevel.Value.ToString() : x.Difficulty,
                 x.OverviewCountry.ToString()))
             .ToListAsync(ct);
 

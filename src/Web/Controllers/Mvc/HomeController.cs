@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
