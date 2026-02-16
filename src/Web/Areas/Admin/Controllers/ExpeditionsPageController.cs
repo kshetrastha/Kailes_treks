@@ -25,60 +25,49 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
     [HttpGet("create")]
     [ActionName("Create")]
-    public async Task<IActionResult> CreateGet(int step = 0, CancellationToken ct = default)
-    {
-        await LoadTypesAsync(ct);
-        ViewBag.ActiveStep = Math.Max(0, step);
-        return View("Upsert", new ExpeditionFormViewModel());
-    }
+    public IActionResult CreateGet(int step = 0)
+        => RedirectToCreateStep(step);
 
     [HttpGet("{id:int}/edit")]
     [ActionName("Edit")]
-    public async Task<IActionResult> EditGet(int id, int step = 0, CancellationToken ct = default)
-    {
-        var normalizedStep = Math.Max(0, Math.Min(5, step));
-        var e = await service.GetByIdAsync(id, ct);
-        if (e is null) return NotFound();
-        await LoadTypesAsync(ct);
-        ViewBag.ActiveStep = normalizedStep;
-        return View("Upsert", BuildModelForStep(e, normalizedStep));
-    }
+    public IActionResult EditGet(int id, int step = 0)
+        => RedirectToEditStep(id, step);
 
     [HttpGet("create/basic-info")]
-    public IActionResult CreateBasicInfoGet() => RedirectToAction("Create", new { step = 0 });
+    public Task<IActionResult> CreateBasicInfoGet(CancellationToken ct = default) => RenderCreateStepAsync(0, ct);
 
     [HttpGet("create/overview")]
-    public IActionResult CreateOverviewGet() => RedirectToAction("Create", new { step = 1 });
+    public Task<IActionResult> CreateOverviewGet(CancellationToken ct = default) => RenderCreateStepAsync(1, ct);
 
     [HttpGet("create/itineraries")]
-    public IActionResult CreateItinerariesGet() => RedirectToAction("Create", new { step = 2 });
+    public Task<IActionResult> CreateItinerariesGet(CancellationToken ct = default) => RenderCreateStepAsync(2, ct);
 
     [HttpGet("create/includes-excludes")]
-    public IActionResult CreateIncludesExcludesGet() => RedirectToAction("Create", new { step = 3 });
+    public Task<IActionResult> CreateIncludesExcludesGet(CancellationToken ct = default) => RenderCreateStepAsync(3, ct);
 
     [HttpGet("create/departure-gear")]
-    public IActionResult CreateDepartureGearGet() => RedirectToAction("Create", new { step = 4 });
+    public Task<IActionResult> CreateDepartureGearGet(CancellationToken ct = default) => RenderCreateStepAsync(4, ct);
 
     [HttpGet("create/reviews-faq")]
-    public IActionResult CreateReviewsFaqGet() => RedirectToAction("Create", new { step = 5 });
+    public Task<IActionResult> CreateReviewsFaqGet(CancellationToken ct = default) => RenderCreateStepAsync(5, ct);
 
     [HttpGet("{id:int}/edit/basic-info")]
-    public IActionResult EditBasicInfoGet(int id) => RedirectToAction("Edit", new { id, step = 0 });
+    public Task<IActionResult> EditBasicInfoGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 0, ct);
 
     [HttpGet("{id:int}/edit/overview")]
-    public IActionResult EditOverviewGet(int id) => RedirectToAction("Edit", new { id, step = 1 });
+    public Task<IActionResult> EditOverviewGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 1, ct);
 
     [HttpGet("{id:int}/edit/itineraries")]
-    public IActionResult EditItinerariesGet(int id) => RedirectToAction("Edit", new { id, step = 2 });
+    public Task<IActionResult> EditItinerariesGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 2, ct);
 
     [HttpGet("{id:int}/edit/includes-excludes")]
-    public IActionResult EditIncludesExcludesGet(int id) => RedirectToAction("Edit", new { id, step = 3 });
+    public Task<IActionResult> EditIncludesExcludesGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 3, ct);
 
     [HttpGet("{id:int}/edit/departure-gear")]
-    public IActionResult EditDepartureGearGet(int id) => RedirectToAction("Edit", new { id, step = 4 });
+    public Task<IActionResult> EditDepartureGearGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 4, ct);
 
     [HttpGet("{id:int}/edit/reviews-faq")]
-    public IActionResult EditReviewsFaqGet(int id) => RedirectToAction("Edit", new { id, step = 5 });
+    public Task<IActionResult> EditReviewsFaqGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 5, ct);
 
     [HttpPost("create"), ValidateAntiForgeryToken]
     [ActionName("Create")]
@@ -138,42 +127,119 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     public Task<IActionResult> EditReviewsFaqPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
         => UpdateByStepAsync(id, m, 5, intent, ct);
 
+    private async Task<IActionResult> RenderCreateStepAsync(int step, CancellationToken ct)
+    {
+        var normalizedStep = NormalizeStep(step);
+        await LoadTypesAsync(ct);
+        return RenderStepView(new ExpeditionFormViewModel(), normalizedStep, isEdit: false, id: null);
+    }
+
+    private async Task<IActionResult> RenderEditStepAsync(int id, int step, CancellationToken ct)
+    {
+        var e = await service.GetByIdAsync(id, ct);
+        if (e is null) return NotFound();
+
+        var normalizedStep = NormalizeStep(step);
+        await LoadTypesAsync(ct);
+        return RenderStepView(BuildModelForStep(e, normalizedStep), normalizedStep, isEdit: true, id);
+    }
+
+    private IActionResult RenderStepView(ExpeditionFormViewModel model, int step, bool isEdit, int? id)
+    {
+        var normalizedStep = NormalizeStep(step);
+        ViewBag.ActiveStep = normalizedStep;
+        ViewBag.StepSlug = StepSlug(normalizedStep);
+        ViewBag.IsEditMode = isEdit;
+        ViewBag.ExpeditionId = id;
+        ViewBag.PostUrl = isEdit && id.HasValue
+            ? $"/admin/expeditions/{id.Value}/edit/{StepSlug(normalizedStep)}"
+            : $"/admin/expeditions/create/{StepSlug(normalizedStep)}";
+
+        return View(StepViewPath(normalizedStep), model);
+    }
+
     private async Task<IActionResult> CreateByStepAsync(ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
     {
-        var build = await BuildDtoAsync(m, step, ct);
+        var normalizedStep = NormalizeStep(step);
+        var build = await BuildDtoAsync(m, normalizedStep, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
-            ViewBag.ActiveStep = Math.Max(0, step);
-            return View("Upsert", m);
+            return RenderStepView(m, normalizedStep, isEdit: false, id: null);
         }
 
         var id = await service.CreateAsync(build.dto!, currentUser.UserId, ct);
-        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: true);
-        return RedirectToAction("Edit", new { id, step = ResolveStepAfterSave(step, intent) });
+        TempData["SuccessMessage"] = GetSaveMessage(normalizedStep, intent, isCreate: true);
+        return RedirectToEditStep(id, ResolveStepAfterSave(normalizedStep, intent));
     }
 
     private async Task<IActionResult> UpdateByStepAsync(int id, ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
     {
-        var build = await BuildDtoAsync(m, step, ct);
+        var normalizedStep = NormalizeStep(step);
+        var build = await BuildDtoAsync(m, normalizedStep, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
-            ViewBag.ActiveStep = Math.Max(0, step);
-            return View("Upsert", m);
+            return RenderStepView(m, normalizedStep, isEdit: true, id);
         }
 
         var existing = await service.GetByIdAsync(id, ct);
         if (existing is null) return NotFound();
 
-        var mergedDto = MergeByStep(ToUpsertDto(existing), build.dto!, step);
+        var mergedDto = MergeByStep(ToUpsertDto(existing), build.dto!, normalizedStep);
         var ok = await service.UpdateAsync(id, mergedDto, currentUser.UserId, ct);
         if (!ok) return NotFound();
-        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: false);
-        return RedirectToAction("Edit", new { id, step = ResolveStepAfterSave(step, intent) });
+        TempData["SuccessMessage"] = GetSaveMessage(normalizedStep, intent, isCreate: false);
+        return RedirectToEditStep(id, ResolveStepAfterSave(normalizedStep, intent));
     }
+
+    private IActionResult RedirectToCreateStep(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => RedirectToAction(nameof(CreateBasicInfoGet)),
+            1 => RedirectToAction(nameof(CreateOverviewGet)),
+            2 => RedirectToAction(nameof(CreateItinerariesGet)),
+            3 => RedirectToAction(nameof(CreateIncludesExcludesGet)),
+            4 => RedirectToAction(nameof(CreateDepartureGearGet)),
+            _ => RedirectToAction(nameof(CreateReviewsFaqGet))
+        };
+
+    private IActionResult RedirectToEditStep(int id, int step)
+        => NormalizeStep(step) switch
+        {
+            0 => RedirectToAction(nameof(EditBasicInfoGet), new { id }),
+            1 => RedirectToAction(nameof(EditOverviewGet), new { id }),
+            2 => RedirectToAction(nameof(EditItinerariesGet), new { id }),
+            3 => RedirectToAction(nameof(EditIncludesExcludesGet), new { id }),
+            4 => RedirectToAction(nameof(EditDepartureGearGet), new { id }),
+            _ => RedirectToAction(nameof(EditReviewsFaqGet), new { id })
+        };
+
+    private static int NormalizeStep(int step) => Math.Max(0, Math.Min(5, step));
+
+    private static string StepSlug(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => "basic-info",
+            1 => "overview",
+            2 => "itineraries",
+            3 => "includes-excludes",
+            4 => "departure-gear",
+            _ => "reviews-faq"
+        };
+
+    private static string StepViewPath(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => "~/Areas/Admin/Views/Expeditions/Steps/BasicInfo.cshtml",
+            1 => "~/Areas/Admin/Views/Expeditions/Steps/Overview.cshtml",
+            2 => "~/Areas/Admin/Views/Expeditions/Steps/Itineraries.cshtml",
+            3 => "~/Areas/Admin/Views/Expeditions/Steps/IncludesExcludes.cshtml",
+            4 => "~/Areas/Admin/Views/Expeditions/Steps/DepartureGear.cshtml",
+            _ => "~/Areas/Admin/Views/Expeditions/Steps/ReviewsFaq.cshtml"
+        };
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)

@@ -1,0 +1,30 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@{ var postUrl = (string?)ViewBag.PostUrl ?? "/admin/expeditions/create/reviews-faq"; if (!Model.Reviews.Any()) { Model.Reviews.Add(new()); } }
+<div class="container-fluid">
+    <h3 class="mb-3">Expedition - Reviews & FAQ</h3>
+    <partial name="~/Areas/Admin/Views/Expeditions/Steps/_StepTabs.cshtml" />
+    <form method="post" enctype="multipart/form-data" action="@postUrl">
+        @Html.AntiForgeryToken()
+        @if (Model.Id.HasValue) { <input type="hidden" asp-for="Id" /> }
+        <input type="hidden" name="step" value="5" /><input type="hidden" name="intent" id="intent" value="stay" />
+        <h5>Reviews</h5>
+        @for (var i = 0; i < Model.Reviews.Count; i++)
+        {
+            <div class="card p-2 mb-2">
+                <input type="hidden" asp-for="Reviews[i].Id" />
+                <div class="row g-2">
+                    <div class="col-md-4"><input asp-for="Reviews[i].FullName" class="form-control" placeholder="Full Name" /></div>
+                    <div class="col-md-4"><input asp-for="Reviews[i].EmailAddress" class="form-control" placeholder="Email" /></div>
+                    <div class="col-md-4"><input asp-for="Reviews[i].Rating" class="form-control" /></div>
+                    <div class="col-12"><textarea asp-for="Reviews[i].ReviewText" class="form-control" rows="2"></textarea></div>
+                </div>
+            </div>
+        }
+        <h5>FAQs (pipe format: Question|Answer|Order)</h5>
+        <textarea asp-for="FaqsText" class="form-control" rows="5"></textarea>
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success" onclick="document.getElementById('intent').value='stay'">Save Changes</button>
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('intent').value='next'">Save & Next</button>
+        </div>
+    </form>
+</div>

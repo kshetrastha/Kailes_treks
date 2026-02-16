@@ -1,0 +1,24 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@{ var postUrl = (string?)ViewBag.PostUrl ?? "/admin/expeditions/create/overview"; }
+<div class="container-fluid">
+    <h3 class="mb-3">Expedition - Overview</h3>
+    <partial name="~/Areas/Admin/Views/Expeditions/Steps/_StepTabs.cshtml" />
+    <form method="post" enctype="multipart/form-data" action="@postUrl">
+        @Html.AntiForgeryToken()
+        @if (Model.Id.HasValue) { <input type="hidden" asp-for="Id" /> }
+        <input type="hidden" name="step" value="1" /><input type="hidden" name="intent" id="intent" value="stay" />
+        <div class="row g-3">
+            <div class="col-md-3"><label asp-for="DurationDays"></label><input asp-for="DurationDays" class="form-control" /></div>
+            <div class="col-md-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
+            <div class="col-md-3"><label asp-for="Difficulty"></label><input asp-for="Difficulty" class="form-control" /></div>
+            <div class="col-md-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="HeroImageUrl">Primary Video URL</label><input asp-for="HeroImageUrl" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="HeroImageFile">Primary Image Upload</label><input asp-for="HeroImageFile" type="file" class="form-control" /></div>
+            <div class="col-12"><label asp-for="Overview"></label><textarea asp-for="Overview" class="form-control" rows="6"></textarea></div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success" onclick="document.getElementById('intent').value='stay'">Save Changes</button>
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('intent').value='next'">Save & Next</button>
+        </div>
+    </form>
+</div>

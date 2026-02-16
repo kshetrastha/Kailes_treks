@@ -1,0 +1,37 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@{ var postUrl = (string?)ViewBag.PostUrl ?? "/admin/expeditions/create/itineraries"; if (!Model.Itineraries.Any()) { Model.Itineraries.Add(new()); } }
+<div class="container-fluid">
+    <h3 class="mb-3">Expedition - Itineraries</h3>
+    <partial name="~/Areas/Admin/Views/Expeditions/Steps/_StepTabs.cshtml" />
+    <form method="post" enctype="multipart/form-data" action="@postUrl">
+        @Html.AntiForgeryToken()
+        @if (Model.Id.HasValue) { <input type="hidden" asp-for="Id" /> }
+        <input type="hidden" name="step" value="2" /><input type="hidden" name="intent" id="intent" value="stay" />
+        <div id="itineraryWrap">
+            @for (var i = 0; i < Model.Itineraries.Count; i++)
+            {
+                <div class="card mb-2 p-2 itinerary-item">
+                    <input type="hidden" asp-for="Itineraries[i].Id" />
+                    <div class="row g-2">
+                        <div class="col-md-8"><label>Season Title</label><input asp-for="Itineraries[i].SeasonTitle" class="form-control" /></div>
+                        <div class="col-md-4"><label>Sort</label><input asp-for="Itineraries[i].SortOrder" class="form-control" /></div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addItinerary()">Add Itinerary</button>
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success" onclick="document.getElementById('intent').value='stay'">Save Changes</button>
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('intent').value='next'">Save & Next</button>
+        </div>
+    </form>
+</div>
+@section Scripts {
+<script>
+function addItinerary(){
+ const wrap=document.getElementById('itineraryWrap');
+ const i=wrap.querySelectorAll('.itinerary-item').length;
+ wrap.insertAdjacentHTML('beforeend',`<div class="card mb-2 p-2 itinerary-item"><input type="hidden" name="Itineraries[${i}].Id" value="0" /><div class="row g-2"><div class="col-md-8"><label>Season Title</label><input class="form-control" name="Itineraries[${i}].SeasonTitle" /></div><div class="col-md-4"><label>Sort</label><input class="form-control" name="Itineraries[${i}].SortOrder" value="${i+1}" /></div></div></div>`);
+}
+</script>
+}
