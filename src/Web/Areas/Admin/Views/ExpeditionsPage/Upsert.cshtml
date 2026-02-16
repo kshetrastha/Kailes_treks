@@ -5,6 +5,28 @@
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
     ViewData["Title"] = isEdit ? "Edit Expedition" : "Create Expedition";
+    var activeStep = Math.Max(0, Math.Min(5, (int?)(ViewBag.ActiveStep) ?? 0));
+    var createPostUrls = new[]
+    {
+        "/admin/expeditions/create/basic-info",
+        "/admin/expeditions/create/overview",
+        "/admin/expeditions/create/itineraries",
+        "/admin/expeditions/create/includes-excludes",
+        "/admin/expeditions/create/departure-gear",
+        "/admin/expeditions/create/reviews-faq"
+    };
+    var editPostUrls = isEdit
+        ? new[]
+        {
+            $"/admin/expeditions/{Model.Id}/edit/basic-info",
+            $"/admin/expeditions/{Model.Id}/edit/overview",
+            $"/admin/expeditions/{Model.Id}/edit/itineraries",
+            $"/admin/expeditions/{Model.Id}/edit/includes-excludes",
+            $"/admin/expeditions/{Model.Id}/edit/departure-gear",
+            $"/admin/expeditions/{Model.Id}/edit/reviews-faq"
+        }
+        : Array.Empty<string>();
+    var initialPostUrl = isEdit ? editPostUrls[activeStep] : createPostUrls[activeStep];
 }
 
 <style>
@@ -96,7 +118,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form id="expeditionForm" method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" novalidate>
+            <form id="expeditionForm" method="post" enctype="multipart/form-data" action="@initialPostUrl" novalidate>
                 @Html.AntiForgeryToken()
                 @if (isEdit)
                 {
@@ -432,6 +454,10 @@
             const saveNextBtn = document.getElementById("saveNextBtn");
             const formStepInput = document.getElementById("formStep");
             const formIntentInput = document.getElementById("formIntent");
+            const form = document.getElementById("expeditionForm");
+            const isEditMode = @JsonSerializer.Serialize(isEdit).ToLowerInvariant();
+            const createPostUrls = @Html.Raw(JsonSerializer.Serialize(createPostUrls));
+            const editPostUrls = @Html.Raw(JsonSerializer.Serialize(editPostUrls));
             let currentStep = Number.parseInt('@(ViewBag.ActiveStep ?? 0)') || 0;
             currentStep = Math.max(0, Math.min(steps.length - 1, currentStep));
 
@@ -443,6 +469,10 @@
                 prevBtn.disabled = currentStep === 0;
                 saveNextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
                 formStepInput.value = `${currentStep}`;
+                const postUrls = isEditMode ? editPostUrls : createPostUrls;
+                if (Array.isArray(postUrls) && postUrls[currentStep]) {
+                    form.action = postUrls[currentStep];
+                }
             }
 
             function validateStep(stepIndex) {
@@ -809,7 +839,6 @@ Notes: Add terrain, camp-life, and summit visibility insights.`;
                 }
             });
 
-            const form = document.getElementById("expeditionForm");
             form.addEventListener("submit", () => {
                 formStepInput.value = `${currentStep}`;
                 const createHiddenInput = (container, name, value) => {

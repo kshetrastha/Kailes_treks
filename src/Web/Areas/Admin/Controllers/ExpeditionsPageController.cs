@@ -69,9 +69,101 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         });
     }
 
+    [HttpGet("create/basic-info")]
+    public IActionResult CreateBasicInfoGet() => RedirectToAction("Create", new { step = 0 });
+
+    [HttpGet("create/overview")]
+    public IActionResult CreateOverviewGet() => RedirectToAction("Create", new { step = 1 });
+
+    [HttpGet("create/itineraries")]
+    public IActionResult CreateItinerariesGet() => RedirectToAction("Create", new { step = 2 });
+
+    [HttpGet("create/includes-excludes")]
+    public IActionResult CreateIncludesExcludesGet() => RedirectToAction("Create", new { step = 3 });
+
+    [HttpGet("create/departure-gear")]
+    public IActionResult CreateDepartureGearGet() => RedirectToAction("Create", new { step = 4 });
+
+    [HttpGet("create/reviews-faq")]
+    public IActionResult CreateReviewsFaqGet() => RedirectToAction("Create", new { step = 5 });
+
+    [HttpGet("{id:int}/edit/basic-info")]
+    public IActionResult EditBasicInfoGet(int id) => RedirectToAction("Edit", new { id, step = 0 });
+
+    [HttpGet("{id:int}/edit/overview")]
+    public IActionResult EditOverviewGet(int id) => RedirectToAction("Edit", new { id, step = 1 });
+
+    [HttpGet("{id:int}/edit/itineraries")]
+    public IActionResult EditItinerariesGet(int id) => RedirectToAction("Edit", new { id, step = 2 });
+
+    [HttpGet("{id:int}/edit/includes-excludes")]
+    public IActionResult EditIncludesExcludesGet(int id) => RedirectToAction("Edit", new { id, step = 3 });
+
+    [HttpGet("{id:int}/edit/departure-gear")]
+    public IActionResult EditDepartureGearGet(int id) => RedirectToAction("Edit", new { id, step = 4 });
+
+    [HttpGet("{id:int}/edit/reviews-faq")]
+    public IActionResult EditReviewsFaqGet(int id) => RedirectToAction("Edit", new { id, step = 5 });
+
     [HttpPost("create"), ValidateAntiForgeryToken]
     [ActionName("Create")]
-    public async Task<IActionResult> CreatePost(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    public Task<IActionResult> CreatePost(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, step, intent, ct);
+
+    [HttpPost("create/basic-info"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateBasicInfoPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 0, intent, ct);
+
+    [HttpPost("create/overview"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateOverviewPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 1, intent, ct);
+
+    [HttpPost("create/itineraries"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateItinerariesPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 2, intent, ct);
+
+    [HttpPost("create/includes-excludes"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateIncludesExcludesPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 3, intent, ct);
+
+    [HttpPost("create/departure-gear"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateDepartureGearPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 4, intent, ct);
+
+    [HttpPost("create/reviews-faq"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateReviewsFaqPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 5, intent, ct);
+
+    [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
+    [ActionName("Edit")]
+    public Task<IActionResult> EditPost(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, step, intent, ct);
+
+    [HttpPost("{id:int}/edit/basic-info"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditBasicInfoPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 0, intent, ct);
+
+    [HttpPost("{id:int}/edit/overview"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditOverviewPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 1, intent, ct);
+
+    [HttpPost("{id:int}/edit/itineraries"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditItinerariesPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 2, intent, ct);
+
+    [HttpPost("{id:int}/edit/includes-excludes"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditIncludesExcludesPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 3, intent, ct);
+
+    [HttpPost("{id:int}/edit/departure-gear"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditDepartureGearPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 4, intent, ct);
+
+    [HttpPost("{id:int}/edit/reviews-faq"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditReviewsFaqPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 5, intent, ct);
+
+    private async Task<IActionResult> CreateByStepAsync(ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
     {
         var build = await BuildDtoAsync(m, step, ct);
         if (!build.ok)
@@ -87,9 +179,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         return RedirectToAction("Edit", new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
-    [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    [ActionName("Edit")]
-    public async Task<IActionResult> EditPost(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    private async Task<IActionResult> UpdateByStepAsync(int id, ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
     {
         var build = await BuildDtoAsync(m, step, ct);
         if (!build.ok)
