@@ -76,6 +76,7 @@ public sealed class Expedition : BaseEntity
     public List<ExpeditionFaq> Faqs { get; set; } = [];
     public List<ExpeditionMedia> MediaItems { get; set; } = [];
     public List<Itinerary> Itineraries { get; set; } = [];
+    public List<ItineraryDay> ItineraryDays { get; set; } = [];
     public List<ExpeditionMap> Maps { get; set; } = [];
     public List<CostItem> CostItems { get; set; } = [];
     public List<FixedDeparture> FixedDepartures { get; set; } = [];

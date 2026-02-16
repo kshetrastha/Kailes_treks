@@ -7,6 +7,7 @@ using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Web.Areas.Admin.Models;
+using TravelCleanArch.Web.Models.Expeditions;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 
@@ -23,32 +24,39 @@ public sealed class ExpeditionsController(
     public async Task<IActionResult> Index(string? search, string? destination, string? difficulty, int page = 1, CancellationToken ct = default)
         => View(await service.ListAsync(search, null, destination, null, page, 50, ct));
 
-    [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+   [HttpGet("create")]
+   public async Task<IActionResult> Create(CancellationToken ct)
     {
         await LoadDropdowns(ct);
-        return View("Upsert", new ExpeditionFormViewModel());
+        return View(new ExpeditionCreateUpdateModel());
     }
 
-    [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionFormViewModel model, CancellationToken ct)
-    {
-        NormalizeOptionalCollections(model);
-        ModelState.Clear();
-        TryValidateModel(model);
-        ValidateCollections(model);
+    //[HttpGet("create")]
+    //public async Task<IActionResult> Create(CancellationToken ct)
+    //{
+    //    await LoadDropdowns(ct);
+    //    return View("Upsert", new ExpeditionFormViewModel());
+    //}
 
-        if (!ModelState.IsValid)
-        {
-            await LoadDropdowns(ct);
-            return View("Upsert", model);
-        }
+    //[HttpPost("create"), ValidateAntiForgeryToken]
+    //public async Task<IActionResult> Create(ExpeditionFormViewModel model, CancellationToken ct)
+    //{
+    //    NormalizeOptionalCollections(model);
+    //    ModelState.Clear();
+    //    TryValidateModel(model);
+    //    ValidateCollections(model);
 
-        model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
-        var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
-        TempData["SuccessMessage"] = "Expedition created.";
-        return RedirectToAction(nameof(Edit), new { id });
-    }
+    //    if (!ModelState.IsValid)
+    //    {
+    //        await LoadDropdowns(ct);
+    //        return View("Upsert", model);
+    //    }
+
+    //    model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
+    //    var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
+    //    TempData["SuccessMessage"] = "Expedition created.";
+    //    return RedirectToAction(nameof(Edit), new { id });
+    //}
 
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)

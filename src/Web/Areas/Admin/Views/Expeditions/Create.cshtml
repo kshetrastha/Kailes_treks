@@ -1,0 +1,31 @@
+﻿@using TravelCleanArch.Application.Abstractions.Travel
+@using TravelCleanArch.Web.Models.Expeditions
+@model ExpeditionCreateUpdateModel
+@{
+
+    var isEdit = Model.Id.HasValue;
+    var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+    var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
+    var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
+
+}
+<div class="container-fluid">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Expedition</h2>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                <ul class="nav nav-tabs expedition-tabs mb-2">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">Basic</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">Overview</a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>

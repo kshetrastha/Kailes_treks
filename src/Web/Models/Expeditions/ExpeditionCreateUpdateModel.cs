@@ -131,10 +131,14 @@ public class ExpeditionCreateUpdateModel
     // =========================
     // Child Collections
     // =========================
-    public List<ItineraryCreateUpdateModel> Itineraries { get; set; } = new();
     public List<ExpeditionFaqCreateUpdateModel> Faqs { get; set; } = new();
+    public List<ExpeditionMediaCreateUpdateModel> Photos { get; set; } = new();
+    public List<ItineraryCreateUpdateModel> Itineraries { get; set; } = new();
+    public List<ItineraryDayCreateUpdateModel> ItineraryDays { get; set; } = new();
+    public List<ExpeditionMapCreateUpdateModel> ExpeditionMaps { get; set; } = new();
     public List<CostItemCreateUpdateModel> CostItems { get; set; } = new();
     public List<FixedDepartureCreateUpdateModel> FixedDepartures { get; set; } = new();
     public List<GearListCreateUpdateModel> GearLists { get; set; } = new();
     public List<ExpeditionHighlightCreateUpdateModel> Highlights { get; set; } = new();
+    public List<ExpeditionReviewCreateUpdateModel> Reviews { get; set; } = new();
 }
