@@ -905,15 +905,33 @@
             </div>
         </aside>
         <div class="page-wrapper">
+            @{
+                var requestPath = ViewContext?.HttpContext?.Request?.Path.Value?.ToLowerInvariant() ?? string.Empty;
+                var breadcrumbSection = "Dashboard";
+
+                if (requestPath.Contains("/admin/expeditions"))
+                {
+                    breadcrumbSection = "Expeditions";
+                }
+                else if (requestPath.Contains("/admin/expedition-types"))
+                {
+                    breadcrumbSection = "Expedition Types";
+                }
+                else if (requestPath.Contains("/admin/company"))
+                {
+                    breadcrumbSection = "Company";
+                }
+            }
             <div class="row page-titles">
                 <div class="col-md-5 col-12 align-self-center">
                     <h3 class="text-themecolor mb-0">@ViewData["Title"]</h3>
                     <ol class="breadcrumb mb-0 p-0 bg-transparent">
-                        <li class="breadcrumb-item"> <a href="/admin">Home</a> </li>
-                        <li class="breadcrumb-item active">Welcome, Admin</li>
+                        <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                        <li class="breadcrumb-item">&gt;</li>
+                        <li class="breadcrumb-item active">@breadcrumbSection</li>
                     </ol>
-                </div>         
-            </div>            
+                </div>
+            </div>
             <div class="container-fluid">
               @RenderBody()
             </div>            

@@ -1,35 +1,157 @@
 @model TravelCleanArch.Web.Models.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
 
-<h2>Create account</h2>
-
-<div asp-validation-summary="ModelOnly" class="validation"></div>
-
-<form asp-action="Register" method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="field">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" />
-        <span asp-validation-for="FullName" class="validation"></span>
+<div id="loginform">
+    <div class="header p-3 mb-3" style="background-color:#e5f2fd;">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <h3 class="box-title mb-2">Register</h3>
+                <p class="mb-0">Create your account to start exploring expeditions.</p>
+            </div>
+            <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                <img src="~/assets/images/logo-dark.svg" style="width:180px;" alt="logo" />
+            </div>
+        </div>
     </div>
 
-    <div class="field">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email" class="validation"></span>
-    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="field">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" />
-        <span asp-validation-for="Password" class="validation"></span>
-    </div>
+    <form class="form-horizontal mt-3 form-material needs-validation" asp-action="Register" method="post" novalidate>
+        @Html.AntiForgeryToken()
 
-    <div class="field">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" />
-        <span asp-validation-for="ConfirmPassword" class="validation"></span>
-    </div>
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="control-label" for="SponsorId">Sponsor ID*</label>
+                    <input type="text" id="SponsorId" name="SponsorId" class="form-control" placeholder="Enter sponsor ID" required />
+                    <div class="invalid-feedback">Sponsor ID is required.</div>
+                </div>
+            </div>
+        </div>
 
-    <button class="btn" type="submit">Register</button>
-</form>
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="control-label" asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter email address" required />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="control-label" for="CountryId">Country*</label>
+                    <select id="CountryId" name="CountryId" class="form-control form-select" required>
+                        <option value="">-Select Country-</option>
+                        <option value="NP">Nepal</option>
+                        <option value="IN">India</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                    </select>
+                    <div class="invalid-feedback">Please select your country.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="control-label" asp-for="FullName">Name</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter name" required />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                    <div class="invalid-feedback">Name is required.</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="control-label" for="UserName">Username</label>
+                    <input type="text" id="UserName" name="UserName" class="form-control" placeholder="Enter username" minlength="6" required />
+                    <small class="form-text text-muted">Username must be at least 6 characters.</small>
+                    <div class="invalid-feedback">Please enter a username with at least 6 characters.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="control-label" asp-for="Password"></label>
+                    <input asp-for="Password" class="form-control" placeholder="Enter password" required />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="invalid-feedback">Password is required (minimum 8 characters).</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="control-label" asp-for="ConfirmPassword">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm password" required />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    <div class="invalid-feedback">Confirm password is required.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="control-label" for="MobileNo">Mobile no*</label>
+                    <input type="tel" id="MobileNo" name="MobileNo" class="form-control" placeholder="Enter mobile no" pattern="[0-9]{7,15}" required />
+                    <div class="invalid-feedback">Please enter a valid mobile number.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="form-group mb-3">
+                    <div class="d-flex">
+                        <div class="checkbox checkbox-info pt-0">
+                            <input id="checkbox-signup" type="checkbox" class="material-inputs chk-col-indigo" required />
+                            <label for="checkbox-signup">I have read and agree to the <a href="#">Terms &amp; Conditions</a></label>
+                            <div class="invalid-feedback d-block">You must agree before registering.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center mt-4 mb-3">
+            <div class="col-xs-12">
+                <button class="btn btn-primary d-block w-100 waves-effect waves-light" type="submit">Register</button>
+            </div>
+        </div>
+
+        <div class="col-sm-12 justify-content-center d-flex">
+            <p>
+                Already have an account?
+                <a asp-action="Login" class="text-info font-weight-medium ms-1">Login</a>
+            </p>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}
