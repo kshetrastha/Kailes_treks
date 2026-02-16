@@ -2,30 +2,165 @@
 @using TravelCleanArch.Web.Models.Expeditions
 @model ExpeditionCreateUpdateModel
 @{
-
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
     var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
     var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
     var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
     var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
-
 }
+
 <div class="container-fluid">
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Expedition</h2>
         <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
     </div>
+
     <div class="card">
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
                 <ul class="nav nav-tabs expedition-tabs mb-2">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">Basic</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">Overview</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">2. Overview</a></li>
                 </ul>
+
+                <div class="tab-content border p-3 mb-3">
+                    <div class="tab-pane fade show active" id="tab-basic">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Slug" class="form-label"></label>
+                                <input asp-for="Slug" class="form-control" />
+                                <span asp-validation-for="Slug" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ExpeditionTypeId" class="form-label"></label>
+                                <select asp-for="ExpeditionTypeId" class="form-select" required>
+                                    <option value="">-- Select type --</option>
+                                    @foreach (var t in types)
+                                    {
+                                        <option value="@t.Id">@t.Title</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ExpeditionTypeId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Destination" class="form-label"></label>
+                                <input asp-for="Destination" class="form-control" required />
+                                <span asp-validation-for="Destination" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Region" class="form-label"></label>
+                                <input asp-for="Region" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DurationDays" class="form-label"></label>
+                                <input asp-for="DurationDays" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ShortDescription" class="form-label"></label>
+                                <textarea asp-for="ShortDescription" class="form-control" rows="3" required></textarea>
+                                <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="DifficultyLevel" class="form-label"></label>
+                                <select asp-for="DifficultyLevel" class="form-select">
+                                    <option value="">-- Select difficulty --</option>
+                                    @foreach (var difficulty in difficultyLevels)
+                                    {
+                                        <option value="@difficulty">@difficulty</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="BestSeason" class="form-label"></label>
+                                <select asp-for="BestSeason" class="form-select">
+                                    <option value="">-- Select season --</option>
+                                    @foreach (var season in seasons)
+                                    {
+                                        <option value="@season">@season</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Featured" class="form-label"></label>
+                                <div class="form-check mt-2">
+                                    <input asp-for="Featured" class="form-check-input" />
+                                    <label asp-for="Featured" class="form-check-label">Featured expedition</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    @foreach (var status in travelStatuses)
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-overview">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="OverviewCountry" class="form-label"></label>
+                                <select asp-for="OverviewCountry" class="form-select">
+                                    @foreach (var country in countries)
+                                    {
+                                        <option value="@country">@country</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PeakName" class="form-label"></label>
+                                <input asp-for="PeakName" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Route" class="form-label"></label>
+                                <input asp-for="Route" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Rank" class="form-label"></label>
+                                <input asp-for="Rank" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Range" class="form-label"></label>
+                                <input asp-for="Range" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="CoordinatesText" class="form-label"></label>
+                                <input asp-for="CoordinatesText" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="WeatherReportUrl" class="form-label"></label>
+                                <input asp-for="WeatherReportUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="OverviewDuration" class="form-label"></label>
+                                <input asp-for="OverviewDuration" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Overview" class="form-label"></label>
+                                <textarea asp-for="Overview" class="form-control" rows="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Update Expedition" : "Create Expedition")</button>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
