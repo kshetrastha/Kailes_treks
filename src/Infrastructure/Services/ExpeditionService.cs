@@ -106,18 +106,18 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
 
     private static ExpeditionDetailsDto MapDetails(Expedition x)
         => new(
-            x.Id, x.Name, x.Slug, x.ShortDescription, x.Destination, x.Region, x.DurationDays, x.MaxAltitudeMeters,
-            x.Difficulty, x.BestSeason?.ToString(), x.Overview, x.Inclusions, x.Exclusions, x.HeroImageUrl, x.Permits,
-            x.MinGroupSize, x.MaxGroupSize, x.Price ?? 0m, x.AvailableDates, x.BookingCtaUrl, x.SeoTitle, x.SeoDescription,
+            x.Id, x.Name, x.Slug, x.ShortDescription, x.Destination, x.Region, x.DurationDays, x.MaxAltitudeMeters, x.MaxAltitudeFeet,
+            x.Difficulty, x.BestSeason?.ToString(), x.Overview, x.Inclusions, x.Exclusions, x.HeroImageUrl, x.HeroVideoUrl, x.Permits,
+            x.MinGroupSize, x.MaxGroupSize, x.PriceOnRequest, x.Price, x.CurrencyCode, x.PriceNotesUrl, x.TripPdfUrl, x.AvailableDates, x.BookingCtaUrl, x.SeoTitle, x.SeoDescription,
             x.Status.ToString(), x.Featured, x.Ordering, x.SummitRoute, x.RequiresClimbingPermit, x.ExpeditionStyle, x.OxygenSupport,
             x.SherpaSupport, x.SummitBonusUsd, x.ExpeditionTypeId, x.ExpeditionType?.Title,
             [],
             [],
             x.Faqs.Select(f => new ExpeditionFaqDto(f.Question, f.Answer, f.Ordering)).ToList(),
             x.MediaItems.Select(m => new ExpeditionMediaDto(m.Url, m.Caption, m.MediaType.ToString(), m.Ordering, m.FilePath, m.VideoUrl)).ToList(),
-            x.OverviewCountry.ToString(), x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude, x.WeatherReport,
+            x.OverviewCountry.ToString(), x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude, x.CoordinatesText, x.WeatherReport,
             x.Range, x.WalkingPerDay, x.Accommodation, x.GroupSizeText,
-            x.DifficultyLevel?.ToString(),
+            x.DifficultyLevel?.ToString(), x.BoardBasis, x.AverageRating, x.RatingLabel, x.ReviewCount,
             x.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
             x.Maps.Select(m => new ExpeditionMapDto(m.Id, m.FilePath, m.Title, m.Notes)).ToList(),
             x.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type.ToString(), c.SortOrder)).ToList(),
@@ -135,16 +135,22 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.Region = r.Region;
         e.DurationDays = r.DurationDays;
         e.MaxAltitudeMeters = r.MaxAltitudeMeters;
+        e.MaxAltitudeFeet = r.MaxAltitudeFeet;
         e.Difficulty = r.Difficulty;
         e.BestSeason = Enum.TryParse<Season>(r.BestSeason, true, out var bestSeason) ? bestSeason : null;
         e.Overview = r.Overview;
         e.Inclusions = r.Inclusions;
         e.Exclusions = r.Exclusions;
         e.HeroImageUrl = r.HeroImageUrl;
+        e.HeroVideoUrl = r.HeroVideoUrl;
         e.Permits = r.Permits;
         e.MinGroupSize = r.MinGroupSize;
         e.MaxGroupSize = r.MaxGroupSize;
+        e.PriceOnRequest = r.PriceOnRequest;
         e.Price = r.Price;
+        e.CurrencyCode = r.CurrencyCode;
+        e.PriceNotesUrl = r.PriceNotesUrl;
+        e.TripPdfUrl = r.TripPdfUrl;
         e.AvailableDates = r.AvailableDates;
         e.BookingCtaUrl = r.BookingCtaUrl;
         e.SeoTitle = r.SeoTitle;
@@ -155,9 +161,13 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.SummitRoute = r.SummitRoute;
         e.RequiresClimbingPermit = r.RequiresClimbingPermit;
         e.ExpeditionStyle = r.ExpeditionStyle;
+        e.BoardBasis = r.BoardBasis;
         e.OxygenSupport = r.OxygenSupport;
         e.SherpaSupport = r.SherpaSupport;
         e.SummitBonusUsd = r.SummitBonusUsd;
+        e.AverageRating = r.AverageRating;
+        e.RatingLabel = r.RatingLabel;
+        e.ReviewCount = r.ReviewCount;
         e.ExpeditionTypeId = r.ExpeditionTypeId;
         e.OverviewCountry = Enum.TryParse<Country>(r.OverviewCountry, true, out var country) ? country : Country.Nepal;
         e.PeakName = r.PeakName;
@@ -166,6 +176,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.Rank = r.Rank;
         e.Latitude = r.Latitude;
         e.Longitude = r.Longitude;
+        e.CoordinatesText = r.CoordinatesText;
         e.WeatherReport = r.WeatherReport;
         e.Range = r.Range;
         e.WalkingPerDay = r.WalkingPerDay;

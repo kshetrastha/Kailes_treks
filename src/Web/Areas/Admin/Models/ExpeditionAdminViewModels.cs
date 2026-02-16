@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
 
@@ -136,40 +137,51 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
     [Range(1, 365)] public int DurationDays { get; set; } = 60;
     [Range(0, 12000)] public int MaxAltitudeMeters { get; set; } = 8849;
     [Required, StringLength(100)] public string Difficulty { get; set; } = "Hard";
-    public string? DifficultyLevel { get; set; }
-    public string? BestSeason { get; set; }
+    public DifficultyLevel? DifficultyLevel { get; set; }
+    public Season? BestSeason { get; set; }
+    public int? MaxAltitudeFeet { get; set; }
     public string? Overview { get; set; }
-    public string? OverviewCountry { get; set; }
+    public Country OverviewCountry { get; set; } = Country.Nepal;
     public string? PeakName { get; set; }
     public string? OverviewDuration { get; set; }
     public string? Route { get; set; }
     public string? Rank { get; set; }
     public decimal? Latitude { get; set; }
     public decimal? Longitude { get; set; }
-    public string? WeatherReport { get; set; }
+    public string? CoordinatesText { get; set; }
+    public string? WeatherReportUrl { get; set; }
     public string? Range { get; set; }
     public string? Inclusions { get; set; }
     public string? Exclusions { get; set; }
     public string? HeroImageUrl { get; set; }
     public IFormFile? HeroImageFile { get; set; }
+    public string? HeroVideoUrl { get; set; }
     public string? Permits { get; set; }
     [Range(1, 100)] public int MinGroupSize { get; set; } = 1;
     [Range(1, 100)] public int MaxGroupSize { get; set; } = 20;
     public string? GroupSizeText { get; set; }
-    [Range(0, 999999)] public decimal Price { get; set; }
+    [Range(0, 999999)] public decimal? Price { get; set; }
+    public bool PriceOnRequest { get; set; }
+    public string? CurrencyCode { get; set; }
+    public string? PriceNotesUrl { get; set; }
+    public string? TripPdfUrl { get; set; }
     public string? AvailableDates { get; set; }
     public string? BookingCtaUrl { get; set; }
     public string? SeoTitle { get; set; }
     public string? SeoDescription { get; set; }
-    [Required] public string Status { get; set; } = "Draft";
+    [Required] public TravelStatus Status { get; set; } = TravelStatus.Draft;
     public bool Featured { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public string? SummitRoute { get; set; }
     public bool RequiresClimbingPermit { get; set; }
     public string? ExpeditionStyle { get; set; }
+    public string? BoardBasis { get; set; }
     public bool OxygenSupport { get; set; }
     public bool SherpaSupport { get; set; }
     public decimal? SummitBonusUsd { get; set; }
+    public decimal? AverageRating { get; set; }
+    public string? RatingLabel { get; set; }
+    public int? ReviewCount { get; set; }
     public string? WalkingPerDay { get; set; }
     public string? Accommodation { get; set; }
     [Required] public int? ExpeditionTypeId { get; set; }
@@ -191,9 +203,14 @@ public sealed class ExpeditionFormViewModel : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(HeroImageUrl) && HeroImageFile is null)
+        if (string.IsNullOrWhiteSpace(HeroImageUrl) && string.IsNullOrWhiteSpace(HeroVideoUrl) && HeroImageFile is null)
         {
-            yield return new ValidationResult("Provide at least one primary media source: URL (image/video) or uploaded image.", [nameof(HeroImageUrl), nameof(HeroImageFile)]);
+            yield return new ValidationResult("Provide at least one primary media source: URL (image/video) or uploaded image.", [nameof(HeroImageUrl), nameof(HeroVideoUrl), nameof(HeroImageFile)]);
+        }
+
+        if (MinGroupSize > MaxGroupSize)
+        {
+            yield return new ValidationResult("Max group size must be greater than or equal to min group size.", [nameof(MinGroupSize), nameof(MaxGroupSize)]);
         }
 
         foreach (var fd in FixedDepartures)

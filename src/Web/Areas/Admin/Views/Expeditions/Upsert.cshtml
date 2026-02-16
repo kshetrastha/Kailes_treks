@@ -6,6 +6,7 @@
     var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
     var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
     var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
+    var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
     var faqRows = (Model.FaqsText ?? string.Empty)
         .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .Select(x => x.Split('|'))
@@ -49,7 +50,8 @@
                 <div class="col-md-3"><label asp-for="Difficulty"></label><input asp-for="Difficulty" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="DurationDays"></label><input asp-for="DurationDays" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
-                <div class="col-md-3"><label asp-for="BestSeason"></label><input asp-for="BestSeason" class="form-control" placeholder="Spring / Autumn" /></div>
+                <div class="col-md-3"><label asp-for="MaxAltitudeFeet"></label><input asp-for="MaxAltitudeFeet" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="BestSeason"></label><select asp-for="BestSeason" class="form-select"><option value="">--select--</option>@foreach (var season in seasons){<option value="@season">@season</option>}</select></div>
                 <div class="col-md-3"><label asp-for="WalkingPerDay"></label><input asp-for="WalkingPerDay" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="Accommodation"></label><input asp-for="Accommodation" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="OverviewDuration"></label><input asp-for="OverviewDuration" class="form-control" /></div>
@@ -58,12 +60,17 @@
                 <div class="col-md-3"><label asp-for="Latitude"></label><input asp-for="Latitude" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="Longitude"></label><input asp-for="Longitude" class="form-control" /></div>
                 <div class="col-md-6"><label asp-for="Range"></label><input asp-for="Range" class="form-control" /></div>
-                <div class="col-md-6"><label asp-for="WeatherReport"></label><input asp-for="WeatherReport" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="CoordinatesText"></label><input asp-for="CoordinatesText" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="WeatherReportUrl"></label><input asp-for="WeatherReportUrl" class="form-control" /></div>
                 <div class="col-md-6"><label asp-for="Overview"></label><textarea asp-for="Overview" class="form-control" rows="3"></textarea></div>
                 <div class="col-md-3"><label asp-for="MinGroupSize"></label><input asp-for="MinGroupSize" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="MaxGroupSize"></label><input asp-for="MaxGroupSize" class="form-control" /></div>
-                <div class="col-md-4"><label asp-for="GroupSizeText"></label><input asp-for="GroupSizeText" class="form-control" /></div>
-                <div class="col-md-4"><label asp-for="Price"></label><input asp-for="Price" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="GroupSizeText"></label><input asp-for="GroupSizeText" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="CurrencyCode"></label><input asp-for="CurrencyCode" class="form-control" placeholder="USD" /></div>
+                <div class="col-md-3"><div class="form-check mt-4"><input asp-for="PriceOnRequest" class="form-check-input" /><label asp-for="PriceOnRequest" class="form-check-label"></label></div></div>
+                <div class="col-md-4"><label asp-for="PriceNotesUrl"></label><input asp-for="PriceNotesUrl" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="TripPdfUrl"></label><input asp-for="TripPdfUrl" class="form-control" /></div>
                 <div class="col-md-4"><label asp-for="Status"></label><select asp-for="Status" class="form-select">@foreach (var travelStatus in travelStatuses)
                     {
                         <option value="@travelStatus">@travelStatus</option>
@@ -73,16 +80,24 @@
                 <div class="col-md-6"><label asp-for="BookingCtaUrl"></label><input asp-for="BookingCtaUrl" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="ExpeditionStyle"></label><input asp-for="ExpeditionStyle" class="form-control" /></div>
-                <div class="col-md-4"><label asp-for="SummitRoute"></label><input asp-for="SummitRoute" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="BoardBasis"></label><input asp-for="BoardBasis" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="SummitRoute"></label><input asp-for="SummitRoute" class="form-control" /></div>
                 <div class="col-md-4"><label asp-for="SummitBonusUsd"></label><input asp-for="SummitBonusUsd" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="AverageRating"></label><input asp-for="AverageRating" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="RatingLabel"></label><input asp-for="RatingLabel" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="ReviewCount"></label><input asp-for="ReviewCount" class="form-control" /></div>
                 <div class="col-md-4 d-flex align-items-end"><div class="form-check me-3"><input asp-for="Featured" class="form-check-input" /><label asp-for="Featured" class="form-check-label"></label></div><div class="form-check me-3"><input asp-for="RequiresClimbingPermit" class="form-check-input" /><label asp-for="RequiresClimbingPermit" class="form-check-label"></label></div><div class="form-check me-3"><input asp-for="OxygenSupport" class="form-check-input" /><label asp-for="OxygenSupport" class="form-check-label"></label></div><div class="form-check"><input asp-for="SherpaSupport" class="form-check-input" /><label asp-for="SherpaSupport" class="form-check-label"></label></div></div>
                 <div class="col-md-6"><label asp-for="SeoTitle"></label><input asp-for="SeoTitle" class="form-control" /></div>
                 <div class="col-md-6"><label asp-for="SeoDescription"></label><textarea asp-for="SeoDescription" class="form-control" rows="2"></textarea></div>
-                <div class="col-md-6">
-                    <label asp-for="HeroImageUrl">Primary Video URL</label>
+                <div class="col-md-4">
+                    <label asp-for="HeroImageUrl">Primary Image URL</label>
                     <input asp-for="HeroImageUrl" class="form-control" placeholder="https://..." />
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label asp-for="HeroVideoUrl">Primary Video URL</label>
+                    <input asp-for="HeroVideoUrl" class="form-control" placeholder="https://..." />
+                </div>
+                <div class="col-md-4">
                     <label asp-for="HeroImageFile">Primary Image Upload</label>
                     <input asp-for="HeroImageFile" type="file" class="form-control" accept="image/*" />
                 </div>

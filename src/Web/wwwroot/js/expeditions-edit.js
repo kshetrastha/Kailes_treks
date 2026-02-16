@@ -5,7 +5,7 @@
   const itineraryBody = document.querySelector('#itineraryTable tbody');
 
   const heroImageInput = document.getElementById('HeroImageFile');
-  const heroVideoInput = document.getElementById('HeroImageUrl');
+  const heroVideoInput = document.getElementById('HeroVideoUrl');
   const heroImagePreview = document.getElementById('heroImagePreview');
   const heroVideoPreviewWrap = document.getElementById('heroVideoPreviewWrap');
   const heroVideoPreview = document.getElementById('heroVideoPreview');
