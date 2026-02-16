@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Domain.Entities.Expeditions;
 using TravelCleanArch.Infrastructure.Persistence;
 
@@ -11,7 +12,8 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     {
         var query = db.Expeditions.AsNoTracking().Include(x => x.ExpeditionType).AsQueryable();
         if (!string.IsNullOrWhiteSpace(search)) query = query.Where(x => x.Name.Contains(search));
-        if (!string.IsNullOrWhiteSpace(status)) query = query.Where(x => x.Status == status);
+        if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<TravelStatus>(status, true, out var parsedStatus))
+            query = query.Where(x => x.Status == parsedStatus);
         if (!string.IsNullOrWhiteSpace(destination)) query = query.Where(x => x.Destination == destination);
         if (featured.HasValue) query = query.Where(x => x.Featured == featured.Value);
 
@@ -26,14 +28,14 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
                 x.ShortDescription,
                 x.Destination,
                 x.DurationDays,
-                x.Price,
-                x.Status,
+                x.Price ?? 0m,
+                x.Status.ToString(),
                 x.Featured,
                 x.Ordering,
                 x.ExpeditionTypeId,
                 x.ExpeditionType != null ? x.ExpeditionType.Title : null,
-                x.DifficultyLevel.HasValue ? x.DifficultyLevel.Value.ToString() : x.Difficulty,
-                x.OverviewCountry))
+                x.DifficultyLevel?.ToString() ?? x.Difficulty,
+                x.OverviewCountry.ToString()))
             .ToListAsync(ct);
 
         return new ExpeditionPagedResult(items, page, pageSize, total);
@@ -43,8 +45,6 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     {
         var entity = await db.Expeditions.AsNoTracking()
             .Include(x => x.ExpeditionType)
-            .Include(x => x.Sections.OrderBy(s => s.Ordering))
-            .Include(x => x.ItineraryDays.OrderBy(i => i.DayNumber))
             .Include(x => x.Faqs.OrderBy(f => f.Ordering))
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
             .Include(x => x.Itineraries.OrderBy(i => i.SortOrder)).ThenInclude(x => x.Days.OrderBy(d => d.DayNumber))
@@ -71,7 +71,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     public async Task<bool> UpdateAsync(int id, ExpeditionUpsertDto request, int? userId, CancellationToken ct)
     {
         var entity = await db.Expeditions
-            .Include(x => x.Sections).Include(x => x.ItineraryDays).Include(x => x.Faqs).Include(x => x.MediaItems)
+            .Include(x => x.Faqs).Include(x => x.MediaItems)
             .Include(x => x.Itineraries).ThenInclude(i => i.Days)
             .Include(x => x.Maps).Include(x => x.CostItems).Include(x => x.FixedDepartures).Include(x => x.GearLists)
             .Include(x => x.Highlights).Include(x => x.Reviews)
@@ -95,11 +95,9 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     public async Task<object?> GetPublicBySlugAsync(string slug, CancellationToken ct)
     {
         var entity = await db.Expeditions.AsNoTracking().Include(x => x.ExpeditionType)
-            .Include(x => x.Sections.OrderBy(s => s.Ordering))
-            .Include(x => x.ItineraryDays.OrderBy(i => i.DayNumber))
             .Include(x => x.Faqs.OrderBy(f => f.Ordering))
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
-            .Where(x => x.Slug == slug && x.Status == TravelStatus.Published)
+            .Where(x => x.Slug == slug && x.Status == TravelStatus.published)
             .FirstOrDefaultAsync(ct);
 
         return entity is null ? null : MapDetails(entity);
@@ -108,15 +106,15 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
     private static ExpeditionDetailsDto MapDetails(Expedition x)
         => new(
             x.Id, x.Name, x.Slug, x.ShortDescription, x.Destination, x.Region, x.DurationDays, x.MaxAltitudeMeters,
-            x.Difficulty, x.BestSeason, x.Overview, x.Inclusions, x.Exclusions, x.HeroImageUrl, x.Permits,
-            x.MinGroupSize, x.MaxGroupSize, x.Price, x.AvailableDates, x.BookingCtaUrl, x.SeoTitle, x.SeoDescription,
-            x.Status, x.Featured, x.Ordering, x.SummitRoute, x.RequiresClimbingPermit, x.ExpeditionStyle, x.OxygenSupport,
+            x.Difficulty, x.BestSeason?.ToString(), x.Overview, x.Inclusions, x.Exclusions, x.HeroImageUrl, x.Permits,
+            x.MinGroupSize, x.MaxGroupSize, x.Price ?? 0m, x.AvailableDates, x.BookingCtaUrl, x.SeoTitle, x.SeoDescription,
+            x.Status.ToString(), x.Featured, x.Ordering, x.SummitRoute, x.RequiresClimbingPermit, x.ExpeditionStyle, x.OxygenSupport,
             x.SherpaSupport, x.SummitBonusUsd, x.ExpeditionTypeId, x.ExpeditionType?.Title,
-            x.Sections.Select(s => new ExpeditionSectionDto(s.SectionType, s.Title, s.Content, s.Ordering)).ToList(),
-            x.ItineraryDays.Select(i => new ExpeditionItineraryDayDto(i.DayNumber, i.Title, i.Description, i.OvernightLocation)).ToList(),
+            [],
+            [],
             x.Faqs.Select(f => new ExpeditionFaqDto(f.Question, f.Answer, f.Ordering)).ToList(),
-            x.MediaItems.Select(m => new ExpeditionMediaDto(m.Url, m.Caption, m.MediaType, m.Ordering, m.FilePath, m.VideoUrl)).ToList(),
-            x.OverviewCountry, x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude, x.WeatherReport,
+            x.MediaItems.Select(m => new ExpeditionMediaDto(m.Url, m.Caption, m.MediaType.ToString(), m.Ordering, m.FilePath, m.VideoUrl)).ToList(),
+            x.OverviewCountry.ToString(), x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude, x.WeatherReport,
             x.Range, x.WalkingPerDay, x.Accommodation, x.GroupSizeText,
             x.DifficultyLevel?.ToString(),
             x.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
@@ -137,7 +135,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.DurationDays = r.DurationDays;
         e.MaxAltitudeMeters = r.MaxAltitudeMeters;
         e.Difficulty = r.Difficulty;
-        e.BestSeason = r.BestSeason;
+        e.BestSeason = Enum.TryParse<Season>(r.BestSeason, true, out var bestSeason) ? bestSeason : null;
         e.Overview = r.Overview;
         e.Inclusions = r.Inclusions;
         e.Exclusions = r.Exclusions;
@@ -150,7 +148,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.BookingCtaUrl = r.BookingCtaUrl;
         e.SeoTitle = r.SeoTitle;
         e.SeoDescription = r.SeoDescription;
-        e.Status = r.Status;
+        e.Status = Enum.TryParse<TravelStatus>(r.Status, true, out var status) ? status : TravelStatus.Draft;
         e.Featured = r.Featured;
         e.Ordering = r.Ordering;
         e.SummitRoute = r.SummitRoute;
@@ -160,7 +158,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.SherpaSupport = r.SherpaSupport;
         e.SummitBonusUsd = r.SummitBonusUsd;
         e.ExpeditionTypeId = r.ExpeditionTypeId;
-        e.OverviewCountry = r.OverviewCountry;
+        e.OverviewCountry = Enum.TryParse<Country>(r.OverviewCountry, true, out var country) ? country : Country.Nepal;
         e.PeakName = r.PeakName;
         e.OverviewDuration = r.OverviewDuration;
         e.Route = r.Route;
@@ -177,8 +175,6 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.UpdatedBy = userId;
         if (isCreate) { e.CreatedAtUtc = DateTime.UtcNow; e.CreatedBy = userId; }
 
-        e.Sections.Clear(); foreach (var s in r.Sections) e.Sections.Add(new ExpeditionSection { SectionType = s.SectionType, Title = s.Title, Content = s.Content, Ordering = s.Ordering });
-        SyncItineraryDays(e.ItineraryDays, r.ItineraryDays);
         e.Faqs.Clear(); foreach (var f in r.Faqs) e.Faqs.Add(new ExpeditionFaq { Question = f.Question, Answer = f.Answer, Ordering = f.Ordering });
         e.MediaItems.Clear(); foreach (var m in r.MediaItems) e.MediaItems.Add(new ExpeditionMedia { Url = m.Url, Caption = m.Caption, MediaType = m.MediaType, Ordering = m.Ordering, FilePath = m.FilePath, VideoUrl = m.VideoUrl });
 
@@ -304,35 +300,6 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         var prop = typeof(TDto).GetProperty("Id");
         if (prop?.PropertyType != typeof(int)) return 0;
         return (int)(prop.GetValue(dto) ?? 0);
-    }
-
-    private static void SyncItineraryDays(
-        IList<ExpeditionItineraryDay> entities,
-        IReadOnlyCollection<ExpeditionItineraryDayDto> dtos)
-    {
-        var requestedDayNumbers = dtos.Select(x => x.DayNumber).ToHashSet();
-
-        for (var i = entities.Count - 1; i >= 0; i--)
-        {
-            if (!requestedDayNumbers.Contains(entities[i].DayNumber))
-            {
-                entities.RemoveAt(i);
-            }
-        }
-
-        foreach (var dto in dtos)
-        {
-            var existing = entities.FirstOrDefault(x => x.DayNumber == dto.DayNumber);
-            if (existing is null)
-            {
-                existing = new ExpeditionItineraryDay { DayNumber = dto.DayNumber };
-                entities.Add(existing);
-            }
-
-            existing.Title = dto.Title;
-            existing.Description = dto.Description;
-            existing.OvernightLocation = dto.OvernightLocation;
-        }
     }
 
     private string ResolveSlug(string? customSlug, string name, int currentId)

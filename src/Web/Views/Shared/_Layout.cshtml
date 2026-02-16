@@ -1,10 +1,9 @@
 @using TravelCleanArch.Application.Abstractions.Travel
-@using TravelCleanArch.Domain.Entities
 @inject IExpeditionTypeService ExpeditionTypeService
 @inject IExpeditionService ExpeditionService
 @{
     var expeditionTypes = await ExpeditionTypeService.ListAsync(includeUnpublished: false, Context.RequestAborted);
-    var expeditions = (await ExpeditionService.ListAsync(null, TravelStatus.Published, null, null, 1, 100, Context.RequestAborted)).Items;
+    var expeditions = (await ExpeditionService.ListAsync(null, "published", null, null, 1, 100, Context.RequestAborted)).Items;
 
     var expeditionNavData = expeditionTypes
         .Select(type => new

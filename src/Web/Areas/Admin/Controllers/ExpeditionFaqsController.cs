@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Domain.Constants;
-using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Entities.Expeditions;
 using TravelCleanArch.Infrastructure.Persistence;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;

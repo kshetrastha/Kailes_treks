@@ -7,7 +7,7 @@ namespace TravelCleanArch.Domain.Entities.Expeditions;
 public sealed class Expedition : BaseEntity
 {
     // FK
-    public int ExpeditionTypeId { get; set; }
+    public int? ExpeditionTypeId { get; set; }
     public ExpeditionType? ExpeditionType { get; set; }
     // Core
     public string Name { get; set; } = string.Empty;
@@ -82,43 +82,30 @@ public sealed class Expedition : BaseEntity
     public List<GearList> GearLists { get; set; } = [];
     public List<ExpeditionHighlight> Highlights { get; set; } = [];
     public List<ExpeditionReview> Reviews { get; set; } = [];
+
+    // Backward-compatible aliases for legacy service/models.
+    public string Difficulty
+    {
+        get => DifficultyLevel?.ToString() ?? string.Empty;
+        set
+        {
+            if (Enum.TryParse<DifficultyLevel>(value, true, out var parsed))
+            {
+                DifficultyLevel = parsed;
+            }
+        }
+    }
+
+    public string? Inclusions { get; set; }
+    public string? Exclusions { get; set; }
+    public string? AvailableDates { get; set; }
+    public string? BookingCtaUrl { get; set; }
+    public string? SummitRoute { get; set; }
+    public string? OverviewDuration { get; set; }
+
+    public string? WeatherReport
+    {
+        get => WeatherReportUrl;
+        set => WeatherReportUrl = value;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-//public sealed class ExpeditionSection : BaseEntity
-//{
-//    public int ExpeditionId { get; set; }
-//    public string SectionType { get; set; } = string.Empty;
-//    public string Title { get; set; } = string.Empty;
-//    public string? Content { get; set; }
-//    public int Ordering { get; set; }
-
-//    public Expedition Expedition { get; set; } = default!;
-//}
-
-//public sealed class ExpeditionItineraryDay : BaseEntity
-//{
-//    public int ExpeditionId { get; set; }
-//    public int DayNumber { get; set; }
-//    public string Title { get; set; } = string.Empty;
-//    public string? Description { get; set; }
-//    public string? OvernightLocation { get; set; }
-
-//    public Expedition Expedition { get; set; } = default!;
-//}
-
-
-
-
-
-
-
-

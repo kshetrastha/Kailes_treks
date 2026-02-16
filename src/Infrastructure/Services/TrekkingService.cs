@@ -75,7 +75,7 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
             .Include(x => x.ItineraryDays.OrderBy(i => i.DayNumber))
             .Include(x => x.Faqs.OrderBy(f => f.Ordering))
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
-            .Where(x => x.Slug == slug && x.Status == TravelStatus.Published)
+            .Where(x => x.Slug == slug && x.Status == "published")
             .Select(x => new
             {
                 x.Name,
