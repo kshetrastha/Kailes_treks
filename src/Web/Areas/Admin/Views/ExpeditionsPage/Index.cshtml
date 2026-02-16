@@ -1,6 +1,9 @@
 @model TravelCleanArch.Application.Abstractions.Travel.ExpeditionPagedResult
 @{
     ViewData["Title"] = "Expeditions";
+    var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
 }
 
 <div class="container-fluid">
@@ -13,6 +16,42 @@
     {
         <div class="alert alert-success">@success</div>
     }
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input class="form-control" name="search" value="@Context.Request.Query["search"]" placeholder="Search by expedition name" />
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="difficulty">
+                <option value="">All Difficulty Levels</option>
+                @foreach (var difficulty in difficultyLevels)
+                {
+                    <option value="@difficulty" selected="@(Context.Request.Query["difficulty"] == difficulty)">@difficulty</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="country">
+                <option value="">All Countries</option>
+                @foreach (var country in countries)
+                {
+                    <option value="@country" selected="@(Context.Request.Query["country"] == country)">@country</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="status">
+                <option value="">All Travel Statuses</option>
+                @foreach (var status in travelStatuses)
+                {
+                    <option value="@status" selected="@(Context.Request.Query["status"] == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-1 d-grid">
+            <button class="btn btn-outline-primary" type="submit">Filter</button>
+        </div>
+    </form>
 
     <div class="card">
         <div class="card-body">

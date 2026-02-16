@@ -4,6 +4,9 @@
 @{
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+    var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
     ViewData["Title"] = isEdit ? "Edit Expedition" : "Create Expedition";
 }
 
@@ -160,8 +163,19 @@
                     <h5>Overview</h5>
                     <div class="row">
                         <div class="col-md-4 mb-3">
+                            <label asp-for="OverviewCountry" class="form-label">Country</label>
+                            <select asp-for="OverviewCountry" class="form-select step-1-required">
+                                <option value="">-- select country --</option>
+                                @foreach (var country in countries)
+                                {
+                                    <option value="@country">@country</option>
+                                }
+                            </select>
+                            <span asp-validation-for="OverviewCountry" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
                             <label asp-for="Destination" class="form-label"></label>
-                            <input asp-for="Destination" class="form-control step-1-required" />
+                            <input asp-for="Destination" class="form-control step-1-required" placeholder="Primary destination" />
                             <span asp-validation-for="Destination" class="text-danger"></span>
                         </div>
                         <div class="col-md-4 mb-3">
@@ -191,18 +205,31 @@
                             <span asp-validation-for="MaxAltitudeMeters" class="text-danger"></span>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label asp-for="Difficulty" class="form-label"></label>
-                            <input asp-for="Difficulty" class="form-control step-1-required" />
-                            <span asp-validation-for="Difficulty" class="text-danger"></span>
+                            <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
+                            <select asp-for="DifficultyLevel" class="form-select step-1-required">
+                                <option value="">-- select difficulty --</option>
+                                @foreach (var difficulty in difficultyLevels)
+                                {
+                                    <option value="@difficulty">@difficulty</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
                         </div>
+                        <input type="hidden" asp-for="Difficulty" />
                         <div class="col-md-3 mb-3">
                             <label asp-for="Price" class="form-label"></label>
                             <input asp-for="Price" class="form-control" type="number" min="0" step="0.01" />
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Status" class="form-label"></label>
-                            <input asp-for="Status" class="form-control" />
+                            <label asp-for="Status" class="form-label">Travel Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="">-- select travel status --</option>
+                                @foreach (var status in travelStatuses)
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
                             <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -824,6 +851,13 @@ Notes: Add terrain, camp-life, and summit visibility insights.`;
             const form = document.getElementById("expeditionForm");
             form.addEventListener("submit", () => {
                 formStepInput.value = `${currentStep}`;
+                const selectedDifficulty = document.getElementById("DifficultyLevel")?.value || "";
+                if (selectedDifficulty) {
+                    const difficultyInput = document.getElementById("Difficulty");
+                    if (difficultyInput) {
+                        difficultyInput.value = selectedDifficulty;
+                    }
+                }
                 const createHiddenInput = (container, name, value) => {
                     const input = document.createElement("input");
                     input.type = "hidden";
