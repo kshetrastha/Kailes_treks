@@ -146,6 +146,9 @@
                             <textarea id="imageAnalysis" class="form-control" rows="4" placeholder="Highlights, terrain, weather cues, safety notes..."></textarea>
                         </div>
                         <div class="col-md-12 mb-3">
+                            <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-3" style="max-width: 720px;">
+                                <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                            </div>
                             <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
                         </div>
                     </div>
@@ -469,14 +472,61 @@
             const heroPreview = document.getElementById("heroImagePreview");
             const imageAnalysis = document.getElementById("imageAnalysis");
             const heroUrlInput = document.getElementById("HeroImageUrl");
-            if (heroUrlInput?.value) {
-                heroPreview.src = heroUrlInput.value;
-                heroPreview.classList.remove("d-none");
-            }
+            const heroVideoPreviewWrap = document.getElementById("heroVideoPreviewWrap");
+            const heroVideoPreview = document.getElementById("heroVideoPreview");
 
-            heroUpload.addEventListener("change", (e) => {
+            const toVideoEmbedUrl = (value) => {
+                const url = (value || "").trim();
+                if (!url) return "";
+
+                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+                if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+                const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+                if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+                return "";
+            };
+
+            const looksLikeImageUrl = (value) => /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test((value || "").trim());
+
+            const renderPrimaryVideoPreview = () => {
+                if (!heroVideoPreviewWrap || !heroVideoPreview || !heroUrlInput) return;
+                const embedUrl = toVideoEmbedUrl(heroUrlInput.value);
+
+                if (!embedUrl) {
+                    heroVideoPreview.removeAttribute("src");
+                    heroVideoPreviewWrap.classList.add("d-none");
+                    return;
+                }
+
+                heroVideoPreview.src = embedUrl;
+                heroVideoPreviewWrap.classList.remove("d-none");
+            };
+
+            const renderPrimaryImageFromUrl = () => {
+                if (!heroUrlInput || !heroPreview || heroUpload?.files?.length) return;
+
+                const url = (heroUrlInput.value || "").trim();
+                if (!url || !looksLikeImageUrl(url)) {
+                    heroPreview.removeAttribute("src");
+                    heroPreview.classList.add("d-none");
+                    return;
+                }
+
+                heroPreview.src = url;
+                heroPreview.classList.remove("d-none");
+            };
+
+            heroUrlInput?.addEventListener("input", () => {
+                renderPrimaryVideoPreview();
+                renderPrimaryImageFromUrl();
+            });
+
+            heroUpload?.addEventListener("change", (e) => {
                 const file = e.target.files[0];
                 if (!file) {
+                    renderPrimaryImageFromUrl();
                     return;
                 }
 
@@ -484,10 +534,15 @@
                 reader.onload = () => {
                     heroPreview.src = reader.result;
                     heroPreview.classList.remove("d-none");
-                    imageAnalysis.value = `Image: ${file.name}\nSuggested usage: Hero banner + itinerary context\nNotes: Add terrain, camp-life, and summit visibility insights.`;
+                    imageAnalysis.value = `Image: ${file.name}
+Suggested usage: Hero banner + itinerary context
+Notes: Add terrain, camp-life, and summit visibility insights.`;
                 };
                 reader.readAsDataURL(file);
             });
+
+            renderPrimaryVideoPreview();
+            renderPrimaryImageFromUrl();
 
             function addCostRow(target, type = "Inclusion", title = "", description = "") {
                 const normalizedType = `${type || "Inclusion"}`.toLowerCase() === "exclusion" ? "Exclusion" : "Inclusion";
