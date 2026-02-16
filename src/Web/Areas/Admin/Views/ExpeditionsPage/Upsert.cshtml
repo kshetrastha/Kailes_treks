@@ -109,11 +109,11 @@
 
                 <ul class="nav nav-tabs mb-4" id="expeditionWizardTabs" role="tablist">
                     <li class="nav-item"><button class="nav-link active" type="button" data-step="0">1. Basic Info</button></li>
-                    <li class="nav-item"><button class="nav-link" type="button" data-step="1" disabled>2. Overview</button></li>
-                    <li class="nav-item"><button class="nav-link" type="button" data-step="2" disabled>3. Itineraries</button></li>
-                    <li class="nav-item"><button class="nav-link" type="button" data-step="3" disabled>4. Includes/Excludes</button></li>
-                    <li class="nav-item"><button class="nav-link" type="button" data-step="4" disabled>5. Departure & Gear</button></li>
-                    <li class="nav-item"><button class="nav-link" type="button" data-step="5" disabled>6. Reviews & FAQ</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="1">2. Overview</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="2">3. Itineraries</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="3">4. Includes/Excludes</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="4">5. Departure & Gear</button></li>
+                    <li class="nav-item"><button class="nav-link" type="button" data-step="5">6. Reviews & FAQ</button></li>
                 </ul>
 
                 <div class="wizard-step" data-step="0">
@@ -457,23 +457,11 @@
             }
 
             function goToStep(index) {
-                if (index > currentStep && !validateStep(currentStep)) {
-                    return;
-                }
-
-                for (let i = 0; i <= index; i += 1) {
-                    tabs[i].disabled = false;
-                }
-
-                currentStep = index;
+                currentStep = Math.max(0, Math.min(steps.length - 1, index));
                 renderStep();
             }
 
-            for (let i = 0; i <= currentStep; i += 1) {
-                tabs[i].disabled = false;
-            }
-
-            tabs.forEach((tab, index) => tab.addEventListener("click", () => !tab.disabled && goToStep(index)));
+            tabs.forEach((tab, index) => tab.addEventListener("click", () => goToStep(index)));
             prevBtn.addEventListener("click", () => goToStep(Math.max(0, currentStep - 1)));
 
             saveStepBtn.addEventListener("click", () => {

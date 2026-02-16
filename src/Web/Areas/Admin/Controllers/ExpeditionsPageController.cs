@@ -24,7 +24,8 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(int step = 0, CancellationToken ct = default)
+    [ActionName("Create")]
+    public async Task<IActionResult> CreateGet(int step = 0, CancellationToken ct = default)
     {
         await LoadTypesAsync(ct);
         ViewBag.ActiveStep = Math.Max(0, step);
@@ -32,7 +33,8 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpGet("{id:int}/edit")]
-    public async Task<IActionResult> Edit(int id, int step = 0, CancellationToken ct = default)
+    [ActionName("Edit")]
+    public async Task<IActionResult> EditGet(int id, int step = 0, CancellationToken ct = default)
     {
         var e = await service.GetByIdAsync(id, ct);
         if (e is null) return NotFound();
@@ -68,9 +70,10 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    [ActionName("Create")]
+    public async Task<IActionResult> CreatePost(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
-        var build = await BuildDtoAsync(m, ct);
+        var build = await BuildDtoAsync(m, step, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
@@ -81,13 +84,14 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
         var id = await service.CreateAsync(build.dto!, currentUser.UserId, ct);
         TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: true);
-        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
+        return RedirectToAction("Edit", new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    [ActionName("Edit")]
+    public async Task<IActionResult> EditPost(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
-        var build = await BuildDtoAsync(m, ct);
+        var build = await BuildDtoAsync(m, step, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
@@ -103,7 +107,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         var ok = await service.UpdateAsync(id, mergedDto, currentUser.UserId, ct);
         if (!ok) return NotFound();
         TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: false);
-        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
+        return RedirectToAction("Edit", new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
@@ -117,17 +121,32 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
     private async Task LoadTypesAsync(CancellationToken ct) => ViewBag.ExpeditionTypes = await typeService.ListAsync(true, ct);
 
-    private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, CancellationToken ct)
+    private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, int step, CancellationToken ct)
     {
         try
         {
-            var sections = ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])));
-            var itinerary = ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]));
-            var faqs = ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])));
-            var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList();
+            var normalizedStep = Math.Max(0, step);
+            var includeOverview = normalizedStep == 1;
+            var includeItinerary = normalizedStep == 2;
+            var includeCosts = normalizedStep == 3;
+            var includeDepartureAndGear = normalizedStep == 4;
+            var includeReviewsAndFaq = normalizedStep == 5;
+
+            var sections = includeOverview
+                ? ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])))
+                : Array.Empty<ExpeditionSectionDto>();
+            var itinerary = includeItinerary
+                ? ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]))
+                : Array.Empty<ExpeditionItineraryDayDto>();
+            var faqs = includeReviewsAndFaq
+                ? ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])))
+                : Array.Empty<ExpeditionFaqDto>();
+            var mediaLegacy = (includeOverview || includeItinerary || includeDepartureAndGear)
+                ? ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList()
+                : [];
 
             var maps = new List<ExpeditionMapDto>();
-            foreach (var map in m.Maps)
+            foreach (var map in includeDepartureAndGear ? m.Maps : [])
             {
                 var path = map.ExistingPath;
                 if (map.UploadFile is { Length: > 0 }) path = await SaveFileAsync(map.UploadFile, "maps", new[] { ".pdf", ".jpg", ".png" }, ct);
@@ -136,7 +155,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
             var gear = new List<GearListDto>();
             var gearImageMedia = new List<ExpeditionMediaDto>();
-            foreach (var item in m.GearLists)
+            foreach (var item in includeDepartureAndGear ? m.GearLists : [])
             {
                 var path = item.ExistingPath;
                 if (item.UploadFile is { Length: > 0 }) path = await SaveFileAsync(item.UploadFile, "gear", new[] { ".pdf", ".doc", ".docx" }, ct);
@@ -152,7 +171,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             }
 
             var media = new List<ExpeditionMediaDto>();
-            foreach (var item in m.Media)
+            foreach (var item in (includeOverview || includeItinerary || includeDepartureAndGear) ? m.Media : [])
             {
                 var filePath = item.ExistingPath;
                 if (item.PhotoFile is { Length: > 0 }) filePath = await SaveFileAsync(item.PhotoFile, "expedition-media", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
@@ -169,7 +188,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             var primaryMediaUrl = m.HeroImageUrl?.Trim();
 
             string? heroImagePath = null;
-            if (m.HeroImageFile is { Length: > 0 })
+            if (includeOverview && m.HeroImageFile is { Length: > 0 })
             {
                 heroImagePath = await SaveFileAsync(m.HeroImageFile, "expeditions", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
             }
@@ -178,7 +197,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 ? primaryMediaUrl
                 : heroImagePath;
 
-            if (mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0)
+            if (includeOverview && mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0)
             {
                 if (!string.IsNullOrWhiteSpace(primaryMediaUrl))
                 {
@@ -195,7 +214,9 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 }
             }
 
-            var reviews = BuildReviews(m.Reviews, m.ReviewsText);
+            var reviews = includeReviewsAndFaq
+                ? BuildReviews(m.Reviews, m.ReviewsText)
+                : Array.Empty<ExpeditionReviewDto>();
 
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
@@ -203,13 +224,24 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, sections, itinerary, faqs,
                 mediaLegacy.Concat(media).Concat(gearImageMedia).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
-                m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
-                maps, m.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
-                m.FixedDepartures
+                (includeItinerary
+                    ? m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList()
+                    : []),
+                maps,
+                (includeCosts
+                    ? m.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList()
+                    : []),
+                (includeDepartureAndGear
+                    ? m.FixedDepartures
                     .Where(f => f.StartDate.Year > 1900 && f.EndDate.Year > 1900)
                     .Select(f => new FixedDepartureDto(f.Id, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize))
-                    .ToList(),
-                gear, m.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList(), reviews);
+                    .ToList()
+                    : []),
+                gear,
+                (includeReviewsAndFaq
+                    ? m.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList()
+                    : []),
+                reviews);
 
             return (true, dto, null);
         }
