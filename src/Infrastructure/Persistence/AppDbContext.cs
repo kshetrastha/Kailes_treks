@@ -111,8 +111,6 @@ public sealed class AppDbContext:
                 .HasForeignKey(x => x.ExpeditionTypeId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            b.HasMany(x => x.Sections).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
-            b.HasMany(x => x.ItineraryDays).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.Faqs).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.MediaItems).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(x => x.Itineraries).WithOne(x => x.Expedition).HasForeignKey(x => x.ExpeditionId).OnDelete(DeleteBehavior.Cascade);
@@ -143,21 +141,6 @@ public sealed class AppDbContext:
             b.Property(x => x.AltText).HasMaxLength(220);
             b.HasIndex(x => new { x.ExpeditionTypeId, x.SortOrder });
             b.HasIndex(x => new { x.ExpeditionTypeId, x.IsCover });
-        });
-
-        builder.Entity<ExpeditionSection>(b =>
-        {
-            b.ToTable("expedition_sections");
-            b.Property(x => x.SectionType).HasMaxLength(80).IsRequired();
-            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
-            b.HasIndex(x => new { x.ExpeditionId, x.SectionType, x.Ordering });
-        });
-
-        builder.Entity<ExpeditionItineraryDay>(b =>
-        {
-            b.ToTable("expedition_itinerary_days");
-            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
-            b.HasIndex(x => new { x.ExpeditionId, x.DayNumber }).IsUnique();
         });
 
         builder.Entity<ExpeditionFaq>(b =>

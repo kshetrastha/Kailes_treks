@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
-using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
@@ -87,7 +86,7 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
 
         var publishedExpeditions = (await expeditionService.ListAsync(
             search: null,
-            status: TravelStatus.Published,
+            status: "published",
             destination: null,
             featured: null,
             page: 1,

@@ -59,8 +59,8 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
             Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList(),
             Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
-            SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
-            ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}")),
+            SectionsText = string.Empty,
+            ItineraryText = string.Empty,
             FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}")),
             ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}")),
             MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"))
@@ -121,8 +121,6 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     {
         try
         {
-            var sections = ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])));
-            var itinerary = ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]));
             var faqs = ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])));
             var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList();
 
@@ -200,7 +198,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
                 m.BookingCtaUrl, m.SeoTitle, m.SeoDescription, m.Status, m.Featured, m.Ordering, m.SummitRoute, m.RequiresClimbingPermit,
-                m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, sections, itinerary, faqs,
+                m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, [], [], faqs,
                 mediaLegacy.Concat(media).Concat(gearImageMedia).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
                 m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
@@ -318,7 +316,6 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             2 => existing with
             {
                 Itineraries = MergeById(existing.Itineraries, incoming.Itineraries),
-                ItineraryDays = MergeByKeys(existing.ItineraryDays, incoming.ItineraryDays, x => $"{x.DayNumber}|{x.Title}|{x.OvernightLocation}"),
                 MediaItems = MergeByKeys(existing.MediaItems, incoming.MediaItems, x => $"{x.Url}|{x.MediaType}|{x.Ordering}")
             },
             3 => existing with
@@ -348,7 +345,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
         => new(e.Name, e.Slug, e.ShortDescription, e.Destination, e.Region, e.DurationDays, e.MaxAltitudeMeters, e.Difficulty, e.BestSeason,
             e.Overview, e.Inclusions, e.Exclusions, e.HeroImageUrl, e.Permits, e.MinGroupSize, e.MaxGroupSize, e.Price, e.AvailableDates,
             e.BookingCtaUrl, e.SeoTitle, e.SeoDescription, e.Status, e.Featured, e.Ordering, e.SummitRoute, e.RequiresClimbingPermit,
-            e.ExpeditionStyle, e.OxygenSupport, e.SherpaSupport, e.SummitBonusUsd, e.ExpeditionTypeId, e.Sections, e.ItineraryDays, e.Faqs,
+            e.ExpeditionStyle, e.OxygenSupport, e.SherpaSupport, e.SummitBonusUsd, e.ExpeditionTypeId, [], [], e.Faqs,
             e.MediaItems, e.OverviewCountry, e.PeakName, e.OverviewDuration, e.Route, e.Rank, e.Latitude, e.Longitude, e.WeatherReport,
             e.Range, e.WalkingPerDay, e.Accommodation, e.GroupSizeText, e.DifficultyLevel, e.Itineraries, e.Maps, e.CostItems,
             e.FixedDepartures, e.GearLists, e.Highlights, e.Reviews);

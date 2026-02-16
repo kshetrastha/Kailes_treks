@@ -22,7 +22,7 @@ public sealed class Trekking : BaseEntity
     public string? BookingCtaUrl { get; set; }
     public string? SeoTitle { get; set; }
     public string? SeoDescription { get; set; }
-    public string Status { get; set; } = TravelStatus.Draft;
+    public string Status { get; set; } = "draft";
     public bool Featured { get; set; }
     public int Ordering { get; set; }
     public string? TrailGrade { get; set; }
