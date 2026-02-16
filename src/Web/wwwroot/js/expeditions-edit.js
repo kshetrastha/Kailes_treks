@@ -4,6 +4,66 @@
 
   const itineraryBody = document.querySelector('#itineraryTable tbody');
 
+  const heroImageInput = document.getElementById('HeroImageFile');
+  const heroVideoInput = document.getElementById('HeroImageUrl');
+  const heroImagePreview = document.getElementById('heroImagePreview');
+  const heroVideoPreviewWrap = document.getElementById('heroVideoPreviewWrap');
+  const heroVideoPreview = document.getElementById('heroVideoPreview');
+
+  const toEmbedUrl = (value) => {
+    const url = (value || '').trim();
+    if (!url) return '';
+
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+    return url;
+  };
+
+  const renderHeroVideoPreview = () => {
+    if (!heroVideoInput || !heroVideoPreview || !heroVideoPreviewWrap) return;
+
+    const embedUrl = toEmbedUrl(heroVideoInput.value);
+    if (!embedUrl) {
+      heroVideoPreview.removeAttribute('src');
+      heroVideoPreviewWrap.classList.add('d-none');
+      return;
+    }
+
+    heroVideoPreview.src = embedUrl;
+    heroVideoPreviewWrap.classList.remove('d-none');
+  };
+
+  const renderHeroImagePreview = () => {
+    if (!heroImageInput || !heroImagePreview) return;
+
+    const file = heroImageInput.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        heroImagePreview.src = reader.result;
+        heroImagePreview.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    if ((heroImagePreview.getAttribute('src') || '').trim()) {
+      heroImagePreview.classList.remove('d-none');
+      return;
+    }
+
+    heroImagePreview.classList.add('d-none');
+  };
+
+  heroVideoInput?.addEventListener('input', renderHeroVideoPreview);
+  heroImageInput?.addEventListener('change', renderHeroImagePreview);
+  renderHeroVideoPreview();
+  renderHeroImagePreview();
+
   const addHtml = (containerId, html) => {
     document.getElementById(containerId)?.insertAdjacentHTML('beforeend', html);
   };
