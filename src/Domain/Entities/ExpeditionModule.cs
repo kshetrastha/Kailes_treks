@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using TravelCleanArch.Domain.Entities.Expeditions;
+using TravelCleanArch.Domain.Entities.Master;
+using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Domain.Entities;
 

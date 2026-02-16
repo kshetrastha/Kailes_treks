@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Entities.Expeditions;
+using TravelCleanArch.Domain.Entities.Master;
 using TravelCleanArch.Infrastructure.Identity;
 
 namespace TravelCleanArch.Infrastructure.Persistence;
@@ -18,8 +20,7 @@ public sealed class AppDbContext:
 
     public DbSet<Expedition> Expeditions => Set<Expedition>();
     public DbSet<ExpeditionType> ExpeditionTypes => Set<ExpeditionType>();
-    public DbSet<ExpeditionSection> ExpeditionSections => Set<ExpeditionSection>();
-    public DbSet<ExpeditionItineraryDay> ExpeditionItineraryDays => Set<ExpeditionItineraryDay>();
+
     public DbSet<ExpeditionFaq> ExpeditionFaqs => Set<ExpeditionFaq>();
     public DbSet<ExpeditionMedia> ExpeditionMedia => Set<ExpeditionMedia>();
     public DbSet<ExpeditionTypeImage> ExpeditionTypeImages => Set<ExpeditionTypeImage>();

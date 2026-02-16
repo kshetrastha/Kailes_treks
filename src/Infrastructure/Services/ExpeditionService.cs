@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Travel;
-using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Entities.Expeditions;
 using TravelCleanArch.Infrastructure.Persistence;
 
 namespace TravelCleanArch.Infrastructure.Services;
