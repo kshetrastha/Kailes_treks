@@ -24,18 +24,20 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+    public async Task<IActionResult> Create(int step = 0, CancellationToken ct = default)
     {
         await LoadTypesAsync(ct);
+        ViewBag.ActiveStep = Math.Max(0, step);
         return View("Upsert", new ExpeditionFormViewModel());
     }
 
     [HttpGet("{id:int}/edit")]
-    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, int step = 0, CancellationToken ct = default)
     {
         var e = await service.GetByIdAsync(id, ct);
         if (e is null) return NotFound();
         await LoadTypesAsync(ct);
+        ViewBag.ActiveStep = Math.Max(0, step);
 
         return View("Upsert", new ExpeditionFormViewModel
         {
@@ -66,36 +68,38 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionFormViewModel m, CancellationToken ct)
+    public async Task<IActionResult> Create(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
         var build = await BuildDtoAsync(m, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
+            ViewBag.ActiveStep = Math.Max(0, step);
             return View("Upsert", m);
         }
 
-        await service.CreateAsync(build.dto!, currentUser.UserId, ct);
-        TempData["SuccessMessage"] = "Expedition created.";
-        return RedirectToAction(nameof(Index));
+        var id = await service.CreateAsync(build.dto!, currentUser.UserId, ct);
+        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: true);
+        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
         var build = await BuildDtoAsync(m, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
+            ViewBag.ActiveStep = Math.Max(0, step);
             return View("Upsert", m);
         }
 
         var ok = await service.UpdateAsync(id, build.dto!, currentUser.UserId, ct);
         if (!ok) return NotFound();
-        TempData["SuccessMessage"] = "Expedition updated.";
-        return RedirectToAction(nameof(Index));
+        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: false);
+        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
@@ -231,6 +235,39 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
     private static int ParseInt(string value)
         => int.TryParse(value, out var parsed) ? parsed : 0;
+
+    private static int ResolveStepAfterSave(int step, string? intent)
+    {
+        var currentStep = Math.Max(0, step);
+        if (string.Equals(intent, "next", StringComparison.OrdinalIgnoreCase))
+        {
+            return Math.Min(currentStep + 1, 5);
+        }
+
+        return currentStep;
+    }
+
+    private static string GetSaveMessage(int step, string? intent, bool isCreate)
+    {
+        var action = isCreate ? "created" : "updated";
+        var tab = step switch
+        {
+            0 => "Basic info",
+            1 => "Overview",
+            2 => "Itineraries",
+            3 => "Inclusions/Exclusions",
+            4 => "Departure and Gear",
+            5 => "Reviews and FAQs",
+            _ => "Current tab"
+        };
+
+        if (string.Equals(intent, "next", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{tab} saved. Expedition {action}.";
+        }
+
+        return $"{tab} saved.";
+    }
 
     private async Task<string> SaveFileAsync(IFormFile file, string folder, IEnumerable<string> exts, CancellationToken ct)
     {
