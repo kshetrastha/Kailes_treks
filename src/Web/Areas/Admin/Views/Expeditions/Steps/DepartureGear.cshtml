@@ -1,0 +1,63 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@{ var postUrl = (string?)ViewBag.PostUrl ?? "/admin/expeditions/create/departure-gear"; if (!Model.FixedDepartures.Any()) { Model.FixedDepartures.Add(new()); } if (!Model.GearLists.Any()) { Model.GearLists.Add(new()); } if (!Model.Maps.Any()) { Model.Maps.Add(new()); } }
+<div class="container-fluid">
+    <h3 class="mb-3">Expedition - Departure & Gear</h3>
+    <partial name="~/Areas/Admin/Views/Expeditions/Steps/_StepTabs.cshtml" />
+    <form method="post" enctype="multipart/form-data" action="@postUrl">
+        @Html.AntiForgeryToken()
+        @if (Model.Id.HasValue) { <input type="hidden" asp-for="Id" /> }
+        <input type="hidden" name="step" value="4" /><input type="hidden" name="intent" id="intent" value="stay" />
+
+        <h5>Fixed Departures</h5>
+        <table class="table table-bordered" id="depWrap"><thead><tr><th>ImageUrl</th><th>Days</th><th>Start</th><th>End</th><th>Status</th><th>Group</th></tr></thead><tbody>
+        @for (var i = 0; i < Model.FixedDepartures.Count; i++)
+        {
+            <tr class="dep-row">
+                <td><input class="form-control" name="AvailableDates" value="@Model.AvailableDates" /></td>
+                <td><input asp-for="FixedDepartures[i].ForDays" class="form-control" /></td>
+                <td><input asp-for="FixedDepartures[i].StartDate" type="date" class="form-control" /></td>
+                <td><input asp-for="FixedDepartures[i].EndDate" type="date" class="form-control" /></td>
+                <td><input asp-for="FixedDepartures[i].Status" class="form-control" /></td>
+                <td><input asp-for="FixedDepartures[i].GroupSize" class="form-control" /></td>
+            </tr>
+        }
+        </tbody></table>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addDeparture()">Add Departure</button>
+
+        <h5 class="mt-4">Gear List</h5>
+        <div id="gearWrap">
+            @for (var i = 0; i < Model.GearLists.Count; i++)
+            {
+                <div class="row g-2 mb-2 gear-row">
+                    <input type="hidden" asp-for="GearLists[i].Id" />
+                    <div class="col-md-4"><input asp-for="GearLists[i].ShortDescription" class="form-control" placeholder="Short description" /></div>
+                    <div class="col-md-4"><input asp-for="GearLists[i].UploadFile" type="file" class="form-control" /></div>
+                    <div class="col-md-4"><input asp-for="GearLists[i].UploadImage" type="file" class="form-control" /></div>
+                </div>
+            }
+        </div>
+
+        <h5 class="mt-4">Maps</h5>
+        <div id="mapWrap">
+            @for (var i = 0; i < Model.Maps.Count; i++)
+            {
+                <div class="row g-2 mb-2 map-row">
+                    <input type="hidden" asp-for="Maps[i].Id" />
+                    <div class="col-md-4"><input asp-for="Maps[i].Title" class="form-control" placeholder="Title" /></div>
+                    <div class="col-md-4"><input asp-for="Maps[i].Notes" class="form-control" placeholder="Notes" /></div>
+                    <div class="col-md-4"><input asp-for="Maps[i].UploadFile" type="file" class="form-control" /></div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-success" onclick="document.getElementById('intent').value='stay'">Save Changes</button>
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('intent').value='next'">Save & Next</button>
+        </div>
+    </form>
+</div>
+@section Scripts {
+<script>
+function addDeparture(){ const tbody=document.querySelector('#depWrap tbody'); const i=tbody.querySelectorAll('.dep-row').length; tbody.insertAdjacentHTML('beforeend',`<tr class="dep-row"><td><input class="form-control" name="AvailableDates" /></td><td><input class="form-control" name="FixedDepartures[${i}].ForDays" /></td><td><input type="date" class="form-control" name="FixedDepartures[${i}].StartDate" /></td><td><input type="date" class="form-control" name="FixedDepartures[${i}].EndDate" /></td><td><input class="form-control" name="FixedDepartures[${i}].Status" value="BookingOpen" /></td><td><input class="form-control" name="FixedDepartures[${i}].GroupSize" /></td></tr>`); }
+</script>
+}

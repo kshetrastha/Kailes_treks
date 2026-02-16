@@ -1,0 +1,41 @@
+@{
+    var activeStep = (int?)(ViewBag.ActiveStep) ?? 0;
+    var isEdit = (bool?)(ViewBag.IsEditMode) ?? false;
+    var expeditionId = (int?)(ViewBag.ExpeditionId);
+
+    string LinkFor(int step)
+    {
+        var slug = step switch
+        {
+            0 => "basic-info",
+            1 => "overview",
+            2 => "itineraries",
+            3 => "includes-excludes",
+            4 => "departure-gear",
+            _ => "reviews-faq"
+        };
+
+        return isEdit && expeditionId.HasValue
+            ? $"/admin/expeditions/{expeditionId.Value}/edit/{slug}"
+            : $"/admin/expeditions/create/{slug}";
+    }
+
+    var labels = new[]
+    {
+        "Basic Info",
+        "Overview",
+        "Itineraries",
+        "Includes/Excludes",
+        "Departure & Gear",
+        "Reviews & FAQ"
+    };
+}
+
+<ul class="nav nav-tabs mb-3">
+    @for (var i = 0; i < labels.Length; i++)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(activeStep == i ? "active" : "")" href="@LinkFor(i)">@(i + 1). @labels[i]</a>
+        </li>
+    }
+</ul>

@@ -24,87 +24,222 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(int step = 0, CancellationToken ct = default)
-    {
-        await LoadTypesAsync(ct);
-        ViewBag.ActiveStep = Math.Max(0, step);
-        return View("Upsert", new ExpeditionFormViewModel());
-    }
+    [ActionName("Create")]
+    public IActionResult CreateGet(int step = 0)
+        => RedirectToCreateStep(step);
 
     [HttpGet("{id:int}/edit")]
-    public async Task<IActionResult> Edit(int id, int step = 0, CancellationToken ct = default)
+    [ActionName("Edit")]
+    public IActionResult EditGet(int id, int step = 0)
+        => RedirectToEditStep(id, step);
+
+    [HttpGet("create/basic-info")]
+    public Task<IActionResult> CreateBasicInfoGet(CancellationToken ct = default) => RenderCreateStepAsync(0, ct);
+
+    [HttpGet("create/overview")]
+    public Task<IActionResult> CreateOverviewGet(CancellationToken ct = default) => RenderCreateStepAsync(1, ct);
+
+    [HttpGet("create/itineraries")]
+    public Task<IActionResult> CreateItinerariesGet(CancellationToken ct = default) => RenderCreateStepAsync(2, ct);
+
+    [HttpGet("create/includes-excludes")]
+    public Task<IActionResult> CreateIncludesExcludesGet(CancellationToken ct = default) => RenderCreateStepAsync(3, ct);
+
+    [HttpGet("create/departure-gear")]
+    public Task<IActionResult> CreateDepartureGearGet(CancellationToken ct = default) => RenderCreateStepAsync(4, ct);
+
+    [HttpGet("create/reviews-faq")]
+    public Task<IActionResult> CreateReviewsFaqGet(CancellationToken ct = default) => RenderCreateStepAsync(5, ct);
+
+    [HttpGet("{id:int}/edit/basic-info")]
+    public Task<IActionResult> EditBasicInfoGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 0, ct);
+
+    [HttpGet("{id:int}/edit/overview")]
+    public Task<IActionResult> EditOverviewGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 1, ct);
+
+    [HttpGet("{id:int}/edit/itineraries")]
+    public Task<IActionResult> EditItinerariesGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 2, ct);
+
+    [HttpGet("{id:int}/edit/includes-excludes")]
+    public Task<IActionResult> EditIncludesExcludesGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 3, ct);
+
+    [HttpGet("{id:int}/edit/departure-gear")]
+    public Task<IActionResult> EditDepartureGearGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 4, ct);
+
+    [HttpGet("{id:int}/edit/reviews-faq")]
+    public Task<IActionResult> EditReviewsFaqGet(int id, CancellationToken ct = default) => RenderEditStepAsync(id, 5, ct);
+
+    [HttpPost("create"), ValidateAntiForgeryToken]
+    [ActionName("Create")]
+    public Task<IActionResult> CreatePost(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, step, intent, ct);
+
+    [HttpPost("create/basic-info"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateBasicInfoPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 0, intent, ct);
+
+    [HttpPost("create/overview"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateOverviewPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 1, intent, ct);
+
+    [HttpPost("create/itineraries"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateItinerariesPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 2, intent, ct);
+
+    [HttpPost("create/includes-excludes"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateIncludesExcludesPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 3, intent, ct);
+
+    [HttpPost("create/departure-gear"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateDepartureGearPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 4, intent, ct);
+
+    [HttpPost("create/reviews-faq"), ValidateAntiForgeryToken]
+    public Task<IActionResult> CreateReviewsFaqPost(ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => CreateByStepAsync(m, 5, intent, ct);
+
+    [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
+    [ActionName("Edit")]
+    public Task<IActionResult> EditPost(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, step, intent, ct);
+
+    [HttpPost("{id:int}/edit/basic-info"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditBasicInfoPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 0, intent, ct);
+
+    [HttpPost("{id:int}/edit/overview"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditOverviewPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 1, intent, ct);
+
+    [HttpPost("{id:int}/edit/itineraries"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditItinerariesPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 2, intent, ct);
+
+    [HttpPost("{id:int}/edit/includes-excludes"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditIncludesExcludesPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 3, intent, ct);
+
+    [HttpPost("{id:int}/edit/departure-gear"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditDepartureGearPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 4, intent, ct);
+
+    [HttpPost("{id:int}/edit/reviews-faq"), ValidateAntiForgeryToken]
+    public Task<IActionResult> EditReviewsFaqPost(int id, ExpeditionFormViewModel m, string? intent = null, CancellationToken ct = default)
+        => UpdateByStepAsync(id, m, 5, intent, ct);
+
+    private async Task<IActionResult> RenderCreateStepAsync(int step, CancellationToken ct)
+    {
+        var normalizedStep = NormalizeStep(step);
+        await LoadTypesAsync(ct);
+        return RenderStepView(new ExpeditionFormViewModel(), normalizedStep, isEdit: false, id: null);
+    }
+
+    private async Task<IActionResult> RenderEditStepAsync(int id, int step, CancellationToken ct)
     {
         var e = await service.GetByIdAsync(id, ct);
         if (e is null) return NotFound();
-        await LoadTypesAsync(ct);
-        ViewBag.ActiveStep = Math.Max(0, step);
 
-        return View("Upsert", new ExpeditionFormViewModel
-        {
-            Id = e.Id, Name = e.Name, Slug = e.Slug, ShortDescription = e.ShortDescription, Destination = e.Destination, Region = e.Region,
-            DurationDays = e.DurationDays, MaxAltitudeMeters = e.MaxAltitudeMeters, Difficulty = e.Difficulty, BestSeason = e.BestSeason,
-            Overview = e.Overview, Inclusions = e.Inclusions, Exclusions = e.Exclusions, HeroImageUrl = e.HeroImageUrl, Permits = e.Permits,
-            MinGroupSize = e.MinGroupSize, MaxGroupSize = e.MaxGroupSize, Price = e.Price, AvailableDates = e.AvailableDates,
-            BookingCtaUrl = e.BookingCtaUrl, SeoTitle = e.SeoTitle, SeoDescription = e.SeoDescription, Status = e.Status, Featured = e.Featured,
-            Ordering = e.Ordering, SummitRoute = e.SummitRoute, RequiresClimbingPermit = e.RequiresClimbingPermit, ExpeditionStyle = e.ExpeditionStyle,
-            OxygenSupport = e.OxygenSupport, SherpaSupport = e.SherpaSupport, SummitBonusUsd = e.SummitBonusUsd, ExpeditionTypeId = e.ExpeditionTypeId,
-            OverviewCountry = e.OverviewCountry, PeakName = e.PeakName, OverviewDuration = e.OverviewDuration, Route = e.Route, Rank = e.Rank,
-            Latitude = e.Latitude, Longitude = e.Longitude, WeatherReport = e.WeatherReport, Range = e.Range, WalkingPerDay = e.WalkingPerDay,
-            Accommodation = e.Accommodation, GroupSizeText = e.GroupSizeText, DifficultyLevel = e.DifficultyLevel,
-            Itineraries = e.Itineraries.Select(i => new ItineraryInput { Id = i.Id, SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { Id = d.Id, DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList(),
-            CostItems = e.CostItems.Select(c => new CostItemInput { Id = c.Id, Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList(),
-            FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList(),
-            GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList(),
-            Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList(),
-            Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList(),
-            Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList(),
-            Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList(),
-            SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}")),
-            ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}")),
-            FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}")),
-            ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}")),
-            MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"))
-        });
+        var normalizedStep = NormalizeStep(step);
+        await LoadTypesAsync(ct);
+        return RenderStepView(BuildModelForStep(e, normalizedStep), normalizedStep, isEdit: true, id);
     }
 
-    [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    private IActionResult RenderStepView(ExpeditionFormViewModel model, int step, bool isEdit, int? id)
     {
-        var build = await BuildDtoAsync(m, ct);
+        var normalizedStep = NormalizeStep(step);
+        ViewBag.ActiveStep = normalizedStep;
+        ViewBag.StepSlug = StepSlug(normalizedStep);
+        ViewBag.IsEditMode = isEdit;
+        ViewBag.ExpeditionId = id;
+        ViewBag.PostUrl = isEdit && id.HasValue
+            ? $"/admin/expeditions/{id.Value}/edit/{StepSlug(normalizedStep)}"
+            : $"/admin/expeditions/create/{StepSlug(normalizedStep)}";
+
+        return View(StepViewPath(normalizedStep), model);
+    }
+
+    private async Task<IActionResult> CreateByStepAsync(ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
+    {
+        var normalizedStep = NormalizeStep(step);
+        var build = await BuildDtoAsync(m, normalizedStep, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
-            ViewBag.ActiveStep = Math.Max(0, step);
-            return View("Upsert", m);
+            return RenderStepView(m, normalizedStep, isEdit: false, id: null);
         }
 
         var id = await service.CreateAsync(build.dto!, currentUser.UserId, ct);
-        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: true);
-        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
+        TempData["SuccessMessage"] = GetSaveMessage(normalizedStep, intent, isCreate: true);
+        return RedirectToEditStep(id, ResolveStepAfterSave(normalizedStep, intent));
     }
 
-    [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
+    private async Task<IActionResult> UpdateByStepAsync(int id, ExpeditionFormViewModel m, int step, string? intent, CancellationToken ct)
     {
-        var build = await BuildDtoAsync(m, ct);
+        var normalizedStep = NormalizeStep(step);
+        var build = await BuildDtoAsync(m, normalizedStep, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
-            ViewBag.ActiveStep = Math.Max(0, step);
-            return View("Upsert", m);
+            return RenderStepView(m, normalizedStep, isEdit: true, id);
         }
 
         var existing = await service.GetByIdAsync(id, ct);
         if (existing is null) return NotFound();
 
-        var mergedDto = MergeByStep(ToUpsertDto(existing), build.dto!, step);
+        var mergedDto = MergeByStep(ToUpsertDto(existing), build.dto!, normalizedStep);
         var ok = await service.UpdateAsync(id, mergedDto, currentUser.UserId, ct);
         if (!ok) return NotFound();
-        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: false);
-        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
+        TempData["SuccessMessage"] = GetSaveMessage(normalizedStep, intent, isCreate: false);
+        return RedirectToEditStep(id, ResolveStepAfterSave(normalizedStep, intent));
     }
+
+    private IActionResult RedirectToCreateStep(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => RedirectToAction(nameof(CreateBasicInfoGet)),
+            1 => RedirectToAction(nameof(CreateOverviewGet)),
+            2 => RedirectToAction(nameof(CreateItinerariesGet)),
+            3 => RedirectToAction(nameof(CreateIncludesExcludesGet)),
+            4 => RedirectToAction(nameof(CreateDepartureGearGet)),
+            _ => RedirectToAction(nameof(CreateReviewsFaqGet))
+        };
+
+    private IActionResult RedirectToEditStep(int id, int step)
+        => NormalizeStep(step) switch
+        {
+            0 => RedirectToAction(nameof(EditBasicInfoGet), new { id }),
+            1 => RedirectToAction(nameof(EditOverviewGet), new { id }),
+            2 => RedirectToAction(nameof(EditItinerariesGet), new { id }),
+            3 => RedirectToAction(nameof(EditIncludesExcludesGet), new { id }),
+            4 => RedirectToAction(nameof(EditDepartureGearGet), new { id }),
+            _ => RedirectToAction(nameof(EditReviewsFaqGet), new { id })
+        };
+
+    private static int NormalizeStep(int step) => Math.Max(0, Math.Min(5, step));
+
+    private static string StepSlug(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => "basic-info",
+            1 => "overview",
+            2 => "itineraries",
+            3 => "includes-excludes",
+            4 => "departure-gear",
+            _ => "reviews-faq"
+        };
+
+    private static string StepViewPath(int step)
+        => NormalizeStep(step) switch
+        {
+            0 => "~/Areas/Admin/Views/Expeditions/Steps/BasicInfo.cshtml",
+            1 => "~/Areas/Admin/Views/Expeditions/Steps/Overview.cshtml",
+            2 => "~/Areas/Admin/Views/Expeditions/Steps/Itineraries.cshtml",
+            3 => "~/Areas/Admin/Views/Expeditions/Steps/IncludesExcludes.cshtml",
+            4 => "~/Areas/Admin/Views/Expeditions/Steps/DepartureGear.cshtml",
+            _ => "~/Areas/Admin/Views/Expeditions/Steps/ReviewsFaq.cshtml"
+        };
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
@@ -117,17 +252,106 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
     private async Task LoadTypesAsync(CancellationToken ct) => ViewBag.ExpeditionTypes = await typeService.ListAsync(true, ct);
 
-    private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, CancellationToken ct)
+    private static ExpeditionFormViewModel BuildModelForStep(ExpeditionDetailsDto e, int step)
+    {
+        var vm = new ExpeditionFormViewModel { Id = e.Id };
+
+        switch (Math.Max(0, Math.Min(5, step)))
+        {
+            case 0:
+                vm.Name = e.Name;
+                vm.Slug = e.Slug;
+                vm.ShortDescription = e.ShortDescription;
+                vm.Destination = e.Destination;
+                vm.Region = e.Region;
+                vm.ExpeditionTypeId = e.ExpeditionTypeId;
+                break;
+            case 1:
+                vm.DurationDays = e.DurationDays;
+                vm.MaxAltitudeMeters = e.MaxAltitudeMeters;
+                vm.Difficulty = e.Difficulty;
+                vm.BestSeason = e.BestSeason;
+                vm.Overview = e.Overview;
+                vm.HeroImageUrl = e.HeroImageUrl;
+                vm.Permits = e.Permits;
+                vm.MinGroupSize = e.MinGroupSize;
+                vm.MaxGroupSize = e.MaxGroupSize;
+                vm.Price = e.Price;
+                vm.Status = e.Status;
+                vm.Ordering = e.Ordering;
+                vm.OverviewCountry = e.OverviewCountry;
+                vm.PeakName = e.PeakName;
+                vm.OverviewDuration = e.OverviewDuration;
+                vm.Route = e.Route;
+                vm.Rank = e.Rank;
+                vm.Latitude = e.Latitude;
+                vm.Longitude = e.Longitude;
+                vm.WeatherReport = e.WeatherReport;
+                vm.Range = e.Range;
+                vm.WalkingPerDay = e.WalkingPerDay;
+                vm.Accommodation = e.Accommodation;
+                vm.GroupSizeText = e.GroupSizeText;
+                vm.DifficultyLevel = e.DifficultyLevel;
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                vm.SectionsText = string.Join('\n', e.Sections.Where(x => !string.Equals(x.SectionType, ExpeditionSectionTypes.Review, StringComparison.OrdinalIgnoreCase)).Select(x => $"{x.SectionType}|{x.Title}|{x.Content}|{x.Ordering}"));
+                break;
+            case 2:
+                vm.Itineraries = e.Itineraries.Select(i => new ItineraryInput { Id = i.Id, SeasonTitle = i.SeasonTitle, SortOrder = i.SortOrder, Days = i.Days.Select(d => new ItineraryDayInput { Id = d.Id, DayNumber = d.DayNumber, ShortDescription = d.ShortDescription, Description = d.Description, Meals = d.Meals, AccommodationType = d.AccommodationType }).ToList() }).ToList();
+                vm.ItineraryText = string.Join('\n', e.ItineraryDays.Select(x => $"{x.DayNumber}|{x.Title}|{x.Description}|{x.OvernightLocation}"));
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                break;
+            case 3:
+                vm.Inclusions = e.Inclusions;
+                vm.Exclusions = e.Exclusions;
+                vm.CostItems = e.CostItems.Select(c => new CostItemInput { Id = c.Id, Title = c.Title, ShortDescription = c.ShortDescription, IsActive = c.IsActive, Type = c.Type, SortOrder = c.SortOrder }).ToList();
+                break;
+            case 4:
+                vm.AvailableDates = e.AvailableDates;
+                vm.FixedDepartures = e.FixedDepartures.Select(f => new FixedDepartureInput { Id = f.Id, StartDate = f.StartDate, EndDate = f.EndDate, ForDays = f.ForDays, Status = f.Status, GroupSize = f.GroupSize }).ToList();
+                vm.GearLists = e.GearLists.Select(g => new GearListInput { Id = g.Id, ExistingPath = g.FilePath, ShortDescription = g.ShortDescription }).ToList();
+                vm.Maps = e.Maps.Select(m => new MapInput { Id = m.Id, ExistingPath = m.FilePath, Title = m.Title, Notes = m.Notes }).ToList();
+                vm.Media = e.MediaItems.Select(m => new MediaInput { ExistingPath = m.FilePath ?? m.Url, Caption = m.Caption, VideoUrl = m.VideoUrl, SortOrder = m.Ordering }).ToList();
+                vm.MediaText = string.Join('\n', e.MediaItems.Select(x => $"{x.Url}|{x.Caption}|{x.MediaType}|{x.Ordering}"));
+                break;
+            case 5:
+                vm.Highlights = e.Highlights.Select(h => new HighlightInput { Id = h.Id, Text = h.Text, SortOrder = h.SortOrder }).ToList();
+                vm.Reviews = e.Reviews.Select(r => new ReviewInput { Id = r.Id, FullName = r.FullName, EmailAddress = r.EmailAddress, ExistingPhotoPath = r.UserPhotoPath, VideoUrl = r.VideoUrl, Rating = r.Rating, ReviewText = r.ReviewText, ModerationStatus = r.ModerationStatus }).ToList();
+                vm.FaqsText = string.Join('\n', e.Faqs.Select(x => $"{x.Question}|{x.Answer}|{x.Ordering}"));
+                vm.ReviewsText = string.Join('\n', e.Reviews.Select(x => $"{x.FullName}|{x.ReviewText}"));
+                break;
+        }
+
+        return vm;
+    }
+
+    private async Task<(bool ok, ExpeditionUpsertDto? dto, string? error)> BuildDtoAsync(ExpeditionFormViewModel m, int step, CancellationToken ct)
     {
         try
         {
-            var sections = ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])));
-            var itinerary = ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]));
-            var faqs = ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])));
-            var mediaLegacy = ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList();
+            var normalizedStep = Math.Max(0, step);
+            var includeOverview = normalizedStep == 1;
+            var includeItinerary = normalizedStep == 2;
+            var includeCosts = normalizedStep == 3;
+            var includeDepartureAndGear = normalizedStep == 4;
+            var includeReviewsAndFaq = normalizedStep == 5;
+
+            var sections = includeOverview
+                ? ParseLines(m.SectionsText, 4, p => new ExpeditionSectionDto(p[0], p[1], p[2], ParseInt(p[3])))
+                : Array.Empty<ExpeditionSectionDto>();
+            var itinerary = includeItinerary
+                ? ParseLines(m.ItineraryText, 4, p => new ExpeditionItineraryDayDto(ParseInt(p[0]), p[1], p[2], p[3]))
+                : Array.Empty<ExpeditionItineraryDayDto>();
+            var faqs = includeReviewsAndFaq
+                ? ParseLines(m.FaqsText, 3, p => new ExpeditionFaqDto(p[0], p[1], ParseInt(p[2])))
+                : Array.Empty<ExpeditionFaqDto>();
+            var mediaLegacy = (includeOverview || includeItinerary || includeDepartureAndGear)
+                ? ParseLines(m.MediaText, 4, p => new ExpeditionMediaDto(p[0], p[1], p[2], ParseInt(p[3]))).ToList()
+                : [];
 
             var maps = new List<ExpeditionMapDto>();
-            foreach (var map in m.Maps)
+            foreach (var map in includeDepartureAndGear ? m.Maps : [])
             {
                 var path = map.ExistingPath;
                 if (map.UploadFile is { Length: > 0 }) path = await SaveFileAsync(map.UploadFile, "maps", new[] { ".pdf", ".jpg", ".png" }, ct);
@@ -136,7 +360,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
             var gear = new List<GearListDto>();
             var gearImageMedia = new List<ExpeditionMediaDto>();
-            foreach (var item in m.GearLists)
+            foreach (var item in includeDepartureAndGear ? m.GearLists : [])
             {
                 var path = item.ExistingPath;
                 if (item.UploadFile is { Length: > 0 }) path = await SaveFileAsync(item.UploadFile, "gear", new[] { ".pdf", ".doc", ".docx" }, ct);
@@ -152,7 +376,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             }
 
             var media = new List<ExpeditionMediaDto>();
-            foreach (var item in m.Media)
+            foreach (var item in (includeOverview || includeItinerary || includeDepartureAndGear) ? m.Media : [])
             {
                 var filePath = item.ExistingPath;
                 if (item.PhotoFile is { Length: > 0 }) filePath = await SaveFileAsync(item.PhotoFile, "expedition-media", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
@@ -169,7 +393,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
             var primaryMediaUrl = m.HeroImageUrl?.Trim();
 
             string? heroImagePath = null;
-            if (m.HeroImageFile is { Length: > 0 })
+            if (includeOverview && m.HeroImageFile is { Length: > 0 })
             {
                 heroImagePath = await SaveFileAsync(m.HeroImageFile, "expeditions", new[] { ".jpg", ".jpeg", ".png", ".webp" }, ct);
             }
@@ -178,7 +402,7 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 ? primaryMediaUrl
                 : heroImagePath;
 
-            if (mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0)
+            if (includeOverview && mediaLegacy.Count == 0 && media.Count == 0 && gearImageMedia.Count == 0)
             {
                 if (!string.IsNullOrWhiteSpace(primaryMediaUrl))
                 {
@@ -195,7 +419,9 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 }
             }
 
-            var reviews = BuildReviews(m.Reviews, m.ReviewsText);
+            var reviews = includeReviewsAndFaq
+                ? BuildReviews(m.Reviews, m.ReviewsText)
+                : Array.Empty<ExpeditionReviewDto>();
 
             var dto = new ExpeditionUpsertDto(m.Name, m.Slug, m.ShortDescription, m.Destination, m.Region, m.DurationDays, m.MaxAltitudeMeters, m.Difficulty, m.BestSeason,
                 m.Overview, m.Inclusions, m.Exclusions, m.HeroImageUrl, m.Permits, m.MinGroupSize, m.MaxGroupSize, m.Price, m.AvailableDates,
@@ -203,13 +429,24 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
                 m.ExpeditionStyle, m.OxygenSupport, m.SherpaSupport, m.SummitBonusUsd, m.ExpeditionTypeId, sections, itinerary, faqs,
                 mediaLegacy.Concat(media).Concat(gearImageMedia).ToList(), m.OverviewCountry, m.PeakName, m.OverviewDuration, m.Route, m.Rank, m.Latitude,
                 m.Longitude, m.WeatherReport, m.Range, m.WalkingPerDay, m.Accommodation, m.GroupSizeText, m.DifficultyLevel,
-                m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
-                maps, m.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList(),
-                m.FixedDepartures
+                (includeItinerary
+                    ? m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList()
+                    : []),
+                maps,
+                (includeCosts
+                    ? m.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type, c.SortOrder)).ToList()
+                    : []),
+                (includeDepartureAndGear
+                    ? m.FixedDepartures
                     .Where(f => f.StartDate.Year > 1900 && f.EndDate.Year > 1900)
                     .Select(f => new FixedDepartureDto(f.Id, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize))
-                    .ToList(),
-                gear, m.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList(), reviews);
+                    .ToList()
+                    : []),
+                gear,
+                (includeReviewsAndFaq
+                    ? m.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList()
+                    : []),
+                reviews);
 
             return (true, dto, null);
         }
