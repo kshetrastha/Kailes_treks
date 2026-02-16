@@ -24,18 +24,20 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+    public async Task<IActionResult> Create(int step = 0, CancellationToken ct = default)
     {
         await LoadTypesAsync(ct);
+        ViewBag.ActiveStep = Math.Max(0, step);
         return View("Upsert", new ExpeditionFormViewModel());
     }
 
     [HttpGet("{id:int}/edit")]
-    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, int step = 0, CancellationToken ct = default)
     {
         var e = await service.GetByIdAsync(id, ct);
         if (e is null) return NotFound();
         await LoadTypesAsync(ct);
+        ViewBag.ActiveStep = Math.Max(0, step);
 
         return View("Upsert", new ExpeditionFormViewModel
         {
@@ -66,36 +68,42 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
     }
 
     [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionFormViewModel m, CancellationToken ct)
+    public async Task<IActionResult> Create(ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
         var build = await BuildDtoAsync(m, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
+            ViewBag.ActiveStep = Math.Max(0, step);
             return View("Upsert", m);
         }
 
-        await service.CreateAsync(build.dto!, currentUser.UserId, ct);
-        TempData["SuccessMessage"] = "Expedition created.";
-        return RedirectToAction(nameof(Index));
+        var id = await service.CreateAsync(build.dto!, currentUser.UserId, ct);
+        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: true);
+        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, ExpeditionFormViewModel m, int step = 0, string? intent = null, CancellationToken ct = default)
     {
         var build = await BuildDtoAsync(m, ct);
         if (!build.ok)
         {
             if (!string.IsNullOrWhiteSpace(build.error)) ModelState.AddModelError(string.Empty, build.error);
             await LoadTypesAsync(ct);
+            ViewBag.ActiveStep = Math.Max(0, step);
             return View("Upsert", m);
         }
 
-        var ok = await service.UpdateAsync(id, build.dto!, currentUser.UserId, ct);
+        var existing = await service.GetByIdAsync(id, ct);
+        if (existing is null) return NotFound();
+
+        var mergedDto = MergeByStep(ToUpsertDto(existing), build.dto!, step);
+        var ok = await service.UpdateAsync(id, mergedDto, currentUser.UserId, ct);
         if (!ok) return NotFound();
-        TempData["SuccessMessage"] = "Expedition updated.";
-        return RedirectToAction(nameof(Index));
+        TempData["SuccessMessage"] = GetSaveMessage(step, intent, isCreate: false);
+        return RedirectToAction(nameof(Edit), new { id, step = ResolveStepAfterSave(step, intent) });
     }
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
@@ -231,6 +239,167 @@ public sealed class ExpeditionsPageController(IExpeditionService service, IExped
 
     private static int ParseInt(string value)
         => int.TryParse(value, out var parsed) ? parsed : 0;
+
+    private static int ResolveStepAfterSave(int step, string? intent)
+    {
+        var currentStep = Math.Max(0, step);
+        if (string.Equals(intent, "next", StringComparison.OrdinalIgnoreCase))
+        {
+            return Math.Min(currentStep + 1, 5);
+        }
+
+        return currentStep;
+    }
+
+    private static string GetSaveMessage(int step, string? intent, bool isCreate)
+    {
+        var action = isCreate ? "created" : "updated";
+        var tab = step switch
+        {
+            0 => "Basic info",
+            1 => "Overview",
+            2 => "Itineraries",
+            3 => "Inclusions/Exclusions",
+            4 => "Departure and Gear",
+            5 => "Reviews and FAQs",
+            _ => "Current tab"
+        };
+
+        if (string.Equals(intent, "next", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{tab} saved. Expedition {action}.";
+        }
+
+        return $"{tab} saved.";
+    }
+
+    private static ExpeditionUpsertDto MergeByStep(ExpeditionUpsertDto existing, ExpeditionUpsertDto incoming, int step)
+    {
+        return step switch
+        {
+            0 => existing with
+            {
+                Name = incoming.Name,
+                Slug = incoming.Slug,
+                ShortDescription = incoming.ShortDescription,
+                Destination = incoming.Destination,
+                Region = incoming.Region,
+                ExpeditionTypeId = incoming.ExpeditionTypeId
+            },
+            1 => existing with
+            {
+                DurationDays = incoming.DurationDays,
+                MaxAltitudeMeters = incoming.MaxAltitudeMeters,
+                Difficulty = incoming.Difficulty,
+                BestSeason = incoming.BestSeason,
+                Overview = incoming.Overview,
+                HeroImageUrl = incoming.HeroImageUrl,
+                Permits = incoming.Permits,
+                MinGroupSize = incoming.MinGroupSize,
+                MaxGroupSize = incoming.MaxGroupSize,
+                Price = incoming.Price,
+                Status = incoming.Status,
+                Ordering = incoming.Ordering,
+                OverviewCountry = incoming.OverviewCountry,
+                PeakName = incoming.PeakName,
+                OverviewDuration = incoming.OverviewDuration,
+                Route = incoming.Route,
+                Rank = incoming.Rank,
+                Latitude = incoming.Latitude,
+                Longitude = incoming.Longitude,
+                WeatherReport = incoming.WeatherReport,
+                Range = incoming.Range,
+                WalkingPerDay = incoming.WalkingPerDay,
+                Accommodation = incoming.Accommodation,
+                GroupSizeText = incoming.GroupSizeText,
+                DifficultyLevel = incoming.DifficultyLevel,
+                MediaItems = incoming.MediaItems
+            },
+            2 => existing with
+            {
+                Itineraries = MergeById(existing.Itineraries, incoming.Itineraries),
+                ItineraryDays = MergeByKeys(existing.ItineraryDays, incoming.ItineraryDays, x => $"{x.DayNumber}|{x.Title}|{x.OvernightLocation}"),
+                MediaItems = MergeByKeys(existing.MediaItems, incoming.MediaItems, x => $"{x.Url}|{x.MediaType}|{x.Ordering}")
+            },
+            3 => existing with
+            {
+                Inclusions = incoming.Inclusions,
+                Exclusions = incoming.Exclusions,
+                CostItems = MergeById(existing.CostItems, incoming.CostItems)
+            },
+            4 => existing with
+            {
+                AvailableDates = incoming.AvailableDates,
+                FixedDepartures = MergeById(existing.FixedDepartures, incoming.FixedDepartures),
+                GearLists = MergeById(existing.GearLists, incoming.GearLists),
+                Maps = MergeById(existing.Maps, incoming.Maps),
+                MediaItems = MergeByKeys(existing.MediaItems, incoming.MediaItems, x => $"{x.Url}|{x.MediaType}|{x.Ordering}")
+            },
+            5 => existing with
+            {
+                Reviews = MergeById(existing.Reviews, incoming.Reviews),
+                Faqs = MergeByKeys(existing.Faqs, incoming.Faqs, x => $"{x.Question}|{x.Answer}|{x.Ordering}")
+            },
+            _ => incoming
+        };
+    }
+
+    private static ExpeditionUpsertDto ToUpsertDto(ExpeditionDetailsDto e)
+        => new(e.Name, e.Slug, e.ShortDescription, e.Destination, e.Region, e.DurationDays, e.MaxAltitudeMeters, e.Difficulty, e.BestSeason,
+            e.Overview, e.Inclusions, e.Exclusions, e.HeroImageUrl, e.Permits, e.MinGroupSize, e.MaxGroupSize, e.Price, e.AvailableDates,
+            e.BookingCtaUrl, e.SeoTitle, e.SeoDescription, e.Status, e.Featured, e.Ordering, e.SummitRoute, e.RequiresClimbingPermit,
+            e.ExpeditionStyle, e.OxygenSupport, e.SherpaSupport, e.SummitBonusUsd, e.ExpeditionTypeId, e.Sections, e.ItineraryDays, e.Faqs,
+            e.MediaItems, e.OverviewCountry, e.PeakName, e.OverviewDuration, e.Route, e.Rank, e.Latitude, e.Longitude, e.WeatherReport,
+            e.Range, e.WalkingPerDay, e.Accommodation, e.GroupSizeText, e.DifficultyLevel, e.Itineraries, e.Maps, e.CostItems,
+            e.FixedDepartures, e.GearLists, e.Highlights, e.Reviews);
+
+    private static IReadOnlyCollection<T> MergeById<T>(IReadOnlyCollection<T>? existing, IReadOnlyCollection<T>? incoming) where T : class
+    {
+        var existingItems = existing?.ToList() ?? [];
+        var incomingItems = incoming?.ToList() ?? [];
+        if (incomingItems.Count == 0) return existingItems;
+
+        var keyProperty = typeof(T).GetProperty("Id");
+        if (keyProperty is null) return incomingItems;
+
+        var byId = existingItems
+            .Where(x => GetIntId(keyProperty, x) > 0)
+            .ToDictionary(x => GetIntId(keyProperty, x), x => x);
+
+        foreach (var item in incomingItems)
+        {
+            var id = GetIntId(keyProperty, item);
+            if (id > 0)
+            {
+                byId[id] = item;
+            }
+            else
+            {
+                existingItems.Add(item);
+            }
+        }
+
+        return byId.Values.Concat(existingItems.Where(x => GetIntId(keyProperty, x) <= 0)).ToList();
+    }
+
+    private static int GetIntId(System.Reflection.PropertyInfo keyProperty, object item)
+        => keyProperty.GetValue(item) is int id ? id : 0;
+
+    private static IReadOnlyCollection<T> MergeByKeys<T>(IReadOnlyCollection<T>? existing, IReadOnlyCollection<T>? incoming, Func<T, string> keySelector)
+    {
+        var merged = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in existing ?? [])
+        {
+            merged[keySelector(item)] = item;
+        }
+
+        foreach (var item in incoming ?? [])
+        {
+            merged[keySelector(item)] = item;
+        }
+
+        return merged.Values.ToList();
+    }
 
     private async Task<string> SaveFileAsync(IFormFile file, string folder, IEnumerable<string> exts, CancellationToken ct)
     {

@@ -102,6 +102,8 @@
                 {
                     <input type="hidden" asp-for="Id" />
                 }
+                <input type="hidden" id="formStep" name="step" value="@(ViewBag.ActiveStep ?? 0)" />
+                <input type="hidden" id="formIntent" name="intent" value="stay" />
 
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -409,8 +411,8 @@
                 <div class="d-flex justify-content-between">
                     <button type="button" class="btn btn-light" id="prevStep" disabled>Previous</button>
                     <div>
-                        <button type="button" class="btn btn-primary" id="nextStep">Next</button>
-                        <button type="submit" class="btn btn-success d-none" id="submitBtn">@(isEdit ? "Update" : "Create")</button>
+                        <button type="submit" class="btn btn-success" id="saveStepBtn">Save @(isEdit ? "Changes" : "and Continue")</button>
+                        <button type="submit" class="btn btn-primary" id="saveNextBtn">Save & Next</button>
                         <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </div>
@@ -426,9 +428,12 @@
             const tabs = Array.from(document.querySelectorAll("#expeditionWizardTabs .nav-link"));
             const steps = Array.from(document.querySelectorAll(".wizard-step"));
             const prevBtn = document.getElementById("prevStep");
-            const nextBtn = document.getElementById("nextStep");
-            const submitBtn = document.getElementById("submitBtn");
-            let currentStep = 0;
+            const saveStepBtn = document.getElementById("saveStepBtn");
+            const saveNextBtn = document.getElementById("saveNextBtn");
+            const formStepInput = document.getElementById("formStep");
+            const formIntentInput = document.getElementById("formIntent");
+            let currentStep = Number.parseInt('@(ViewBag.ActiveStep ?? 0)') || 0;
+            currentStep = Math.max(0, Math.min(steps.length - 1, currentStep));
 
             const sanitize = (text) => (text || "").replace(/\|/g, "/").replace(/\n/g, " ").trim();
 
@@ -436,8 +441,8 @@
                 steps.forEach((step, index) => step.classList.toggle("d-none", index !== currentStep));
                 tabs.forEach((tab, index) => tab.classList.toggle("active", index === currentStep));
                 prevBtn.disabled = currentStep === 0;
-                nextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
-                submitBtn.classList.toggle("d-none", currentStep !== steps.length - 1);
+                saveNextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
+                formStepInput.value = `${currentStep}`;
             }
 
             function validateStep(stepIndex) {
@@ -464,9 +469,27 @@
                 renderStep();
             }
 
+            for (let i = 0; i <= currentStep; i += 1) {
+                tabs[i].disabled = false;
+            }
+
             tabs.forEach((tab, index) => tab.addEventListener("click", () => !tab.disabled && goToStep(index)));
             prevBtn.addEventListener("click", () => goToStep(Math.max(0, currentStep - 1)));
-            nextBtn.addEventListener("click", () => goToStep(Math.min(steps.length - 1, currentStep + 1)));
+
+            saveStepBtn.addEventListener("click", () => {
+                formIntentInput.value = "stay";
+                formStepInput.value = `${currentStep}`;
+            });
+
+            saveNextBtn.addEventListener("click", (event) => {
+                if (!validateStep(currentStep)) {
+                    event.preventDefault();
+                    return;
+                }
+
+                formIntentInput.value = "next";
+                formStepInput.value = `${currentStep}`;
+            });
 
             const heroUpload = document.getElementById("heroImageUpload");
             const heroPreview = document.getElementById("heroImagePreview");
@@ -800,6 +823,7 @@ Notes: Add terrain, camp-life, and summit visibility insights.`;
 
             const form = document.getElementById("expeditionForm");
             form.addEventListener("submit", () => {
+                formStepInput.value = `${currentStep}`;
                 const createHiddenInput = (container, name, value) => {
                     const input = document.createElement("input");
                     input.type = "hidden";
