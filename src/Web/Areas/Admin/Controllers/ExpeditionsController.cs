@@ -25,15 +25,18 @@ public sealed class ExpeditionsController(
         => View(await service.ListAsync(search, null, destination, null, page, 50, ct));
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken ct)
+    public async Task<IActionResult> Create(string? activeTab = null, CancellationToken ct = default)
     {
+        ViewBag.ActiveTab = activeTab;
         await LoadDropdowns(ct);
         return View(new ExpeditionCreateUpdateModel());
     }
 
     [HttpPost("create"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ExpeditionCreateUpdateModel model, CancellationToken ct)
+    public async Task<IActionResult> Create(ExpeditionCreateUpdateModel model, string? nextTab = null, CancellationToken ct = default)
     {
+        ViewBag.ActiveTab = nextTab;
+
         if (!ModelState.IsValid)
         {
             await LoadDropdowns(ct);
@@ -43,21 +46,24 @@ public sealed class ExpeditionsController(
         model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
         var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
         TempData["SuccessMessage"] = "Expedition created.";
-        return RedirectToAction(nameof(Edit), new { id });
+        return RedirectToAction(nameof(Edit), new { id, activeTab = nextTab });
     }
 
     [HttpGet("{id:int}/edit")]
-    public async Task<IActionResult> Edit(int id, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, string? activeTab = null, CancellationToken ct = default)
     {
         var item = await service.GetByIdAsync(id, ct);
         if (item is null) return NotFound();
+        ViewBag.ActiveTab = activeTab;
         await LoadDropdowns(ct);
         return View("Create", ToCreateUpdateModel(item));
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ExpeditionCreateUpdateModel model, CancellationToken ct)
+    public async Task<IActionResult> Edit(int id, ExpeditionCreateUpdateModel model, string? nextTab = null, CancellationToken ct = default)
     {
+        ViewBag.ActiveTab = nextTab;
+
         if (!ModelState.IsValid)
         {
             await LoadDropdowns(ct);
@@ -67,7 +73,7 @@ public sealed class ExpeditionsController(
         model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
         if (!await service.UpdateAsync(id, ToDto(model), currentUser.UserId, ct)) return NotFound();
         TempData["SuccessMessage"] = "Expedition updated.";
-        return RedirectToAction(nameof(Edit), new { id });
+        return RedirectToAction(nameof(Edit), new { id, activeTab = nextTab });
     }
 
     [HttpPost("{id:int}/delete"), ValidateAntiForgeryToken]
