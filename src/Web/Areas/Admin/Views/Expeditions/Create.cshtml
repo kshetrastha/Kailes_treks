@@ -1,4 +1,4 @@
-﻿@using TravelCleanArch.Application.Abstractions.Travel
+@using TravelCleanArch.Application.Abstractions.Travel
 @using TravelCleanArch.Web.Models.Expeditions
 @model ExpeditionCreateUpdateModel
 @{
@@ -20,26 +20,21 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
                 <ul class="nav nav-tabs expedition-tabs mb-2">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">2. Overview</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic Info</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-facts">2. Trip Facts</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">3. Overview</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-media-group">4. Hero + Group</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-commercial">5. Pricing + SEO + Rating</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-extra">6. Extra + Legacy</a></li>
                 </ul>
 
                 <div class="tab-content border p-3 mb-3">
                     <div class="tab-pane fade show active" id="tab-basic">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label asp-for="Name" class="form-label"></label>
-                                <input asp-for="Name" class="form-control" required />
-                                <span asp-validation-for="Name" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Slug" class="form-label"></label>
-                                <input asp-for="Slug" class="form-control" />
-                                <span asp-validation-for="Slug" class="text-danger"></span>
-                            </div>
                             <div class="col-md-6">
                                 <label asp-for="ExpeditionTypeId" class="form-label"></label>
                                 <select asp-for="ExpeditionTypeId" class="form-select" required>
@@ -52,22 +47,64 @@
                                 <span asp-validation-for="ExpeditionTypeId" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Destination" class="form-label"></label>
-                                <input asp-for="Destination" class="form-control" required />
-                                <span asp-validation-for="Destination" class="text-danger"></span>
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    @foreach (var status in travelStatuses)
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </select>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Region" class="form-label"></label>
-                                <input asp-for="Region" class="form-control" />
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="DurationDays" class="form-label"></label>
-                                <input asp-for="DurationDays" class="form-control" />
+                                <label asp-for="Slug" class="form-label"></label>
+                                <input asp-for="Slug" class="form-control" required />
+                                <span asp-validation-for="Slug" class="text-danger"></span>
                             </div>
                             <div class="col-md-12">
                                 <label asp-for="ShortDescription" class="form-label"></label>
                                 <textarea asp-for="ShortDescription" class="form-control" rows="3" required></textarea>
                                 <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Ordering" class="form-label"></label>
+                                <input asp-for="Ordering" class="form-control" />
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="Featured" class="form-check-input" />
+                                    <label asp-for="Featured" class="form-check-label"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-facts">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="Destination" class="form-label"></label>
+                                <input asp-for="Destination" class="form-control" required />
+                                <span asp-validation-for="Destination" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Region" class="form-label"></label>
+                                <input asp-for="Region" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="DurationDays" class="form-label"></label>
+                                <input asp-for="DurationDays" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="MaxAltitudeMeters" class="form-label"></label>
+                                <input asp-for="MaxAltitudeMeters" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="MaxAltitudeFeet" class="form-label"></label>
+                                <input asp-for="MaxAltitudeFeet" class="form-control" />
                             </div>
                             <div class="col-md-3">
                                 <label asp-for="DifficultyLevel" class="form-label"></label>
@@ -89,21 +126,13 @@
                                     }
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label asp-for="Featured" class="form-label"></label>
-                                <div class="form-check mt-2">
-                                    <input asp-for="Featured" class="form-check-input" />
-                                    <label asp-for="Featured" class="form-check-label">Featured expedition</label>
-                                </div>
+                            <div class="col-md-6">
+                                <label asp-for="WalkingPerDay" class="form-label"></label>
+                                <input asp-for="WalkingPerDay" class="form-control" />
                             </div>
-                            <div class="col-md-3">
-                                <label asp-for="Status" class="form-label"></label>
-                                <select asp-for="Status" class="form-select">
-                                    @foreach (var status in travelStatuses)
-                                    {
-                                        <option value="@status">@status</option>
-                                    }
-                                </select>
+                            <div class="col-md-6">
+                                <label asp-for="Accommodation" class="form-label"></label>
+                                <input asp-for="Accommodation" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -127,15 +156,23 @@
                                 <label asp-for="Route" class="form-label"></label>
                                 <input asp-for="Route" class="form-control" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label asp-for="Rank" class="form-label"></label>
                                 <input asp-for="Rank" class="form-control" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label asp-for="Range" class="form-label"></label>
                                 <input asp-for="Range" class="form-control" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label asp-for="Latitude" class="form-label"></label>
+                                <input asp-for="Latitude" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Longitude" class="form-label"></label>
+                                <input asp-for="Longitude" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
                                 <label asp-for="CoordinatesText" class="form-label"></label>
                                 <input asp-for="CoordinatesText" class="form-control" />
                             </div>
@@ -143,13 +180,148 @@
                                 <label asp-for="WeatherReportUrl" class="form-label"></label>
                                 <input asp-for="WeatherReportUrl" class="form-control" />
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label asp-for="OverviewDuration" class="form-label"></label>
                                 <input asp-for="OverviewDuration" class="form-control" />
                             </div>
                             <div class="col-md-12">
                                 <label asp-for="Overview" class="form-label"></label>
                                 <textarea asp-for="Overview" class="form-control" rows="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-media-group">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="HeroImageUrl" class="form-label"></label>
+                                <input asp-for="HeroImageUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="HeroImageFile" class="form-label"></label>
+                                <input asp-for="HeroImageFile" type="file" class="form-control" accept="image/*" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="HeroVideoUrl" class="form-label"></label>
+                                <input asp-for="HeroVideoUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="MinGroupSize" class="form-label"></label>
+                                <input asp-for="MinGroupSize" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="MaxGroupSize" class="form-label"></label>
+                                <input asp-for="MaxGroupSize" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="GroupSizeText" class="form-label"></label>
+                                <input asp-for="GroupSizeText" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-commercial">
+                        <div class="row g-3">
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="PriceOnRequest" class="form-check-input" />
+                                    <label asp-for="PriceOnRequest" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Price" class="form-label"></label>
+                                <input asp-for="Price" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="CurrencyCode" class="form-label"></label>
+                                <input asp-for="CurrencyCode" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="PriceNotesUrl" class="form-label"></label>
+                                <input asp-for="PriceNotesUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="TripPdfUrl" class="form-label"></label>
+                                <input asp-for="TripPdfUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="BookingCtaUrl" class="form-label"></label>
+                                <input asp-for="BookingCtaUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SeoTitle" class="form-label"></label>
+                                <input asp-for="SeoTitle" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SeoDescription" class="form-label"></label>
+                                <input asp-for="SeoDescription" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="AverageRating" class="form-label"></label>
+                                <input asp-for="AverageRating" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="RatingLabel" class="form-label"></label>
+                                <input asp-for="RatingLabel" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="ReviewCount" class="form-label"></label>
+                                <input asp-for="ReviewCount" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-extra">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="ExpeditionStyle" class="form-label"></label>
+                                <input asp-for="ExpeditionStyle" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="BoardBasis" class="form-label"></label>
+                                <input asp-for="BoardBasis" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="SummitBonusUsd" class="form-label"></label>
+                                <input asp-for="SummitBonusUsd" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Permits" class="form-label"></label>
+                                <input asp-for="Permits" class="form-control" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="OxygenSupport" class="form-check-input" />
+                                    <label asp-for="OxygenSupport" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="SherpaSupport" class="form-check-input" />
+                                    <label asp-for="SherpaSupport" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="RequiresClimbingPermit" class="form-check-input" />
+                                    <label asp-for="RequiresClimbingPermit" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="AvailableDates" class="form-label"></label>
+                                <input asp-for="AvailableDates" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="SummitRoute" class="form-label"></label>
+                                <input asp-for="SummitRoute" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Inclusions" class="form-label"></label>
+                                <textarea asp-for="Inclusions" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Exclusions" class="form-label"></label>
+                                <textarea asp-for="Exclusions" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
