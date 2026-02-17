@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
@@ -310,31 +308,206 @@ public sealed class ExpeditionsController(
     }
 
     private static ExpeditionCreateUpdateModel ToCreateUpdateModel(ExpeditionDetailsDto m)
-        => new()
+    {
+        return new ExpeditionCreateUpdateModel
         {
+            // =========================
+            // Basic Info
+            // =========================
             Id = m.Id,
+            ExpeditionTypeId = m.ExpeditionTypeId,
             Name = m.Name,
             Slug = m.Slug,
-            ExpeditionTypeId = m.ExpeditionTypeId,
+            ShortDescription = m.ShortDescription,
+            Featured = m.Featured,
+            Ordering = m.Ordering,
+
+            // =========================
+            // Trip Facts
+            // =========================
             Destination = m.Destination,
             Region = m.Region,
             DurationDays = m.DurationDays,
-            ShortDescription = m.ShortDescription,
-            DifficultyLevel = Enum.TryParse<DifficultyLevel>(m.DifficultyLevel, true, out var difficultyLevel) ? difficultyLevel : null,
-            BestSeason = Enum.TryParse<Season>(m.BestSeason, true, out var bestSeason) ? bestSeason : null,
-            Featured = m.Featured,
-            Status = Enum.TryParse<TravelStatus>(m.Status, true, out var status) ? status : TravelStatus.Draft,
-            OverviewCountry = Enum.TryParse<Country>(m.OverviewCountry, true, out var country) ? country : Country.Nepal,
+            MaxAltitudeMeters = m.MaxAltitudeMeters,
+            MaxAltitudeFeet = m.MaxAltitudeFeet,
+            DifficultyLevel = Enum.TryParse<DifficultyLevel>(m.DifficultyLevel ?? m.Difficulty, true, out var difficulty)
+                ? difficulty
+                : null,
+            BestSeason = Enum.TryParse<Season>(m.BestSeason, true, out var season)
+                ? season
+                : null,
+            WalkingPerDay = m.WalkingPerDay,
+            Accommodation = m.Accommodation,
+
+            // =========================
+            // Overview
+            // =========================
+            Overview = m.Overview,
+            OverviewCountry = Enum.TryParse<Country>(m.OverviewCountry, true, out var country)
+                ? country
+                : Country.Nepal,
             PeakName = m.PeakName,
             Route = m.Route,
             Rank = m.Rank,
-            Range = m.Range,
+            Latitude = m.Latitude,
+            Longitude = m.Longitude,
             CoordinatesText = m.CoordinatesText,
             WeatherReportUrl = m.WeatherReport,
+            Range = m.Range,
             OverviewDuration = m.OverviewDuration,
-            Overview = m.Overview,
-            HeroImageUrl = m.HeroImageUrl
+
+            // =========================
+            // Hero
+            // =========================
+            HeroImageUrl = m.HeroImageUrl,
+            HeroVideoUrl = m.HeroVideoUrl,
+
+            // =========================
+            // Group
+            // =========================
+            MinGroupSize = m.MinGroupSize,
+            MaxGroupSize = m.MaxGroupSize,
+            GroupSizeText = m.GroupSizeText,
+
+            // =========================
+            // Pricing
+            // =========================
+            PriceOnRequest = m.PriceOnRequest,
+            Price = m.Price,
+            CurrencyCode = m.CurrencyCode,
+            PriceNotesUrl = m.PriceNotesUrl,
+            TripPdfUrl = m.TripPdfUrl,
+
+            // =========================
+            // SEO
+            // =========================
+            SeoTitle = m.SeoTitle,
+            SeoDescription = m.SeoDescription,
+
+            // =========================
+            // Rating
+            // =========================
+            AverageRating = m.AverageRating,
+            RatingLabel = m.RatingLabel,
+            ReviewCount = m.ReviewCount,
+
+            // =========================
+            // Extra
+            // =========================
+            Status = Enum.TryParse<TravelStatus>(m.Status, true, out var status)
+                ? status
+                : TravelStatus.Draft,
+            ExpeditionStyle = m.ExpeditionStyle,
+            BoardBasis = m.BoardBasis,
+            OxygenSupport = m.OxygenSupport,
+            SherpaSupport = m.SherpaSupport,
+            SummitBonusUsd = m.SummitBonusUsd,
+            Permits = m.Permits,
+            RequiresClimbingPermit = m.RequiresClimbingPermit,
+
+            // =========================
+            // Legacy
+            // =========================
+            Inclusions = m.Inclusions,
+            Exclusions = m.Exclusions,
+            AvailableDates = m.AvailableDates,
+            BookingCtaUrl = m.BookingCtaUrl,
+            SummitRoute = m.SummitRoute,
+
+            // =========================
+            // Collections
+            // =========================
+            Faqs = m.Faqs?.Select(x => new ExpeditionFaqCreateUpdateModel
+            {
+                Id = x.Id,
+                Question = x.Question,
+                Answer = x.Answer,
+                Ordering = x.Ordering
+            }).ToList() ?? new(),
+
+            Photos = m.MediaItems?.Select(x => new ExpeditionMediaCreateUpdateModel
+            {
+                Id = x.Id,
+                Url = x.Url,
+                Caption = x.Caption,
+                Ordering = x.Ordering,
+                MediaKind = Enum.TryParse<ExpeditionMediaType>(x.MediaType, true, out var mediaType) ? mediaType : ExpeditionMediaType.Photo,
+                FilePath = x.FilePath,
+                VideoUrl = x.VideoUrl
+            }).ToList() ?? new(),
+            Itineraries = m.Itineraries?.Select(x => new ItineraryCreateUpdateModel
+            {
+                Id = x.Id,
+                SeasonName = x.SeasonName,
+                Title = x.Title,
+                Day = x.Days.Count
+            }).ToList() ?? new(),
+
+            ItineraryDays = m.ItineraryDays?.Select(x => new ItineraryDayCreateUpdateModel
+            {
+                Id = x.Id,
+                ItineraryId = x.ItineraryId,
+                DayNumber = x.DayNumber,
+                ShortDescription = x.ShortDescription,
+                Description = x.Description,
+                Meals = x.Meals,
+                AccommodationType = x.AccommodationType
+            }).ToList() ?? new(),
+
+            ExpeditionMaps = m.Maps?.Select(x => new ExpeditionMapCreateUpdateModel
+            {
+                Id = x.Id,
+                FilePath = x.FilePath,
+                Title = x.Title,
+                Notes = x.Notes
+            }).ToList() ?? new(),
+
+            CostItems = m.CostItems?.Select(x => new CostItemCreateUpdateModel
+            {
+                Id = x.Id,
+                Title = x.Title,
+                SortOrder = x.SortOrder,
+                IsActive = x.IsActive,
+                Type = Enum.TryParse<CostItemType>(x.Type, true, out var costItemType) ? costItemType : CostItemType.Inclusion,
+                ShortDescription = x.ShortDescription
+            }).ToList() ?? new(),
+
+            FixedDepartures = m.FixedDepartures?.Select(x => new FixedDepartureCreateUpdateModel
+            {
+                Id = x.Id,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                ForDays = x.ForDays,
+                Status = x.Status,
+                GroupSize = x.GroupSize
+            }).ToList() ?? new(),
+
+            GearLists = m.GearLists?.Select(x => new GearListCreateUpdateModel
+            {
+                Id = x.Id,
+                ShortDescription = x.ShortDescription,
+                FilePath = x.FilePath,
+                ImagePath = x.ImagePath,
+            }).ToList() ?? new(),
+
+            Highlights = m.Highlights?.Select(x => new ExpeditionHighlightCreateUpdateModel
+            {
+                Id = x.Id,
+                Text = x.Text,
+                SortOrder = x.SortOrder
+            }).ToList() ?? new(),
+
+            Reviews = m.Reviews?.Select(x => new ExpeditionReviewCreateUpdateModel
+            {
+                Id = x.Id,
+                FullName = x.FullName,
+                Rating = x.Rating,
+                ReviewText = x.ReviewText,
+                VideoUrl = x.VideoUrl
+            }).ToList() ?? new(),
         };
+    }
+
 
     private static ExpeditionFormViewModel ToViewModel(ExpeditionDetailsDto m)
         => new()

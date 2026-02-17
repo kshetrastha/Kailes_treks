@@ -1,3 +1,6 @@
+using System.Security.Cryptography.X509Certificates;
+using TravelCleanArch.Domain.Enumerations;
+
 namespace TravelCleanArch.Application.Abstractions.Travel;
 
 public sealed record ExpeditionTypeImageDto(int Id, string FilePath, string? AltText, int SortOrder, bool IsCover);
@@ -23,14 +26,14 @@ public sealed record ExpeditionListItemDto(
 
 public sealed record ExpeditionSectionDto(string SectionType, string Title, string? Content, int Ordering);
 public sealed record ExpeditionItineraryDayDto(int DayNumber, string Title, string? Description, string? OvernightLocation);
-public sealed record ExpeditionFaqDto(string Question, string Answer, int Ordering);
-public sealed record ExpeditionMediaDto(string Url, string? Caption, string MediaType, int Ordering, string? FilePath = null, string? VideoUrl = null);
-public sealed record ItineraryDayDto(int Id, int DayNumber, string? ShortDescription, string? Description, string? Meals, string? AccommodationType);
-public sealed record ItineraryDto(int Id, string SeasonTitle, int SortOrder, IReadOnlyCollection<ItineraryDayDto> Days);
+public sealed record ExpeditionFaqDto(int Id,string Question, string Answer, int Ordering);
+public sealed record ExpeditionMediaDto(int Id,string Url, string? Caption, string MediaType, int Ordering, string? FilePath = null, string? VideoUrl = null);
+public sealed record ItineraryDayDto(int Id,int ItineraryId, int DayNumber, string? ShortDescription, string? Description, string? Meals, string? AccommodationType);
+public sealed record ItineraryDto(int Id, string SeasonName,string Title, int SortOrder, IReadOnlyCollection<ItineraryDayDto> Days);
 public sealed record ExpeditionMapDto(int Id, string FilePath, string? Title, string? Notes);
 public sealed record CostItemDto(int Id, string Title, string? ShortDescription, bool IsActive, string Type, int SortOrder);
-public sealed record FixedDepartureDto(int Id, DateTime StartDate, DateTime EndDate, int ForDays, string Status, int? GroupSize);
-public sealed record GearListDto(int Id, string? ShortDescription, string FilePath);
+public sealed record FixedDepartureDto(int Id, DateTime StartDate, DateTime EndDate, int ForDays, DepartureStatus Status, int? GroupSize);
+public sealed record GearListDto(int Id, string? ShortDescription, string FilePath, string ImagePath);
 public sealed record ExpeditionHighlightDto(int Id, string Text, int SortOrder);
 public sealed record ExpeditionReviewDto(int Id, string FullName, string EmailAddress, string? UserPhotoPath, string? VideoUrl, int Rating, string ReviewText, string ModerationStatus);
 
@@ -143,7 +146,7 @@ public sealed record ExpeditionDetailsDto(
     int? ExpeditionTypeId,
     string? ExpeditionTypeTitle,
     IReadOnlyCollection<ExpeditionSectionDto> Sections,
-    IReadOnlyCollection<ExpeditionItineraryDayDto> ItineraryDays,
+    IReadOnlyCollection<ItineraryDayDto> ItineraryDays,
     IReadOnlyCollection<ExpeditionFaqDto> Faqs,
     IReadOnlyCollection<ExpeditionMediaDto> MediaItems,
     string? OverviewCountry,
