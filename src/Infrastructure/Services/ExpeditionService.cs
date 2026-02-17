@@ -113,16 +113,16 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
             x.SherpaSupport, x.SummitBonusUsd, x.ExpeditionTypeId, x.ExpeditionType?.Title,
             [],
             [],
-            x.Faqs.Select(f => new ExpeditionFaqDto(f.Question, f.Answer, f.Ordering)).ToList(),
-            x.MediaItems.Select(m => new ExpeditionMediaDto(m.Url, m.Caption, m.MediaType.ToString(), m.Ordering, m.FilePath, m.VideoUrl)).ToList(),
+            x.Faqs.Select(f => new ExpeditionFaqDto(f.Id, f.Question, f.Answer, f.Ordering)).ToList(),
+            x.MediaItems.Select(m => new ExpeditionMediaDto(m.Id, m.Url, m.Caption, m.MediaType.ToString(), m.Ordering, m.FilePath, m.VideoUrl)).ToList(),
             x.OverviewCountry.ToString(), x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude, x.CoordinatesText, x.WeatherReport,
             x.Range, x.WalkingPerDay, x.Accommodation, x.GroupSizeText,
             x.DifficultyLevel?.ToString(), x.BoardBasis, x.AverageRating, x.RatingLabel, x.ReviewCount,
-            x.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
+            x.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.ItineraryId, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
             x.Maps.Select(m => new ExpeditionMapDto(m.Id, m.FilePath, m.Title, m.Notes)).ToList(),
             x.CostItems.Select(c => new CostItemDto(c.Id, c.Title, c.ShortDescription, c.IsActive, c.Type.ToString(), c.SortOrder)).ToList(),
-            x.FixedDepartures.Select(f => new FixedDepartureDto(f.Id, f.StartDate, f.EndDate, f.ForDays, f.Status.ToString(), f.GroupSize)).ToList(),
-            x.GearLists.Select(g => new GearListDto(g.Id, g.ShortDescription, g.FilePath)).ToList(),
+            x.FixedDepartures.Select(f => new FixedDepartureDto(f.Id, f.StartDate, f.EndDate, f.ForDays, f.Status, f.GroupSize)).ToList(),
+            x.GearLists.Select(g => new GearListDto(g.Id, g.ShortDescription, g.FilePath, g.ImagePath ?? string.Empty)).ToList(),
             x.Highlights.Select(h => new ExpeditionHighlightDto(h.Id, h.Text, h.SortOrder)).ToList(),
             x.Reviews.Select(r => new ExpeditionReviewDto(r.Id, r.FullName, r.EmailAddress, r.UserPhotoPath, r.VideoUrl, r.Rating, r.ReviewText, r.ModerationStatus.ToString())).ToList());
 
@@ -182,7 +182,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.WalkingPerDay = r.WalkingPerDay;
         e.Accommodation = r.Accommodation;
         e.GroupSizeText = r.GroupSizeText;
-        if (Enum.TryParse<DifficultyLevel>(r.DifficultyLevel, out var diff)) e.DifficultyLevel = diff;
+        e.DifficultyLevel = Enum.TryParse<DifficultyLevel>(r.DifficultyLevel, true, out var diff) ? diff : null;
         e.UpdatedAtUtc = DateTime.UtcNow;
         e.UpdatedBy = userId;
         if (isCreate) { e.CreatedAtUtc = DateTime.UtcNow; e.CreatedBy = userId; }
@@ -235,7 +235,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
                 entity.StartDate = NormalizeDateTimeToUtc(dto.StartDate);
                 entity.EndDate = NormalizeDateTimeToUtc(dto.EndDate);
                 entity.ForDays = dto.ForDays;
-                entity.Status = Enum.TryParse<DepartureStatus>(dto.Status, out var st) ? st : DepartureStatus.BookingOpen;
+                entity.Status = dto.Status;
                 entity.GroupSize = dto.GroupSize;
             });
 
@@ -245,6 +245,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
             {
                 entity.ShortDescription = dto.ShortDescription;
                 entity.FilePath = dto.FilePath;
+                entity.ImagePath = dto.ImagePath;
             });
 
         SyncById(e.Highlights, r.Highlights ?? [], x => x.Id,
