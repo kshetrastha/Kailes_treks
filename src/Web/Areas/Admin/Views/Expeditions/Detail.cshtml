@@ -1,0 +1,133 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionItineraryTabsViewModel
+@{
+    ViewData["Title"] = $"Expedition Detail - {Model.ExpeditionName}";
+    var isItineraryTab = string.Equals(Model.ActiveTab, "itineraries", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">@Model.ExpeditionName - Detail</h3>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success">@success</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link @(isItineraryTab ? "active" : "")" href="/admin/expeditions/@Model.ExpeditionId/detail?activeTab=itineraries">Itinerary</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(!isItineraryTab ? "active" : "")" href="/admin/expeditions/@Model.ExpeditionId/detail?activeTab=itinerary-days&itineraryId=@Model.SelectedItineraryId">Itinerary Days</a>
+        </li>
+    </ul>
+
+    @if (isItineraryTab)
+    {
+        <div class="card">
+            <div class="card-body">
+                <form method="post" asp-action="SaveDetailItineraries" asp-route-id="@Model.ExpeditionId">
+                    @Html.AntiForgeryToken()
+
+                    <div id="itineraryRows">
+                        @for (var i = 0; i < Model.Itineraries.Count; i++)
+                        {
+                            <div class="row g-2 mb-2 itinerary-row">
+                                <input type="hidden" name="Itineraries[@i].Id" value="@Model.Itineraries[i].Id" />
+                                <div class="col-md-7"><input class="form-control" name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" placeholder="Season title" /></div>
+                                <div class="col-md-2"><input class="form-control" name="Itineraries[@i].SortOrder" value="@Model.Itineraries[i].SortOrder" placeholder="Sort" /></div>
+                                <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="button" id="addItineraryRow" class="btn btn-outline-secondary btn-sm">Add Itinerary</button>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" type="submit">Save Itineraries</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <form method="get" asp-action="Detail" asp-route-id="@Model.ExpeditionId" class="row g-2 mb-3">
+                    <input type="hidden" name="activeTab" value="itinerary-days" />
+                    <div class="col-md-5">
+                        <select class="form-select" name="itineraryId" asp-items="Model.ItineraryOptions"></select>
+                    </div>
+                    <div class="col-md-2"><button class="btn btn-outline-secondary">Load Days</button></div>
+                </form>
+
+                <form method="post" asp-action="SaveDetailItineraryDays" asp-route-id="@Model.ExpeditionId">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="SelectedItineraryId" value="@Model.SelectedItineraryId" />
+
+                    <div id="dayRows">
+                        @for (var i = 0; i < Model.ItineraryDays.Count; i++)
+                        {
+                            <div class="row g-2 mb-2 day-row">
+                                <input type="hidden" name="ItineraryDays[@i].Id" value="@Model.ItineraryDays[i].Id" />
+                                <div class="col-md-1"><input class="form-control" name="ItineraryDays[@i].DayNumber" value="@Model.ItineraryDays[i].DayNumber" placeholder="Day" /></div>
+                                <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].ShortDescription" value="@Model.ItineraryDays[i].ShortDescription" placeholder="Short description" /></div>
+                                <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].Meals" value="@Model.ItineraryDays[i].Meals" placeholder="Meals" /></div>
+                                <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].AccommodationType" value="@Model.ItineraryDays[i].AccommodationType" placeholder="Accommodation" /></div>
+                                <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-day-row">Remove</button></div>
+                                <div class="col-md-11 offset-md-1"><textarea class="form-control" rows="2" name="ItineraryDays[@i].Description" placeholder="Description">@Model.ItineraryDays[i].Description</textarea></div>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="button" id="addDayRow" class="btn btn-outline-secondary btn-sm">Add Itinerary Day</button>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" type="submit">Save Itinerary Days</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itineraryWrap = document.getElementById('itineraryRows');
+            const addItineraryButton = document.getElementById('addItineraryRow');
+            if (addItineraryButton && itineraryWrap) {
+                addItineraryButton.addEventListener('click', () => {
+                    const idx = itineraryWrap.querySelectorAll('.itinerary-row').length;
+                    itineraryWrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 itinerary-row"><input type="hidden" name="Itineraries[${idx}].Id" value="0" /><div class="col-md-7"><input class="form-control" name="Itineraries[${idx}].SeasonTitle" placeholder="Season title" /></div><div class="col-md-2"><input class="form-control" name="Itineraries[${idx}].SortOrder" value="${idx + 1}" placeholder="Sort" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div></div>`);
+                });
+
+                itineraryWrap.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-row')) {
+                        e.target.closest('.itinerary-row')?.remove();
+                    }
+                });
+            }
+
+            const dayWrap = document.getElementById('dayRows');
+            const addDayButton = document.getElementById('addDayRow');
+            if (addDayButton && dayWrap) {
+                addDayButton.addEventListener('click', () => {
+                    const idx = dayWrap.querySelectorAll('.day-row').length;
+                    dayWrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 day-row"><input type="hidden" name="ItineraryDays[${idx}].Id" value="0" /><div class="col-md-1"><input class="form-control" name="ItineraryDays[${idx}].DayNumber" value="${idx + 1}" placeholder="Day" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].ShortDescription" placeholder="Short description" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].Meals" placeholder="Meals" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].AccommodationType" placeholder="Accommodation" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-day-row">Remove</button></div><div class="col-md-11 offset-md-1"><textarea class="form-control" rows="2" name="ItineraryDays[${idx}].Description" placeholder="Description"></textarea></div></div>`);
+                });
+
+                dayWrap.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-day-row')) {
+                        e.target.closest('.day-row')?.remove();
+                    }
+                });
+            }
+        })();
+    </script>
+}

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Constants;
@@ -15,12 +16,109 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 public sealed class ExpeditionsController(
     IExpeditionService service,
     IExpeditionTypeService typeService,
+    IItineraryService itineraryService,
+    IItineraryDayService itineraryDayService,
     ICurrentUser currentUser,
     IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(string? search, string? destination, string? difficulty, int page = 1, CancellationToken ct = default)
         => View(await service.ListAsync(search, null, destination, null, page, 50, ct));
+
+    [HttpGet("{id:int}/detail")]
+    public async Task<IActionResult> Detail(int id, string activeTab = "itineraries", int? itineraryId = null, CancellationToken ct = default)
+    {
+        var expedition = await service.GetByIdAsync(id, ct);
+        if (expedition is null) return NotFound();
+
+        var itineraryRows = await itineraryService.ListForExpeditionAsync(id, ct);
+        var itineraryOptions = itineraryRows
+            .Select(x => new SelectListItem(x.SeasonTitle, x.Id.ToString(), itineraryId == x.Id))
+            .ToList();
+
+        var selectedItineraryId = itineraryId ?? itineraryRows.FirstOrDefault()?.Id;
+        if (selectedItineraryId.HasValue)
+        {
+            foreach (var option in itineraryOptions)
+            {
+                option.Selected = option.Value == selectedItineraryId.Value.ToString();
+            }
+        }
+
+        var dayRows = selectedItineraryId.HasValue
+            ? await itineraryDayService.ListForItineraryAsync(selectedItineraryId.Value, ct)
+            : [];
+
+        var model = new ExpeditionItineraryTabsViewModel
+        {
+            ExpeditionId = expedition.Id,
+            ExpeditionName = expedition.Name,
+            ActiveTab = activeTab,
+            SelectedItineraryId = selectedItineraryId,
+            ItineraryOptions = itineraryOptions,
+            Itineraries = itineraryRows.Count > 0
+                ? itineraryRows.Select(x => new ItineraryRowInput { Id = x.Id, SeasonTitle = x.SeasonTitle, SortOrder = x.SortOrder }).ToList()
+                : [new ItineraryRowInput()],
+            ItineraryDays = dayRows.Count > 0
+                ? dayRows.Select(x => new ItineraryDayRowInput
+                    {
+                        Id = x.Id,
+                        DayNumber = x.DayNumber,
+                        ShortDescription = x.ShortDescription,
+                        Description = x.Description,
+                        Meals = x.Meals,
+                        AccommodationType = x.AccommodationType
+                    })
+                    .ToList()
+                : [new ItineraryDayRowInput()]
+        };
+
+        return View(model);
+    }
+
+    [HttpPost("{id:int}/detail/itineraries"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailItineraries(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.Itineraries ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.SeasonTitle))
+            .Select(x => new ItineraryUpsertItemDto(x.Id, x.SeasonTitle, x.SortOrder))
+            .ToList();
+
+        if (rows.Count == 0)
+        {
+            TempData["ErrorMessage"] = "Add at least one itinerary row.";
+            return RedirectToAction(nameof(Detail), new { id, activeTab = "itineraries" });
+        }
+
+        await itineraryService.UpsertForExpeditionAsync(id, rows, currentUser.UserId, ct);
+        TempData["SuccessMessage"] = "Itineraries saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "itineraries" });
+    }
+
+    [HttpPost("{id:int}/detail/itinerary-days"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailItineraryDays(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        if (!model.SelectedItineraryId.HasValue)
+        {
+            TempData["ErrorMessage"] = "Select itinerary first.";
+            return RedirectToAction(nameof(Detail), new { id, activeTab = "itinerary-days" });
+        }
+
+        var rows = (model.ItineraryDays ?? [])
+            .Where(x => x.DayNumber > 0 && (!string.IsNullOrWhiteSpace(x.ShortDescription) || !string.IsNullOrWhiteSpace(x.Description)))
+            .Select(x => new ItineraryDayUpsertItemDto(x.Id, x.DayNumber, x.ShortDescription, x.Description, x.Meals, x.AccommodationType))
+            .ToList();
+
+        if (rows.Count == 0)
+        {
+            TempData["ErrorMessage"] = "Add at least one itinerary day row.";
+            return RedirectToAction(nameof(Detail), new { id, activeTab = "itinerary-days", itineraryId = model.SelectedItineraryId });
+        }
+
+        await itineraryDayService.UpsertForItineraryAsync(model.SelectedItineraryId.Value, rows, currentUser.UserId, ct);
+        TempData["SuccessMessage"] = "Itinerary days saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "itinerary-days", itineraryId = model.SelectedItineraryId });
+    }
 
     [HttpGet("create")]
     public async Task<IActionResult> Create(string? activeTab = null, CancellationToken ct = default)
