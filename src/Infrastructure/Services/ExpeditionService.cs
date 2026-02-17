@@ -194,7 +194,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
             () => new Itinerary(),
             (entity, dto) =>
             {
-                entity.SeasonTitle = dto.SeasonTitle;
+                entity.SeasonTitle = dto.SeasonName;
                 entity.SortOrder = dto.SortOrder;
                 SyncById(entity.Days, dto.Days, d => d.Id,
                     () => new ItineraryDay(),

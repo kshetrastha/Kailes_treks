@@ -52,7 +52,8 @@ public sealed class ItineraryDayInput
 public sealed class ItineraryInput
 {
     public int Id { get; set; }
-    [Required] public string SeasonTitle { get; set; } = string.Empty;
+    [Required]
+    public string SeasonTitle { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public List<ItineraryDayInput> Days { get; set; } = [];
 }
@@ -73,7 +74,7 @@ public sealed class FixedDepartureInput
     [DataType(DataType.Date)] public DateTime StartDate { get; set; }
     [DataType(DataType.Date)] public DateTime EndDate { get; set; }
     public int ForDays { get; set; }
-    public string Status { get; set; } = "BookingOpen";
+    public DepartureStatus Status { get; set; } = DepartureStatus.BookingOpen;
     public int? GroupSize { get; set; }
 }
 

@@ -16,40 +16,40 @@
         gap: 0.25rem;
     }
 
-    #expeditionWizardTabs .nav-link {
-        color: #334155;
-        background-color: #f8fafc;
-        border: 1px solid #d0d7de;
-        border-bottom-color: #d0d7de;
-    }
+        #expeditionWizardTabs .nav-link {
+            color: #334155;
+            background-color: #f8fafc;
+            border: 1px solid #d0d7de;
+            border-bottom-color: #d0d7de;
+        }
 
-    #expeditionWizardTabs .nav-link:hover,
-    #expeditionWizardTabs .nav-link:focus-visible {
-        color: #1d4ed8;
-        background-color: #ffffff;
-    }
+            #expeditionWizardTabs .nav-link:hover,
+            #expeditionWizardTabs .nav-link:focus-visible {
+                color: #1d4ed8;
+                background-color: #ffffff;
+            }
 
-    #expeditionWizardTabs .nav-link.active {
-        color: #1d4ed8;
-        background-color: #ffffff;
-        border-bottom-color: #ffffff;
-        font-weight: 600;
-    }
+            #expeditionWizardTabs .nav-link.active {
+                color: #1d4ed8;
+                background-color: #ffffff;
+                border-bottom-color: #ffffff;
+                font-weight: 600;
+            }
 
-    #expeditionWizardTabs .nav-link:disabled {
-        color: #475569;
-        opacity: 1;
-    }
+            #expeditionWizardTabs .nav-link:disabled {
+                color: #475569;
+                opacity: 1;
+            }
 
     #departureGearTabContent > .tab-pane,
     #reviewsFaqTabContent > .tab-pane {
         display: none;
     }
 
-    #departureGearTabContent > .tab-pane.active,
-    #reviewsFaqTabContent > .tab-pane.active {
-        display: block;
-    }
+        #departureGearTabContent > .tab-pane.active,
+        #reviewsFaqTabContent > .tab-pane.active {
+            display: block;
+        }
 
     #departureGearTabs,
     #reviewsFaqTabs {
@@ -57,29 +57,29 @@
         border-bottom-color: #d0d7de;
     }
 
-    #departureGearTabs .nav-link,
-    #reviewsFaqTabs .nav-link {
-        color: #334155;
-        background-color: #f8fafc;
-        border: 1px solid #d0d7de;
-        border-bottom-color: #d0d7de;
-    }
+        #departureGearTabs .nav-link,
+        #reviewsFaqTabs .nav-link {
+            color: #334155;
+            background-color: #f8fafc;
+            border: 1px solid #d0d7de;
+            border-bottom-color: #d0d7de;
+        }
 
-    #departureGearTabs .nav-link:hover,
-    #departureGearTabs .nav-link:focus-visible,
-    #reviewsFaqTabs .nav-link:hover,
-    #reviewsFaqTabs .nav-link:focus-visible {
-        color: #1d4ed8;
-        background-color: #ffffff;
-    }
+            #departureGearTabs .nav-link:hover,
+            #departureGearTabs .nav-link:focus-visible,
+            #reviewsFaqTabs .nav-link:hover,
+            #reviewsFaqTabs .nav-link:focus-visible {
+                color: #1d4ed8;
+                background-color: #ffffff;
+            }
 
-    #departureGearTabs .nav-link.active,
-    #reviewsFaqTabs .nav-link.active {
-        color: #1d4ed8;
-        background-color: #ffffff;
-        border-bottom-color: #ffffff;
-        font-weight: 600;
-    }
+            #departureGearTabs .nav-link.active,
+            #reviewsFaqTabs .nav-link.active {
+                color: #1d4ed8;
+                background-color: #ffffff;
+                border-bottom-color: #ffffff;
+                font-weight: 600;
+            }
 
     #departureGearTabContent,
     #reviewsFaqTabContent {
@@ -151,10 +151,19 @@
                             <textarea id="imageAnalysis" class="form-control" rows="4" placeholder="Highlights, terrain, weather cues, safety notes..."></textarea>
                         </div>
                         <div class="col-md-12 mb-3">
-                            <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-3" style="max-width: 720px;">
-                                <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-3" style="max-width: 720px;">
+                                        <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
+
+                                </div>
+                             
                             </div>
-                            <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
                         </div>
                     </div>
                 </div>
@@ -322,16 +331,16 @@
                                                 <td><input class="form-control departure-end" name="FixedDepartures[@i].EndDate" type="date" value="@departure.EndDate.ToString("yyyy-MM-dd")" /></td>
                                                 <td>
                                                     @* <select class="form-select departure-status" name="FixedDepartures[@i].Status"> *@
-                                                       @*  <option value="BookingOpen" @(departure.Status == "BookingOpen" ? "selected" : null)>BookingOpen</option>
+                                                    @*  <option value="BookingOpen" @(departure.Status == "BookingOpen" ? "selected" : null)>BookingOpen</option>
                                                         <option value="Limited" @(departure.Status == "Limited" ? "selected" : null)>Limited</option>
                                                         <option value="SoldOut" @(departure.Status == "SoldOut" ? "selected" : null)>SoldOut</option>
                                                         <option value="Closed" @(departure.Status == "Closed" ? "selected" : null)>Closed</option> *@
-                                                        <select asp-for="FixedDepartures[@i].Status" class="form-select departure-status">
-                                                            <option value="BookingOpen">BookingOpen</option>
-                                                            <option value="Limited">Limited</option>
-                                                            <option value="SoldOut">SoldOut</option>
-                                                            <option value="Closed">Closed</option>
-                                                        </select>
+                                                    <select asp-for="FixedDepartures[@i].Status" class="form-select departure-status">
+                                                        <option value="BookingOpen">BookingOpen</option>
+                                                        <option value="Limited">Limited</option>
+                                                        <option value="SoldOut">SoldOut</option>
+                                                        <option value="Closed">Closed</option>
+                                                    </select>
 
                                                     @* </select> *@
                                                 </td>
@@ -451,565 +460,565 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        (function () {
-            const tabs = Array.from(document.querySelectorAll("#expeditionWizardTabs .nav-link"));
-            const steps = Array.from(document.querySelectorAll(".wizard-step"));
-            const prevBtn = document.getElementById("prevStep");
-            const saveStepBtn = document.getElementById("saveStepBtn");
-            const saveNextBtn = document.getElementById("saveNextBtn");
-            const formStepInput = document.getElementById("formStep");
-            const formIntentInput = document.getElementById("formIntent");
-            let currentStep = Number.parseInt('@(ViewBag.ActiveStep ?? 0)') || 0;
-            currentStep = Math.max(0, Math.min(steps.length - 1, currentStep));
+                (function () {
+                    const tabs = Array.from(document.querySelectorAll("#expeditionWizardTabs .nav-link"));
+                    const steps = Array.from(document.querySelectorAll(".wizard-step"));
+                    const prevBtn = document.getElementById("prevStep");
+                    const saveStepBtn = document.getElementById("saveStepBtn");
+                    const saveNextBtn = document.getElementById("saveNextBtn");
+                    const formStepInput = document.getElementById("formStep");
+                    const formIntentInput = document.getElementById("formIntent");
+                    let currentStep = Number.parseInt('@(ViewBag.ActiveStep ?? 0)') || 0;
+                    currentStep = Math.max(0, Math.min(steps.length - 1, currentStep));
 
-            const sanitize = (text) => (text || "").replace(/\|/g, "/").replace(/\n/g, " ").trim();
+                    const sanitize = (text) => (text || "").replace(/\|/g, "/").replace(/\n/g, " ").trim();
 
-            function renderStep() {
-                steps.forEach((step, index) => step.classList.toggle("d-none", index !== currentStep));
-                tabs.forEach((tab, index) => tab.classList.toggle("active", index === currentStep));
-                prevBtn.disabled = currentStep === 0;
-                saveNextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
-                formStepInput.value = `${currentStep}`;
-            }
-
-            function validateStep(stepIndex) {
-                const requiredFields = document.querySelectorAll(`.step-${stepIndex}-required`);
-                for (const field of requiredFields) {
-                    if (!field.value.trim()) {
-                        field.focus();
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            function goToStep(index) {
-                if (index > currentStep && !validateStep(currentStep)) {
-                    return;
-                }
-
-                for (let i = 0; i <= index; i += 1) {
-                    tabs[i].disabled = false;
-                }
-
-                currentStep = index;
-                renderStep();
-            }
-
-            for (let i = 0; i <= currentStep; i += 1) {
-                tabs[i].disabled = false;
-            }
-
-            tabs.forEach((tab, index) => tab.addEventListener("click", () => !tab.disabled && goToStep(index)));
-            prevBtn.addEventListener("click", () => goToStep(Math.max(0, currentStep - 1)));
-
-            saveStepBtn.addEventListener("click", () => {
-                formIntentInput.value = "stay";
-                formStepInput.value = `${currentStep}`;
-            });
-
-            saveNextBtn.addEventListener("click", (event) => {
-                if (!validateStep(currentStep)) {
-                    event.preventDefault();
-                    return;
-                }
-
-                formIntentInput.value = "next";
-                formStepInput.value = `${currentStep}`;
-            });
-
-            const heroUpload = document.getElementById("heroImageUpload");
-            const heroPreview = document.getElementById("heroImagePreview");
-            const imageAnalysis = document.getElementById("imageAnalysis");
-            const heroUrlInput = document.getElementById("HeroImageUrl");
-            const heroVideoPreviewWrap = document.getElementById("heroVideoPreviewWrap");
-            const heroVideoPreview = document.getElementById("heroVideoPreview");
-
-            const toVideoEmbedUrl = (value) => {
-                const url = (value || "").trim();
-                if (!url) return "";
-
-                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
-                if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-
-                const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-                if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-
-                return "";
-            };
-
-            const looksLikeImageUrl = (value) => /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test((value || "").trim());
-
-            const renderPrimaryVideoPreview = () => {
-                if (!heroVideoPreviewWrap || !heroVideoPreview || !heroUrlInput) return;
-                const embedUrl = toVideoEmbedUrl(heroUrlInput.value);
-
-                if (!embedUrl) {
-                    heroVideoPreview.removeAttribute("src");
-                    heroVideoPreviewWrap.classList.add("d-none");
-                    return;
-                }
-
-                heroVideoPreview.src = embedUrl;
-                heroVideoPreviewWrap.classList.remove("d-none");
-            };
-
-            const renderPrimaryImageFromUrl = () => {
-                if (!heroUrlInput || !heroPreview || heroUpload?.files?.length) return;
-
-                const url = (heroUrlInput.value || "").trim();
-                if (!url || !looksLikeImageUrl(url)) {
-                    heroPreview.removeAttribute("src");
-                    heroPreview.classList.add("d-none");
-                    return;
-                }
-
-                heroPreview.src = url;
-                heroPreview.classList.remove("d-none");
-            };
-
-            heroUrlInput?.addEventListener("input", () => {
-                renderPrimaryVideoPreview();
-                renderPrimaryImageFromUrl();
-            });
-
-            heroUpload?.addEventListener("change", (e) => {
-                const file = e.target.files[0];
-                if (!file) {
-                    renderPrimaryImageFromUrl();
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = () => {
-                    heroPreview.src = reader.result;
-                    heroPreview.classList.remove("d-none");
-                    imageAnalysis.value = `Image: ${file.name}
-Suggested usage: Hero banner + itinerary context
-Notes: Add terrain, camp-life, and summit visibility insights.`;
-                };
-                reader.readAsDataURL(file);
-            });
-
-            renderPrimaryVideoPreview();
-            renderPrimaryImageFromUrl();
-
-            function addCostRow(target, type = "Inclusion", title = "", description = "") {
-                const normalizedType = `${type || "Inclusion"}`.toLowerCase() === "exclusion" ? "Exclusion" : "Inclusion";
-                const row = document.createElement("tr");
-                row.innerHTML = `<td><select class="form-select item-type"><option value="Inclusion">Inclusion</option><option value="Exclusion">Exclusion</option></select></td><td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
-                row.querySelector(".item-type").value = normalizedType;
-                row.dataset.costId = 0;
-                row.dataset.costType = normalizedType;
-                target.appendChild(row);
-                return row;
-            }
-
-            const costTableBody = document.querySelector("#costTable tbody");
-            document.getElementById("addCostItem").addEventListener("click", () => addCostRow(costTableBody));
-            const costItemsSeed = @Html.Raw(JsonSerializer.Serialize(Model.CostItems));
-            const hasCostItems = Array.isArray(costItemsSeed) && costItemsSeed.length > 0;
-
-            if (hasCostItems) {
-                costItemsSeed.forEach((item) => {
-                    const row = addCostRow(costTableBody, item.type || "Inclusion", item.title || "", item.shortDescription || "");
-                    row.dataset.costId = item.id || 0;
-                    row.dataset.costType = item.type || "Inclusion";
-                });
-            } else {
-                const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-                inclusionSeed.forEach((line) => {
-                    const [title, description] = line.split("|");
-                    const row = addCostRow(costTableBody, "Inclusion", title || "", description || "");
-                    row.dataset.costType = "Inclusion";
-                });
-
-                const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
-                exclusionSeed.forEach((line) => {
-                    const [title, description] = line.split("|");
-                    const row = addCostRow(costTableBody, "Exclusion", title || "", description || "");
-                    row.dataset.costType = "Exclusion";
-                });
-
-                if (!costTableBody.querySelector("tr")) {
-                    addCostRow(costTableBody, "Inclusion", "", "");
-                }
-            }
-
-            function createItineraryDayRow() {
-                return `<tr>
-                    <td><input class="form-control day-number" type="number" min="1" placeholder="Day" /></td>
-                    <td><input class="form-control day-title" placeholder="Title" /></td>
-                    <td><input class="form-control day-desc" placeholder="Description" /></td>
-                    <td><input class="form-control day-night" placeholder="Overnight" /></td>
-                    <td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>
-                </tr>`;
-            }
-
-            function addItineraryVariant(seed = "") {
-                const block = document.createElement("div");
-                block.className = "border rounded p-3 mb-3 itinerary-variant";
-                block.dataset.itineraryId = 0;
-                block.innerHTML = `
-                    <div class="row mb-2">
-                        <div class="col-md-4"><input class="form-control variant-name" placeholder="Itinerary label (e.g. Spring 2026)" value="${seed}" /></div>
-                        <div class="col-md-6"><input class="form-control variant-image" placeholder="Itinerary image/map URL" /></div>
-                        <div class="col-md-2 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-variant">Remove Variant</button></div>
-                    </div>
-                    <table class="table table-sm table-bordered itinerary-days">
-                        <thead><tr><th>Day</th><th>Title</th><th>Description</th><th>Overnight</th><th></th></tr></thead>
-                        <tbody>${createItineraryDayRow()}</tbody>
-                    </table>
-                    <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Day</button>
-                `;
-                document.getElementById("itineraryVariants").appendChild(block);
-                return block;
-            }
-
-            document.getElementById("addItineraryVariant").addEventListener("click", () => addItineraryVariant(""));
-
-            const itinerarySeed = @Html.Raw(JsonSerializer.Serialize(Model.Itineraries));
-            const itineraryMediaSeed = (`@Model.MediaText` || "").split("\n").map((line) => line.trim()).filter(Boolean);
-            if (Array.isArray(itinerarySeed) && itinerarySeed.length > 0) {
-                itinerarySeed.forEach((seed) => {
-                    const variant = addItineraryVariant(seed.seasonTitle || "");
-                    variant.dataset.itineraryId = seed.id || 0;
-                    const variantImage = variant.querySelector(".variant-image");
-                    const mediaMatch = itineraryMediaSeed.find((line) => line.includes(`[${seed.seasonTitle || ""}]`) && line.includes("itinerary-map"));
-                    if (variantImage && mediaMatch) {
-                        variantImage.value = mediaMatch.split("|")[0] || "";
+                    function renderStep() {
+                        steps.forEach((step, index) => step.classList.toggle("d-none", index !== currentStep));
+                        tabs.forEach((tab, index) => tab.classList.toggle("active", index === currentStep));
+                        prevBtn.disabled = currentStep === 0;
+                        saveNextBtn.classList.toggle("d-none", currentStep === steps.length - 1);
+                        formStepInput.value = `${currentStep}`;
                     }
 
-                    const body = variant.querySelector(".itinerary-days tbody");
-                    body.innerHTML = "";
-                    (seed.days || []).forEach((day) => {
-                        body.insertAdjacentHTML("beforeend", createItineraryDayRow());
-                        const row = body.lastElementChild;
-                        row.dataset.dayId = day.id || 0;
-                        row.querySelector(".day-number").value = day.dayNumber || "";
-                        row.querySelector(".day-title").value = day.shortDescription || "";
-                        row.querySelector(".day-desc").value = day.description || "";
-                        row.querySelector(".day-night").value = day.accommodationType || "";
+                    function validateStep(stepIndex) {
+                        const requiredFields = document.querySelectorAll(`.step-${stepIndex}-required`);
+                        for (const field of requiredFields) {
+                            if (!field.value.trim()) {
+                                field.focus();
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    function goToStep(index) {
+                        if (index > currentStep && !validateStep(currentStep)) {
+                            return;
+                        }
+
+                        for (let i = 0; i <= index; i += 1) {
+                            tabs[i].disabled = false;
+                        }
+
+                        currentStep = index;
+                        renderStep();
+                    }
+
+                    for (let i = 0; i <= currentStep; i += 1) {
+                        tabs[i].disabled = false;
+                    }
+
+                    tabs.forEach((tab, index) => tab.addEventListener("click", () => !tab.disabled && goToStep(index)));
+                    prevBtn.addEventListener("click", () => goToStep(Math.max(0, currentStep - 1)));
+
+                    saveStepBtn.addEventListener("click", () => {
+                        formIntentInput.value = "stay";
+                        formStepInput.value = `${currentStep}`;
                     });
 
-                    if (!body.children.length) {
-                        body.innerHTML = createItineraryDayRow();
+                    saveNextBtn.addEventListener("click", (event) => {
+                        if (!validateStep(currentStep)) {
+                            event.preventDefault();
+                            return;
+                        }
+
+                        formIntentInput.value = "next";
+                        formStepInput.value = `${currentStep}`;
+                    });
+
+                    const heroUpload = document.getElementById("heroImageUpload");
+                    const heroPreview = document.getElementById("heroImagePreview");
+                    const imageAnalysis = document.getElementById("imageAnalysis");
+                    const heroUrlInput = document.getElementById("HeroImageUrl");
+                    const heroVideoPreviewWrap = document.getElementById("heroVideoPreviewWrap");
+                    const heroVideoPreview = document.getElementById("heroVideoPreview");
+
+                    const toVideoEmbedUrl = (value) => {
+                        const url = (value || "").trim();
+                        if (!url) return "";
+
+                        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+                        if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+                        const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+                        if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+                        return "";
+                    };
+
+                    const looksLikeImageUrl = (value) => /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test((value || "").trim());
+
+                    const renderPrimaryVideoPreview = () => {
+                        if (!heroVideoPreviewWrap || !heroVideoPreview || !heroUrlInput) return;
+                        const embedUrl = toVideoEmbedUrl(heroUrlInput.value);
+
+                        if (!embedUrl) {
+                            heroVideoPreview.removeAttribute("src");
+                            heroVideoPreviewWrap.classList.add("d-none");
+                            return;
+                        }
+
+                        heroVideoPreview.src = embedUrl;
+                        heroVideoPreviewWrap.classList.remove("d-none");
+                    };
+
+                    const renderPrimaryImageFromUrl = () => {
+                        if (!heroUrlInput || !heroPreview || heroUpload?.files?.length) return;
+
+                        const url = (heroUrlInput.value || "").trim();
+                        if (!url || !looksLikeImageUrl(url)) {
+                            heroPreview.removeAttribute("src");
+                            heroPreview.classList.add("d-none");
+                            return;
+                        }
+
+                        heroPreview.src = url;
+                        heroPreview.classList.remove("d-none");
+                    };
+
+                    heroUrlInput?.addEventListener("input", () => {
+                        renderPrimaryVideoPreview();
+                        renderPrimaryImageFromUrl();
+                    });
+
+                    heroUpload?.addEventListener("change", (e) => {
+                        const file = e.target.files[0];
+                        if (!file) {
+                            renderPrimaryImageFromUrl();
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            heroPreview.src = reader.result;
+                            heroPreview.classList.remove("d-none");
+                            imageAnalysis.value = `Image: ${file.name}
+        Suggested usage: Hero banner + itinerary context
+        Notes: Add terrain, camp-life, and summit visibility insights.`;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    renderPrimaryVideoPreview();
+                    renderPrimaryImageFromUrl();
+
+                    function addCostRow(target, type = "Inclusion", title = "", description = "") {
+                        const normalizedType = `${type || "Inclusion"}`.toLowerCase() === "exclusion" ? "Exclusion" : "Inclusion";
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td><select class="form-select item-type"><option value="Inclusion">Inclusion</option><option value="Exclusion">Exclusion</option></select></td><td><input class="form-control item-title" value="${title}" placeholder="Title" /></td><td><input class="form-control item-description" value="${description}" placeholder="Short description" /></td><td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                        row.querySelector(".item-type").value = normalizedType;
+                        row.dataset.costId = 0;
+                        row.dataset.costType = normalizedType;
+                        target.appendChild(row);
+                        return row;
                     }
-                });
-            } else {
-                addItineraryVariant("Default Plan");
-            }
 
-            function addReviewRow(reviewer = "", comment = "") {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td><input class="form-control reviewer" value="${reviewer}" /></td><td><input class="form-control review-comment" value="${comment}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
-                document.querySelector("#reviewTable tbody").appendChild(row);
-            }
+                    const costTableBody = document.querySelector("#costTable tbody");
+                    document.getElementById("addCostItem").addEventListener("click", () => addCostRow(costTableBody));
+                    const costItemsSeed = @Html.Raw(JsonSerializer.Serialize(Model.CostItems));
+                    const hasCostItems = Array.isArray(costItemsSeed) && costItemsSeed.length > 0;
 
-            function addFaqRow(q = "", a = "") {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td><input class="form-control faq-question" value="${q}" /></td><td><input class="form-control faq-answer" value="${a}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
-                document.querySelector("#faqTable tbody").appendChild(row);
-            }
+                    if (hasCostItems) {
+                        costItemsSeed.forEach((item) => {
+                            const row = addCostRow(costTableBody, item.type || "Inclusion", item.title || "", item.shortDescription || "");
+                            row.dataset.costId = item.id || 0;
+                            row.dataset.costType = item.type || "Inclusion";
+                        });
+                    } else {
+                        const inclusionSeed = `@Model.Inclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+                        inclusionSeed.forEach((line) => {
+                            const [title, description] = line.split("|");
+                            const row = addCostRow(costTableBody, "Inclusion", title || "", description || "");
+                            row.dataset.costType = "Inclusion";
+                        });
 
-            document.getElementById("addReview").addEventListener("click", () => addReviewRow());
-            document.getElementById("addFaq").addEventListener("click", () => addFaqRow());
+                        const exclusionSeed = `@Model.Exclusions`.split("\n").map((line) => line.trim()).filter(Boolean);
+                        exclusionSeed.forEach((line) => {
+                            const [title, description] = line.split("|");
+                            const row = addCostRow(costTableBody, "Exclusion", title || "", description || "");
+                            row.dataset.costType = "Exclusion";
+                        });
 
-            const reviewSeed = `@Model.ReviewsText`.split("\n").map((line) => line.trim()).filter(Boolean);
-            if (reviewSeed.length) {
-                reviewSeed.forEach((line) => {
-                    const [reviewer, comment] = line.split("|");
-                    addReviewRow(reviewer || "", comment || "");
-                });
-            } else {
-                addReviewRow();
-            }
-
-            const faqSeed = `@Model.FaqsText`.split("\n").map((line) => line.trim()).filter(Boolean);
-            if (faqSeed.length) {
-                faqSeed.forEach((line) => {
-                    const [q, a] = line.split("|");
-                    addFaqRow(q || "", a || "");
-                });
-            } else {
-                addFaqRow();
-            }
-
-            const departureTableBody = document.querySelector("#departureTable tbody");
-            function createDepartureRow(data = {}) {
-                const row = document.createElement("tr");
-                row.className = "departure-row";
-                row.innerHTML = `<td><input class="form-control departure-image" placeholder="https://..." value="${data.image || ""}" /></td>
-                    <td><input class="form-control departure-days" type="number" min="0" value="${data.days || 0}" /></td>
-                    <td><input class="form-control departure-start" type="date" value="${data.startDate || ""}" /></td>
-                    <td><input class="form-control departure-end" type="date" value="${data.endDate || ""}" /></td>
-                    <td>
-                        <select class="form-select departure-status">
-                            <option value="BookingOpen">BookingOpen</option>
-                            <option value="Limited">Limited</option>
-                            <option value="SoldOut">SoldOut</option>
-                            <option value="Closed">Closed</option>
-                        </select>
-                    </td>
-                    <td><input class="form-control departure-group" type="number" min="1" value="${data.groupSize || ""}" /></td>
-                    <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-departure-row">Remove</button></td>`;
-                row.querySelector(".departure-status").value = data.status || "BookingOpen";
-                return row;
-            }
-
-            function normalizeDepartureIndexes() {
-                Array.from(document.querySelectorAll("#departureTable tbody .departure-row")).forEach((row, idx) => {
-                    row.querySelector(".departure-days").setAttribute("name", `FixedDepartures[${idx}].ForDays`);
-                    row.querySelector(".departure-start").setAttribute("name", `FixedDepartures[${idx}].StartDate`);
-                    row.querySelector(".departure-end").setAttribute("name", `FixedDepartures[${idx}].EndDate`);
-                    row.querySelector(".departure-status").setAttribute("name", `FixedDepartures[${idx}].Status`);
-                    row.querySelector(".departure-group").setAttribute("name", `FixedDepartures[${idx}].GroupSize`);
-                });
-            }
-
-            document.getElementById("addDepartureRow").addEventListener("click", () => {
-                departureTableBody.appendChild(createDepartureRow());
-                normalizeDepartureIndexes();
-            });
-
-            if (!departureTableBody.querySelector(".departure-row")) {
-                departureTableBody.appendChild(createDepartureRow());
-            }
-            normalizeDepartureIndexes();
-
-            const gearTableBody = document.querySelector("#gearTable tbody");
-            function createGearRow(title = "", existingPath = "", existingImagePath = "") {
-                const row = document.createElement("tr");
-                row.className = "gear-row";
-                row.innerHTML = `<td>
-                        <input class="form-control gear-title" placeholder="Gear document title" />
-                        <input type="hidden" class="gear-existing-path" value="${existingPath}" />
-                        <input type="hidden" class="gear-existing-image-path" value="${existingImagePath}" />
-                    </td>
-                    <td>
-                        <input type="file" class="form-control gear-image" accept=".jpg,.jpeg,.png,.webp" />
-                    </td>
-                    <td>
-                        <input type="file" class="form-control gear-file" accept=".pdf,.doc,.docx" />
-                    </td>
-                    <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-gear-row">Remove</button></td>`;
-                row.querySelector(".gear-title").value = title;
-                return row;
-            }
-
-            function normalizeGearIndexes() {
-                Array.from(document.querySelectorAll("#gearTable tbody .gear-row")).forEach((row, idx) => {
-                    row.querySelector(".gear-title").setAttribute("name", `GearLists[${idx}].ShortDescription`);
-                    row.querySelector(".gear-existing-path").setAttribute("name", `GearLists[${idx}].ExistingPath`);
-                    row.querySelector(".gear-existing-image-path").setAttribute("name", `GearLists[${idx}].ExistingImagePath`);
-                    row.querySelector(".gear-image").setAttribute("name", `GearLists[${idx}].UploadImage`);
-                    row.querySelector(".gear-file").setAttribute("name", `GearLists[${idx}].UploadFile`);
-                });
-            }
-
-            document.getElementById("addGearRow").addEventListener("click", () => {
-                gearTableBody.appendChild(createGearRow());
-                normalizeGearIndexes();
-            });
-
-            if (!gearTableBody.querySelector(".gear-row")) {
-                gearTableBody.appendChild(createGearRow());
-            }
-            normalizeGearIndexes();
-
-            document.addEventListener("click", (e) => {
-                if (e.target.classList.contains("remove-row")) {
-                    e.target.closest("tr")?.remove();
-                }
-
-                if (e.target.classList.contains("add-day")) {
-                    const tbody = e.target.closest(".itinerary-variant").querySelector(".itinerary-days tbody");
-                    tbody.insertAdjacentHTML("beforeend", createItineraryDayRow());
-                }
-
-                if (e.target.classList.contains("remove-variant")) {
-                    e.target.closest(".itinerary-variant")?.remove();
-                }
-
-                if (e.target.classList.contains("remove-gear-row")) {
-                    e.target.closest(".gear-row")?.remove();
-                    if (!gearTableBody.querySelector(".gear-row")) {
-                        gearTableBody.appendChild(createGearRow());
+                        if (!costTableBody.querySelector("tr")) {
+                            addCostRow(costTableBody, "Inclusion", "", "");
+                        }
                     }
-                    normalizeGearIndexes();
-                }
 
-                if (e.target.classList.contains("remove-departure-row")) {
-                    e.target.closest(".departure-row")?.remove();
+                    function createItineraryDayRow() {
+                        return `<tr>
+                            <td><input class="form-control day-number" type="number" min="1" placeholder="Day" /></td>
+                            <td><input class="form-control day-title" placeholder="Title" /></td>
+                            <td><input class="form-control day-desc" placeholder="Description" /></td>
+                            <td><input class="form-control day-night" placeholder="Overnight" /></td>
+                            <td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>
+                        </tr>`;
+                    }
+
+                    function addItineraryVariant(seed = "") {
+                        const block = document.createElement("div");
+                        block.className = "border rounded p-3 mb-3 itinerary-variant";
+                        block.dataset.itineraryId = 0;
+                        block.innerHTML = `
+                            <div class="row mb-2">
+                                <div class="col-md-4"><input class="form-control variant-name" placeholder="Itinerary label (e.g. Spring 2026)" value="${seed}" /></div>
+                                <div class="col-md-6"><input class="form-control variant-image" placeholder="Itinerary image/map URL" /></div>
+                                <div class="col-md-2 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-variant">Remove Variant</button></div>
+                            </div>
+                            <table class="table table-sm table-bordered itinerary-days">
+                                <thead><tr><th>Day</th><th>Title</th><th>Description</th><th>Overnight</th><th></th></tr></thead>
+                                <tbody>${createItineraryDayRow()}</tbody>
+                            </table>
+                            <button type="button" class="btn btn-sm btn-outline-primary add-day">Add Day</button>
+                        `;
+                        document.getElementById("itineraryVariants").appendChild(block);
+                        return block;
+                    }
+
+                    document.getElementById("addItineraryVariant").addEventListener("click", () => addItineraryVariant(""));
+
+                    const itinerarySeed = @Html.Raw(JsonSerializer.Serialize(Model.Itineraries));
+                    const itineraryMediaSeed = (`@Model.MediaText` || "").split("\n").map((line) => line.trim()).filter(Boolean);
+                    if (Array.isArray(itinerarySeed) && itinerarySeed.length > 0) {
+                        itinerarySeed.forEach((seed) => {
+                            const variant = addItineraryVariant(seed.seasonTitle || "");
+                            variant.dataset.itineraryId = seed.id || 0;
+                            const variantImage = variant.querySelector(".variant-image");
+                            const mediaMatch = itineraryMediaSeed.find((line) => line.includes(`[${seed.seasonTitle || ""}]`) && line.includes("itinerary-map"));
+                            if (variantImage && mediaMatch) {
+                                variantImage.value = mediaMatch.split("|")[0] || "";
+                            }
+
+                            const body = variant.querySelector(".itinerary-days tbody");
+                            body.innerHTML = "";
+                            (seed.days || []).forEach((day) => {
+                                body.insertAdjacentHTML("beforeend", createItineraryDayRow());
+                                const row = body.lastElementChild;
+                                row.dataset.dayId = day.id || 0;
+                                row.querySelector(".day-number").value = day.dayNumber || "";
+                                row.querySelector(".day-title").value = day.shortDescription || "";
+                                row.querySelector(".day-desc").value = day.description || "";
+                                row.querySelector(".day-night").value = day.accommodationType || "";
+                            });
+
+                            if (!body.children.length) {
+                                body.innerHTML = createItineraryDayRow();
+                            }
+                        });
+                    } else {
+                        addItineraryVariant("Default Plan");
+                    }
+
+                    function addReviewRow(reviewer = "", comment = "") {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td><input class="form-control reviewer" value="${reviewer}" /></td><td><input class="form-control review-comment" value="${comment}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                        document.querySelector("#reviewTable tbody").appendChild(row);
+                    }
+
+                    function addFaqRow(q = "", a = "") {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td><input class="form-control faq-question" value="${q}" /></td><td><input class="form-control faq-answer" value="${a}" /></td><td><button type="button" class="btn btn-sm btn-link text-danger remove-row">Remove</button></td>`;
+                        document.querySelector("#faqTable tbody").appendChild(row);
+                    }
+
+                    document.getElementById("addReview").addEventListener("click", () => addReviewRow());
+                    document.getElementById("addFaq").addEventListener("click", () => addFaqRow());
+
+                    const reviewSeed = `@Model.ReviewsText`.split("\n").map((line) => line.trim()).filter(Boolean);
+                    if (reviewSeed.length) {
+                        reviewSeed.forEach((line) => {
+                            const [reviewer, comment] = line.split("|");
+                            addReviewRow(reviewer || "", comment || "");
+                        });
+                    } else {
+                        addReviewRow();
+                    }
+
+                    const faqSeed = `@Model.FaqsText`.split("\n").map((line) => line.trim()).filter(Boolean);
+                    if (faqSeed.length) {
+                        faqSeed.forEach((line) => {
+                            const [q, a] = line.split("|");
+                            addFaqRow(q || "", a || "");
+                        });
+                    } else {
+                        addFaqRow();
+                    }
+
+                    const departureTableBody = document.querySelector("#departureTable tbody");
+                    function createDepartureRow(data = {}) {
+                        const row = document.createElement("tr");
+                        row.className = "departure-row";
+                        row.innerHTML = `<td><input class="form-control departure-image" placeholder="https://..." value="${data.image || ""}" /></td>
+                            <td><input class="form-control departure-days" type="number" min="0" value="${data.days || 0}" /></td>
+                            <td><input class="form-control departure-start" type="date" value="${data.startDate || ""}" /></td>
+                            <td><input class="form-control departure-end" type="date" value="${data.endDate || ""}" /></td>
+                            <td>
+                                <select class="form-select departure-status">
+                                    <option value="BookingOpen">BookingOpen</option>
+                                    <option value="Limited">Limited</option>
+                                    <option value="SoldOut">SoldOut</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </td>
+                            <td><input class="form-control departure-group" type="number" min="1" value="${data.groupSize || ""}" /></td>
+                            <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-departure-row">Remove</button></td>`;
+                        row.querySelector(".departure-status").value = data.status || "BookingOpen";
+                        return row;
+                    }
+
+                    function normalizeDepartureIndexes() {
+                        Array.from(document.querySelectorAll("#departureTable tbody .departure-row")).forEach((row, idx) => {
+                            row.querySelector(".departure-days").setAttribute("name", `FixedDepartures[${idx}].ForDays`);
+                            row.querySelector(".departure-start").setAttribute("name", `FixedDepartures[${idx}].StartDate`);
+                            row.querySelector(".departure-end").setAttribute("name", `FixedDepartures[${idx}].EndDate`);
+                            row.querySelector(".departure-status").setAttribute("name", `FixedDepartures[${idx}].Status`);
+                            row.querySelector(".departure-group").setAttribute("name", `FixedDepartures[${idx}].GroupSize`);
+                        });
+                    }
+
+                    document.getElementById("addDepartureRow").addEventListener("click", () => {
+                        departureTableBody.appendChild(createDepartureRow());
+                        normalizeDepartureIndexes();
+                    });
+
                     if (!departureTableBody.querySelector(".departure-row")) {
                         departureTableBody.appendChild(createDepartureRow());
                     }
                     normalizeDepartureIndexes();
-                }
-            });
 
-            const form = document.getElementById("expeditionForm");
-            form.addEventListener("submit", () => {
-                formStepInput.value = `${currentStep}`;
-                const selectedDifficulty = document.getElementById("DifficultyLevel")?.value || "";
-                if (selectedDifficulty) {
-                    const difficultyInput = document.getElementById("Difficulty");
-                    if (difficultyInput) {
-                        difficultyInput.value = selectedDifficulty;
-                    }
-                }
-                const createHiddenInput = (container, name, value) => {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = name;
-                    input.value = value;
-                    container.appendChild(input);
-                };
-                const inclusionValues = [];
-                const exclusionValues = [];
-
-                const costInputContainer = document.getElementById("costItemInputs");
-                costInputContainer.innerHTML = "";
-                Array.from(document.querySelectorAll("#costTable tbody tr")).forEach((row) => {
-                    const type = row.querySelector(".item-type")?.value === "Exclusion" ? "Exclusion" : "Inclusion";
-                    const title = sanitize(row.querySelector(".item-title")?.value || "");
-                    const description = sanitize(row.querySelector(".item-description")?.value || "");
-                    const line = title && description ? `${title}|${description}` : title || description;
-
-                    if (line) {
-                        if (type === "Inclusion") {
-                            inclusionValues.push(line);
-                        } else {
-                            exclusionValues.push(line);
-                        }
+                    const gearTableBody = document.querySelector("#gearTable tbody");
+                    function createGearRow(title = "", existingPath = "", existingImagePath = "") {
+                        const row = document.createElement("tr");
+                        row.className = "gear-row";
+                        row.innerHTML = `<td>
+                                <input class="form-control gear-title" placeholder="Gear document title" />
+                                <input type="hidden" class="gear-existing-path" value="${existingPath}" />
+                                <input type="hidden" class="gear-existing-image-path" value="${existingImagePath}" />
+                            </td>
+                            <td>
+                                <input type="file" class="form-control gear-image" accept=".jpg,.jpeg,.png,.webp" />
+                            </td>
+                            <td>
+                                <input type="file" class="form-control gear-file" accept=".pdf,.doc,.docx" />
+                            </td>
+                            <td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger remove-gear-row">Remove</button></td>`;
+                        row.querySelector(".gear-title").value = title;
+                        return row;
                     }
 
-                    if (!title && !description) {
-                        return;
+                    function normalizeGearIndexes() {
+                        Array.from(document.querySelectorAll("#gearTable tbody .gear-row")).forEach((row, idx) => {
+                            row.querySelector(".gear-title").setAttribute("name", `GearLists[${idx}].ShortDescription`);
+                            row.querySelector(".gear-existing-path").setAttribute("name", `GearLists[${idx}].ExistingPath`);
+                            row.querySelector(".gear-existing-image-path").setAttribute("name", `GearLists[${idx}].ExistingImagePath`);
+                            row.querySelector(".gear-image").setAttribute("name", `GearLists[${idx}].UploadImage`);
+                            row.querySelector(".gear-file").setAttribute("name", `GearLists[${idx}].UploadFile`);
+                        });
                     }
 
-                    const index = costInputContainer.querySelectorAll("input[name$='.Type']").length;
-                    createHiddenInput(costInputContainer, `CostItems[${index}].Id`, row.dataset.costId || 0);
-                    createHiddenInput(costInputContainer, `CostItems[${index}].Title`, title);
-                    createHiddenInput(costInputContainer, `CostItems[${index}].ShortDescription`, description);
-                    createHiddenInput(costInputContainer, `CostItems[${index}].Type`, type);
-                    createHiddenInput(costInputContainer, `CostItems[${index}].IsActive`, "true");
-                    createHiddenInput(costInputContainer, `CostItems[${index}].SortOrder`, index + 1);
-                });
-
-                document.getElementById("Inclusions").value = inclusionValues.join("\n");
-                document.getElementById("Exclusions").value = exclusionValues.join("\n");
-
-                let itineraryRows = [];
-                let mediaRows = [];
-                document.querySelectorAll(".itinerary-variant").forEach((variant, vIndex) => {
-                    const label = sanitize(variant.querySelector(".variant-name").value || `Itinerary ${vIndex + 1}`);
-                    const imageUrl = sanitize(variant.querySelector(".variant-image").value);
-                    if (imageUrl) {
-                        mediaRows.push(`${imageUrl}|${label} map|itinerary-map|${vIndex + 1}`);
-                    }
-
-                    variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
-                        const day = sanitize(row.querySelector(".day-number")?.value || "");
-                        const title = sanitize(row.querySelector(".day-title")?.value || "");
-                        const desc = sanitize(row.querySelector(".day-desc")?.value || "");
-                        const night = sanitize(row.querySelector(".day-night")?.value || "");
-                        if (day && title) {
-                            itineraryRows.push(`${day}|[${label}] ${title}|${desc}|${night}`);
-                        }
-                    });
-                });
-
-                const itineraryTextInput = document.getElementById("ItineraryText");
-                const mediaTextInput = document.getElementById("MediaText");
-                const existingItineraryRows = (itineraryTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
-                const existingMediaRows = (mediaTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
-                itineraryTextInput.value = Array.from(new Set([...existingItineraryRows, ...itineraryRows])).join("\n");
-                mediaTextInput.value = Array.from(new Set([...existingMediaRows, ...mediaRows])).join("\n");
-
-                const itineraryInputContainer = document.getElementById("itineraryInputs");
-                itineraryInputContainer.innerHTML = "";
-                let itineraryIndex = 0;
-                document.querySelectorAll(".itinerary-variant").forEach((variant) => {
-                    const seasonTitle = sanitize(variant.querySelector(".variant-name")?.value || "");
-                    if (!seasonTitle) {
-                        return;
-                    }
-
-                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].Id`, variant.dataset.itineraryId || 0);
-                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SeasonTitle`, seasonTitle);
-                    createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SortOrder`, itineraryIndex + 1);
-
-                    let dayIndex = 0;
-                    variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
-                        const dayNumber = sanitize(row.querySelector(".day-number")?.value || "");
-                        const title = sanitize(row.querySelector(".day-title")?.value || "");
-                        if (!dayNumber || !title) {
-                            return;
-                        }
-
-                        const baseName = `Itineraries[${itineraryIndex}].Days[${dayIndex}]`;
-                        createHiddenInput(itineraryInputContainer, `${baseName}.Id`, row.dataset.dayId || 0);
-                        createHiddenInput(itineraryInputContainer, `${baseName}.DayNumber`, dayNumber);
-                        createHiddenInput(itineraryInputContainer, `${baseName}.ShortDescription`, title);
-                        createHiddenInput(itineraryInputContainer, `${baseName}.Description`, sanitize(row.querySelector(".day-desc")?.value || ""));
-                        createHiddenInput(itineraryInputContainer, `${baseName}.AccommodationType`, sanitize(row.querySelector(".day-night")?.value || ""));
-                        dayIndex += 1;
+                    document.getElementById("addGearRow").addEventListener("click", () => {
+                        gearTableBody.appendChild(createGearRow());
+                        normalizeGearIndexes();
                     });
 
-                    itineraryIndex += 1;
-                });
-
-                normalizeDepartureIndexes();
-                const availableDateRows = [];
-                document.querySelectorAll("#departureTable tbody tr").forEach((row) => {
-                    const image = sanitize(row.querySelector(".departure-image")?.value || "");
-                    const days = sanitize(row.querySelector(".departure-days")?.value || "");
-                    const start = sanitize(row.querySelector(".departure-start")?.value || "");
-                    const end = sanitize(row.querySelector(".departure-end")?.value || "");
-                    const status = sanitize(row.querySelector(".departure-status")?.value || "BookingOpen");
-                    const group = sanitize(row.querySelector(".departure-group")?.value || "");
-                    if (start && end) {
-                        availableDateRows.push(`${start}|${end}|${days}|${status}|${group}`);
+                    if (!gearTableBody.querySelector(".gear-row")) {
+                        gearTableBody.appendChild(createGearRow());
                     }
-                });
-                document.getElementById("AvailableDates").value = availableDateRows.join("\n");
+                    normalizeGearIndexes();
 
-                const faqRows = [];
-                document.querySelectorAll("#faqTable tbody tr").forEach((row, index) => {
-                    const q = sanitize(row.querySelector(".faq-question")?.value || "");
-                    const a = sanitize(row.querySelector(".faq-answer")?.value || "");
-                    if (q && a) {
-                        faqRows.push(`${q}|${a}|${index + 1}`);
-                    }
-                });
-                document.getElementById("FaqsText").value = faqRows.join("\n");
+                    document.addEventListener("click", (e) => {
+                        if (e.target.classList.contains("remove-row")) {
+                            e.target.closest("tr")?.remove();
+                        }
 
-                normalizeGearIndexes();
+                        if (e.target.classList.contains("add-day")) {
+                            const tbody = e.target.closest(".itinerary-variant").querySelector(".itinerary-days tbody");
+                            tbody.insertAdjacentHTML("beforeend", createItineraryDayRow());
+                        }
 
-                const reviews = [];
-                document.querySelectorAll("#reviewTable tbody tr").forEach((row) => {
-                    const reviewer = sanitize(row.querySelector(".reviewer")?.value || "");
-                    const comment = sanitize(row.querySelector(".review-comment")?.value || "");
-                    if (reviewer && comment) {
-                        reviews.push(`${reviewer}|${comment}`);
-                    }
-                });
+                        if (e.target.classList.contains("remove-variant")) {
+                            e.target.closest(".itinerary-variant")?.remove();
+                        }
 
-                document.getElementById("ReviewsText").value = reviews.join("\n");
-                const reviewInputContainer = document.getElementById("reviewInputs");
-                reviewInputContainer.innerHTML = "";
-                reviews.forEach((line, index) => {
-                    const [fullName, reviewText] = line.split("|");
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].FullName`, fullName || "");
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].EmailAddress`, `reviewer${index + 1}@@placeholder.local`);
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].Rating`, "5");
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].ReviewText`, reviewText || "");
-                    createHiddenInput(reviewInputContainer, `Reviews[${index}].ModerationStatus`, "Approved");
-                });
-            });
+                        if (e.target.classList.contains("remove-gear-row")) {
+                            e.target.closest(".gear-row")?.remove();
+                            if (!gearTableBody.querySelector(".gear-row")) {
+                                gearTableBody.appendChild(createGearRow());
+                            }
+                            normalizeGearIndexes();
+                        }
 
-            renderStep();
-        })();
+                        if (e.target.classList.contains("remove-departure-row")) {
+                            e.target.closest(".departure-row")?.remove();
+                            if (!departureTableBody.querySelector(".departure-row")) {
+                                departureTableBody.appendChild(createDepartureRow());
+                            }
+                            normalizeDepartureIndexes();
+                        }
+                    });
+
+                    const form = document.getElementById("expeditionForm");
+                    form.addEventListener("submit", () => {
+                        formStepInput.value = `${currentStep}`;
+                        const selectedDifficulty = document.getElementById("DifficultyLevel")?.value || "";
+                        if (selectedDifficulty) {
+                            const difficultyInput = document.getElementById("Difficulty");
+                            if (difficultyInput) {
+                                difficultyInput.value = selectedDifficulty;
+                            }
+                        }
+                        const createHiddenInput = (container, name, value) => {
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = name;
+                            input.value = value;
+                            container.appendChild(input);
+                        };
+                        const inclusionValues = [];
+                        const exclusionValues = [];
+
+                        const costInputContainer = document.getElementById("costItemInputs");
+                        costInputContainer.innerHTML = "";
+                        Array.from(document.querySelectorAll("#costTable tbody tr")).forEach((row) => {
+                            const type = row.querySelector(".item-type")?.value === "Exclusion" ? "Exclusion" : "Inclusion";
+                            const title = sanitize(row.querySelector(".item-title")?.value || "");
+                            const description = sanitize(row.querySelector(".item-description")?.value || "");
+                            const line = title && description ? `${title}|${description}` : title || description;
+
+                            if (line) {
+                                if (type === "Inclusion") {
+                                    inclusionValues.push(line);
+                                } else {
+                                    exclusionValues.push(line);
+                                }
+                            }
+
+                            if (!title && !description) {
+                                return;
+                            }
+
+                            const index = costInputContainer.querySelectorAll("input[name$='.Type']").length;
+                            createHiddenInput(costInputContainer, `CostItems[${index}].Id`, row.dataset.costId || 0);
+                            createHiddenInput(costInputContainer, `CostItems[${index}].Title`, title);
+                            createHiddenInput(costInputContainer, `CostItems[${index}].ShortDescription`, description);
+                            createHiddenInput(costInputContainer, `CostItems[${index}].Type`, type);
+                            createHiddenInput(costInputContainer, `CostItems[${index}].IsActive`, "true");
+                            createHiddenInput(costInputContainer, `CostItems[${index}].SortOrder`, index + 1);
+                        });
+
+                        document.getElementById("Inclusions").value = inclusionValues.join("\n");
+                        document.getElementById("Exclusions").value = exclusionValues.join("\n");
+
+                        let itineraryRows = [];
+                        let mediaRows = [];
+                        document.querySelectorAll(".itinerary-variant").forEach((variant, vIndex) => {
+                            const label = sanitize(variant.querySelector(".variant-name").value || `Itinerary ${vIndex + 1}`);
+                            const imageUrl = sanitize(variant.querySelector(".variant-image").value);
+                            if (imageUrl) {
+                                mediaRows.push(`${imageUrl}|${label} map|itinerary-map|${vIndex + 1}`);
+                            }
+
+                            variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
+                                const day = sanitize(row.querySelector(".day-number")?.value || "");
+                                const title = sanitize(row.querySelector(".day-title")?.value || "");
+                                const desc = sanitize(row.querySelector(".day-desc")?.value || "");
+                                const night = sanitize(row.querySelector(".day-night")?.value || "");
+                                if (day && title) {
+                                    itineraryRows.push(`${day}|[${label}] ${title}|${desc}|${night}`);
+                                }
+                            });
+                        });
+
+                        const itineraryTextInput = document.getElementById("ItineraryText");
+                        const mediaTextInput = document.getElementById("MediaText");
+                        const existingItineraryRows = (itineraryTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+                        const existingMediaRows = (mediaTextInput.value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+                        itineraryTextInput.value = Array.from(new Set([...existingItineraryRows, ...itineraryRows])).join("\n");
+                        mediaTextInput.value = Array.from(new Set([...existingMediaRows, ...mediaRows])).join("\n");
+
+                        const itineraryInputContainer = document.getElementById("itineraryInputs");
+                        itineraryInputContainer.innerHTML = "";
+                        let itineraryIndex = 0;
+                        document.querySelectorAll(".itinerary-variant").forEach((variant) => {
+                            const seasonTitle = sanitize(variant.querySelector(".variant-name")?.value || "");
+                            if (!seasonTitle) {
+                                return;
+                            }
+
+                            createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].Id`, variant.dataset.itineraryId || 0);
+                            createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SeasonTitle`, seasonTitle);
+                            createHiddenInput(itineraryInputContainer, `Itineraries[${itineraryIndex}].SortOrder`, itineraryIndex + 1);
+
+                            let dayIndex = 0;
+                            variant.querySelectorAll(".itinerary-days tbody tr").forEach((row) => {
+                                const dayNumber = sanitize(row.querySelector(".day-number")?.value || "");
+                                const title = sanitize(row.querySelector(".day-title")?.value || "");
+                                if (!dayNumber || !title) {
+                                    return;
+                                }
+
+                                const baseName = `Itineraries[${itineraryIndex}].Days[${dayIndex}]`;
+                                createHiddenInput(itineraryInputContainer, `${baseName}.Id`, row.dataset.dayId || 0);
+                                createHiddenInput(itineraryInputContainer, `${baseName}.DayNumber`, dayNumber);
+                                createHiddenInput(itineraryInputContainer, `${baseName}.ShortDescription`, title);
+                                createHiddenInput(itineraryInputContainer, `${baseName}.Description`, sanitize(row.querySelector(".day-desc")?.value || ""));
+                                createHiddenInput(itineraryInputContainer, `${baseName}.AccommodationType`, sanitize(row.querySelector(".day-night")?.value || ""));
+                                dayIndex += 1;
+                            });
+
+                            itineraryIndex += 1;
+                        });
+
+                        normalizeDepartureIndexes();
+                        const availableDateRows = [];
+                        document.querySelectorAll("#departureTable tbody tr").forEach((row) => {
+                            const image = sanitize(row.querySelector(".departure-image")?.value || "");
+                            const days = sanitize(row.querySelector(".departure-days")?.value || "");
+                            const start = sanitize(row.querySelector(".departure-start")?.value || "");
+                            const end = sanitize(row.querySelector(".departure-end")?.value || "");
+                            const status = sanitize(row.querySelector(".departure-status")?.value || "BookingOpen");
+                            const group = sanitize(row.querySelector(".departure-group")?.value || "");
+                            if (start && end) {
+                                availableDateRows.push(`${start}|${end}|${days}|${status}|${group}`);
+                            }
+                        });
+                        document.getElementById("AvailableDates").value = availableDateRows.join("\n");
+
+                        const faqRows = [];
+                        document.querySelectorAll("#faqTable tbody tr").forEach((row, index) => {
+                            const q = sanitize(row.querySelector(".faq-question")?.value || "");
+                            const a = sanitize(row.querySelector(".faq-answer")?.value || "");
+                            if (q && a) {
+                                faqRows.push(`${q}|${a}|${index + 1}`);
+                            }
+                        });
+                        document.getElementById("FaqsText").value = faqRows.join("\n");
+
+                        normalizeGearIndexes();
+
+                        const reviews = [];
+                        document.querySelectorAll("#reviewTable tbody tr").forEach((row) => {
+                            const reviewer = sanitize(row.querySelector(".reviewer")?.value || "");
+                            const comment = sanitize(row.querySelector(".review-comment")?.value || "");
+                            if (reviewer && comment) {
+                                reviews.push(`${reviewer}|${comment}`);
+                            }
+                        });
+
+                        document.getElementById("ReviewsText").value = reviews.join("\n");
+                        const reviewInputContainer = document.getElementById("reviewInputs");
+                        reviewInputContainer.innerHTML = "";
+                        reviews.forEach((line, index) => {
+                            const [fullName, reviewText] = line.split("|");
+                            createHiddenInput(reviewInputContainer, `Reviews[${index}].FullName`, fullName || "");
+                            createHiddenInput(reviewInputContainer, `Reviews[${index}].EmailAddress`, `reviewer${index + 1}@@placeholder.local`);
+                            createHiddenInput(reviewInputContainer, `Reviews[${index}].Rating`, "5");
+                            createHiddenInput(reviewInputContainer, `Reviews[${index}].ReviewText`, reviewText || "");
+                            createHiddenInput(reviewInputContainer, `Reviews[${index}].ModerationStatus`, "Approved");
+                        });
+                    });
+
+                    renderStep();
+                })();
     </script>
 }

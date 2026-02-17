@@ -208,10 +208,25 @@
                             </div>
                             <div class="col-md-12">
                                 <small class="text-muted d-block mb-2">You can save image URL, image upload, or video URL. Preview appears below.</small>
-                                <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                               @*  <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
                                     <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
                                 </div>
                                 <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
+ *@
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-3" style="max-width: 720px;">
+                                            <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
+
+                                    </div>
+                             
+                                </div>
+
                             </div>
                             <div class="col-md-4">
                                 <label asp-for="MinGroupSize" class="form-label"></label>
