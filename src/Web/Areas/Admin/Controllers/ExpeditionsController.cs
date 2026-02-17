@@ -234,11 +234,11 @@ public sealed class ExpeditionsController(
             m.AverageRating,
             m.RatingLabel,
             m.ReviewCount,
-            m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
+            m.Itineraries.Select(i => new ItineraryDto(i.Id, i.SeasonTitle, i.SeasonTitle, i.SortOrder, i.Days.Select(d => new ItineraryDayDto(d.Id, d.DayNumber, d.ShortDescription, d.Description, d.Meals, d.AccommodationType)).ToList())).ToList(),
             m.Maps.Select(x => new ExpeditionMapDto(x.Id, x.ExistingPath ?? string.Empty, x.Title, x.Notes)).ToList(),
             m.CostItems.Select(x => new CostItemDto(x.Id, x.Title, x.ShortDescription, x.IsActive, x.Type, x.SortOrder)).ToList(),
-            m.FixedDepartures.Select(x => new FixedDepartureDto(x.Id, x.StartDate, x.EndDate, x.ForDays, x.Status, x.GroupSize)).ToList(),
-            m.GearLists.Select(x => new GearListDto(x.Id, x.ShortDescription, x.ExistingPath ?? string.Empty)).ToList(),
+            m.FixedDepartures.Select(x => new FixedDepartureDto(x.Id, x.StartDate, x.EndDate, x.ForDays, Enum.TryParse<DepartureStatus>(x.Status, true, out var status) ? status : DepartureStatus.BookingOpen, x.GroupSize)).ToList(),
+            m.GearLists.Select(x => new GearListDto(x.Id, x.ShortDescription, x.ExistingPath ?? string.Empty, x.ExistingImagePath ?? string.Empty)).ToList(),
             m.Highlights.Select(x => new ExpeditionHighlightDto(x.Id, x.Text, x.SortOrder)).ToList(),
             m.Reviews.Select(x => new ExpeditionReviewDto(x.Id, x.FullName, x.EmailAddress, x.ExistingPhotoPath, x.VideoUrl, x.Rating, x.ReviewText, x.ModerationStatus)).ToList());
 
