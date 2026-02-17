@@ -1,0 +1,51 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ItineraryDayBulkFormViewModel
+@{
+    ViewData["Title"] = "Manage Itinerary Days";
+}
+
+<h2 class="mb-3">Manage Itinerary Days</h2>
+<form method="post" action="/admin/itinerary-days/upsert">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label class="form-label">Itinerary</label>
+        <select asp-for="ItineraryId" asp-items="Model.ItineraryOptions" class="form-select"></select>
+        <span asp-validation-for="ItineraryId" class="text-danger"></span>
+    </div>
+
+    <div id="dayRows">
+        @for (var i = 0; i < Model.Rows.Count; i++)
+        {
+            <div class="row g-2 mb-2 day-row">
+                <input type="hidden" name="Rows[@i].Id" value="@Model.Rows[i].Id" />
+                <div class="col-md-1"><input class="form-control" name="Rows[@i].DayNumber" value="@Model.Rows[i].DayNumber" placeholder="Day" /></div>
+                <div class="col-md-3"><input class="form-control" name="Rows[@i].ShortDescription" value="@Model.Rows[i].ShortDescription" placeholder="Short description" /></div>
+                <div class="col-md-3"><input class="form-control" name="Rows[@i].Meals" value="@Model.Rows[i].Meals" placeholder="Meals" /></div>
+                <div class="col-md-3"><input class="form-control" name="Rows[@i].AccommodationType" value="@Model.Rows[i].AccommodationType" placeholder="Accommodation" /></div>
+                <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div>
+                <div class="col-md-10 offset-md-1"><textarea class="form-control" name="Rows[@i].Description" rows="2" placeholder="Description">@Model.Rows[i].Description</textarea></div>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="addDayRow" class="btn btn-outline-secondary btn-sm">Add Itinerary Day</button>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a href="/admin/itinerary-days" class="btn btn-light">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const wrap = document.getElementById('dayRows');
+            document.getElementById('addDayRow').addEventListener('click', () => {
+                const idx = wrap.querySelectorAll('.day-row').length;
+                wrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 day-row"><input type="hidden" name="Rows[${idx}].Id" value="0" /><div class="col-md-1"><input class="form-control" name="Rows[${idx}].DayNumber" value="${idx + 1}" placeholder="Day" /></div><div class="col-md-3"><input class="form-control" name="Rows[${idx}].ShortDescription" placeholder="Short description" /></div><div class="col-md-3"><input class="form-control" name="Rows[${idx}].Meals" placeholder="Meals" /></div><div class="col-md-3"><input class="form-control" name="Rows[${idx}].AccommodationType" placeholder="Accommodation" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div><div class="col-md-10 offset-md-1"><textarea class="form-control" name="Rows[${idx}].Description" rows="2" placeholder="Description"></textarea></div></div>`);
+            });
+            wrap.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-row')) e.target.closest('.day-row').remove();
+            });
+        })();
+    </script>
+}

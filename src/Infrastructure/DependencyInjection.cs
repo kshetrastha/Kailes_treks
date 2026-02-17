@@ -53,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<IExpeditionService, ExpeditionService>();
         services.AddScoped<IExpeditionModuleService, ExpeditionModuleService>();
         services.AddScoped<IExpeditionTypeService, ExpeditionTypeService>();
+        services.AddScoped<IItineraryService, ItineraryService>();
+        services.AddScoped<IItineraryDayService, ItineraryDayService>();
         services.AddScoped<ITrekkingService, TrekkingService>();
         services.AddScoped<IWhyWithUsService, WhyWithUsService>();
         services.AddScoped<IWhyWithUsHeroService, WhyWithUsHeroService>();

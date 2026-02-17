@@ -1,0 +1,48 @@
+@model IReadOnlyList<TravelCleanArch.Application.Abstractions.Travel.ItineraryDaySummaryDto>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Itinerary Days";
+    var itineraryOptions = ViewBag.Itineraries as List<SelectListItem> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Itinerary Days</h2>
+    <a class="btn btn-primary" href="/admin/itinerary-days/upsert">Manage Days</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <select name="itineraryId" class="form-select" asp-items="itineraryOptions">
+            <option value="">All itineraries</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary">Filter</button></div>
+</form>
+
+<table class="table table-striped">
+    <thead><tr><th>Expedition</th><th>Itinerary</th><th>Day</th><th>Short Description</th><th>Actions</th></tr></thead>
+    <tbody>
+    @if (!Model.Any())
+    {
+        <tr><td colspan="5" class="text-muted">No itinerary days found.</td></tr>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ExpeditionName</td>
+                <td>@item.ItineraryTitle</td>
+                <td>@item.DayNumber</td>
+                <td>@item.ShortDescription</td>
+                <td>
+                    <form method="post" action="/admin/itinerary-days/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this itinerary day?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
