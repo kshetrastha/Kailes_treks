@@ -1,16 +1,16 @@
-﻿namespace TravelCleanArch.Web.Models.Expeditions
+using System.ComponentModel.DataAnnotations;
+
+namespace TravelCleanArch.Web.Models.Expeditions;
+
+public class ItineraryCreateUpdateModel
 {
-    public class ItineraryCreateUpdateModel
-    {
-        public int? Id { get; set; }
+    public int? Id { get; set; }
 
-        public string SeasonName { get; set; } = string.Empty; // Spring 2026
-        public int Day { get; set; }
+    [Required]
+    [MaxLength(200)]
+    public string SeasonTitle { get; set; } = string.Empty;
 
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
+    public int SortOrder { get; set; }
 
-        public string? Accommodation { get; set; }
-    }
-
+    public List<ItineraryDayCreateUpdateModel> Days { get; set; } = [];
 }
