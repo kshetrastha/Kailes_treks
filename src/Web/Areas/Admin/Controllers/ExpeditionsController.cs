@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelCleanArch.Application.Abstractions.Security;
@@ -28,52 +29,8 @@ public sealed class ExpeditionsController(
     [HttpGet("{id:int}/detail")]
     public async Task<IActionResult> Detail(int id, string activeTab = "itineraries", int? itineraryId = null, CancellationToken ct = default)
     {
-        var expedition = await service.GetByIdAsync(id, ct);
-        if (expedition is null) return NotFound();
-
-        var itineraryRows = await itineraryService.ListForExpeditionAsync(id, ct);
-        var itineraryOptions = itineraryRows
-            .Select(x => new SelectListItem(x.SeasonTitle, x.Id.ToString(), itineraryId == x.Id))
-            .ToList();
-
-        var selectedItineraryId = itineraryId ?? itineraryRows.FirstOrDefault()?.Id;
-        if (selectedItineraryId.HasValue)
-        {
-            foreach (var option in itineraryOptions)
-            {
-                option.Selected = option.Value == selectedItineraryId.Value.ToString();
-            }
-        }
-
-        var dayRows = selectedItineraryId.HasValue
-            ? await itineraryDayService.ListForItineraryAsync(selectedItineraryId.Value, ct)
-            : [];
-
-        var model = new ExpeditionItineraryTabsViewModel
-        {
-            ExpeditionId = expedition.Id,
-            ExpeditionName = expedition.Name,
-            ActiveTab = activeTab,
-            SelectedItineraryId = selectedItineraryId,
-            ItineraryOptions = itineraryOptions,
-            Itineraries = itineraryRows.Count > 0
-                ? itineraryRows.Select(x => new ItineraryRowInput { Id = x.Id, SeasonTitle = x.SeasonTitle, SortOrder = x.SortOrder }).ToList()
-                : [new ItineraryRowInput()],
-            ItineraryDays = dayRows.Count > 0
-                ? dayRows.Select(x => new ItineraryDayRowInput
-                    {
-                        Id = x.Id,
-                        DayNumber = x.DayNumber,
-                        ShortDescription = x.ShortDescription,
-                        Description = x.Description,
-                        Meals = x.Meals,
-                        AccommodationType = x.AccommodationType
-                    })
-                    .ToList()
-                : [new ItineraryDayRowInput()]
-        };
-
-        return View(model);
+        var model = await BuildDetailModelAsync(id, activeTab, itineraryId, ct);
+        return model is null ? NotFound() : View(model);
     }
 
     [HttpPost("{id:int}/detail/itineraries"), ValidateAntiForgeryToken]
@@ -118,6 +75,179 @@ public sealed class ExpeditionsController(
         await itineraryDayService.UpsertForItineraryAsync(model.SelectedItineraryId.Value, rows, currentUser.UserId, ct);
         TempData["SuccessMessage"] = "Itinerary days saved.";
         return RedirectToAction(nameof(Detail), new { id, activeTab = "itinerary-days", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/maps"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailMaps(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.Maps ?? [])
+            .Where(x => x.UploadFile is { Length: > 0 } || !string.IsNullOrWhiteSpace(x.ExistingPath) || !string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Notes))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, async details =>
+        {
+            var maps = new List<ExpeditionMapDto>();
+            foreach (var row in rows)
+            {
+                var path = await SaveUploadedAssetAsync(row.UploadFile, "maps", row.ExistingPath, ct);
+                if (string.IsNullOrWhiteSpace(path)) continue;
+                maps.Add(new ExpeditionMapDto(row.Id, path, row.Title, row.Notes));
+            }
+            return ToUpsertDto(details) with { Maps = maps };
+        }, ct);
+
+        TempData["SuccessMessage"] = "Maps saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "maps", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/cost-includes"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailCostIncludes(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.CostIncludes ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.ShortDescription))
+            .Select((x, i) => new CostItemDto(x.Id, x.Title, x.ShortDescription, x.IsActive, "Inclusion", x.SortOrder == 0 ? i + 1 : x.SortOrder))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, details =>
+        {
+            var combined = details.CostItems.Where(x => !string.Equals(x.Type, "Inclusion", StringComparison.OrdinalIgnoreCase)).ToList();
+            combined.AddRange(rows);
+            return Task.FromResult(ToUpsertDto(details) with { CostItems = combined });
+        }, ct);
+
+        TempData["SuccessMessage"] = "Cost includes saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "cost-includes", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/cost-excludes"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailCostExcludes(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.CostExcludes ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.ShortDescription))
+            .Select((x, i) => new CostItemDto(x.Id, x.Title, x.ShortDescription, x.IsActive, "Exclusion", x.SortOrder == 0 ? i + 1 : x.SortOrder))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, details =>
+        {
+            var combined = details.CostItems.Where(x => !string.Equals(x.Type, "Exclusion", StringComparison.OrdinalIgnoreCase)).ToList();
+            combined.AddRange(rows);
+            return Task.FromResult(ToUpsertDto(details) with { CostItems = combined });
+        }, ct);
+
+        TempData["SuccessMessage"] = "Cost excludes saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "cost-excludes", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/departures"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailDepartures(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.FixedDepartures ?? [])
+            .Where(x => x.StartDate != DateTime.MinValue || x.EndDate != DateTime.MinValue || x.ForDays > 0 || x.GroupSize.HasValue)
+            .Select(x => new FixedDepartureDto(x.Id, x.StartDate, x.EndDate, x.ForDays, x.Status, x.GroupSize))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, details => Task.FromResult(ToUpsertDto(details) with { FixedDepartures = rows }), ct);
+        TempData["SuccessMessage"] = "Departures saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "departures", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/gear-lists"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailGearLists(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.GearLists ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.ShortDescription) || x.UploadFile is { Length: > 0 } || x.UploadImage is { Length: > 0 } || !string.IsNullOrWhiteSpace(x.ExistingPath) || !string.IsNullOrWhiteSpace(x.ExistingImagePath))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, async details =>
+        {
+            var gears = new List<GearListDto>();
+            foreach (var row in rows)
+            {
+                var filePath = await SaveUploadedAssetAsync(row.UploadFile, "gear/files", row.ExistingPath, ct);
+                var imagePath = await SaveUploadedAssetAsync(row.UploadImage, "gear/images", row.ExistingImagePath, ct);
+                if (string.IsNullOrWhiteSpace(filePath) && string.IsNullOrWhiteSpace(imagePath)) continue;
+                gears.Add(new GearListDto(row.Id, row.ShortDescription, filePath ?? string.Empty, imagePath ?? string.Empty));
+            }
+            return ToUpsertDto(details) with { GearLists = gears };
+        }, ct);
+
+        TempData["SuccessMessage"] = "Gear list saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "gear-lists", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/photos-videos"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailPhotosVideos(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.MediaItems ?? [])
+            .Where(x => x.PhotoFile is { Length: > 0 } || !string.IsNullOrWhiteSpace(x.ExistingPath) || !string.IsNullOrWhiteSpace(x.VideoUrl) || !string.IsNullOrWhiteSpace(x.Caption))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, async details =>
+        {
+            var media = new List<ExpeditionMediaDto>();
+            foreach (var row in rows)
+            {
+                var imagePath = await SaveUploadedAssetAsync(row.PhotoFile, "media/photos", row.ExistingPath, ct);
+                var isVideo = !string.IsNullOrWhiteSpace(row.VideoUrl);
+                if (!isVideo && string.IsNullOrWhiteSpace(imagePath))
+                {
+                    continue;
+                }
+                media.Add(new ExpeditionMediaDto(row.Id, isVideo ? row.VideoUrl! : imagePath!, row.Caption, isVideo ? "Video" : "Photo", row.SortOrder, imagePath, row.VideoUrl));
+            }
+            return ToUpsertDto(details) with { MediaItems = media };
+        }, ct);
+
+        TempData["SuccessMessage"] = "Photos and videos saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "photos-videos", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/reviews"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailReviews(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.Reviews ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.FullName) || !string.IsNullOrWhiteSpace(x.EmailAddress) || !string.IsNullOrWhiteSpace(x.ReviewText) || x.UserPhoto is { Length: > 0 } || !string.IsNullOrWhiteSpace(x.ExistingPhotoPath))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, async details =>
+        {
+            var reviews = new List<ExpeditionReviewDto>();
+            foreach (var row in rows)
+            {
+                var photoPath = await SaveUploadedAssetAsync(row.UserPhoto, "reviews", row.ExistingPhotoPath, ct);
+                reviews.Add(new ExpeditionReviewDto(row.Id, row.FullName, row.EmailAddress, photoPath, row.VideoUrl, row.Rating, row.ReviewText, string.IsNullOrWhiteSpace(row.ModerationStatus) ? "Pending" : row.ModerationStatus));
+            }
+            return ToUpsertDto(details) with { Reviews = reviews };
+        }, ct);
+
+        TempData["SuccessMessage"] = "Reviews saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "reviews", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/faqs"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailFaqs(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.Faqs ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.Question) || !string.IsNullOrWhiteSpace(x.Answer))
+            .Select((x, i) => new ExpeditionFaqDto(x.Id, x.Question, x.Answer, x.Ordering == 0 ? i + 1 : x.Ordering))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, details => Task.FromResult(ToUpsertDto(details) with { Faqs = rows }), ct);
+        TempData["SuccessMessage"] = "Faqs saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "faqs", itineraryId = model.SelectedItineraryId });
+    }
+
+    [HttpPost("{id:int}/detail/highlights"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveDetailHighlights(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    {
+        var rows = (model.Highlights ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.Text))
+            .Select((x, i) => new ExpeditionHighlightDto(x.Id, x.Text, x.SortOrder == 0 ? i + 1 : x.SortOrder))
+            .ToList();
+
+        await UpdateExpeditionCollectionsAsync(id, details => Task.FromResult(ToUpsertDto(details) with { Highlights = rows }), ct);
+        TempData["SuccessMessage"] = "Highlights saved.";
+        return RedirectToAction(nameof(Detail), new { id, activeTab = "highlights", itineraryId = model.SelectedItineraryId });
     }
 
     [HttpGet("create")]
@@ -177,6 +307,112 @@ public sealed class ExpeditionsController(
     {
         await service.DeleteAsync(id, ct);
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<ExpeditionItineraryTabsViewModel?> BuildDetailModelAsync(int id, string activeTab, int? itineraryId, CancellationToken ct)
+    {
+        var expedition = await service.GetByIdAsync(id, ct);
+        if (expedition is null) return null;
+
+        var itineraryRows = await itineraryService.ListForExpeditionAsync(id, ct);
+        var itineraryOptions = itineraryRows
+            .Select(x => new SelectListItem(x.SeasonTitle, x.Id.ToString(), itineraryId == x.Id))
+            .ToList();
+
+        var selectedItineraryId = itineraryId ?? itineraryRows.FirstOrDefault()?.Id;
+        if (selectedItineraryId.HasValue)
+        {
+            foreach (var option in itineraryOptions)
+            {
+                option.Selected = option.Value == selectedItineraryId.Value.ToString();
+            }
+        }
+
+        var dayRows = selectedItineraryId.HasValue
+            ? await itineraryDayService.ListForItineraryAsync(selectedItineraryId.Value, ct)
+            : [];
+
+        return new ExpeditionItineraryTabsViewModel
+        {
+            ExpeditionId = expedition.Id,
+            ExpeditionName = expedition.Name,
+            ActiveTab = activeTab,
+            SelectedItineraryId = selectedItineraryId,
+            ItineraryOptions = itineraryOptions,
+            Itineraries = itineraryRows.Count > 0
+                ? itineraryRows.Select(x => new ItineraryRowInput { Id = x.Id, SeasonTitle = x.SeasonTitle, SortOrder = x.SortOrder }).ToList()
+                : [new ItineraryRowInput()],
+            ItineraryDays = dayRows.Count > 0
+                ? dayRows.Select(x => new ItineraryDayRowInput
+                {
+                    Id = x.Id,
+                    DayNumber = x.DayNumber,
+                    ShortDescription = x.ShortDescription,
+                    Description = x.Description,
+                    Meals = x.Meals,
+                    AccommodationType = x.AccommodationType
+                }).ToList()
+                : [new ItineraryDayRowInput()],
+            Maps = expedition.Maps.Count > 0
+                ? expedition.Maps.Select(x => new MapInput { Id = x.Id, ExistingPath = x.FilePath, Title = x.Title, Notes = x.Notes }).ToList()
+                : [new MapInput()],
+            CostIncludes = expedition.CostItems.Where(x => string.Equals(x.Type, "Inclusion", StringComparison.OrdinalIgnoreCase)).Any()
+                ? expedition.CostItems.Where(x => string.Equals(x.Type, "Inclusion", StringComparison.OrdinalIgnoreCase)).Select(x => new CostItemInput { Id = x.Id, Title = x.Title, ShortDescription = x.ShortDescription, IsActive = x.IsActive, Type = x.Type, SortOrder = x.SortOrder }).ToList()
+                : [new CostItemInput { Type = "Inclusion", IsActive = true }],
+            CostExcludes = expedition.CostItems.Where(x => string.Equals(x.Type, "Exclusion", StringComparison.OrdinalIgnoreCase)).Any()
+                ? expedition.CostItems.Where(x => string.Equals(x.Type, "Exclusion", StringComparison.OrdinalIgnoreCase)).Select(x => new CostItemInput { Id = x.Id, Title = x.Title, ShortDescription = x.ShortDescription, IsActive = x.IsActive, Type = x.Type, SortOrder = x.SortOrder }).ToList()
+                : [new CostItemInput { Type = "Exclusion", IsActive = true }],
+            FixedDepartures = expedition.FixedDepartures.Count > 0
+                ? expedition.FixedDepartures.Select(x => new FixedDepartureInput { Id = x.Id, StartDate = x.StartDate, EndDate = x.EndDate, ForDays = x.ForDays, Status = x.Status, GroupSize = x.GroupSize }).ToList()
+                : [new FixedDepartureInput()],
+            GearLists = expedition.GearLists.Count > 0
+                ? expedition.GearLists.Select(x => new GearListInput { Id = x.Id, ExistingPath = x.FilePath, ExistingImagePath = x.ImagePath, ShortDescription = x.ShortDescription }).ToList()
+                : [new GearListInput()],
+            MediaItems = expedition.MediaItems.Count > 0
+                ? expedition.MediaItems.Select(x => new MediaInput { Id = x.Id, ExistingPath = x.FilePath ?? x.Url, VideoUrl = x.VideoUrl, Caption = x.Caption, SortOrder = x.Ordering }).ToList()
+                : [new MediaInput()],
+            Reviews = expedition.Reviews.Count > 0
+                ? expedition.Reviews.Select(x => new ReviewInput { Id = x.Id, FullName = x.FullName, EmailAddress = x.EmailAddress, ExistingPhotoPath = x.UserPhotoPath, VideoUrl = x.VideoUrl, Rating = x.Rating, ReviewText = x.ReviewText, ModerationStatus = x.ModerationStatus }).ToList()
+                : [new ReviewInput()],
+            Faqs = expedition.Faqs.Count > 0
+                ? expedition.Faqs.Select(x => new ExpeditionFaqInput { Id = x.Id, Question = x.Question, Answer = x.Answer, Ordering = x.Ordering }).ToList()
+                : [new ExpeditionFaqInput()],
+            Highlights = expedition.Highlights.Count > 0
+                ? expedition.Highlights.Select(x => new HighlightInput { Id = x.Id, Text = x.Text, SortOrder = x.SortOrder }).ToList()
+                : [new HighlightInput()]
+        };
+    }
+
+    private async Task UpdateExpeditionCollectionsAsync(int id, Func<ExpeditionDetailsDto, Task<ExpeditionUpsertDto>> map, CancellationToken ct)
+    {
+        var details = await service.GetByIdAsync(id, ct);
+        if (details is null) return;
+        var dto = await map(details);
+        await service.UpdateAsync(id, dto, currentUser.UserId, ct);
+    }
+
+    private static ExpeditionUpsertDto ToUpsertDto(ExpeditionDetailsDto x)
+        => new(
+            x.Name, x.Slug, x.ShortDescription, x.Destination, x.Region, x.DurationDays, x.MaxAltitudeMeters, x.MaxAltitudeFeet, x.Difficulty, x.BestSeason,
+            x.Overview, x.Inclusions, x.Exclusions, x.HeroImageUrl, x.HeroVideoUrl, x.Permits, x.MinGroupSize, x.MaxGroupSize, x.PriceOnRequest, x.Price,
+            x.CurrencyCode, x.PriceNotesUrl, x.TripPdfUrl, x.AvailableDates, x.BookingCtaUrl, x.SeoTitle, x.SeoDescription, x.Status, x.Featured, x.Ordering,
+            x.SummitRoute, x.RequiresClimbingPermit, x.ExpeditionStyle, x.OxygenSupport, x.SherpaSupport, x.SummitBonusUsd, x.ExpeditionTypeId,
+            x.Sections, [], x.Faqs, x.MediaItems, x.OverviewCountry, x.PeakName, x.OverviewDuration, x.Route, x.Rank, x.Latitude, x.Longitude,
+            x.CoordinatesText, x.WeatherReport, x.Range, x.WalkingPerDay, x.Accommodation, x.GroupSizeText, x.DifficultyLevel, x.BoardBasis,
+            x.AverageRating, x.RatingLabel, x.ReviewCount, x.Itineraries, x.Maps, x.CostItems, x.FixedDepartures, x.GearLists, x.Highlights, x.Reviews);
+
+    private async Task<string?> SaveUploadedAssetAsync(IFormFile? upload, string subFolder, string? existingPath, CancellationToken ct)
+    {
+        if (upload is not { Length: > 0 }) return existingPath;
+
+        var extension = Path.GetExtension(upload.FileName);
+        var uploadsDirectory = Path.Combine(environment.WebRootPath, "uploads", "expeditions", subFolder);
+        Directory.CreateDirectory(uploadsDirectory);
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        var filePath = Path.Combine(uploadsDirectory, fileName);
+        await using var stream = System.IO.File.Create(filePath);
+        await upload.CopyToAsync(stream, ct);
+        return Path.Combine("uploads", "expeditions", subFolder, fileName).Replace('\\', '/');
     }
 
     private async Task LoadDropdowns(CancellationToken ct)
