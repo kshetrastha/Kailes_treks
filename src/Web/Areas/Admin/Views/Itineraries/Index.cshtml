@@ -1,0 +1,49 @@
+@model IReadOnlyList<TravelCleanArch.Application.Abstractions.Travel.ItinerarySummaryDto>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Itineraries";
+    var expeditionOptions = ViewBag.Expeditions as List<SelectListItem> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Itineraries</h2>
+    <a class="btn btn-primary" href="/admin/itineraries/upsert">Manage Itineraries</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="expeditionId" class="form-select" asp-items="expeditionOptions">
+            <option value="">All expeditions</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary">Filter</button></div>
+</form>
+
+<table class="table table-striped">
+    <thead><tr><th>Expedition</th><th>Season</th><th>Order</th><th>Days</th><th>Actions</th></tr></thead>
+    <tbody>
+    @if (!Model.Any())
+    {
+        <tr><td colspan="5" class="text-muted">No itineraries found.</td></tr>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ExpeditionName</td>
+                <td>@item.SeasonTitle</td>
+                <td>@item.SortOrder</td>
+                <td>@item.DayCount</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" href="/admin/itinerary-days/upsert?itineraryId=@item.Id">Manage Days</a>
+                    <form method="post" action="/admin/itineraries/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this itinerary?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
