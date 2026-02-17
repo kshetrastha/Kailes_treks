@@ -128,17 +128,41 @@
 @section Scripts {
     <script>
         (() => {
+            const updateCollectionIndexes = (container, rowSelector, prefix, options = {}) => {
+                const rows = Array.from(container.querySelectorAll(rowSelector));
+                rows.forEach((row, idx) => {
+                    const fields = row.querySelectorAll('input[name], textarea[name], select[name]');
+                    fields.forEach((field) => {
+                        const match = field.name.match(/\]\.([^.]+)$/);
+                        if (!match) {
+                            return;
+                        }
+
+                        field.name = `${prefix}[${idx}].${match[1]}`;
+                    });
+
+                    if (options.resequenceDayNumber) {
+                        const dayNumberInput = row.querySelector('input[name$=".DayNumber"]');
+                        if (dayNumberInput && (!dayNumberInput.value || Number(dayNumberInput.value) <= 0)) {
+                            dayNumberInput.value = idx + 1;
+                        }
+                    }
+                });
+            };
+
             const itineraryWrap = document.getElementById('itineraryRows');
             const addItineraryButton = document.getElementById('addItineraryRow');
             if (addItineraryButton && itineraryWrap) {
                 addItineraryButton.addEventListener('click', () => {
                     const idx = itineraryWrap.querySelectorAll('.itinerary-row').length;
                     itineraryWrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 itinerary-row"><input type="hidden" name="Itineraries[${idx}].Id" value="0" /><div class="col-md-7"><input class="form-control" name="Itineraries[${idx}].SeasonTitle" placeholder="Season title" /></div><div class="col-md-2"><input class="form-control" name="Itineraries[${idx}].SortOrder" value="${idx + 1}" placeholder="Sort" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div></div>`);
+                    updateCollectionIndexes(itineraryWrap, '.itinerary-row', 'Itineraries');
                 });
 
                 itineraryWrap.addEventListener('click', (e) => {
                     if (e.target.classList.contains('remove-row')) {
                         e.target.closest('.itinerary-row')?.remove();
+                        updateCollectionIndexes(itineraryWrap, '.itinerary-row', 'Itineraries');
                     }
                 });
             }
@@ -149,12 +173,19 @@
                 addDayButton.addEventListener('click', () => {
                     const idx = dayWrap.querySelectorAll('.day-row').length;
                     dayWrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 day-row"><input type="hidden" name="ItineraryDays[${idx}].Id" value="0" /><div class="col-md-1"><input class="form-control" name="ItineraryDays[${idx}].DayNumber" value="${idx + 1}" placeholder="Day" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].ShortDescription" placeholder="Short description" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].Meals" placeholder="Meals" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${idx}].AccommodationType" placeholder="Accommodation" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-day-row">Remove</button></div><div class="col-md-11 offset-md-1"><textarea class="form-control" rows="2" name="ItineraryDays[${idx}].Description" placeholder="Description"></textarea></div></div>`);
+                    updateCollectionIndexes(dayWrap, '.day-row', 'ItineraryDays', { resequenceDayNumber: true });
                 });
 
                 dayWrap.addEventListener('click', (e) => {
                     if (e.target.classList.contains('remove-day-row')) {
                         e.target.closest('.day-row')?.remove();
+                        updateCollectionIndexes(dayWrap, '.day-row', 'ItineraryDays', { resequenceDayNumber: true });
                     }
+                });
+
+                const itineraryDaysForm = dayWrap.closest('form');
+                itineraryDaysForm?.addEventListener('submit', () => {
+                    updateCollectionIndexes(dayWrap, '.day-row', 'ItineraryDays', { resequenceDayNumber: true });
                 });
             }
         })();
