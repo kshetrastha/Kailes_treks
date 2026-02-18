@@ -1,0 +1,13 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.TrekkingModuleFormViewModel
+@using TravelCleanArch.Application.Abstractions.Travel
+@{ var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? []; }
+<h5>1) Basic Info</h5>
+<div class="row g-2 mb-3">
+    <div class="col-md-4"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="ExpeditionTypeId"></label><select asp-for="ExpeditionTypeId" class="form-select">@foreach (var t in types){<option value="@t.Id">@t.Title</option>}</select></div>
+    <div class="col-md-4"><label asp-for="DifficultyLevel"></label><select asp-for="DifficultyLevel" class="form-select"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>HardDifficult</option><option>VeryHard</option></select></div>
+    <div class="col-md-6"><label asp-for="ShortDescription"></label><textarea asp-for="ShortDescription" class="form-control"></textarea></div>
+    <div class="col-md-2"><label asp-for="MaxElevation"></label><input asp-for="MaxElevation" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="Duration"></label><input asp-for="Duration" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="GroupSize"></label><input asp-for="GroupSize" class="form-control" /></div>
+</div>

@@ -763,6 +763,8 @@
                                         class="sidebar-link"><i class="mdi mdi-map-marker-path"></i><span class="hide-menu"> Itineraries</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/itinerary-days"
                                         class="sidebar-link"><i class="mdi mdi-calendar-multiple"></i><span class="hide-menu"> Itinerary Days</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/trekking-modules"
+                                        class="sidebar-link"><i class="mdi mdi-hiking"></i><span class="hide-menu"> Trekking Modules</span></a> </li>
                             </ul>
                         </li>
                         
@@ -928,6 +930,10 @@
                 else if (requestPath.Contains("/admin/itinerary-days"))
                 {
                     breadcrumbSection = "Itinerary Days";
+                }
+                else if (requestPath.Contains("/admin/trekking-modules"))
+                {
+                    breadcrumbSection = "Trekking Modules";
                 }
                 else if (requestPath.Contains("/admin/company"))
                 {

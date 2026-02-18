@@ -41,6 +41,15 @@ public sealed class AppDbContext:
     public DbSet<ExpeditionReviewItem> ExpeditionReviewItems => Set<ExpeditionReviewItem>();
     public DbSet<ExpeditionFaqItem> ExpeditionFaqItems => Set<ExpeditionFaqItem>();
 
+    public DbSet<TrekkingBasicInfo> TrekkingBasicInfos => Set<TrekkingBasicInfo>();
+    public DbSet<TrekkingOverview> TrekkingOverviews => Set<TrekkingOverview>();
+    public DbSet<TrekkingItinerary> TrekkingItineraries => Set<TrekkingItinerary>();
+    public DbSet<TrekkingInclusionExclusion> TrekkingInclusionExclusions => Set<TrekkingInclusionExclusion>();
+    public DbSet<TrekkingFixedDeparture> TrekkingFixedDepartures => Set<TrekkingFixedDeparture>();
+    public DbSet<TrekkingGear> TrekkingGears => Set<TrekkingGear>();
+    public DbSet<TrekkingReviewItem> TrekkingReviewItems => Set<TrekkingReviewItem>();
+    public DbSet<TrekkingFaqItem> TrekkingFaqItems => Set<TrekkingFaqItem>();
+
     public DbSet<Trekking> Trekking => Set<Trekking>();
     public DbSet<TrekkingItineraryDay> TrekkingItineraryDays => Set<TrekkingItineraryDay>();
     public DbSet<TrekkingFaq> TrekkingFaqs => Set<TrekkingFaq>();
@@ -69,6 +78,7 @@ public sealed class AppDbContext:
 
         //ConfigureExpeditions(builder);
         //ConfigureTrekking(builder);
+        ConfigureTrekkingModule(builder);
         //ConfigureWhyWithUs(builder);
         //ConfigureWhoWeAre(builder);
         //ConfigureCompanyPages(builder);
@@ -312,6 +322,103 @@ public sealed class AppDbContext:
             b.Property(x => x.Answer).HasMaxLength(4000).IsRequired();
             b.HasIndex(x => x.ExpeditionId);
             b.HasIndex(x => new { x.ExpeditionId, x.DisplayOrder });
+        });
+    }
+
+
+    private static void ConfigureTrekkingModule(ModelBuilder builder)
+    {
+        builder.Entity<TrekkingBasicInfo>(b =>
+        {
+            b.ToTable("trekking_basic_infos");
+            b.Property(x => x.Name).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(800).IsRequired();
+            b.Property(x => x.Duration).HasMaxLength(120).IsRequired();
+            b.Property(x => x.WalkingHoursPerDay).HasMaxLength(120);
+            b.Property(x => x.Accommodation).HasMaxLength(200);
+            b.Property(x => x.BestSeason).HasMaxLength(200);
+            b.Property(x => x.GroupSize).HasMaxLength(80);
+            b.Property(x => x.BannerImagePath).HasMaxLength(500);
+            b.Property(x => x.ThumbnailImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.ExpeditionTypeId);
+            b.HasOne(x => x.ExpeditionType).WithMany().HasForeignKey(x => x.ExpeditionTypeId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(x => x.Overview).WithOne(x => x.Trekking).HasForeignKey<TrekkingOverview>(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Itineraries).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.InclusionExclusions).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.FixedDepartures).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.GearItems).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Reviews).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(x => x.Faqs).WithOne(x => x.Trekking).HasForeignKey(x => x.TrekkingId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<TrekkingOverview>(b =>
+        {
+            b.ToTable("trekking_overviews");
+            b.Property(x => x.Country).HasMaxLength(120);
+            b.Property(x => x.PeakName).HasMaxLength(160);
+            b.Property(x => x.Route).HasMaxLength(220);
+            b.Property(x => x.Rank).HasMaxLength(80);
+            b.Property(x => x.Range).HasMaxLength(160);
+            b.Property(x => x.Coordinates).HasMaxLength(120);
+            b.Property(x => x.WeatherInformation).HasMaxLength(500);
+            b.HasIndex(x => x.TrekkingId).IsUnique();
+        });
+
+        builder.Entity<TrekkingItinerary>(b =>
+        {
+            b.ToTable("trekking_itineraries");
+            b.Property(x => x.SeasonTitle).HasMaxLength(120).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(800);
+            b.Property(x => x.Accommodation).HasMaxLength(200);
+            b.Property(x => x.Meals).HasMaxLength(100);
+            b.Property(x => x.Elevation).HasMaxLength(120);
+            b.HasIndex(x => x.TrekkingId);
+            b.HasIndex(x => new { x.TrekkingId, x.SeasonTitle, x.DayNumber }).IsUnique();
+        });
+
+        builder.Entity<TrekkingInclusionExclusion>(b =>
+        {
+            b.ToTable("trekking_inclusion_exclusions");
+            b.Property(x => x.Description).HasMaxLength(1000).IsRequired();
+            b.HasIndex(x => x.TrekkingId);
+            b.HasIndex(x => new { x.TrekkingId, x.Type, x.DisplayOrder });
+        });
+
+        builder.Entity<TrekkingFixedDeparture>(b =>
+        {
+            b.ToTable("trekking_fixed_departures");
+            b.Property(x => x.Price).HasColumnType("numeric(18,2)");
+            b.Property(x => x.Currency).HasMaxLength(10).HasDefaultValue("USD");
+            b.HasIndex(x => x.TrekkingId);
+        });
+
+        builder.Entity<TrekkingGear>(b =>
+        {
+            b.ToTable("trekking_gear_items");
+            b.Property(x => x.ItemName).HasMaxLength(220).IsRequired();
+            b.HasIndex(x => x.TrekkingId);
+            b.HasIndex(x => new { x.TrekkingId, x.Category, x.DisplayOrder });
+        });
+
+        builder.Entity<TrekkingReviewItem>(b =>
+        {
+            b.ToTable("trekking_reviews");
+            b.Property(x => x.ClientName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.Country).HasMaxLength(120);
+            b.Property(x => x.Title).HasMaxLength(220);
+            b.Property(x => x.Comment).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.ImagePath).HasMaxLength(500);
+            b.HasIndex(x => x.TrekkingId);
+        });
+
+        builder.Entity<TrekkingFaqItem>(b =>
+        {
+            b.ToTable("trekking_module_faqs");
+            b.Property(x => x.Question).HasMaxLength(400).IsRequired();
+            b.Property(x => x.Answer).HasMaxLength(4000).IsRequired();
+            b.HasIndex(x => x.TrekkingId);
+            b.HasIndex(x => new { x.TrekkingId, x.DisplayOrder });
         });
     }
 
