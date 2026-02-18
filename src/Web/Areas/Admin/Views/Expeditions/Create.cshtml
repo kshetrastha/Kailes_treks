@@ -208,7 +208,7 @@
                             </div>
                             <div class="col-md-12">
                                 <small class="text-muted d-block mb-2">You can save image URL, image upload, or video URL. Preview appears below.</small>
-                               @*  <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                                @*  <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
                                     <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
                                 </div>
                                 <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
@@ -469,8 +469,7 @@
 
             const renderHeroImagePreview = () => {
                 if (!heroImagePreview) return;
-
-                const imageUrl = heroImageUrlInput?.value?.trim();
+                const imageUrl = "/"+heroImageUrlInput?.value?.trim();
                 const uploadedFile = heroImageInput instanceof HTMLInputElement ? heroImageInput.files?.[0] : null;
 
                 if (uploadedFile) {
@@ -531,9 +530,9 @@
         color: #1f2937;
     }
 
-    .expedition-tabs .nav-link.active {
-        color: #0d6efd;
-        font-weight: 600;
-    }
+        .expedition-tabs .nav-link.active {
+            color: #0d6efd;
+            font-weight: 600;
+        }
 </style>
 @* } *@

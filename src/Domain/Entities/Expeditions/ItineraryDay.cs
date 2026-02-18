@@ -10,6 +10,5 @@ public sealed class ItineraryDay : BaseEntity
     public string? Description { get; set; }
     public string? Meals { get; set; }
     public string? AccommodationType { get; set; }
-
     public Itinerary Itinerary { get; set; } = default!;
 }
