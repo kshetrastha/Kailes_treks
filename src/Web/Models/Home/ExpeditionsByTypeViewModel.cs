@@ -12,6 +12,7 @@ public sealed class ExpeditionsByTypeViewModel
 
 public sealed class ExpeditionTypeCardViewModel
 {
+    public string Slug { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
     public string Destination { get; init; } = string.Empty;
     public int DurationDays { get; init; }

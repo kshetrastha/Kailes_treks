@@ -61,15 +61,18 @@
             {
                 @foreach (var expedition in Model.Expeditions)
                 {
-                    <div class="w-full aspect-[16/8] relative overflow-hidden group ease-in-out duration-300">
+                    <article class="w-full aspect-[16/8] relative overflow-hidden group ease-in-out duration-300">
                         <img src="@(string.IsNullOrWhiteSpace(expedition.ImagePath) ? "~/customer/assets/img/expeditions/exp4.png" : expedition.ImagePath)');" alt=""
                              class="w-full h-full object-center object-cover grayscale-50 group-hover:grayscale-0 ease-in-out duration-1000">
-                        <div class="absolute top-0 left-0 w-full px-4 py-6 h-full bg-black/30 flex items-center justify-center text-center">
+                        <div class="absolute top-0 left-0 w-full px-4 py-6 h-full bg-black/30 flex flex-col items-center justify-center text-center gap-3">
                             <h2 class="text-2xl text-white font-bold">
                                 @expedition.Name
                             </h2>
+                            <a href="/expeditions/@expedition.Slug" class="inline-flex items-center rounded border border-[#e1a74e] px-4 py-1.5 text-sm font-medium text-[#e1a74e] bg-white/90 hover:bg-[#e1a74e] hover:text-white transition-colors">
+                                View more
+                            </a>
                         </div>
-                    </div>
+                    </article>
                 }
             }
         </div>

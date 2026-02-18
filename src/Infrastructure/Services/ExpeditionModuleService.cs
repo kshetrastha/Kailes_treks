@@ -15,6 +15,20 @@ public sealed class ExpeditionModuleService(AppDbContext db) : IExpeditionModule
             .Select(x => new ExpeditionBasicInfoListItemDto(x.Id, x.Name, x.DifficultyLevel.ToString(), x.Duration, x.IsFeatured))
             .ToListAsync(ct);
 
+    public async Task<ExpeditionModuleDetailsDto?> GetDetailsBySlugAsync(string slug, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) return null;
+
+        var slugLookup = await db.ExpeditionBasicInfos.AsNoTracking()
+            .Select(x => new { x.Id, x.Name })
+            .ToListAsync(ct);
+
+        var matched = slugLookup.FirstOrDefault(x =>
+            string.Equals(TravelSlug.Normalize(x.Name), slug, StringComparison.OrdinalIgnoreCase));
+
+        return matched is null ? null : await GetDetailsAsync(matched.Id, ct);
+    }
+
     public async Task<ExpeditionModuleDetailsDto?> GetDetailsAsync(int id, CancellationToken ct)
     {
         var x = await db.ExpeditionBasicInfos.AsNoTracking()

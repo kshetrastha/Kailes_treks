@@ -4,6 +4,7 @@ public interface IExpeditionModuleService
 {
     Task<IReadOnlyCollection<ExpeditionBasicInfoListItemDto>> ListBasicInfosAsync(CancellationToken ct);
     Task<ExpeditionModuleDetailsDto?> GetDetailsAsync(int id, CancellationToken ct);
+    Task<ExpeditionModuleDetailsDto?> GetDetailsBySlugAsync(string slug, CancellationToken ct);
     Task<int> CreateBasicInfoAsync(ExpeditionBasicInfoUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> UpdateBasicInfoAsync(int id, ExpeditionBasicInfoUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> DeleteBasicInfoAsync(int id, CancellationToken ct);
