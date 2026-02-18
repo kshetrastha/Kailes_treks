@@ -215,7 +215,15 @@ public sealed class ExpeditionsController(
             foreach (var row in rows)
             {
                 var photoPath = await SaveUploadedAssetAsync(row.UserPhoto, "reviews", row.ExistingPhotoPath, ct);
-                reviews.Add(new ExpeditionReviewDto(row.Id, row.FullName, row.EmailAddress, photoPath, row.VideoUrl, row.Rating, row.ReviewText, string.IsNullOrWhiteSpace(row.ModerationStatus) ? "Pending" : row.ModerationStatus));
+                reviews.Add(new ExpeditionReviewDto(
+                    row.Id,
+                    row.FullName?.Trim() ?? string.Empty,
+                    row.EmailAddress?.Trim() ?? string.Empty,
+                    photoPath,
+                    row.VideoUrl?.Trim(),
+                    row.Rating,
+                    row.ReviewText?.Trim() ?? string.Empty,
+                    string.IsNullOrWhiteSpace(row.ModerationStatus) ? "Pending" : row.ModerationStatus));
             }
             return ToUpsertDto(details) with { Reviews = reviews };
         }, ct);
