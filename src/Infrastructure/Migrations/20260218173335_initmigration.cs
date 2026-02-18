@@ -246,40 +246,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Trekking",
+                name: "TrekkingTypes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
-                    Destination = table.Column<string>(type: "text", nullable: false),
-                    Region = table.Column<string>(type: "text", nullable: true),
-                    DurationDays = table.Column<int>(type: "integer", nullable: false),
-                    MaxAltitudeMeters = table.Column<int>(type: "integer", nullable: false),
-                    Difficulty = table.Column<string>(type: "text", nullable: false),
-                    BestSeason = table.Column<string>(type: "text", nullable: true),
-                    Overview = table.Column<string>(type: "text", nullable: true),
-                    Inclusions = table.Column<string>(type: "text", nullable: true),
-                    Exclusions = table.Column<string>(type: "text", nullable: true),
-                    HeroImageUrl = table.Column<string>(type: "text", nullable: true),
-                    Permits = table.Column<string>(type: "text", nullable: true),
-                    MinGroupSize = table.Column<int>(type: "integer", nullable: false),
-                    MaxGroupSize = table.Column<int>(type: "integer", nullable: false),
-                    Price = table.Column<decimal>(type: "numeric", nullable: false),
-                    AvailableDates = table.Column<string>(type: "text", nullable: true),
-                    BookingCtaUrl = table.Column<string>(type: "text", nullable: true),
-                    SeoTitle = table.Column<string>(type: "text", nullable: true),
-                    SeoDescription = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    Featured = table.Column<bool>(type: "boolean", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    ImagePath = table.Column<string>(type: "text", nullable: true),
                     Ordering = table.Column<int>(type: "integer", nullable: false),
-                    TrailGrade = table.Column<string>(type: "text", nullable: true),
-                    TeaHouseAvailable = table.Column<bool>(type: "boolean", nullable: false),
-                    AccommodationType = table.Column<string>(type: "text", nullable: true),
-                    Meals = table.Column<string>(type: "text", nullable: true),
-                    TransportMode = table.Column<string>(type: "text", nullable: true),
-                    TrekPermitType = table.Column<string>(type: "text", nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: true),
@@ -287,7 +264,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Trekking", x => x.Id);
+                    table.PrimaryKey("PK_TrekkingTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -622,15 +599,67 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TrekkingFaqs",
+                name: "Trekking",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
-                    Question = table.Column<string>(type: "text", nullable: false),
-                    Answer = table.Column<string>(type: "text", nullable: false),
+                    TrekkingTypeId = table.Column<int>(type: "integer", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: false),
+                    Destination = table.Column<string>(type: "text", nullable: false),
+                    Region = table.Column<string>(type: "text", nullable: true),
+                    DurationDays = table.Column<int>(type: "integer", nullable: false),
+                    MaxAltitudeMeters = table.Column<int>(type: "integer", nullable: false),
+                    MaxAltitudeFeet = table.Column<int>(type: "integer", nullable: true),
+                    DifficultyLevel = table.Column<int>(type: "integer", nullable: true),
+                    BestSeason = table.Column<int>(type: "integer", nullable: true),
+                    WalkingPerDay = table.Column<string>(type: "text", nullable: true),
+                    Accommodation = table.Column<string>(type: "text", nullable: true),
+                    Overview = table.Column<string>(type: "text", nullable: true),
+                    OverviewCountry = table.Column<int>(type: "integer", nullable: false),
+                    PeakName = table.Column<string>(type: "text", nullable: true),
+                    Route = table.Column<string>(type: "text", nullable: true),
+                    Rank = table.Column<string>(type: "text", nullable: true),
+                    Latitude = table.Column<decimal>(type: "numeric", nullable: true),
+                    Longitude = table.Column<decimal>(type: "numeric", nullable: true),
+                    CoordinatesText = table.Column<string>(type: "text", nullable: true),
+                    WeatherReportUrl = table.Column<string>(type: "text", nullable: true),
+                    Range = table.Column<string>(type: "text", nullable: true),
+                    HeroImageUrl = table.Column<string>(type: "text", nullable: true),
+                    HeroVideoUrl = table.Column<string>(type: "text", nullable: true),
+                    MinGroupSize = table.Column<int>(type: "integer", nullable: false),
+                    MaxGroupSize = table.Column<int>(type: "integer", nullable: false),
+                    GroupSizeText = table.Column<string>(type: "text", nullable: true),
+                    PriceOnRequest = table.Column<bool>(type: "boolean", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: true),
+                    CurrencyCode = table.Column<string>(type: "text", nullable: true),
+                    PriceNotesUrl = table.Column<string>(type: "text", nullable: true),
+                    TripPdfUrl = table.Column<string>(type: "text", nullable: true),
+                    SeoTitle = table.Column<string>(type: "text", nullable: true),
+                    SeoDescription = table.Column<string>(type: "text", nullable: true),
+                    AverageRating = table.Column<decimal>(type: "numeric", nullable: true),
+                    RatingLabel = table.Column<string>(type: "text", nullable: true),
+                    ReviewCount = table.Column<int>(type: "integer", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Featured = table.Column<bool>(type: "boolean", nullable: false),
                     Ordering = table.Column<int>(type: "integer", nullable: false),
+                    ExpeditionStyle = table.Column<string>(type: "text", nullable: true),
+                    BoardBasis = table.Column<string>(type: "text", nullable: true),
+                    OxygenSupport = table.Column<bool>(type: "boolean", nullable: false),
+                    SherpaSupport = table.Column<bool>(type: "boolean", nullable: false),
+                    SummitBonusUsd = table.Column<decimal>(type: "numeric", nullable: true),
+                    Permits = table.Column<string>(type: "text", nullable: true),
+                    RequiresClimbingPermit = table.Column<bool>(type: "boolean", nullable: false),
+                    Difficulty = table.Column<string>(type: "text", nullable: false),
+                    Inclusions = table.Column<string>(type: "text", nullable: true),
+                    Exclusions = table.Column<string>(type: "text", nullable: true),
+                    AvailableDates = table.Column<string>(type: "text", nullable: true),
+                    BookingCtaUrl = table.Column<string>(type: "text", nullable: true),
+                    SummitRoute = table.Column<string>(type: "text", nullable: true),
+                    OverviewDuration = table.Column<string>(type: "text", nullable: true),
+                    WeatherReport = table.Column<string>(type: "text", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: true),
@@ -638,26 +667,26 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TrekkingFaqs", x => x.Id);
+                    table.PrimaryKey("PK_Trekking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TrekkingFaqs_Trekking_TrekkingId",
-                        column: x => x.TrekkingId,
-                        principalTable: "Trekking",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Trekking_TrekkingTypes_TrekkingTypeId",
+                        column: x => x.TrekkingTypeId,
+                        principalTable: "TrekkingTypes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "TrekkingItineraryDays",
+                name: "TrekkingTypeImages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
-                    DayNumber = table.Column<int>(type: "integer", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
-                    OvernightLocation = table.Column<string>(type: "text", nullable: true),
+                    TrekkingTypeId = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: false),
+                    AltText = table.Column<string>(type: "text", nullable: true),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    IsCover = table.Column<bool>(type: "boolean", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<int>(type: "integer", nullable: true),
@@ -665,38 +694,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TrekkingItineraryDays", x => x.Id);
+                    table.PrimaryKey("PK_TrekkingTypeImages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TrekkingItineraryDays_Trekking_TrekkingId",
-                        column: x => x.TrekkingId,
-                        principalTable: "Trekking",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TrekkingMedia",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
-                    Url = table.Column<string>(type: "text", nullable: false),
-                    Caption = table.Column<string>(type: "text", nullable: true),
-                    MediaType = table.Column<string>(type: "text", nullable: false),
-                    Ordering = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
-                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TrekkingMedia", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TrekkingMedia_Trekking_TrekkingId",
-                        column: x => x.TrekkingId,
-                        principalTable: "Trekking",
+                        name: "FK_TrekkingTypeImages_TrekkingTypes_TrekkingTypeId",
+                        column: x => x.TrekkingTypeId,
+                        principalTable: "TrekkingTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1175,6 +1177,250 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TrekkingCostItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingCostItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingCostItems_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingFaqs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    Question = table.Column<string>(type: "text", nullable: false),
+                    Answer = table.Column<string>(type: "text", nullable: false),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingFaqs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingFaqs_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingFixedDepartures",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ForDays = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    GroupSize = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingFixedDepartures", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingFixedDepartures_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingGearLists",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: true),
+                    ImagePath = table.Column<string>(type: "text", nullable: true),
+                    FilePath = table.Column<string>(type: "text", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingGearLists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingGearLists_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingHighlights",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingHighlights", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingHighlights_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingItineraries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    SeasonTitle = table.Column<string>(type: "text", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingItineraries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingItineraries_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingMaps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingMaps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingMaps_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingMedia",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    Url = table.Column<string>(type: "text", nullable: false),
+                    Caption = table.Column<string>(type: "text", nullable: true),
+                    MediaType = table.Column<string>(type: "text", nullable: false),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: true),
+                    VideoUrl = table.Column<string>(type: "text", nullable: true),
+                    MediaKind = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingMedia", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingMedia_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingReviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    EmailAddress = table.Column<string>(type: "text", nullable: false),
+                    UserPhotoPath = table.Column<string>(type: "text", nullable: true),
+                    VideoUrl = table.Column<string>(type: "text", nullable: true),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    ReviewText = table.Column<string>(type: "text", nullable: false),
+                    ModerationStatus = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingReviews_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ItineraryDays",
                 columns: table => new
                 {
@@ -1206,6 +1452,40 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         principalTable: "Itineraries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrekkingItineraryDays",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TrekkingItineraryId = table.Column<int>(type: "integer", nullable: false),
+                    DayNumber = table.Column<int>(type: "integer", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Meals = table.Column<string>(type: "text", nullable: true),
+                    AccommodationType = table.Column<string>(type: "text", nullable: true),
+                    TrekkingId = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrekkingItineraryDays", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TrekkingItineraryDays_TrekkingItineraries_TrekkingItinerary~",
+                        column: x => x.TrekkingItineraryId,
+                        principalTable: "TrekkingItineraries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TrekkingItineraryDays_Trekking_TrekkingId",
+                        column: x => x.TrekkingId,
+                        principalTable: "Trekking",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -1352,8 +1632,38 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "ItineraryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Trekking_TrekkingTypeId",
+                table: "Trekking",
+                column: "TrekkingTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingCostItems_TrekkingId",
+                table: "TrekkingCostItems",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TrekkingFaqs_TrekkingId",
                 table: "TrekkingFaqs",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingFixedDepartures_TrekkingId",
+                table: "TrekkingFixedDepartures",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingGearLists_TrekkingId",
+                table: "TrekkingGearLists",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingHighlights_TrekkingId",
+                table: "TrekkingHighlights",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingItineraries_TrekkingId",
+                table: "TrekkingItineraries",
                 column: "TrekkingId");
 
             migrationBuilder.CreateIndex(
@@ -1362,9 +1672,29 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 column: "TrekkingId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TrekkingItineraryDays_TrekkingItineraryId",
+                table: "TrekkingItineraryDays",
+                column: "TrekkingItineraryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingMaps_TrekkingId",
+                table: "TrekkingMaps",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TrekkingMedia_TrekkingId",
                 table: "TrekkingMedia",
                 column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingReviews_TrekkingId",
+                table: "TrekkingReviews",
+                column: "TrekkingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrekkingTypeImages_TrekkingTypeId",
+                table: "TrekkingTypeImages",
+                column: "TrekkingTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WhoWeAreImages_WhoWeAreId",
@@ -1463,13 +1793,34 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "TeamMembers");
 
             migrationBuilder.DropTable(
+                name: "TrekkingCostItems");
+
+            migrationBuilder.DropTable(
                 name: "TrekkingFaqs");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingFixedDepartures");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingGearLists");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingHighlights");
 
             migrationBuilder.DropTable(
                 name: "TrekkingItineraryDays");
 
             migrationBuilder.DropTable(
+                name: "TrekkingMaps");
+
+            migrationBuilder.DropTable(
                 name: "TrekkingMedia");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingReviews");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingTypeImages");
 
             migrationBuilder.DropTable(
                 name: "WhoWeAreHeroes");
@@ -1496,7 +1847,7 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "Itineraries");
 
             migrationBuilder.DropTable(
-                name: "Trekking");
+                name: "TrekkingItineraries");
 
             migrationBuilder.DropTable(
                 name: "WhoWeAre");
@@ -1505,7 +1856,13 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "Expeditions");
 
             migrationBuilder.DropTable(
+                name: "Trekking");
+
+            migrationBuilder.DropTable(
                 name: "ExpeditionTypes");
+
+            migrationBuilder.DropTable(
+                name: "TrekkingTypes");
         }
     }
 }

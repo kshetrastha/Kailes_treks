@@ -1,0 +1,45 @@
+@model TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult
+@{
+    ViewData["Title"] = "Trekking";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Trekking</h3>
+        <a class="btn btn-primary" asp-action="Create">Add Trekking</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3"><input class="form-control" name="search" value="@Context.Request.Query["search"]" placeholder="Search by name" /></div>
+        <div class="col-md-3"><input class="form-control" name="destination" value="@Context.Request.Query["destination"]" placeholder="Country" /></div>
+        <div class="col-md-3"><input class="form-control" name="difficulty" value="@Context.Request.Query["difficulty"]" placeholder="Difficulty" /></div>
+        <div class="col-md-2"><button class="btn btn-outline-secondary">Filter</button></div>
+    </form>
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr><th>Name</th><th>Type</th><th>Country</th><th>Difficulty</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.TrekkingTypeTitle</td>
+                                <td>@item.Country</td>
+                                <td>@item.DifficultyLevel</td>
+                                <td>@item.Status</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Detail" asp-route-id="@item.Id">Detail</a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this trekking?')">Delete</button></form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
