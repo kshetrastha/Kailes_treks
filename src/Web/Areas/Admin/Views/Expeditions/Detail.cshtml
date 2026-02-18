@@ -1,5 +1,5 @@
 @model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionItineraryTabsViewModel
-@{
+@{ 
     ViewData["Title"] = $"Expedition Detail - {Model.ExpeditionName}";
     var activeTab = (Model.ActiveTab ?? "itineraries").ToLowerInvariant();
     bool IsTab(string key) => string.Equals(activeTab, key, StringComparison.OrdinalIgnoreCase);
