@@ -248,7 +248,7 @@
                                                 </div>
 
                                                 <div class="w-fit group">
-                                                    <a href="/expeditions/type/@group.Type.Id"
+                                                    <a href="/expeditions/type/@group.Type.Id/@(Uri.EscapeDataString((group.Type.Title ?? string.Empty).Trim().ToLowerInvariant().Replace(" ", "-")))"
                                                         class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
                                                         <span
                                                             class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
@@ -1078,7 +1078,7 @@
                             @foreach (var type in expeditionTypes.OrderBy(x => x.Ordering).ThenBy(x => x.Title).Take(7))
                             {
                                 <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
-                                    <a href="/expeditions/type/@type.Id" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
+                                    <a href="/expeditions/type/@type.Id/@(Uri.EscapeDataString((type.Title ?? string.Empty).Trim().ToLowerInvariant().Replace(" ", "-")))" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
                                         @type.Title
                                     </a>
                                 </li>

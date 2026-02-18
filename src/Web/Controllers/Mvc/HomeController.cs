@@ -72,9 +72,10 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
-    [HttpGet("expeditions/type/{typeId:int}")]
+    [HttpGet("expeditions/type/{typeId:int}/{slug?}")]
     public async Task<IActionResult> ExpeditionsByType(
         int typeId,
+        string? slug,
         [FromServices] IExpeditionTypeService expeditionTypeService,
         [FromServices] IExpeditionService expeditionService,
         CancellationToken ct)
@@ -83,6 +84,12 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         if (expeditionType is null || !expeditionType.IsPublished)
         {
             return NotFound();
+        }
+
+        var expectedSlug = ToSlug(expeditionType.Title);
+        if (string.IsNullOrWhiteSpace(slug) || !string.Equals(slug, expectedSlug, StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToActionPermanent(nameof(ExpeditionsByType), new { typeId, slug = expectedSlug });
         }
 
         var publishedExpeditions = (await expeditionService.ListAsync(
@@ -159,6 +166,14 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         };
 
         return View(vm);
+    }
+
+    private static string ToSlug(string value)
+    {
+        return string.Join('-', value
+            .Trim()
+            .ToLowerInvariant()
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries));
     }
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
