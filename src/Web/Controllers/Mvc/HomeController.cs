@@ -107,11 +107,12 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
                 .ThenBy(x => x.Name)
                 .Select(x => new ExpeditionTypeCardViewModel
                 {
+                    Slug = x.Slug,
                     Name = x.Name,
                     Destination = x.Destination,
                     DurationDays = x.DurationDays,
                     ShortDescription = x.ShortDescription,
-                    ImagePath =x.HeroImageUrl
+                    ImagePath = x.HeroImageUrl
                 })
                 .ToList()
         };
@@ -119,10 +120,10 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
-    [HttpGet("expeditions/{id:int}")]
-    public async Task<IActionResult> ExpeditionDetails(int id, [FromServices] IExpeditionModuleService expeditionModuleService, CancellationToken ct)
+    [HttpGet("expeditions/{slug}")]
+    public async Task<IActionResult> ExpeditionDetails(string slug, [FromServices] IExpeditionModuleService expeditionModuleService, CancellationToken ct)
     {
-        var item = await expeditionModuleService.GetDetailsAsync(id, ct);
+        var item = await expeditionModuleService.GetDetailsBySlugAsync(slug, ct);
         if (item is null) return NotFound();
 
         var vm = new ExpeditionModuleDetailsViewModel
