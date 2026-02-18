@@ -1,0 +1,226 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionItineraryTabsViewModel
+@{ 
+    ViewData["Title"] = $"Trekking Detail - {Model.ExpeditionName}";
+    var activeTab = (Model.ActiveTab ?? "itineraries").ToLowerInvariant();
+    bool IsTab(string key) => string.Equals(activeTab, key, StringComparison.OrdinalIgnoreCase);
+
+    var sectionHeader = activeTab switch
+    {
+        "itinerary-days" => "Itinerary Days",
+        "maps" => "Maps",
+        "cost-includes" => "Cost Includes",
+        "cost-excludes" => "Cost Excludes",
+        "departures" => "Departure",
+        "gear-lists" => "Gear List",
+        "photos-videos" => "Photos & Videos",
+        "reviews" => "Reviews",
+        "faqs" => "Faqs",
+        "highlights" => "Highlights",
+        _ => "Itinerary"
+    };
+}
+
+<style>
+    #detailTabs { flex-wrap: wrap; gap: .25rem; border-bottom-color: #d0d7de; }
+    #detailTabs .nav-link { color: #334155; background: #f8fafc; border: 1px solid #d0d7de; border-bottom-color: #d0d7de; font-weight: 500; }
+    #detailTabs .nav-link.active { color: #1d4ed8; background: #fff; border-bottom-color: #fff; font-weight: 600; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">@Model.ExpeditionName - Detail</h3>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string success) { <div class="alert alert-success">@success</div> }
+    @if (TempData["ErrorMessage"] is string error) { <div class="alert alert-danger">@error</div> }
+
+    <ul class="nav nav-tabs mb-3" id="detailTabs" role="tablist">
+        <li class="nav-item"><a class="nav-link @(IsTab("itineraries") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=itineraries">Itinerary</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("itinerary-days") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=itinerary-days&itineraryId=@Model.SelectedItineraryId">Itinerary Days</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("maps") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=maps&itineraryId=@Model.SelectedItineraryId">Maps</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("cost-includes") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=cost-includes&itineraryId=@Model.SelectedItineraryId">Cost Includes</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("cost-excludes") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=cost-excludes&itineraryId=@Model.SelectedItineraryId">Cost Excludes</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("departures") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=departures&itineraryId=@Model.SelectedItineraryId">Departure</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("gear-lists") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=gear-lists&itineraryId=@Model.SelectedItineraryId">Gear List</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("photos-videos") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=photos-videos&itineraryId=@Model.SelectedItineraryId">Photos & Videos</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("reviews") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=reviews&itineraryId=@Model.SelectedItineraryId">Reviews</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("faqs") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=faqs&itineraryId=@Model.SelectedItineraryId">Faqs</a></li>
+        <li class="nav-item"><a class="nav-link @(IsTab("highlights") ? "active" : "")" href="/admin/trekking/@Model.ExpeditionId/detail?activeTab=highlights&itineraryId=@Model.SelectedItineraryId">Highlights</a></li>
+    </ul>
+
+    <div class="card"><div class="card-body">
+        <h5 class="mb-3">@sectionHeader</h5>
+    @if (IsTab("itineraries"))
+    {
+        <form method="post" asp-action="SaveDetailItineraries" asp-route-id="@Model.ExpeditionId">
+            @Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-7">Season Title</div><div class="col-md-2">Sort Order</div><div class="col-md-2">Action</div></div><div id="itineraryRows">
+                @for (var i = 0; i < Model.Itineraries.Count; i++)
+                {
+                    <div class="row g-2 mb-2 itinerary-row">
+                        <input type="hidden" name="Itineraries[@i].Id" value="@Model.Itineraries[i].Id" />
+                        <div class="col-md-7"><input class="form-control" name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" placeholder="Season title" /></div>
+                        <div class="col-md-2"><input class="form-control" name="Itineraries[@i].SortOrder" value="@Model.Itineraries[i].SortOrder" placeholder="Sort" /></div>
+                        <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" id="addItineraryRow" class="btn btn-outline-secondary btn-sm" data-add="itineraryRows" data-prefix="Itineraries" data-template="itinerary">Add Itinerary</button>
+            <div class="mt-3"><button class="btn btn-primary" type="submit">Save Itineraries</button></div>
+        </form>
+    }
+    else if (IsTab("itinerary-days"))
+    {
+        <form method="get" asp-action="Detail" asp-route-id="@Model.ExpeditionId" class="row g-2 mb-3">
+            <input type="hidden" name="activeTab" value="itinerary-days" />
+            <div class="col-md-5"><select class="form-select" name="itineraryId" asp-items="Model.ItineraryOptions"></select></div>
+            <div class="col-md-2"><button class="btn btn-outline-secondary">Load Days</button></div>
+        </form>
+        <form method="post" asp-action="SaveDetailItineraryDays" asp-route-id="@Model.ExpeditionId">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="SelectedItineraryId" value="@Model.SelectedItineraryId" />
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-1">Day</div><div class="col-md-3">Short Description</div><div class="col-md-3">Meals</div><div class="col-md-3">Accommodation</div><div class="col-md-2">Action</div></div><div id="dayRows">
+                @for (var i = 0; i < Model.ItineraryDays.Count; i++)
+                {
+                    <div class="row g-2 mb-2 day-row">
+                        <input type="hidden" name="ItineraryDays[@i].Id" value="@Model.ItineraryDays[i].Id" />
+                        <div class="col-md-1"><input class="form-control" name="ItineraryDays[@i].DayNumber" value="@Model.ItineraryDays[i].DayNumber" placeholder="Day" /></div>
+                        <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].ShortDescription" value="@Model.ItineraryDays[i].ShortDescription" placeholder="Short description" /></div>
+                        <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].Meals" value="@Model.ItineraryDays[i].Meals" placeholder="Meals" /></div>
+                        <div class="col-md-3"><input class="form-control" name="ItineraryDays[@i].AccommodationType" value="@Model.ItineraryDays[i].AccommodationType" placeholder="Accommodation" /></div>
+                        <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-day-row">Remove</button></div>
+                        <div class="col-md-11 offset-md-1"><textarea class="form-control" rows="2" name="ItineraryDays[@i].Description">@Model.ItineraryDays[i].Description</textarea></div>
+                    </div>
+                }
+            </div>
+            <button type="button" id="addDayRow" class="btn btn-outline-secondary btn-sm" data-add="dayRows" data-prefix="ItineraryDays" data-template="day">Add Itinerary Day</button>
+            <div class="mt-3"><button class="btn btn-primary" type="submit">Save Itinerary Days</button></div>
+        </form>
+    }
+    else if (IsTab("maps"))
+    {
+        <form method="post" enctype="multipart/form-data" asp-action="SaveDetailMaps" asp-route-id="@Model.ExpeditionId">
+            @Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-4">Map Title</div><div class="col-md-4">Upload File</div><div class="col-md-3">Existing Path</div><div class="col-md-1">Action</div><div class="col-md-12">Notes</div></div>
+            <div id="mapsRows">@for (var i=0;i<Model.Maps.Count;i++){<div class="row g-2 mb-2 maps-row"><input type="hidden" name="Maps[@i].Id" value="@Model.Maps[i].Id" /><div class="col-md-4"><input class="form-control" name="Maps[@i].Title" value="@Model.Maps[i].Title" placeholder="Title" /></div><div class="col-md-4"><input class="form-control" name="Maps[@i].UploadFile" type="file" /></div><div class="col-md-3"><input class="form-control" name="Maps[@i].ExistingPath" value="@Model.Maps[i].ExistingPath" placeholder="Existing path" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><div class="col-md-12"><textarea class="form-control" name="Maps[@i].Notes" placeholder="Notes">@Model.Maps[i].Notes</textarea></div></div>}</div>
+            @if (Model.Maps.Any(x => !string.IsNullOrWhiteSpace(x.ExistingPath))) { <div class="row g-2 mb-3">@foreach (var map in Model.Maps.Where(x => !string.IsNullOrWhiteSpace(x.ExistingPath))) { <div class="col-md-2"><img src="/@map.ExistingPath" alt="Map preview" class="img-fluid rounded border" /></div> }</div> }
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="mapsRows" data-prefix="Maps" data-template="map">Add Map</button>
+            <div class="mt-3"><button class="btn btn-primary">Save Maps</button></div>
+        </form>
+    }
+    else if (IsTab("cost-includes") || IsTab("cost-excludes"))
+    {
+        var isInclude = IsTab("cost-includes");
+        var collection = isInclude ? Model.CostIncludes : Model.CostExcludes;
+        var action = isInclude ? "SaveDetailCostIncludes" : "SaveDetailCostExcludes";
+        var prefix = isInclude ? "CostIncludes" : "CostExcludes";
+        <form method="post" asp-action="@action" asp-route-id="@Model.ExpeditionId">
+            @Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-4">Title</div><div class="col-md-5">Description</div><div class="col-md-2">Sort Order</div><div class="col-md-1">Action</div></div>
+            <div id="costRows">@for (var i=0;i<collection.Count;i++){<div class="row g-2 mb-2 cost-row"><input type="hidden" name="@( $"{prefix}[{i}].Id" )" value="@collection[i].Id" /><div class="col-md-4"><input class="form-control" name="@( $"{prefix}[{i}].Title" )" value="@collection[i].Title" placeholder="Title" /></div><div class="col-md-5"><input class="form-control" name="@( $"{prefix}[{i}].ShortDescription" )" value="@collection[i].ShortDescription" placeholder="Description" /></div><div class="col-md-2"><input class="form-control" name="@( $"{prefix}[{i}].SortOrder" )" value="@collection[i].SortOrder" placeholder="Sort" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>}</div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="costRows" data-prefix="@prefix" data-template="cost">Add Row</button>
+            <div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("departures"))
+    {
+        <form method="post" asp-action="SaveDetailDepartures" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-2">Start Date</div><div class="col-md-2">End Date</div><div class="col-md-2">Days</div><div class="col-md-2">Group Size</div><div class="col-md-3">Status</div><div class="col-md-1">Action</div></div>
+            <div id="departureRows">@for (var i=0;i<Model.FixedDepartures.Count;i++){<div class="row g-2 mb-2 departure-row"><input type="hidden" name="FixedDepartures[@i].Id" value="@Model.FixedDepartures[i].Id" /><div class="col-md-2"><input class="form-control" name="FixedDepartures[@i].StartDate" type="date" value="@Model.FixedDepartures[i].StartDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-2"><input class="form-control" name="FixedDepartures[@i].EndDate" type="date" value="@Model.FixedDepartures[i].EndDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-2"><input class="form-control" name="FixedDepartures[@i].ForDays" value="@Model.FixedDepartures[i].ForDays" /></div><div class="col-md-2"><input class="form-control" name="FixedDepartures[@i].GroupSize" value="@Model.FixedDepartures[i].GroupSize" /></div><div class="col-md-3"><select class="form-select" name="FixedDepartures[@i].Status">@foreach(var st in Enum.GetNames<TravelCleanArch.Domain.Enumerations.DepartureStatus>()){<option value="@st" selected="@(st==Model.FixedDepartures[i].Status.ToString())">@st</option>}</select></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>}</div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="departureRows" data-prefix="FixedDepartures" data-template="departure">Add Departure</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("gear-lists"))
+    {
+        <form method="post" enctype="multipart/form-data" asp-action="SaveDetailGearLists" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-3">Description</div><div class="col-md-3">Upload File</div><div class="col-md-3">Upload Image</div><div class="col-md-2">Existing File</div><div class="col-md-1">Action</div></div>
+            <div id="gearRows">@for (var i=0;i<Model.GearLists.Count;i++){<div class="row g-2 mb-2 gear-row"><input type="hidden" name="GearLists[@i].Id" value="@Model.GearLists[i].Id" /><div class="col-md-3"><input class="form-control" name="GearLists[@i].ShortDescription" value="@Model.GearLists[i].ShortDescription" placeholder="Description" /></div><div class="col-md-3"><input class="form-control" name="GearLists[@i].UploadFile" type="file" /></div><div class="col-md-3"><input class="form-control" name="GearLists[@i].UploadImage" type="file" /></div><div class="col-md-2"><input class="form-control" name="GearLists[@i].ExistingPath" value="@Model.GearLists[i].ExistingPath" placeholder="File path" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><input type="hidden" name="GearLists[@i].ExistingImagePath" value="@Model.GearLists[i].ExistingImagePath" /></div>}</div>
+            @if (Model.GearLists.Any(x => !string.IsNullOrWhiteSpace(x.ExistingImagePath))) { <div class="row g-2 mb-3">@foreach (var gear in Model.GearLists.Where(x => !string.IsNullOrWhiteSpace(x.ExistingImagePath))) { <div class="col-md-2"><img src="/@gear.ExistingImagePath" alt="Gear preview" class="img-fluid rounded border" /></div> }</div> }
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="gearRows" data-prefix="GearLists" data-template="gear">Add Gear</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("photos-videos"))
+    {
+        <form method="post" enctype="multipart/form-data" asp-action="SaveDetailPhotosVideos" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-3">Photo Upload</div><div class="col-md-3">Video Url</div><div class="col-md-3">Caption</div><div class="col-md-2">Sort Order</div><div class="col-md-1">Action</div></div>
+            <div id="mediaRows">@for (var i=0;i<Model.MediaItems.Count;i++){<div class="row g-2 mb-2 media-row"><input type="hidden" name="MediaItems[@i].Id" value="@Model.MediaItems[i].Id" /><div class="col-md-3"><input class="form-control" name="MediaItems[@i].PhotoFile" type="file" /></div><div class="col-md-3"><input class="form-control" name="MediaItems[@i].VideoUrl" value="@Model.MediaItems[i].VideoUrl" placeholder="Video Url" /></div><div class="col-md-3"><input class="form-control" name="MediaItems[@i].Caption" value="@Model.MediaItems[i].Caption" placeholder="Caption" /></div><div class="col-md-2"><input class="form-control" name="MediaItems[@i].SortOrder" value="@Model.MediaItems[i].SortOrder" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><input type="hidden" name="MediaItems[@i].ExistingPath" value="@Model.MediaItems[i].ExistingPath" /></div>}</div>
+            @if (Model.MediaItems.Any(x => !string.IsNullOrWhiteSpace(x.ExistingPath))) { <div class="row g-2 mb-3">@foreach (var media in Model.MediaItems.Where(x => !string.IsNullOrWhiteSpace(x.ExistingPath))) { <div class="col-md-2"><img src="/@media.ExistingPath" alt="Media preview" class="img-fluid rounded border" /></div> }</div> }
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="mediaRows" data-prefix="MediaItems" data-template="media">Add Media</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("reviews"))
+    {
+        <form method="post" enctype="multipart/form-data" asp-action="SaveDetailReviews" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-2">Name</div><div class="col-md-2">Email</div><div class="col-md-1">Rating</div><div class="col-md-2">Photo</div><div class="col-md-2">Video Url</div><div class="col-md-2">Status</div><div class="col-md-1">Action</div><div class="col-md-12">Review Text</div></div>
+            <div id="reviewRows">@for (var i=0;i<Model.Reviews.Count;i++){<div class="row g-2 mb-2 review-row"><input type="hidden" name="Reviews[@i].Id" value="@Model.Reviews[i].Id" /><div class="col-md-2"><input class="form-control" name="Reviews[@i].FullName" value="@Model.Reviews[i].FullName" placeholder="Name" /></div><div class="col-md-2"><input class="form-control" name="Reviews[@i].EmailAddress" value="@Model.Reviews[i].EmailAddress" placeholder="Email" /></div><div class="col-md-1"><input class="form-control" name="Reviews[@i].Rating" value="@Model.Reviews[i].Rating" /></div><div class="col-md-2"><input class="form-control" name="Reviews[@i].UserPhoto" type="file" /></div><div class="col-md-2"><input class="form-control" name="Reviews[@i].VideoUrl" value="@Model.Reviews[i].VideoUrl" placeholder="Video url" /></div><div class="col-md-2"><input class="form-control" name="Reviews[@i].ModerationStatus" value="@Model.Reviews[i].ModerationStatus" placeholder="Status" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><div class="col-md-12"><textarea class="form-control" name="Reviews[@i].ReviewText">@Model.Reviews[i].ReviewText</textarea></div><input type="hidden" name="Reviews[@i].ExistingPhotoPath" value="@Model.Reviews[i].ExistingPhotoPath" /></div>}</div>
+            @if (Model.Reviews.Any(x => !string.IsNullOrWhiteSpace(x.ExistingPhotoPath))) { <div class="row g-2 mb-3">@foreach (var review in Model.Reviews.Where(x => !string.IsNullOrWhiteSpace(x.ExistingPhotoPath))) { <div class="col-md-2"><img src="/@review.ExistingPhotoPath" alt="Review photo" class="img-fluid rounded border" /></div> }</div> }
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="reviewRows" data-prefix="Reviews" data-template="review">Add Review</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("faqs"))
+    {
+        <form method="post" asp-action="SaveDetailFaqs" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-4">Question</div><div class="col-md-6">Answer</div><div class="col-md-1">Order</div><div class="col-md-1">Action</div></div>
+            <div id="faqRows">@for (var i=0;i<Model.Faqs.Count;i++){<div class="row g-2 mb-2 faq-row"><input type="hidden" name="Faqs[@i].Id" value="@Model.Faqs[i].Id" /><div class="col-md-4"><input class="form-control" name="Faqs[@i].Question" value="@Model.Faqs[i].Question" placeholder="Question" /></div><div class="col-md-6"><input class="form-control" name="Faqs[@i].Answer" value="@Model.Faqs[i].Answer" placeholder="Answer" /></div><div class="col-md-1"><input class="form-control" name="Faqs[@i].Ordering" value="@Model.Faqs[i].Ordering" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>}</div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="faqRows" data-prefix="Faqs" data-template="faq">Add FAQ</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    else if (IsTab("highlights"))
+    {
+        <form method="post" asp-action="SaveDetailHighlights" asp-route-id="@Model.ExpeditionId">@Html.AntiForgeryToken()
+            <div class="row g-2 mb-2 small text-muted fw-semibold"><div class="col-md-9">Highlight</div><div class="col-md-2">Sort Order</div><div class="col-md-1">Action</div></div>
+            <div id="highlightRows">@for (var i=0;i<Model.Highlights.Count;i++){<div class="row g-2 mb-2 hl-row"><input type="hidden" name="Highlights[@i].Id" value="@Model.Highlights[i].Id" /><div class="col-md-9"><input class="form-control" name="Highlights[@i].Text" value="@Model.Highlights[i].Text" placeholder="Highlight" /></div><div class="col-md-2"><input class="form-control" name="Highlights[@i].SortOrder" value="@Model.Highlights[i].SortOrder" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>}</div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-add="highlightRows" data-prefix="Highlights" data-template="highlight">Add Highlight</button><div class="mt-3"><button class="btn btn-primary">Save</button></div>
+        </form>
+    }
+    </div></div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+  const templates = {
+    itinerary: i => `<div class="row g-2 mb-2 itinerary-row"><input type="hidden" name="Itineraries[${i}].Id" value="0" /><div class="col-md-7"><input class="form-control" name="Itineraries[${i}].SeasonTitle" /></div><div class="col-md-2"><input class="form-control" name="Itineraries[${i}].SortOrder" value="${i+1}" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div></div>`,
+    day: i => `<div class="row g-2 mb-2 day-row"><input type="hidden" name="ItineraryDays[${i}].Id" value="0" /><div class="col-md-1"><input class="form-control" name="ItineraryDays[${i}].DayNumber" value="${i+1}" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${i}].ShortDescription" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${i}].Meals" /></div><div class="col-md-3"><input class="form-control" name="ItineraryDays[${i}].AccommodationType" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-day-row">Remove</button></div><div class="col-md-11 offset-md-1"><textarea class="form-control" name="ItineraryDays[${i}].Description"></textarea></div></div>`,
+    map: i => `<div class="row g-2 mb-2 maps-row"><input type="hidden" name="Maps[${i}].Id" value="0" /><div class="col-md-4"><input class="form-control" name="Maps[${i}].Title" /></div><div class="col-md-4"><input class="form-control" type="file" name="Maps[${i}].UploadFile" /></div><div class="col-md-3"><input class="form-control" name="Maps[${i}].ExistingPath" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><div class="col-md-12"><textarea class="form-control" name="Maps[${i}].Notes"></textarea></div></div>`,
+    cost: (i,p) => `<div class="row g-2 mb-2 cost-row"><input type="hidden" name="${p}[${i}].Id" value="0" /><div class="col-md-4"><input class="form-control" name="${p}[${i}].Title" /></div><div class="col-md-5"><input class="form-control" name="${p}[${i}].ShortDescription" /></div><div class="col-md-2"><input class="form-control" name="${p}[${i}].SortOrder" value="${i+1}" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>`,
+    departure: i => `<div class="row g-2 mb-2 departure-row"><input type="hidden" name="FixedDepartures[${i}].Id" value="0" /><div class="col-md-2"><input type="date" class="form-control" name="FixedDepartures[${i}].StartDate" /></div><div class="col-md-2"><input type="date" class="form-control" name="FixedDepartures[${i}].EndDate" /></div><div class="col-md-2"><input class="form-control" name="FixedDepartures[${i}].ForDays" /></div><div class="col-md-2"><input class="form-control" name="FixedDepartures[${i}].GroupSize" /></div><div class="col-md-3"><input class="form-control" name="FixedDepartures[${i}].Status" value="BookingOpen" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>`,
+    gear: i => `<div class="row g-2 mb-2 gear-row"><input type="hidden" name="GearLists[${i}].Id" value="0" /><div class="col-md-3"><input class="form-control" name="GearLists[${i}].ShortDescription" /></div><div class="col-md-3"><input type="file" class="form-control" name="GearLists[${i}].UploadFile" /></div><div class="col-md-3"><input type="file" class="form-control" name="GearLists[${i}].UploadImage" /></div><div class="col-md-2"><input class="form-control" name="GearLists[${i}].ExistingPath" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><input type="hidden" name="GearLists[${i}].ExistingImagePath" /></div>`,
+    media: i => `<div class="row g-2 mb-2 media-row"><input type="hidden" name="MediaItems[${i}].Id" value="0" /><div class="col-md-3"><input type="file" class="form-control" name="MediaItems[${i}].PhotoFile" /></div><div class="col-md-3"><input class="form-control" name="MediaItems[${i}].VideoUrl" /></div><div class="col-md-3"><input class="form-control" name="MediaItems[${i}].Caption" /></div><div class="col-md-2"><input class="form-control" name="MediaItems[${i}].SortOrder" value="${i+1}" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><input type="hidden" name="MediaItems[${i}].ExistingPath" /></div>`,
+    review: i => `<div class="row g-2 mb-2 review-row"><input type="hidden" name="Reviews[${i}].Id" value="0" /><div class="col-md-2"><input class="form-control" name="Reviews[${i}].FullName" /></div><div class="col-md-2"><input class="form-control" name="Reviews[${i}].EmailAddress" /></div><div class="col-md-1"><input class="form-control" name="Reviews[${i}].Rating" value="5" /></div><div class="col-md-2"><input type="file" class="form-control" name="Reviews[${i}].UserPhoto" /></div><div class="col-md-2"><input class="form-control" name="Reviews[${i}].VideoUrl" /></div><div class="col-md-2"><input class="form-control" name="Reviews[${i}].ModerationStatus" value="Pending" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div><div class="col-md-12"><textarea class="form-control" name="Reviews[${i}].ReviewText"></textarea></div><input type="hidden" name="Reviews[${i}].ExistingPhotoPath" /></div>`,
+    faq: i => `<div class="row g-2 mb-2 faq-row"><input type="hidden" name="Faqs[${i}].Id" value="0" /><div class="col-md-4"><input class="form-control" name="Faqs[${i}].Question" /></div><div class="col-md-6"><input class="form-control" name="Faqs[${i}].Answer" /></div><div class="col-md-1"><input class="form-control" name="Faqs[${i}].Ordering" value="${i+1}" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>`,
+    highlight: i => `<div class="row g-2 mb-2 hl-row"><input type="hidden" name="Highlights[${i}].Id" value="0" /><div class="col-md-9"><input class="form-control" name="Highlights[${i}].Text" /></div><div class="col-md-2"><input class="form-control" name="Highlights[${i}].SortOrder" value="${i+1}" /></div><div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-generic">X</button></div></div>`
+  };
+  const reindex = (container,prefix) => [...container.children].forEach((row,i)=>row.querySelectorAll('[name]').forEach(f=>{const m=f.name.match(/\]\.([^.]+)$/); if(m) f.name=`${prefix}[${i}].${m[1]}`;}));
+  document.addEventListener('click', e => {
+    const add=e.target.closest('[data-add]');
+    if(add){
+      const id=add.dataset.add,prefix=add.dataset.prefix,t=add.dataset.template; const wrap=document.getElementById(id); const i=wrap.children.length;
+      wrap.insertAdjacentHTML('beforeend', t==='cost'?templates[t](i,prefix):templates[t](i));
+      if(prefix) reindex(wrap,prefix);
+    }
+    if(e.target.classList.contains('remove-row')||e.target.classList.contains('remove-day-row')||e.target.classList.contains('remove-generic')){
+      const row=e.target.closest('.row');
+      const wrap=row?.parentElement;
+      row?.remove();
+      if(wrap?.id==='itineraryRows') reindex(wrap,'Itineraries');
+      if(wrap?.id==='dayRows') reindex(wrap,'ItineraryDays');
+      if(wrap?.id==='mapsRows') reindex(wrap,'Maps');
+      if(wrap?.id==='costRows') reindex(wrap,document.querySelector('[data-add="costRows"]')?.dataset.prefix||'CostIncludes');
+      if(wrap?.id==='departureRows') reindex(wrap,'FixedDepartures');
+      if(wrap?.id==='gearRows') reindex(wrap,'GearLists');
+      if(wrap?.id==='mediaRows') reindex(wrap,'MediaItems');
+      if(wrap?.id==='reviewRows') reindex(wrap,'Reviews');
+      if(wrap?.id==='faqRows') reindex(wrap,'Faqs');
+      if(wrap?.id==='highlightRows') reindex(wrap,'Highlights');
+    }
+  });
+
+  document.querySelectorAll('form').forEach(f=>f.addEventListener('submit',()=>{
+      const pairs=[['itineraryRows','Itineraries'],['dayRows','ItineraryDays'],['mapsRows','Maps'],['costRows',document.querySelector('[data-add="costRows"]')?.dataset.prefix||'CostIncludes'],['departureRows','FixedDepartures'],['gearRows','GearLists'],['mediaRows','MediaItems'],['reviewRows','Reviews'],['faqRows','Faqs'],['highlightRows','Highlights']];
+      pairs.forEach(([id,p])=>{const w=document.getElementById(id); if(w) reindex(w,p);});
+  }));
+})();
+</script>
+}

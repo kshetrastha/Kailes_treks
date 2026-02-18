@@ -33,6 +33,7 @@
                                 <td>@item.Status</td>
                                 <td class="text-end">
                                     <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Detail" asp-route-id="@item.Id">Detail</a>
                                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this trekking item?')">Delete</button>
