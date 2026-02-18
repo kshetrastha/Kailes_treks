@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace TravelCleanArch.Infrastructure.Services;
 
-internal static partial class TravelSlug
+public static partial class TravelSlug
 {
     [GeneratedRegex("[^a-z0-9]+", RegexOptions.Compiled)]
     private static partial Regex InvalidSlugRegex();

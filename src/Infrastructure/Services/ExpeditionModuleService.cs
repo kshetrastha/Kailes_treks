@@ -24,8 +24,7 @@ public sealed class ExpeditionModuleService(AppDbContext db) : IExpeditionModule
             .ToListAsync(ct);
 
         var matched = slugLookup.FirstOrDefault(x =>
-            string.Equals(TravelSlug.Normalize(x.Name), slug, StringComparison.OrdinalIgnoreCase));
-
+            string.Equals(TravelSlug.Generate(x.Name), slug, StringComparison.OrdinalIgnoreCase));
         return matched is null ? null : await GetDetailsAsync(matched.Id, ct);
     }
 
