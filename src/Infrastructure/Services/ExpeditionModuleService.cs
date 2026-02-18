@@ -19,7 +19,7 @@ public sealed class ExpeditionModuleService(AppDbContext db) : IExpeditionModule
     {
         if (string.IsNullOrWhiteSpace(slug)) return null;
 
-        var slugLookup = await db.ExpeditionBasicInfos.AsNoTracking()
+        var slugLookup = await db.Expeditions.AsNoTracking()
             .Select(x => new { x.Id, x.Name })
             .ToListAsync(ct);
 

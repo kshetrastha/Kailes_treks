@@ -127,9 +127,13 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
-    [HttpGet("expeditions/{slug}")]
+    [HttpGet("expeditionsOld/{slug}")]
     public async Task<IActionResult> ExpeditionDetails(string slug, [FromServices] IExpeditionModuleService expeditionModuleService, CancellationToken ct)
     {
+
+
+
+
         var item = await expeditionModuleService.GetDetailsBySlugAsync(slug, ct);
         if (item is null) return NotFound();
 

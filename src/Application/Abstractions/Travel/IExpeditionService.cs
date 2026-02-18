@@ -7,5 +7,5 @@ public interface IExpeditionService
     Task<int> CreateAsync(ExpeditionUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> UpdateAsync(int id, ExpeditionUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> DeleteAsync(int id, CancellationToken ct);
-    Task<object?> GetPublicBySlugAsync(string slug, CancellationToken ct);
+    Task<ExpeditionDetailsDto> GetPublicBySlugAsync(string slug, CancellationToken ct);
 }

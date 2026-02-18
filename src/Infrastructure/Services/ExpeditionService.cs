@@ -93,14 +93,23 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         return true;
     }
 
-    public async Task<object?> GetPublicBySlugAsync(string slug, CancellationToken ct)
+    public async Task<ExpeditionDetailsDto> GetPublicBySlugAsync(string slug, CancellationToken ct)
     {
-        var entity = await db.Expeditions.AsNoTracking().Include(x => x.ExpeditionType)
+        var entity = await db.Expeditions
+            .AsNoTracking()
+            .Include(x => x.ExpeditionType)
             .Include(x => x.Faqs.OrderBy(f => f.Ordering))
             .Include(x => x.MediaItems.OrderBy(m => m.Ordering))
-            .Where(x => x.Slug == slug && x.Status == TravelStatus.published)
+            .Include(x => x.Itineraries.OrderBy(i => i.SortOrder))
+            .ThenInclude(x => x.Days.OrderBy(d => d.DayNumber))
+            .Include(x => x.Maps)
+            .Include(x => x.CostItems.OrderBy(c => c.SortOrder))
+            .Include(x => x.FixedDepartures.OrderBy(f => f.StartDate))
+            .Include(x => x.GearLists)
+            .Include(x => x.Highlights.OrderBy(h => h.SortOrder))
+            .Include(x => x.Reviews.Where(r => r.ModerationStatus == ReviewModerationStatus.Approved).OrderByDescending(r => r.CreatedAtUtc))
+            .Where(x => x.Slug == slug.Trim() && x.Status == TravelStatus.published)
             .FirstOrDefaultAsync(ct);
-
         return entity is null ? null : MapDetails(entity);
     }
 
