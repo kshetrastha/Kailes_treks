@@ -1,10 +1,14 @@
+@using TravelCleanArch.Application.Abstractions.Travel
 @using TravelCleanArch.Web.Areas.Admin.Models
 @model TrekkingAdminViewModel
 @{
     var isEdit = Model.Id.HasValue;
+    var types = ViewBag.TrekkingTypes as IReadOnlyCollection<TrekkingTypeDto> ?? [];
     var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
     var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
-    var statuses = ViewBag.Statuses as IReadOnlyCollection<string> ?? [];
+    var activeTab = ViewBag.ActiveTab as string;
 }
 
 <div class="container-fluid">
@@ -15,91 +19,521 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+            <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
                 <input asp-for="Id" type="hidden" />
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
-                <ul class="nav nav-tabs mb-2" role="tablist">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic Info</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-facts">2. Trip Facts</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">3. Overview</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-media-group">4. Hero + Group</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-commercial">5. Pricing + SEO + Rating</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-extra">6. Extra + Legacy</a></li>
+                <ul class="nav nav-tabs expedition-tabs mb-2" role="tablist">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" id="tab-basic-link" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic">1. Basic Info</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-facts-link" data-bs-toggle="tab" href="#tab-facts" role="tab" aria-controls="tab-facts">2. Trip Facts</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-overview-link" data-bs-toggle="tab" href="#tab-overview" role="tab" aria-controls="tab-overview">3. Overview</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-media-group-link" data-bs-toggle="tab" href="#tab-media-group" role="tab" aria-controls="tab-media-group">4. Hero + Group</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-commercial-link" data-bs-toggle="tab" href="#tab-commercial" role="tab" aria-controls="tab-commercial">5. Pricing + SEO + Rating</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" id="tab-extra-link" data-bs-toggle="tab" href="#tab-extra" role="tab" aria-controls="tab-extra">6. Extra + Legacy</a></li>
                 </ul>
 
                 <div class="tab-content border p-3 mb-3">
                     <div class="tab-pane fade show active" id="tab-basic">
                         <div class="row g-3">
-                            <div class="col-md-6"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" required /></div>
-                            <div class="col-md-6"><label asp-for="Slug" class="form-label"></label><input asp-for="Slug" class="form-control" /></div>
-                            <div class="col-md-12"><label asp-for="ShortDescription" class="form-label"></label><textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea></div>
-                            <div class="col-md-4"><label asp-for="TrekkingTypeId" class="form-label"></label><input asp-for="TrekkingTypeId" class="form-control" /></div>
-                            <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input asp-for="Featured" class="form-check-input" /><label asp-for="Featured" class="form-check-label"></label></div></div>
-                            <div class="col-md-4"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /></div>
+                            <div class="col-md-6">
+                                <label asp-for="TrekkingTypeId" class="form-label"></label>
+                                <select asp-for="TrekkingTypeId" class="form-select" required>
+                                    <option value="">-- Select type --</option>
+                                    @foreach (var t in types)
+                                    {
+                                        <option value="@t.Id">@t.Title</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TrekkingTypeId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    @foreach (var status in travelStatuses)
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Slug" class="form-label"></label>
+                                <input asp-for="Slug" class="form-control" required />
+                                <span asp-validation-for="Slug" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="ShortDescription" class="form-label"></label>
+                                <textarea asp-for="ShortDescription" class="form-control" rows="3" required></textarea>
+                                <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Ordering" class="form-label"></label>
+                                <input asp-for="Ordering" class="form-control" />
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="Featured" class="form-check-input" />
+                                    <label asp-for="Featured" class="form-check-label"></label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tab-facts">
                         <div class="row g-3">
-                            <div class="col-md-4"><label asp-for="Destination" class="form-label"></label><input asp-for="Destination" class="form-control" required /></div>
-                            <div class="col-md-4"><label asp-for="Region" class="form-label"></label><input asp-for="Region" class="form-control" /></div>
-                            <div class="col-md-4"><label asp-for="DurationDays" class="form-label"></label><input asp-for="DurationDays" class="form-control" /></div>
-                            <div class="col-md-3"><label asp-for="MaxAltitudeMeters" class="form-label"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
-                            <div class="col-md-3"><label asp-for="MaxAltitudeFeet" class="form-label"></label><input asp-for="MaxAltitudeFeet" class="form-control" /></div>
-                            <div class="col-md-3"><label asp-for="DifficultyLevel" class="form-label"></label><select asp-for="DifficultyLevel" class="form-select"><option value="">-- Select --</option>@foreach (var item in difficultyLevels){<option value="@item">@item</option>}</select></div>
-                            <div class="col-md-3"><label asp-for="BestSeason" class="form-label"></label><select asp-for="BestSeason" class="form-select"><option value="">-- Select --</option>@foreach (var item in seasons){<option value="@item">@item</option>}</select></div>
+                            <div class="col-md-4">
+                                <label asp-for="Destination" class="form-label"></label>
+                                <input asp-for="Destination" class="form-control" required />
+                                <span asp-validation-for="Destination" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Region" class="form-label"></label>
+                                <input asp-for="Region" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="DurationDays" class="form-label"></label>
+                                <input asp-for="DurationDays" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="MaxAltitudeMeters" class="form-label"></label>
+                                <input asp-for="MaxAltitudeMeters" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="MaxAltitudeFeet" class="form-label"></label>
+                                <input asp-for="MaxAltitudeFeet" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="DifficultyLevel" class="form-label"></label>
+                                <select asp-for="DifficultyLevel" class="form-select">
+                                    <option value="">-- Select difficulty --</option>
+                                    @foreach (var difficulty in difficultyLevels)
+                                    {
+                                        <option value="@difficulty">@difficulty</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="BestSeason" class="form-label"></label>
+                                <select asp-for="BestSeason" class="form-select">
+                                    <option value="">-- Select season --</option>
+                                    @foreach (var season in seasons)
+                                    {
+                                        <option value="@season">@season</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="WalkingPerDay" class="form-label"></label>
+                                <input asp-for="WalkingPerDay" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Accommodation" class="form-label"></label>
+                                <input asp-for="Accommodation" class="form-control" />
+                            </div>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tab-overview">
                         <div class="row g-3">
-                            <div class="col-md-12"><label asp-for="Overview" class="form-label"></label><textarea asp-for="Overview" class="form-control" rows="6"></textarea></div>
+                            <div class="col-md-4">
+                                <label asp-for="OverviewCountry" class="form-label"></label>
+                                <select asp-for="OverviewCountry" class="form-select">
+                                    @foreach (var country in countries)
+                                    {
+                                        <option value="@country">@country</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PeakName" class="form-label"></label>
+                                <input asp-for="PeakName" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Route" class="form-label"></label>
+                                <input asp-for="Route" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Rank" class="form-label"></label>
+                                <input asp-for="Rank" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Range" class="form-label"></label>
+                                <input asp-for="Range" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Latitude" class="form-label"></label>
+                                <input asp-for="Latitude" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Longitude" class="form-label"></label>
+                                <input asp-for="Longitude" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CoordinatesText" class="form-label"></label>
+                                <input asp-for="CoordinatesText" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="WeatherReportUrl" class="form-label"></label>
+                                <input asp-for="WeatherReportUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="OverviewDuration" class="form-label"></label>
+                                <input asp-for="OverviewDuration" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Overview" class="form-label"></label>
+                                <textarea asp-for="Overview" class="form-control" rows="6"></textarea>
+                            </div>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tab-media-group">
                         <div class="row g-3">
-                            <div class="col-md-6"><label asp-for="HeroImageUrl" class="form-label"></label><input asp-for="HeroImageUrl" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="HeroVideoUrl" class="form-label"></label><input asp-for="HeroVideoUrl" class="form-control" placeholder="https://..." /></div>
-                            <div class="col-md-4"><label asp-for="MinGroupSize" class="form-label"></label><input asp-for="MinGroupSize" class="form-control" /></div>
-                            <div class="col-md-4"><label asp-for="MaxGroupSize" class="form-label"></label><input asp-for="MaxGroupSize" class="form-control" /></div>
+                            <div class="col-md-6">
+                                <label asp-for="HeroImageUrl" class="form-label"></label>
+                                <input asp-for="HeroImageUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="HeroImageFile" class="form-label"></label>
+                                <input asp-for="HeroImageFile" type="file" class="form-control" accept="image/*" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="HeroVideoUrl" class="form-label"></label>
+                                <input asp-for="HeroVideoUrl" class="form-control" placeholder="https://..." />
+                            </div>
+                            <div class="col-md-12">
+                                <small class="text-muted d-block mb-2">You can save image URL, image upload, or video URL. Preview appears below.</small>
+                               @*  <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                                    <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                                </div>
+                                <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
+ *@
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-3" style="max-width: 720px;">
+                                            <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Hero image preview" />
+
+                                    </div>
+                             
+                                </div>
+
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="MinGroupSize" class="form-label"></label>
+                                <input asp-for="MinGroupSize" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="MaxGroupSize" class="form-label"></label>
+                                <input asp-for="MaxGroupSize" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="GroupSizeText" class="form-label"></label>
+                                <input asp-for="GroupSizeText" class="form-control" />
+                            </div>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tab-commercial">
                         <div class="row g-3">
-                            <div class="col-md-3 d-flex align-items-end"><div class="form-check"><input asp-for="PriceOnRequest" class="form-check-input" /><label asp-for="PriceOnRequest" class="form-check-label"></label></div></div>
-                            <div class="col-md-3"><label asp-for="Price" class="form-label"></label><input asp-for="Price" class="form-control" /></div>
-                            <div class="col-md-3"><label asp-for="CurrencyCode" class="form-label"></label><input asp-for="CurrencyCode" class="form-control" /></div>
-                            <div class="col-md-3"><label asp-for="Status" class="form-label"></label><select asp-for="Status" class="form-select">@foreach (var item in statuses){<option value="@item">@item</option>}</select></div>
-                            <div class="col-md-6"><label asp-for="SeoTitle" class="form-label"></label><input asp-for="SeoTitle" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="SeoDescription" class="form-label"></label><textarea asp-for="SeoDescription" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="PriceOnRequest" class="form-check-input" />
+                                    <label asp-for="PriceOnRequest" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Price" class="form-label"></label>
+                                <input asp-for="Price" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="CurrencyCode" class="form-label"></label>
+                                <input asp-for="CurrencyCode" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="PriceNotesUrl" class="form-label"></label>
+                                <input asp-for="PriceNotesUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="TripPdfUrl" class="form-label"></label>
+                                <input asp-for="TripPdfUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="BookingCtaUrl" class="form-label"></label>
+                                <input asp-for="BookingCtaUrl" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SeoTitle" class="form-label"></label>
+                                <input asp-for="SeoTitle" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SeoDescription" class="form-label"></label>
+                                <input asp-for="SeoDescription" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="AverageRating" class="form-label"></label>
+                                <input asp-for="AverageRating" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="RatingLabel" class="form-label"></label>
+                                <input asp-for="RatingLabel" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="ReviewCount" class="form-label"></label>
+                                <input asp-for="ReviewCount" class="form-control" />
+                            </div>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="tab-extra">
                         <div class="row g-3">
-                            <div class="col-md-6"><label asp-for="Permits" class="form-label"></label><input asp-for="Permits" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="AvailableDates" class="form-label"></label><input asp-for="AvailableDates" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="BookingCtaUrl" class="form-label"></label><input asp-for="BookingCtaUrl" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="PriceNotesUrl" class="form-label"></label><input asp-for="PriceNotesUrl" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="TripPdfUrl" class="form-label"></label><input asp-for="TripPdfUrl" class="form-control" /></div>
-                            <div class="col-md-6"><label asp-for="Inclusions" class="form-label"></label><textarea asp-for="Inclusions" class="form-control" rows="3"></textarea></div>
-                            <div class="col-md-6"><label asp-for="Exclusions" class="form-label"></label><textarea asp-for="Exclusions" class="form-control" rows="3"></textarea></div>
+                            <div class="col-md-4">
+                                <label asp-for="ExpeditionStyle" class="form-label"></label>
+                                <input asp-for="ExpeditionStyle" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="BoardBasis" class="form-label"></label>
+                                <input asp-for="BoardBasis" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="SummitBonusUsd" class="form-label"></label>
+                                <input asp-for="SummitBonusUsd" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Permits" class="form-label"></label>
+                                <input asp-for="Permits" class="form-control" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="OxygenSupport" class="form-check-input" />
+                                    <label asp-for="OxygenSupport" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="SherpaSupport" class="form-check-input" />
+                                    <label asp-for="SherpaSupport" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input asp-for="RequiresClimbingPermit" class="form-check-input" />
+                                    <label asp-for="RequiresClimbingPermit" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="AvailableDates" class="form-label"></label>
+                                <input asp-for="AvailableDates" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="SummitRoute" class="form-label"></label>
+                                <input asp-for="SummitRoute" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Inclusions" class="form-label"></label>
+                                <textarea asp-for="Inclusions" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label asp-for="Exclusions" class="form-label"></label>
+                                <textarea asp-for="Exclusions" class="form-control" rows="3"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary" type="submit">Save</button>
-                    @if (isEdit)
-                    {
-                        <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@Model.Id" asp-route-activeTab="itineraries">Save and Manage Details</a>
-                    }
+                <input type="hidden" name="nextTab" id="nextTab" value="" />
+                <div class="d-flex flex-wrap gap-2 justify-content-between expedition-form-actions">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-info" id="nextTabBtn">Next Tab</button>
+                        <button type="submit" class="btn btn-primary" data-submit-mode="save">Save</button>
+                        <button type="submit" class="btn btn-outline-primary" data-submit-mode="save-next">Save and Next Tab</button>
+                    </div>
+                    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/expeditions-form-validation.js"></script>
+    <script src="~/js/expeditions-edit.js"></script>
+    <script>
+        (() => {
+            const form = document.querySelector('form.needs-validation');
+            if (!form) return;
+
+            const tabOrder = ['tab-basic', 'tab-facts', 'tab-overview', 'tab-media-group', 'tab-commercial', 'tab-extra'];
+            const nextTabInput = document.getElementById('nextTab');
+            const nextTabBtn = document.getElementById('nextTabBtn');
+            let pendingSubmitMode = 'save';
+
+            const getActiveTabId = () => {
+                const activePane = document.querySelector('.tab-content .tab-pane.active');
+                return activePane?.id || '';
+            };
+
+            const updateNextTabButtonState = () => {
+                if (!nextTabBtn) return;
+
+                const activeTabId = getActiveTabId();
+                const currentIndex = tabOrder.indexOf(activeTabId);
+                nextTabBtn.disabled = currentIndex < 0 || currentIndex >= tabOrder.length - 1;
+            };
+
+            nextTabBtn?.addEventListener('click', () => {
+                const activeTabId = getActiveTabId();
+                const currentIndex = tabOrder.indexOf(activeTabId);
+                if (currentIndex < 0 || currentIndex >= tabOrder.length - 1) return;
+
+                const nextTabId = tabOrder[currentIndex + 1];
+                const nextTabTrigger = document.querySelector(`[data-bs-toggle="tab"][href="#${nextTabId}"]`);
+                if (nextTabTrigger) {
+                    bootstrap.Tab.getOrCreateInstance(nextTabTrigger).show();
+                }
+            });
+
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tabTrigger) => {
+                tabTrigger.addEventListener('shown.bs.tab', updateNextTabButtonState);
+            });
+
+            form.querySelectorAll('[data-submit-mode]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    pendingSubmitMode = button.getAttribute('data-submit-mode') || 'save';
+                });
+            });
+
+            form.addEventListener('submit', () => {
+                if (!nextTabInput) return;
+
+                if (pendingSubmitMode !== 'save-next') {
+                    nextTabInput.value = '';
+                    return;
+                }
+
+                const activePane = document.querySelector('.tab-content .tab-pane.active');
+                if (!activePane?.id) {
+                    nextTabInput.value = '';
+                    return;
+                }
+
+                const currentIndex = tabOrder.indexOf(activePane.id);
+                nextTabInput.value = currentIndex >= 0 && currentIndex < tabOrder.length - 1
+                    ? tabOrder[currentIndex + 1]
+                    : activePane.id;
+            });
+
+            const heroImageInput = document.getElementById('HeroImageFile');
+            const heroImageUrlInput = document.getElementById('HeroImageUrl');
+            const heroVideoInput = document.getElementById('HeroVideoUrl');
+            const heroImagePreview = document.getElementById('heroImagePreview');
+            const heroVideoPreviewWrap = document.getElementById('heroVideoPreviewWrap');
+            const heroVideoPreview = document.getElementById('heroVideoPreview');
+
+            const toEmbedUrl = (value) => {
+                const url = (value || '').trim();
+                if (!url) return '';
+
+                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+                if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+                const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+                if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+                return url;
+            };
+
+            const renderHeroVideoPreview = () => {
+                if (!heroVideoInput || !heroVideoPreview || !heroVideoPreviewWrap) return;
+
+                const embedUrl = toEmbedUrl(heroVideoInput.value);
+                if (!embedUrl) {
+                    heroVideoPreview.removeAttribute('src');
+                    heroVideoPreviewWrap.classList.add('d-none');
+                    return;
+                }
+
+                heroVideoPreview.src = embedUrl;
+                heroVideoPreviewWrap.classList.remove('d-none');
+            };
+
+            const renderHeroImagePreview = () => {
+                if (!heroImagePreview) return;
+
+                const imageUrl = heroImageUrlInput?.value?.trim();
+                const uploadedFile = heroImageInput instanceof HTMLInputElement ? heroImageInput.files?.[0] : null;
+
+                if (uploadedFile) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        heroImagePreview.src = reader.result;
+                        heroImagePreview.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(uploadedFile);
+                    return;
+                }
+
+                if (imageUrl) {
+                    heroImagePreview.src = imageUrl;
+                    heroImagePreview.classList.remove('d-none');
+                    return;
+                }
+
+                heroImagePreview.removeAttribute('src');
+                heroImagePreview.classList.add('d-none');
+            };
+
+            heroVideoInput?.addEventListener('input', renderHeroVideoPreview);
+            heroImageInput?.addEventListener('change', renderHeroImagePreview);
+            heroImageUrlInput?.addEventListener('input', renderHeroImagePreview);
+            renderHeroVideoPreview();
+            renderHeroImagePreview();
+
+            const activeTabFromServer = '@(activeTab ?? string.Empty)';
+            if (activeTabFromServer) {
+                const tabTrigger = document.querySelector(`[data-bs-toggle="tab"][href="#${activeTabFromServer}"]`);
+                if (tabTrigger) {
+                    bootstrap.Tab.getOrCreateInstance(tabTrigger).show();
+                }
+            }
+
+            updateNextTabButtonState();
+        })();
+    </script>
+}
+
+@* @section Styles { *@
+<style>
+    .tab-content > .tab-pane {
+        display: none;
+    }
+
+    .tab-content > .active {
+        display: block;
+    }
+
+    .expedition-form-actions {
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1rem;
+    }
+
+    .expedition-tabs .nav-link {
+        color: #1f2937;
+    }
+
+    .expedition-tabs .nav-link.active {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+</style>
+@* } *@

@@ -275,6 +275,7 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
             return View(model);
         }
 
+        model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
         var id = await service.CreateAsync(ToDto(model), currentUser.UserId, ct);
         TempData["SuccessMessage"] = "Trekking created.";
         return RedirectToAction(nameof(Edit), new { id, activeTab = nextTab });
@@ -300,6 +301,7 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
             return View("Create", model);
         }
 
+        model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
         var ok = await service.UpdateAsync(id, ToDto(model), currentUser.UserId, ct);
         if (!ok) return NotFound();
 
@@ -386,46 +388,81 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
 
     private void LoadDropdowns()
     {
+        ViewBag.TrekkingTypes = Array.Empty<TrekkingTypeDto>();
         ViewBag.DifficultyLevels = Enum.GetNames<DifficultyLevel>();
+        ViewBag.Countries = Enum.GetNames<Country>();
+        ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();
         ViewBag.Seasons = Enum.GetNames<Season>();
-        ViewBag.Statuses = Enum.GetNames<TravelStatus>();
+    }
+
+    private async Task<string?> ResolveHeroImageUrlAsync(TrekkingAdminViewModel model, CancellationToken ct)
+    {
+        if (model.HeroImageFile is not { Length: > 0 })
+        {
+            return model.HeroImageUrl;
+        }
+
+        return await SaveUploadedAssetAsync(model.HeroImageFile, "hero", model.HeroImageUrl, ct);
     }
 
     private static TrekkingAdminViewModel ToViewModel(TrekkingDetailsDto x)
         => new()
         {
             Id = x.Id,
+            TrekkingTypeId = x.TrekkingTypeId,
             Name = x.Name,
             Slug = x.Slug,
             ShortDescription = x.ShortDescription,
+            Featured = x.Featured,
+            Ordering = x.Ordering,
             Destination = x.Destination,
             Region = x.Region,
             DurationDays = x.DurationDays,
             MaxAltitudeMeters = x.MaxAltitudeMeters,
             MaxAltitudeFeet = x.MaxAltitudeFeet,
-            DifficultyLevel = Enum.TryParse<DifficultyLevel>(x.DifficultyLevel ?? x.Difficulty, true, out var d) ? d : null,
-            BestSeason = Enum.TryParse<Season>(x.BestSeason, true, out var s) ? s : null,
+            DifficultyLevel = Enum.TryParse<DifficultyLevel>(x.DifficultyLevel ?? x.Difficulty, true, out var difficulty) ? difficulty : null,
+            BestSeason = Enum.TryParse<Season>(x.BestSeason, true, out var season) ? season : null,
+            WalkingPerDay = x.WalkingPerDay,
+            Accommodation = x.Accommodation,
             Overview = x.Overview,
-            Inclusions = x.Inclusions,
-            Exclusions = x.Exclusions,
+            OverviewCountry = Enum.TryParse<Country>(x.OverviewCountry, true, out var country) ? country : Country.Nepal,
+            PeakName = x.PeakName,
+            Route = x.Route,
+            Rank = x.Rank,
+            Latitude = x.Latitude,
+            Longitude = x.Longitude,
+            CoordinatesText = x.CoordinatesText,
+            WeatherReportUrl = x.WeatherReport,
+            Range = x.Range,
             HeroImageUrl = x.HeroImageUrl,
             HeroVideoUrl = x.HeroVideoUrl,
-            Permits = x.Permits,
             MinGroupSize = x.MinGroupSize,
             MaxGroupSize = x.MaxGroupSize,
+            GroupSizeText = x.GroupSizeText,
             PriceOnRequest = x.PriceOnRequest,
             Price = x.Price,
             CurrencyCode = x.CurrencyCode,
             PriceNotesUrl = x.PriceNotesUrl,
             TripPdfUrl = x.TripPdfUrl,
-            AvailableDates = x.AvailableDates,
-            BookingCtaUrl = x.BookingCtaUrl,
             SeoTitle = x.SeoTitle,
             SeoDescription = x.SeoDescription,
-            Status = Enum.TryParse<TravelStatus>(x.Status, true, out var st) ? st : TravelStatus.Draft,
-            Featured = x.Featured,
-            Ordering = x.Ordering,
-            TrekkingTypeId = x.TrekkingTypeId
+            AverageRating = x.AverageRating,
+            RatingLabel = x.RatingLabel,
+            ReviewCount = x.ReviewCount,
+            Status = Enum.TryParse<TravelStatus>(x.Status, true, out var status) ? status : TravelStatus.Draft,
+            ExpeditionStyle = x.ExpeditionStyle,
+            BoardBasis = x.BoardBasis,
+            OxygenSupport = x.OxygenSupport,
+            SherpaSupport = x.SherpaSupport,
+            SummitBonusUsd = x.SummitBonusUsd,
+            Permits = x.Permits,
+            RequiresClimbingPermit = x.RequiresClimbingPermit,
+            Inclusions = x.Inclusions,
+            Exclusions = x.Exclusions,
+            AvailableDates = x.AvailableDates,
+            BookingCtaUrl = x.BookingCtaUrl,
+            SummitRoute = x.SummitRoute,
+            OverviewDuration = x.OverviewDuration
         };
 
     private static TrekkingUpsertDto ToDto(TrekkingAdminViewModel m)
@@ -460,16 +497,34 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
             m.Status.ToString(),
             m.Featured,
             m.Ordering,
-            null,
-            false,
-            null,
-            false,
-            false,
-            null,
+            m.SummitRoute,
+            m.RequiresClimbingPermit,
+            m.ExpeditionStyle,
+            m.OxygenSupport,
+            m.SherpaSupport,
+            m.SummitBonusUsd,
             m.TrekkingTypeId,
             [],
             [],
-            DifficultyLevel: m.DifficultyLevel?.ToString());
+            m.OverviewCountry.ToString(),
+            m.PeakName,
+            m.OverviewDuration,
+            m.Route,
+            m.Rank,
+            m.Latitude,
+            m.Longitude,
+            m.CoordinatesText,
+            m.WeatherReportUrl,
+            m.Range,
+            m.WalkingPerDay,
+            m.Accommodation,
+            m.GroupSizeText,
+            m.DifficultyLevel?.ToString(),
+            m.BoardBasis,
+            m.AverageRating,
+            m.RatingLabel,
+            m.ReviewCount);
+
 
     private static TrekkingUpsertDto ToUpsertDto(TrekkingDetailsDto m)
         => new(
