@@ -1,0 +1,10 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.TrekkingModuleFormViewModel
+<h5>3) Itineraries</h5>
+@for (var i = 0; i < Model.Itineraries.Count; i++)
+{
+    <div class="row g-1 mb-1">
+        <div class="col"><input name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" class="form-control" placeholder="Season" /></div>
+        <div class="col"><input name="Itineraries[@i].DayNumber" value="@Model.Itineraries[i].DayNumber" class="form-control" placeholder="Day" /></div>
+        <div class="col"><input name="Itineraries[@i].Title" value="@Model.Itineraries[i].Title" class="form-control" placeholder="Title" /></div>
+    </div>
+}

@@ -1,0 +1,10 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.TrekkingModuleFormViewModel
+<h5>8) FAQs</h5>
+@for (var i = 0; i < Model.Faqs.Count; i++)
+{
+    <div class="row g-1 mb-1">
+        <div class="col-4"><input name="Faqs[@i].Question" value="@Model.Faqs[i].Question" class="form-control" /></div>
+        <div class="col-7"><input name="Faqs[@i].Answer" value="@Model.Faqs[i].Answer" class="form-control" /></div>
+        <div class="col-1"><input name="Faqs[@i].DisplayOrder" value="@Model.Faqs[i].DisplayOrder" class="form-control" /></div>
+    </div>
+}
