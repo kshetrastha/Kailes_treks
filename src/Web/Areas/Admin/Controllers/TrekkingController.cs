@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Constants;
@@ -13,7 +14,11 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = AppRoles.Admin)]
 [Route("admin/trekking")]
-public sealed class TrekkingController(ITrekkingService service, ICurrentUser currentUser, IWebHostEnvironment environment) : Controller
+public sealed class TrekkingController(
+    IUnitOfWork uow,
+    ITrekkingService service, 
+    ICurrentUser currentUser, 
+    IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> Index(string? search, string? destination, string? status, int page = 1, CancellationToken ct = default)
@@ -386,9 +391,9 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
         return relative;
     }
 
-    private void LoadDropdowns()
+    private async Task LoadDropdowns()
     {
-        ViewBag.TrekkingTypes = Array.Empty<TrekkingTypeDto>();
+        ViewBag.TrekkingTypes = await uow.TrekkingTypeService.ListAsync(false, default);
         ViewBag.DifficultyLevels = Enum.GetNames<DifficultyLevel>();
         ViewBag.Countries = Enum.GetNames<Country>();
         ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();

@@ -31,6 +31,8 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
 
     public IExpeditionService ExpeditionService => new ExpeditionService(dbContext);
 
+    public ITrekkingService TrekkingService => new TrekkingService(dbContext);
+    public ITrekkingTypeService TrekkingTypeService => new TrekkingTypeService(dbContext);
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);
 }

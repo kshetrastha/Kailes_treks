@@ -17,6 +17,7 @@ public interface IUnitOfWork
     IReviewService ReviewService { get; }
     IBlogPostService BlogPostService { get; }
     IExpeditionService ExpeditionService { get; }
-
+    public ITrekkingService TrekkingService { get; }
+    public ITrekkingTypeService TrekkingTypeService {  get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
