@@ -757,8 +757,14 @@
                                 class="collapse first-level">
                                 <li class="sidebar-item"> <a href="/admin/expedition-types"
                                         class="sidebar-link"><i class="mdi mdi-shape-outline"></i><span class="hide-menu"> Expedition Types</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/trekking-types"
+                                        class="sidebar-link"><i class="mdi mdi-shape"></i><span class="hide-menu"> Trekking Types</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/expeditions"
                                         class="sidebar-link"><i class="mdi mdi-terrain"></i><span class="hide-menu"> Expeditions</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/trekking"
+                                        class="sidebar-link"><i class="mdi mdi-pine-tree"></i><span class="hide-menu"> Trekking</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/trekking"
+                                        class="sidebar-link"><i class="mdi mdi-calendar-range"></i><span class="hide-menu"> Trekking Days</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/itineraries"
                                         class="sidebar-link"><i class="mdi mdi-map-marker-path"></i><span class="hide-menu"> Itineraries</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/itinerary-days"
@@ -928,6 +934,14 @@
                 else if (requestPath.Contains("/admin/itinerary-days"))
                 {
                     breadcrumbSection = "Itinerary Days";
+                }
+                else if (requestPath.Contains("/admin/trekking-types"))
+                {
+                    breadcrumbSection = "Trekking Types";
+                }
+                else if (requestPath.Contains("/admin/trekking"))
+                {
+                    breadcrumbSection = "Trekking";
                 }
                 else if (requestPath.Contains("/admin/company"))
                 {

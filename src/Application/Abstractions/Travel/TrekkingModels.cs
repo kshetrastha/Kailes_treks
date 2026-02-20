@@ -4,6 +4,7 @@ namespace TravelCleanArch.Application.Abstractions.Travel;
 
 public sealed record TrekkingTypeImageDto(int Id, string FilePath, string? AltText, int SortOrder, bool IsCover);
 public sealed record TrekkingTypeDto(int Id, string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished, IReadOnlyCollection<TrekkingTypeImageDto>? Images = null);
+public sealed record TrekkingTypeUpsertDto(string Title, string ShortDescription, string? Description, string? ImagePath, int Ordering, bool IsPublished, IReadOnlyCollection<TrekkingTypeImageDto>? Images = null);
 
 public sealed record TrekkingListItemDto(
     int Id,
