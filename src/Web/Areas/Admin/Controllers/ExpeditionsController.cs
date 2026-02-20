@@ -507,10 +507,28 @@ public sealed class ExpeditionsController(
             m.AverageRating,
             m.RatingLabel,
             m.ReviewCount,
+            m.Itineraries.Select(x => new ItineraryDto(
+                x.Id ?? 0,
+                x.SeasonTitle,
+                x.SeasonTitle,
+                x.SortOrder,
+                x.Days.Select(d => new ItineraryDayDto(
+                    d.Id ?? 0,
+                    d.ItineraryId ?? 0,
+                    d.DayNumber,
+                    d.ShortDescription,
+                    d.Description,
+                    d.Meals,
+                    d.AccommodationType)).ToList())).ToList(),
             [],
             [],
-            [],
-            [],
+            m.FixedDepartures.Select(x => new FixedDepartureDto(
+                x.Id ?? 0,
+                x.StartDate,
+                x.EndDate,
+                x.ForDays,
+                x.Status,
+                x.GroupSize)).ToList(),
             [],
             [],
             []);
@@ -779,9 +797,18 @@ public sealed class ExpeditionsController(
             Itineraries = m.Itineraries?.Select(x => new ItineraryCreateUpdateModel
             {
                 Id = x.Id,
-                SeasonName = x.SeasonName,
-                Title = x.Title,
-                Day = x.Days.Count
+                SeasonTitle = x.SeasonName,
+                SortOrder = x.SortOrder,
+                Days = x.Days.Select(day => new ItineraryDayCreateUpdateModel
+                {
+                    Id = day.Id,
+                    ItineraryId = day.ItineraryId,
+                    DayNumber = day.DayNumber,
+                    ShortDescription = day.ShortDescription,
+                    Description = day.Description,
+                    Meals = day.Meals,
+                    AccommodationType = day.AccommodationType
+                }).ToList()
             }).ToList() ?? new(),
 
             ItineraryDays = m.ItineraryDays?.Select(x => new ItineraryDayCreateUpdateModel
