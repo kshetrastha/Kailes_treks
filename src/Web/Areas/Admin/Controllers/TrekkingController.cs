@@ -186,7 +186,7 @@ public sealed class TrekkingController(ITrekkingService service, ICurrentUser cu
     }
 
     [HttpPost("{id:int}/detail/photos-videos"), ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveDetailMedia(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
+    public async Task<IActionResult> SaveDetailPhotosVideos(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
     {
         var rows = (model.MediaItems ?? [])
             .Where(x => x.PhotoFile is { Length: > 0 } || !string.IsNullOrWhiteSpace(x.ExistingPath) || !string.IsNullOrWhiteSpace(x.VideoUrl) || !string.IsNullOrWhiteSpace(x.Caption))
