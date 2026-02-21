@@ -66,6 +66,7 @@ public sealed class AppDbContext:
     public DbSet<CertificateDocument> CertificateDocuments => Set<CertificateDocument>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+    public DbSet<TermsAndCondition> TermsAndConditions => Set<TermsAndCondition>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

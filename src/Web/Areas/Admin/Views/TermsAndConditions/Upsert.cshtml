@@ -1,0 +1,71 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.TermsAndConditionFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Terms and Condition" : "Create Terms and Condition";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Terms and Condition</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/terms-and-conditions">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="termsForm" method="post" action="@(isEdit ? $"/admin/company/terms-and-conditions/{Model.Id}/edit" : "/admin/company/terms-and-conditions/create")" novalidate>
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Country" class="form-label"></label>
+                    <input asp-for="Country" class="form-control" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Slug" class="form-label"></label>
+                    <input asp-for="Slug" class="form-control" />
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Summary" class="form-label"></label>
+                    <textarea asp-for="Summary" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContentHtml" class="form-label"></label>
+                    <textarea asp-for="ContentHtml" rows="14" class="form-control"></textarea>
+                    <span asp-validation-for="ContentHtml" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Ordering" class="form-label"></label>
+                    <input asp-for="Ordering" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="Ordering" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsPublished" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label"></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

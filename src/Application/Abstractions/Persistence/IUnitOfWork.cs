@@ -16,6 +16,7 @@ public interface IUnitOfWork
     ICertificateDocumentService CertificateDocumentService { get; }
     IReviewService ReviewService { get; }
     IBlogPostService BlogPostService { get; }
+    ITermsAndConditionService TermsAndConditionService { get; }
     IExpeditionService ExpeditionService { get; }
     public ITrekkingService TrekkingService { get; }
     public ITrekkingTypeService TrekkingTypeService {  get; }

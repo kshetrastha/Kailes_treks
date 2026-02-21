@@ -104,3 +104,16 @@ public sealed class BlogPostFormViewModel
     public bool IsFeatured { get; set; }
     public bool IsPublished { get; set; } = true;
 }
+
+
+public sealed class TermsAndConditionFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(120)] public string Country { get; set; } = string.Empty;
+    [StringLength(180)] public string? Slug { get; set; }
+    [Required, StringLength(280)] public string Title { get; set; } = string.Empty;
+    [StringLength(2000)] public string? Summary { get; set; }
+    [Required, StringLength(50000)] public string ContentHtml { get; set; } = string.Empty;
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+}
