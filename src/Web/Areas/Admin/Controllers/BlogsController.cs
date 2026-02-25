@@ -31,7 +31,7 @@ public sealed partial class BlogsController(IUnitOfWork uow, IWebHostEnvironment
 
         return View("Upsert", new BlogPostFormViewModel
         {
-            Id = e.Id,
+            Id = e.Id,//Test
             Title = e.Title,
             Slug = e.Slug,
             Summary = e.Summary,
