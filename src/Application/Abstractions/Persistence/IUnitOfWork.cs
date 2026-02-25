@@ -1,4 +1,5 @@
 using TravelCleanArch.Application.Abstractions.Company;
+using TravelCleanArch.Application.Abstractions.Master;
 using TravelCleanArch.Application.Abstractions.Travel;
 
 namespace TravelCleanArch.Application.Abstractions.Persistence;
@@ -18,7 +19,11 @@ public interface IUnitOfWork
     IBlogPostService BlogPostService { get; }
     ITermsAndConditionService TermsAndConditionService { get; }
     IExpeditionService ExpeditionService { get; }
-    public ITrekkingService TrekkingService { get; }
-    public ITrekkingTypeService TrekkingTypeService {  get; }
+    ITrekkingService TrekkingService { get; }
+    ITrekkingTypeService TrekkingTypeService { get; }
+    IAccomodationService AccomodationService { get; }
+    ICategoryService CategoryService { get; }
+    IDifficultyLevelService DifficultyLevelService { get; }
+    IServiceTypeService ServiceTypeService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

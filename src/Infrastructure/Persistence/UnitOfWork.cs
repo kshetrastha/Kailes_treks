@@ -1,4 +1,5 @@
 using TravelCleanArch.Application.Abstractions.Company;
+using TravelCleanArch.Application.Abstractions.Master;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Infrastructure.Services;
@@ -35,6 +36,15 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
 
     public ITrekkingService TrekkingService => new TrekkingService(dbContext);
     public ITrekkingTypeService TrekkingTypeService => new TrekkingTypeService(dbContext);
+
+    public IAccomodationService AccomodationService => new AccomodationService(dbContext);
+
+    public ICategoryService CategoryService => new CategoryService(dbContext);
+
+    public IDifficultyLevelService DifficultyLevelService => new DifficultyLevelService(dbContext);
+
+    public IServiceTypeService ServiceTypeService => new ServiceTypeService(dbContext);
+
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);
 }
