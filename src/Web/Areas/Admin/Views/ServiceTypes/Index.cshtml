@@ -22,7 +22,6 @@
                         <tr>
                             <th style="width: 100px;">Id</th>
                             <th style="min-width: 240px;">Name</th>
-                            <th>Description</th>
                             <th style="width: 190px;">Actions</th>
                         </tr>
                     </thead>
@@ -40,7 +39,6 @@
                                 <tr>
                                     <td data-label="Id">@item.Id</td>
                                     <td data-label="Name">@item.Name</td>
-                                    <td data-label="Description">@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
                                     <td data-label="Actions">
                                         <a class="btn btn-sm btn-outline-primary" href="/admin/service-types/@item.Id/edit">Edit</a>
                                         <form method="post" action="/admin/service-types/@item.Id/delete" class="d-inline" onsubmit="return confirm('Delete this service type?');">
