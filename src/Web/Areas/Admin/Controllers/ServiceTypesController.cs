@@ -14,14 +14,15 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 public sealed class ServiceTypesController(IUnitOfWork uow, ICurrentUser currentUser) : Controller
 {
     [HttpGet("")]
-    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, CancellationToken ct = default)
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? serviceName = null, CancellationToken ct = default)
     {
-        var allowedPageSizes = new[] { 10, 20, 50, 100, -1 };
-        var currentPage = Math.Max(1, page);
-        var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
-        ViewBag.PageSize = currentPageSize;
+        return await BuildIndexResult(page, pageSize, serviceName, ct);
+    }
 
-        return View(await uow.ServiceTypeService.ListOrderedAsync(currentPage, currentPageSize, ct));
+    [HttpPost(""), ValidateAntiForgeryToken]
+    public async Task<IActionResult> IndexPost(int page = 1, int pageSize = 10, string? serviceName = null, CancellationToken ct = default)
+    {
+        return await BuildIndexResult(page, pageSize, serviceName, ct);
     }
 
     [HttpGet("create")]
@@ -102,5 +103,25 @@ public sealed class ServiceTypesController(IUnitOfWork uow, ICurrentUser current
         }
 
         return ModelState.IsValid;
+    }
+
+    private async Task<IActionResult> BuildIndexResult(int page, int pageSize, string? serviceName, CancellationToken ct)
+    {
+        var allowedPageSizes = new[] { 10, 20, 50, 100, -1 };
+        var currentPage = Math.Max(1, page);
+        var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
+        var currentServiceName = string.IsNullOrWhiteSpace(serviceName) ? null : serviceName.Trim();
+
+        ViewBag.PageSize = currentPageSize;
+        ViewBag.ServiceName = currentServiceName;
+
+        var model = await uow.ServiceTypeService.ListOrderedAsync(currentPage, currentPageSize, currentServiceName, ct);
+
+        if (Request.Headers.XRequestedWith == "XMLHttpRequest")
+        {
+            return PartialView("_ServiceTypesTable", model);
+        }
+
+        return View(nameof(Index), model);
     }
 }

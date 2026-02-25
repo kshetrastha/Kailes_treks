@@ -8,12 +8,18 @@ namespace TravelCleanArch.Infrastructure.Services;
 
 public sealed class ServiceTypeService(AppDbContext dbContext) : GenericRepository<ServiceType>(dbContext), IServiceTypeService
 {
-    public async Task<ServiceTypePagedResult> ListOrderedAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<ServiceTypePagedResult> ListOrderedAsync(int page, int pageSize, string? serviceName, CancellationToken ct)
     {
         page = Math.Max(1, page);
+        var trimmedServiceName = string.IsNullOrWhiteSpace(serviceName) ? null : serviceName.Trim();
 
         var query = Query()
             .AsNoTracking();
+
+        if (trimmedServiceName is not null)
+        {
+            query = query.Where(x => EF.Functions.Like(x.Name, $"%{trimmedServiceName}%"));
+        }
 
         var totalCount = await query.CountAsync(ct);
         var effectivePageSize = pageSize <= 0 ? Math.Max(1, totalCount) : Math.Max(1, pageSize);
