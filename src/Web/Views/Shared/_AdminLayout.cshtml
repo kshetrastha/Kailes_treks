@@ -760,6 +760,8 @@
                                         class="sidebar-link"><i class="mdi mdi-shape-outline"></i><span class="hide-menu"> Expedition Types</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/trekking-types"
                                         class="sidebar-link"><i class="mdi mdi-shape"></i><span class="hide-menu"> Trekking Types</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/service-types"
+                                        class="sidebar-link"><i class="mdi mdi-view-list"></i><span class="hide-menu"> Service Types</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/expeditions"
                                         class="sidebar-link"><i class="mdi mdi-terrain"></i><span class="hide-menu"> Expeditions</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/trekking"
@@ -943,6 +945,10 @@
                 else if (requestPath.Contains("/admin/trekking"))
                 {
                     breadcrumbSection = "Trekking";
+                }
+                else if (requestPath.Contains("/admin/service-types"))
+                {
+                    breadcrumbSection = "Service Types";
                 }
                 else if (requestPath.Contains("/admin/company"))
                 {

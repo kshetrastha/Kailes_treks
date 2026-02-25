@@ -8,6 +8,13 @@ namespace TravelCleanArch.Infrastructure.Services;
 
 public sealed class AccomodationService(AppDbContext dbContext) : GenericRepository<Accomodation>(dbContext), IAccomodationService
 {
-    public Task<IReadOnlyList<Accomodation>> ListOrderedAsync(CancellationToken ct)
-        => Query().AsNoTracking().OrderBy(x => x.Name).ThenBy(x => x.Id).ToListAsync(ct);
+    public async Task<IReadOnlyList<Accomodation>> ListOrderedAsync(CancellationToken ct)
+    {
+        var list = await Query()
+           .AsNoTracking()
+           .OrderBy(x => x.Name)
+           .ThenBy(x => x.Id)
+           .ToListAsync(ct);
+        return list;
+    }
 }

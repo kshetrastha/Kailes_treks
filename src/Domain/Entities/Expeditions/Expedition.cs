@@ -20,7 +20,7 @@ public sealed class Expedition : BaseEntity
     public int DurationDays { get; set; }
     public int MaxAltitudeMeters { get; set; }
     public int? MaxAltitudeFeet { get; set; }                        // optional, page shows ft too
-    public DifficultyLevel? DifficultyLevel { get; set; }
+    public Enumerations.DifficultyLevel? DifficultyLevel { get; set; }
     public Season? BestSeason { get; set; }                          // e.g., Spring
     public string? WalkingPerDay { get; set; }                       // e.g., "5 - 7 Hours"
     public string? Accommodation { get; set; }                       // e.g., "Hotel + Lodge + Tent"
@@ -90,7 +90,7 @@ public sealed class Expedition : BaseEntity
         get => DifficultyLevel?.ToString() ?? string.Empty;
         set
         {
-            if (Enum.TryParse<DifficultyLevel>(value, true, out var parsed))
+            if (Enum.TryParse<Enumerations.DifficultyLevel>(value, true, out var parsed))
             {
                 DifficultyLevel = parsed;
             }

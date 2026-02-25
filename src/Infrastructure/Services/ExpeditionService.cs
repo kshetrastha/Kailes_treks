@@ -191,7 +191,7 @@ public sealed class ExpeditionService(AppDbContext db) : IExpeditionService
         e.WalkingPerDay = r.WalkingPerDay;
         e.Accommodation = r.Accommodation;
         e.GroupSizeText = r.GroupSizeText;
-        e.DifficultyLevel = Enum.TryParse<DifficultyLevel>(r.DifficultyLevel, true, out var diff) ? diff : null;
+        e.DifficultyLevel = Enum.TryParse<Domain.Enumerations.DifficultyLevel>(r.DifficultyLevel, true, out var diff) ? diff : null;
         e.UpdatedAtUtc = DateTime.UtcNow;
         e.UpdatedBy = userId;
         if (isCreate) { e.CreatedAtUtc = DateTime.UtcNow; e.CreatedBy = userId; }

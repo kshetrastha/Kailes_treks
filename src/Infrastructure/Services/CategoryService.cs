@@ -8,6 +8,13 @@ namespace TravelCleanArch.Infrastructure.Services;
 
 public sealed class CategoryService(AppDbContext dbContext) : GenericRepository<Category>(dbContext), ICategoryService
 {
-    public Task<IReadOnlyList<Category>> ListOrderedAsync(CancellationToken ct)
-        => Query().AsNoTracking().OrderBy(x => x.Name).ThenBy(x => x.Id).ToListAsync(ct);
+    public async Task<IReadOnlyList<Category>> ListOrderedAsync(CancellationToken ct)
+    {
+        var list = await Query()
+        .AsNoTracking()
+        .OrderBy(x => x.Name)
+        .ThenBy(x => x.Id)
+        .ToListAsync(ct);
+        return list;
+    }
 }

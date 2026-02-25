@@ -32,7 +32,7 @@ public sealed class ExpeditionBasicInfo : BaseEntity
     public int ExpeditionTypeId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string ShortDescription { get; set; } = string.Empty;
-    public DifficultyLevel DifficultyLevel { get; set; } = DifficultyLevel.Moderate;
+    public Enumerations.DifficultyLevel DifficultyLevel { get; set; } = Enumerations.DifficultyLevel.Moderate;
     public int? MaxElevation { get; set; }
     public string Duration { get; set; } = string.Empty;
     public string? WalkingHoursPerDay { get; set; }

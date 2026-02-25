@@ -20,7 +20,7 @@ public sealed class Trekking : BaseEntity
     public int DurationDays { get; set; }
     public int MaxAltitudeMeters { get; set; }
     public int? MaxAltitudeFeet { get; set; }
-    public DifficultyLevel? DifficultyLevel { get; set; }
+    public Enumerations.DifficultyLevel? DifficultyLevel { get; set; }
     public Season? BestSeason { get; set; }
     public string? WalkingPerDay { get; set; }
     public string? Accommodation { get; set; }
@@ -91,7 +91,7 @@ public sealed class Trekking : BaseEntity
         get => DifficultyLevel?.ToString() ?? string.Empty;
         set
         {
-            if (Enum.TryParse<DifficultyLevel>(value, true, out var parsed))
+            if (Enum.TryParse<Enumerations.DifficultyLevel>(value, true, out var parsed))
             {
                 DifficultyLevel = parsed;
             }

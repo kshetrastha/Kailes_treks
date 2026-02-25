@@ -117,3 +117,10 @@ public sealed class TermsAndConditionFormViewModel
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
 }
+
+public sealed class ServiceTypeFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(2000)] public string? Description { get; set; }
+}

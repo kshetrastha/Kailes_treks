@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225163339_MasterEntity")]
+    partial class MasterEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,9 +151,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
@@ -198,9 +198,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("HeroImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
@@ -262,9 +259,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("FilePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
@@ -319,9 +313,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -380,9 +371,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("GroupSize")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
 
@@ -440,9 +428,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("text");
@@ -486,9 +471,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsGuaranteed")
                         .HasColumnType("boolean");
@@ -541,9 +523,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
 
@@ -587,9 +566,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -635,9 +611,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("FullDescription")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Meals")
                         .HasColumnType("text");
@@ -691,9 +664,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("FullDescription")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("MapEmbedCode")
                         .HasColumnType("text");
@@ -757,9 +727,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("boolean");
@@ -904,9 +871,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("Inclusions")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<decimal?>("Latitude")
                         .HasColumnType("numeric");
@@ -1053,9 +1017,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Ordering")
                         .HasColumnType("integer");
 
@@ -1092,9 +1053,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -1137,9 +1095,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
@@ -1181,9 +1136,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("FilePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("MediaKind")
                         .HasColumnType("integer");
@@ -1240,9 +1192,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("ModerationStatus")
                         .HasColumnType("integer");
 
@@ -1298,9 +1247,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int?>("GroupSize")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1344,9 +1290,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("ShortDescription")
                         .HasColumnType("text");
 
@@ -1388,9 +1331,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("ExpeditionId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("ItineraryId")
                         .HasColumnType("integer");
@@ -1434,9 +1374,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1471,9 +1408,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1507,9 +1441,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1546,9 +1477,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -1638,9 +1566,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int>("ExpeditionId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("SeasonTitle")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1679,9 +1604,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1717,9 +1639,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -1812,9 +1731,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
@@ -1853,9 +1769,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -1927,9 +1840,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
@@ -1975,9 +1885,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -2079,9 +1986,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("Inclusions")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<decimal?>("Latitude")
                         .HasColumnType("numeric");
@@ -2274,9 +2178,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Ordering")
                         .HasColumnType("integer");
 
@@ -2323,9 +2224,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int?>("GroupSize")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -2369,9 +2267,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("ShortDescription")
                         .HasColumnType("text");
 
@@ -2404,9 +2299,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -2444,9 +2336,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("SeasonTitle")
                         .IsRequired()
@@ -2494,9 +2383,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Meals")
                         .HasColumnType("text");
 
@@ -2542,9 +2428,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
@@ -2586,9 +2469,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("FilePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("MediaKind")
                         .HasColumnType("integer");
@@ -2644,9 +2524,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("ModerationStatus")
                         .HasColumnType("integer");
@@ -2704,9 +2581,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
@@ -2756,9 +2630,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -2794,9 +2665,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("Ordering")
                         .HasColumnType("integer");
@@ -2840,9 +2708,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -2889,9 +2754,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<string>("Header")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Title")
                         .IsRequired()
