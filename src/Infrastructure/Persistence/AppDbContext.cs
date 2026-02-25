@@ -21,6 +21,10 @@ public sealed class AppDbContext:
     public DbSet<Expedition> Expeditions => Set<Expedition>();
     public DbSet<ExpeditionType> ExpeditionTypes => Set<ExpeditionType>();
     public DbSet<TrekkingType> TrekkingTypes => Set<TrekkingType>();
+    public DbSet<ServiceType> ServiceTypes => Set<ServiceType>();
+    public DbSet<Accomodation> Accomodations => Set<Accomodation>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<DifficultyLevel> DifficultyLevels => Set<DifficultyLevel>();
 
     public DbSet<ExpeditionFaq> ExpeditionFaqs => Set<ExpeditionFaq>();
     public DbSet<ExpeditionMedia> ExpeditionMedia => Set<ExpeditionMedia>();

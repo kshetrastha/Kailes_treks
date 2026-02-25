@@ -16,6 +16,7 @@ using TravelCleanArch.Infrastructure.Seeding;
 using TravelCleanArch.Infrastructure.Services;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Application.Abstractions.Company;
+using TravelCleanArch.Application.Abstractions.Master;
 
 namespace TravelCleanArch.Infrastructure;
 
@@ -69,6 +70,10 @@ public static class DependencyInjection
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IBlogPostService, BlogPostService>();
         services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
+        services.AddScoped<IServiceTypeService, ServiceTypeService>();
+        services.AddScoped<IAccomodationService, AccomodationService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IDifficultyLevelService, DifficultyLevelService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;
