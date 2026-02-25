@@ -1,6 +1,20 @@
 @model IReadOnlyCollection<TravelCleanArch.Application.Abstractions.Travel.TrekkingTypeDto>
 @{
     ViewData["Title"] = "Trekking Types";
+
+    var allowedPageSizes = new[] { 10, 20, 50, 100, -1 };
+    var page = int.TryParse(Context.Request.Query["page"], out var qPage) ? qPage : 1;
+    var pageSize = int.TryParse(Context.Request.Query["pageSize"], out var qPageSize) ? qPageSize : 10;
+    var currentPage = Math.Max(1, page);
+    var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
+    var allItems = Model.ToList();
+    var totalCount = allItems.Count;
+    var effectivePageSize = currentPageSize == -1 ? Math.Max(1, totalCount) : currentPageSize;
+    var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)effectivePageSize));
+    if (currentPage > totalPages) { currentPage = totalPages; }
+    var pagedItems = currentPageSize == -1 ? allItems : allItems.Skip((currentPage - 1) * currentPageSize).Take(currentPageSize).ToList();
+    var firstItemIndex = totalCount == 0 ? 0 : ((currentPage - 1) * effectivePageSize) + 1;
+    var lastItemIndex = totalCount == 0 ? 0 : Math.Min(currentPage * effectivePageSize, totalCount);
 }
 
 <div class="container-fluid">
@@ -34,7 +48,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!Model.Any())
+                        @if (!pagedItems.Any())
                         {
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-4">No trekking types found. Add your first item.</td>
@@ -42,7 +56,7 @@
                         }
                         else
                         {
-                            @foreach (var item in Model)
+                            @foreach (var item in pagedItems)
                             {
                                 <tr>
                                     <td data-label="Order">@item.Ordering</td>
@@ -81,6 +95,31 @@
                     </tbody>
                 </table>
             </div>
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="page" value="1" />
+                    <label class="text-muted small mb-0" for="pageSize">Rows / Page</label>
+                    <select id="pageSize" name="pageSize" class="form-select form-select-sm" style="width: 130px;" onchange="this.form.submit()">
+                        <option value="10" selected="@(currentPageSize == 10)">10 Rows/Page</option>
+                        <option value="20" selected="@(currentPageSize == 20)">20 Rows/Page</option>
+                        <option value="50" selected="@(currentPageSize == 50)">50 Rows/Page</option>
+                        <option value="100" selected="@(currentPageSize == 100)">100 Rows/Page</option>
+                        <option value="-1" selected="@(currentPageSize == -1)">All Rows/Page</option>
+                    </select>
+                </form>
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @totalCount records</div>
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : null)"><a class="page-link" href="?page=@(currentPage - 1)&pageSize=@currentPageSize">Previous</a></li>
+                        @for (var p = 1; p <= totalPages; p++)
+                        {
+                            <li class="page-item @(p == currentPage ? "active" : null)"><a class="page-link" href="?page=@p&pageSize=@currentPageSize">@p</a></li>
+                        }
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : null)"><a class="page-link" href="?page=@(currentPage + 1)&pageSize=@currentPageSize">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+
         </div>
     </div>
 </div>
