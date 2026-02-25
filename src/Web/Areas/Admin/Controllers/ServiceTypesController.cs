@@ -14,8 +14,15 @@ namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 public sealed class ServiceTypesController(IUnitOfWork uow, ICurrentUser currentUser) : Controller
 {
     [HttpGet("")]
-    public async Task<IActionResult> Index(CancellationToken ct)
-        => View(await uow.ServiceTypeService.ListOrderedAsync(ct));
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, CancellationToken ct = default)
+    {
+        var allowedPageSizes = new[] { 10, 20, 50, 100, -1 };
+        var currentPage = Math.Max(1, page);
+        var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
+        ViewBag.PageSize = currentPageSize;
+
+        return View(await uow.ServiceTypeService.ListOrderedAsync(currentPage, currentPageSize, ct));
+    }
 
     [HttpGet("create")]
     public IActionResult Create() => View("Upsert", new ServiceTypeFormViewModel());

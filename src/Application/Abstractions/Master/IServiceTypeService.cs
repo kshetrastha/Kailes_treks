@@ -5,5 +5,5 @@ namespace TravelCleanArch.Application.Abstractions.Master;
 
 public interface IServiceTypeService : IGenericRepository<ServiceType>
 {
-    Task<IReadOnlyList<ServiceType>> ListOrderedAsync(CancellationToken ct);
+    Task<ServiceTypePagedResult> ListOrderedAsync(int page, int pageSize, CancellationToken ct);
 }

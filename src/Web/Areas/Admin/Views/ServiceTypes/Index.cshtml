@@ -1,6 +1,27 @@
-@model IReadOnlyCollection<TravelCleanArch.Domain.Entities.Master.ServiceType>
+@model TravelCleanArch.Application.Abstractions.Master.ServiceTypePagedResult
 @{
     ViewData["Title"] = "Travel - Service Types";
+    var selectedPageSize = ViewBag.PageSize is int value ? value : 20;
+    var pageSizeOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+    {
+        new("10 Rows/Page", "10", selectedPageSize == 10),
+        new("20 Rows/Page", "20", selectedPageSize == 20),
+        new("50 Rows/Page", "50", selectedPageSize == 50),
+        new("100 Rows/Page", "100", selectedPageSize == 100),
+        new("All Rows/Page", "-1", selectedPageSize == -1)
+    };
+
+    var effectivePageSize = Model.PageSize <= 0 ? Math.Max(1, Model.TotalCount) : Model.PageSize;
+    var totalPages = Math.Max(1, (int)Math.Ceiling(Model.TotalCount / (double)effectivePageSize));
+    var previousPage = Math.Max(1, Model.Page - 1);
+    var nextPage = Math.Min(totalPages, Model.Page + 1);
+    var hasPrevious = Model.Page > 1;
+    var hasNext = Model.Page < totalPages;
+    var firstItemIndex = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * effectivePageSize) + 1;
+    var lastItemIndex = Model.TotalCount == 0 ? 0 : Math.Min(Model.Page * effectivePageSize, Model.TotalCount);
+    var pageWindow = 2;
+    var startPage = Math.Max(1, Model.Page - pageWindow);
+    var endPage = Math.Min(totalPages, Model.Page + pageWindow);
 }
 
 <div class="container-fluid">
@@ -16,6 +37,12 @@
 
     <div class="card">
         <div class="card-body">
+            <form method="get" class="d-flex justify-content-end align-items-center mb-3">
+                <label for="pageSize" class="me-2 mb-0 text-muted">Rows/Page</label>
+                <select id="pageSize" name="pageSize" asp-items="pageSizeOptions" class="form-select form-select-sm" style="width: 180px;" onchange="this.form.submit()"></select>
+                <input type="hidden" name="page" value="1" />
+            </form>
+
             <div id="no-more-tables" class="table-responsive mb-2">
                 <table class="table table-hover color-table info-table align-middle">
                     <thead class="bg-primary text-white">
@@ -26,15 +53,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!Model.Any())
+                        @if (!Model.Items.Any())
                         {
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No service types found. Add your first service type.</td>
+                                <td colspan="3" class="text-center text-muted py-4">No service types found. Add your first service type.</td>
                             </tr>
                         }
                         else
                         {
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Items)
                             {
                                 <tr>
                                     <td data-label="Id">@item.Id</td>
@@ -52,6 +79,47 @@
                     </tbody>
                 </table>
             </div>
+
+            @if (Model.TotalCount > 0)
+            {
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        @if (totalPages > 0)
+                        {
+                            <nav aria-label="Service type pagination">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item @(hasPrevious ? string.Empty : "disabled")">
+                                        <a class="page-link" asp-route-page="1" asp-route-pageSize="@selectedPageSize">&laquo;</a>
+                                    </li>
+                                    <li class="page-item @(hasPrevious ? string.Empty : "disabled")">
+                                        <a class="page-link" asp-route-page="@previousPage" asp-route-pageSize="@selectedPageSize">&lt;</a>
+                                    </li>
+                                    @for (var p = startPage; p <= endPage; p++)
+                                    {
+                                        <li class="page-item @(p == Model.Page ? "active" : string.Empty)">
+                                            <a class="page-link" asp-route-page="@p" asp-route-pageSize="@selectedPageSize">@p</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(hasNext ? string.Empty : "disabled")">
+                                        <a class="page-link" asp-route-page="@nextPage" asp-route-pageSize="@selectedPageSize">&gt;</a>
+                                    </li>
+                                    <li class="page-item @(hasNext ? string.Empty : "disabled")">
+                                        <a class="page-link" asp-route-page="@totalPages" asp-route-pageSize="@selectedPageSize">&raquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    </div>
+                    @if (totalPages > 1)
+                    {
+                        <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records</div>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>
