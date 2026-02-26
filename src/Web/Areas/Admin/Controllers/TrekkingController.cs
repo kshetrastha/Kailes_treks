@@ -21,8 +21,15 @@ public sealed class TrekkingController(
     IWebHostEnvironment environment) : Controller
 {
     [HttpGet("")]
-    public async Task<IActionResult> Index(string? search, string? destination, string? status, int page = 1, CancellationToken ct = default)
-        => View(await service.ListAsync(search, status, destination, null, page, 50, ct));
+    public async Task<IActionResult> Index(string? search, string? destination, string? status, int page = 1, int pageSize = 10, CancellationToken ct = default)
+    {
+        var allowedPageSizes = new[] { 10, 20, 50, 100, -1 };
+        var currentPage = Math.Max(1, page);
+        var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
+
+        ViewBag.PageSize = currentPageSize;
+        return View(await service.ListAsync(search, status, destination, null, currentPage, currentPageSize, ct));
+    }
 
     [HttpGet("{id:int}/detail")]
     public async Task<IActionResult> Detail(int id, string activeTab = "itineraries", int? itineraryId = null, CancellationToken ct = default)
