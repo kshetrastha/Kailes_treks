@@ -24,6 +24,22 @@
     </form>
     <div class="card">
         <div class="card-body">
+            <div class="d-flex justify-content-end align-items-center mb-3 rows-top-controls">
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="search" value="@Context.Request.Query["search"]" />
+                    <input type="hidden" name="destination" value="@Context.Request.Query["destination"]" />
+                    <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
+                    <input type="hidden" name="page" value="1" />
+                    <label class="text-muted small mb-0" for="pageSizeTop">Rows / Page</label>
+                    <select id="pageSizeTop" name="pageSize" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+                        <option value="10" selected="@(selectedPageSize == 10)">10 Rows/Page</option>
+                        <option value="20" selected="@(selectedPageSize == 20)">20 Rows/Page</option>
+                        <option value="50" selected="@(selectedPageSize == 50)">50 Rows/Page</option>
+                        <option value="100" selected="@(selectedPageSize == 100)">100 Rows/Page</option>
+                        <option value="-1" selected="@(selectedPageSize == -1)">All Rows/Page</option>
+                    </select>
+                </form>
+            </div>
             <div id="no-more-tables" class="table-responsive mb-2">
                 <table class="table table-hover color-table info-table align-middle">
                     <thead class="bg-primary text-white">
@@ -50,21 +66,7 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                <form method="get" class="d-flex align-items-center gap-2">
-                    <input type="hidden" name="search" value="@Context.Request.Query["search"]" />
-                    <input type="hidden" name="destination" value="@Context.Request.Query["destination"]" />
-                    <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
-                    <input type="hidden" name="page" value="1" />
-                    <label class="text-muted small mb-0" for="pageSize">Rows / Page</label>
-                    <select id="pageSize" name="pageSize" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
-                        <option value="10" selected="@(selectedPageSize == 10)">10 Rows/Page</option>
-                        <option value="20" selected="@(selectedPageSize == 20)">20 Rows/Page</option>
-                        <option value="50" selected="@(selectedPageSize == 50)">50 Rows/Page</option>
-                        <option value="100" selected="@(selectedPageSize == 100)">100 Rows/Page</option>
-                        <option value="-1" selected="@(selectedPageSize == -1)">All Rows/Page</option>
-                    </select>
-                </form>
-                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
+                
                 <nav aria-label="Trekking pagination">
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item @(Model.Page <= 1 ? "disabled" : null)">
@@ -81,6 +83,7 @@
                         </li>
                     </ul>
                 </nav>
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
             </div>
         </div>
     </div>
