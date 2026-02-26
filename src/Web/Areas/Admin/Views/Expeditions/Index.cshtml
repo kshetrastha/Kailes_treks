@@ -1,0 +1,90 @@
+@model TravelCleanArch.Application.Abstractions.Travel.ExpeditionPagedResult
+@{
+    ViewData["Title"] = "Expeditions";
+    var selectedPageSize = ViewBag.PageSize is int value ? value : Model.PageSize;
+    var effectivePageSize = Model.PageSize <= 0 ? Math.Max(1, Model.TotalCount) : Model.PageSize;
+    var totalPages = Math.Max(1, (int)Math.Ceiling(Model.TotalCount / (double)effectivePageSize));
+    var firstItemIndex = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * effectivePageSize) + 1;
+    var lastItemIndex = Model.TotalCount == 0 ? 0 : Math.Min(Model.Page * effectivePageSize, Model.TotalCount);
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Expeditions</h3>
+        <a class="btn btn-primary" asp-action="Create">Add Expedition</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <input type="hidden" name="page" value="1" />
+        <input type="hidden" name="pageSize" value="@selectedPageSize" />
+        <div class="col-md-3"><input class="form-control" name="search" value="@Context.Request.Query["search"]" placeholder="Search by name" /></div>
+        <div class="col-md-3"><input class="form-control" name="destination" value="@Context.Request.Query["destination"]" placeholder="Country" /></div>
+        <div class="col-md-3"><input class="form-control" name="difficulty" value="@Context.Request.Query["difficulty"]" placeholder="Difficulty" /></div>
+        <div class="col-md-2"><button class="btn btn-outline-secondary">Filter</button></div>
+    </form>
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-end align-items-center mb-3 rows-top-controls">
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="search" value="@Context.Request.Query["search"]" />
+                    <input type="hidden" name="destination" value="@Context.Request.Query["destination"]" />
+                    <input type="hidden" name="difficulty" value="@Context.Request.Query["difficulty"]" />
+                    <input type="hidden" name="page" value="1" />
+                    <label class="text-muted small mb-0" for="pageSizeTop">Rows / Page</label>
+                    <select id="pageSizeTop" name="pageSize" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+                        <option value="10" selected="@(selectedPageSize == 10)">10 Rows/Page</option>
+                        <option value="20" selected="@(selectedPageSize == 20)">20 Rows/Page</option>
+                        <option value="50" selected="@(selectedPageSize == 50)">50 Rows/Page</option>
+                        <option value="100" selected="@(selectedPageSize == 100)">100 Rows/Page</option>
+                        <option value="-1" selected="@(selectedPageSize == -1)">All Rows/Page</option>
+                    </select>
+                </form>
+            </div>
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr><th>Name</th><th>Type</th><th>Country</th><th>Difficulty</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.ExpeditionTypeTitle</td>
+                                <td>@item.Country</td>
+                                <td>@item.DifficultyLevel</td>
+                                <td>@item.Status</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Detail" asp-route-id="@item.Id">Detail</a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this expedition?')">Delete</button></form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                
+                <nav aria-label="Expedition pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.Page <= 1 ? "disabled" : null)">
+                            <a class="page-link" asp-action="Index" asp-route-search="@Context.Request.Query["search"]" asp-route-destination="@Context.Request.Query["destination"]" asp-route-difficulty="@Context.Request.Query["difficulty"]" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@selectedPageSize">Previous</a>
+                        </li>
+                        @for (var p = 1; p <= totalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.Page ? "active" : null)">
+                                <a class="page-link" asp-action="Index" asp-route-search="@Context.Request.Query["search"]" asp-route-destination="@Context.Request.Query["destination"]" asp-route-difficulty="@Context.Request.Query["difficulty"]" asp-route-page="@p" asp-route-pageSize="@selectedPageSize">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.Page >= totalPages ? "disabled" : null)">
+                            <a class="page-link" asp-action="Index" asp-route-search="@Context.Request.Query["search"]" asp-route-destination="@Context.Request.Query["destination"]" asp-route-difficulty="@Context.Request.Query["difficulty"]" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@selectedPageSize">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
+            </div>
+        </div>
+    </div>
+</div>

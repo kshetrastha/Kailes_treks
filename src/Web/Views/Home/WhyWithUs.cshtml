@@ -1,0 +1,103 @@
+@model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Why With Us";
+    var heroBackgroundImage = string.IsNullOrWhiteSpace(Model.WhyWithUsBackgroundImagePath)
+        ? Url.Content("~/assets/img/contact.jpg")
+        : Url.Content($"~/{Model.WhyWithUsBackgroundImagePath}");
+}
+
+<section class="w-full relative overflow-hidden">
+    <div
+        class="w-full md:aspect-[16/7.38] aspect-[9/16] bg-cover bg-center bg-no-repeat relative"
+        style="background-image: url('@heroBackgroundImage')">
+        <div
+            class="w-full flex items-start md:justify-center justify-start md:pt-0 pt-24 h-full bg-black/50 md:px-39 sm:px-20 px-4 flex-col">
+            <h5 data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100"
+                class="text-2xl text-neutral-100 font-medium mb-0 -mt-3">
+                @Model.WhyWithUsHeader
+            </h5>
+            <h1 data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200"
+                class="text-[48px] md:text-[64px] text-[#e1a74e] font-black -mt-3 mb-3">
+                @Model.WhyWithUsTitle
+            </h1>
+            <p data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300"
+                class="text-2xl font-light text-neutral-200 max-w-xl leading-[1.5] tracking-wide mb-10">
+                @Model.WhyWithUsDescription
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="w-full md:px-39 sm:px-20 px-4 md:py-24 py-12 bg-gradient-to-b from-white to-neutral-100">
+    <div class="max-w-7xl mx-auto space-y-10">
+
+        @if (Model.WhyWithUsItems != null && Model.WhyWithUsItems.Count > 0)
+        {
+            <div class="space-y-10">
+                @for (var i = 0; i < Model.WhyWithUsItems.Count; i++)
+                {
+                    var item = Model.WhyWithUsItems[i];
+                    var index = i + 1;
+                    var numberText = index.ToString("D2");
+
+                    // Alternate layout: odd -> image left, even -> image right
+                    var isEven = index % 2 == 0;
+
+                    // If you store image path in DB; else fallback image
+                    var imageSrc = string.IsNullOrWhiteSpace(item.ImagePath)
+                        ? "/assets/img/expeditions/exp4.png"
+                        : item.ImagePath;
+
+                    <div class="w-full grid md:grid-cols-3 grid-cols-1 group ease-in-out duration-1000">
+
+                        @* IMAGE *@
+                        <div data-aos="fade-right"
+                             data-aos-duration="1000"
+                             data-aos-delay="100"
+                             class="w-full md:col-span-1 col-span-3 aspect-[9/10] overflow-hidden rounded-md
+                            @(isEven ? "md:order-2 order-1" : "")">
+                            <img src="@imageSrc" alt="@item.Title"
+                                 class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
+                        </div>
+
+                        @* CONTENT *@
+                        <div class="md:col-span-2 col-span-3 w-full md:px-16
+                            @(isEven ? "md:order-1 order-2" : "")">
+
+                            <h1 data-aos="fade-right"
+                                data-aos-duration="1000"
+                                data-aos-delay="100"
+                                class="text-[80px] text-neutral-200/40 font-bold tracking-wider">
+                                @numberText
+                            </h1>
+
+                            <div class="flex items-center gap-3 -mt-14 mb-4">                              
+
+                                <h2 data-aos="fade-right"
+                                    data-aos-duration="1100"
+                                    data-aos-delay="200"
+                                    class="text-[30px] md:text-[32px] font-bold text-neutral-900 uppercase">
+                                    @item.Title
+                                </h2>
+                            </div>
+
+                            <p data-aos="fade-right"
+                                   data-aos-duration="1200"
+                                   data-aos-delay="400"
+                                   class="text-base text-neutral-600 font-light text-justify leading-[24px]">
+                                @item.Description
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center text-neutral-500">
+                Why With Us content will appear here soon.
+            </div>
+        }
+
+    </div>
+</section>

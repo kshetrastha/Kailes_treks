@@ -1,0 +1,149 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.WhoWeAreFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Who We Are" : "Create Who We Are";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Who We Are Item</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/who-we-are">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" action="@(isEdit ? $"/admin/company/who-we-are/{Model.Id}/edit" : "/admin/company/who-we-are/create")" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SubDescription" class="form-label"></label>
+                        <input asp-for="SubDescription" class="form-control" />
+                        <span asp-validation-for="SubDescription" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Ordering" class="form-label"></label>
+                        <input asp-for="Ordering" class="form-control" type="number" min="0" max="999" />
+                        <span asp-validation-for="Ordering" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <input asp-for="IsPublished" class="form-check-input" />
+                            <label asp-for="IsPublished" class="form-check-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" id="descriptionEditor" class="form-control" rows="10"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ImageCaption" class="form-label"></label>
+                        <input asp-for="ImageCaption" class="form-control" />
+                        <span asp-validation-for="ImageCaption" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Image" class="form-label"></label>
+                        <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                        <span asp-validation-for="Image" class="text-danger"></span>
+                        @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted d-block">Current image</small>
+                                <img src="/@Model.ExistingImagePath" alt="Current image" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label asp-for="AdditionalImages" class="form-label mb-0"></label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addAdditionalImageRowBtn">Add image</button>
+                        </div>
+                        <small class="text-muted d-block mb-2">Selecting new images during edit will replace existing additional images.</small>
+                        <div id="additionalImageRowsContainer" class="d-flex flex-column gap-2"></div>
+                    </div>
+
+                    @if (Model.ExistingAdditionalImages.Any())
+                    {
+                        <div class="col-12">
+                            <small class="text-muted d-block mb-2">Existing additional images</small>
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var image in Model.ExistingAdditionalImages)
+                                {
+                                    <div>
+                                        <img src="/@image.ImagePath" alt="Additional image" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                                        <small class="d-block text-muted">@(string.IsNullOrWhiteSpace(image.Caption) ? "No caption" : image.Caption)</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                    <a href="/admin/company/who-we-are" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const additionalImageRowsContainer = document.getElementById('additionalImageRowsContainer');
+            const addAdditionalImageRowBtn = document.getElementById('addAdditionalImageRowBtn');
+            let additionalImageRowCount = 0;
+
+            const buildImageRow = function () {
+                if (!additionalImageRowsContainer) {
+                    return;
+                }
+
+                const rowIndex = additionalImageRowCount;
+                additionalImageRowCount += 1;
+
+                const row = document.createElement('div');
+                row.className = 'border rounded p-3';
+                row.innerHTML = `
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">Image caption</label>
+                            <input type="text" name="AdditionalImageCaptions[${rowIndex}]" class="form-control" maxlength="300" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Upload image</label>
+                            <input type="file" name="AdditionalImages[${rowIndex}]" class="form-control" accept="image/*" />
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-danger w-100 remove-additional-image-row" title="Remove image row">✕</button>
+                        </div>
+                    </div>
+                `;
+
+                row.querySelector('.remove-additional-image-row')?.addEventListener('click', function () {
+                    row.remove();
+                });
+
+                additionalImageRowsContainer.appendChild(row);
+            };
+
+            addAdditionalImageRowBtn?.addEventListener('click', buildImageRow);
+            buildImageRow();
+        });
+    </script>
+}

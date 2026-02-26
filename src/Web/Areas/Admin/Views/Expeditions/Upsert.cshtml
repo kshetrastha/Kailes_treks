@@ -1,0 +1,338 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ExpeditionFormViewModel
+@using TravelCleanArch.Application.Abstractions.Travel
+@{
+
+    var isEdit = Model.Id.HasValue;
+    var types = ViewBag.ExpeditionTypes as IReadOnlyCollection<ExpeditionTypeDto> ?? [];
+    var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
+    var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
+    var faqRows = (Model.FaqsText ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(x => x.Split('|'))
+        .Where(x => x.Length >= 3)
+        .ToList();
+}
+<h3>@(isEdit ? "Edit" : "Create") Expedition</h3>
+<form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <ul class="nav nav-tabs expedition-tabs mb-2">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-basic">1. Basic</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-overview">2. Overview</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-itin">3. Itineraries</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-cost">4. Inclusions + Exclusions + Departures</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-files">5. Gear + Maps + Media</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reviews">6. Highlights + Reviews</a></li>
+    </ul>
+
+    <div class="tab-content border p-3 mb-3">
+        <div class="tab-pane fade show active" id="tab-basic">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" required />
+                    <div class="invalid-feedback">Expedition name is required.</div>
+                </div>
+                <div class="col-md-6"><label asp-for="Slug"></label><input asp-for="Slug" class="form-control" placeholder="Optional custom slug" /></div>
+                <div class="col-md-6">
+                    <label asp-for="ExpeditionTypeId"></label><select asp-for="ExpeditionTypeId" class="form-select" required><option value="">--select--</option>@foreach (var t in types)
+                        {
+                            <option value="@t.Id">@t.Title</option>
+                        }</select>
+                    <div class="invalid-feedback">Please select an expedition type.</div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Destination"></label>
+                    <input asp-for="Destination" class="form-control" required />
+                    <div class="invalid-feedback">Destination is required.</div>
+                </div>
+                <div class="col-md-6"><label asp-for="Region"></label><input asp-for="Region" class="form-control" /></div>
+                <div class="col-md-12">
+                    <label asp-for="ShortDescription"></label>
+                    <textarea asp-for="ShortDescription" class="form-control" required></textarea>
+                    <div class="invalid-feedback">Short description is required.</div>
+                </div>
+                <div class="col-md-3"><label asp-for="DifficultyLevel"></label><select asp-for="DifficultyLevel" class="form-select"><option value="">--select--</option>@foreach (var difficulty in difficultyLevels)
+                    {
+                        <option value="@difficulty">@difficulty</option>
+                    }</select></div>
+                <div class="col-md-3"><label asp-for="Difficulty"></label><input asp-for="Difficulty" class="form-control" required /><div class="invalid-feedback">Difficulty is required.</div></div>
+                <div class="col-md-3"><label asp-for="DurationDays"></label><input asp-for="DurationDays" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="MaxAltitudeMeters"></label><input asp-for="MaxAltitudeMeters" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="MaxAltitudeFeet"></label><input asp-for="MaxAltitudeFeet" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="BestSeason"></label><select asp-for="BestSeason" class="form-select"><option value="">--select--</option>@foreach (var season in seasons){<option value="@season">@season</option>}</select></div>
+                <div class="col-md-3"><label asp-for="WalkingPerDay"></label><input asp-for="WalkingPerDay" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Accommodation"></label><input asp-for="Accommodation" class="form-control" /></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-overview">
+            <div class="row g-2">
+                <div class="col-md-3"><label asp-for="OverviewCountry">Country</label><select asp-for="OverviewCountry" class="form-select"><option value="">--select--</option>@foreach (var country in countries)
+                    {
+                        <option value="@country">@country</option>
+                    }</select></div>
+                <div class="col-md-3"><label asp-for="PeakName"></label><input asp-for="PeakName" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="OverviewDuration"></label><input asp-for="OverviewDuration" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Route"></label><input asp-for="Route" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Rank"></label><input asp-for="Rank" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Latitude"></label><input asp-for="Latitude" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Longitude"></label><input asp-for="Longitude" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="Range"></label><input asp-for="Range" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="CoordinatesText"></label><input asp-for="CoordinatesText" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="WeatherReportUrl"></label><input asp-for="WeatherReportUrl" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="Overview"></label><textarea asp-for="Overview" class="form-control" rows="3"></textarea></div>
+                <div class="col-md-3"><label asp-for="MinGroupSize"></label><input asp-for="MinGroupSize" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="MaxGroupSize"></label><input asp-for="MaxGroupSize" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="GroupSizeText"></label><input asp-for="GroupSizeText" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="CurrencyCode"></label><input asp-for="CurrencyCode" class="form-control" placeholder="USD" /></div>
+                <div class="col-md-3"><div class="form-check mt-4"><input asp-for="PriceOnRequest" class="form-check-input" /><label asp-for="PriceOnRequest" class="form-check-label"></label></div></div>
+                <div class="col-md-4"><label asp-for="PriceNotesUrl"></label><input asp-for="PriceNotesUrl" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="TripPdfUrl"></label><input asp-for="TripPdfUrl" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="Status"></label><select asp-for="Status" class="form-select">@foreach (var travelStatus in travelStatuses)
+                    {
+                        <option value="@travelStatus">@travelStatus</option>
+                    }</select></div>
+                <div class="col-md-6"><label asp-for="Permits"></label><input asp-for="Permits" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="AvailableDates"></label><input asp-for="AvailableDates" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="BookingCtaUrl"></label><input asp-for="BookingCtaUrl" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Ordering"></label><input asp-for="Ordering" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="ExpeditionStyle"></label><input asp-for="ExpeditionStyle" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="BoardBasis"></label><input asp-for="BoardBasis" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="SummitRoute"></label><input asp-for="SummitRoute" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="SummitBonusUsd"></label><input asp-for="SummitBonusUsd" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="AverageRating"></label><input asp-for="AverageRating" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="RatingLabel"></label><input asp-for="RatingLabel" class="form-control" /></div>
+                <div class="col-md-4"><label asp-for="ReviewCount"></label><input asp-for="ReviewCount" class="form-control" /></div>
+                <div class="col-md-4 d-flex align-items-end"><div class="form-check me-3"><input asp-for="Featured" class="form-check-input" /><label asp-for="Featured" class="form-check-label"></label></div><div class="form-check me-3"><input asp-for="RequiresClimbingPermit" class="form-check-input" /><label asp-for="RequiresClimbingPermit" class="form-check-label"></label></div><div class="form-check me-3"><input asp-for="OxygenSupport" class="form-check-input" /><label asp-for="OxygenSupport" class="form-check-label"></label></div><div class="form-check"><input asp-for="SherpaSupport" class="form-check-input" /><label asp-for="SherpaSupport" class="form-check-label"></label></div></div>
+                <div class="col-md-6"><label asp-for="SeoTitle"></label><input asp-for="SeoTitle" class="form-control" /></div>
+                <div class="col-md-6"><label asp-for="SeoDescription"></label><textarea asp-for="SeoDescription" class="form-control" rows="2"></textarea></div>
+                <div class="col-md-4">
+                    <label asp-for="HeroImageUrl">Primary Image URL</label>
+                    <input asp-for="HeroImageUrl" class="form-control" placeholder="https://..." />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="HeroVideoUrl">Primary Video URL</label>
+                    <input asp-for="HeroVideoUrl" class="form-control" placeholder="https://..." />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="HeroImageFile">Primary Image Upload</label>
+                    <input asp-for="HeroImageFile" type="file" class="form-control" accept="image/*" />
+                </div>
+                <div class="col-md-12">
+                    <small class="text-muted d-block mb-2">You can save just a video URL, just an image upload, or both together.</small>
+                    <div id="heroVideoPreviewWrap" class="ratio ratio-16x9 d-none mb-2">
+                        <iframe id="heroVideoPreview" title="Primary video preview" allowfullscreen></iframe>
+                    </div>
+                    <img id="heroImagePreview" class="img-fluid rounded border d-none" style="max-height: 320px; object-fit: cover;" alt="Primary image preview" />
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-itin">
+            <table class="table" id="itineraryTable">
+                <thead><tr><th>Season</th><th>Sort</th><th>Days (id:day:short:meals:accommodation)</th><th></th></tr></thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Itineraries.Count; i++)
+                    {
+                        <tr class="itinerary-row" data-index="@i">
+                            <td>
+                                <input type="hidden" name="Itineraries[@i].Id" value="@Model.Itineraries[i].Id" />
+                                <input name="Itineraries[@i].SeasonTitle" value="@Model.Itineraries[i].SeasonTitle" class="form-control" />
+                            </td>
+                            <td><input name="Itineraries[@i].SortOrder" value="@Model.Itineraries[i].SortOrder" class="form-control" /></td>
+                            <td><textarea class="form-control itin-days" data-index="@i">@string.Join("\n", Model.Itineraries[i].Days.Select(d => $"{d.Id}:{d.DayNumber}:{d.ShortDescription}:{d.Meals}:{d.AccommodationType}"))</textarea></td>
+                            <td><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="addItinerary">Add itinerary</button>
+        </div>
+
+        <div class="tab-pane fade" id="tab-cost">
+            <textarea asp-for="Inclusions" class="form-control mb-2" placeholder="Inclusions"></textarea>
+            <textarea asp-for="Exclusions" class="form-control mb-3" placeholder="Exclusions"></textarea>
+
+            <h6>Cost Items</h6>
+            <div id="costWrap">
+                @for (var i = 0; i < Model.CostItems.Count; i++)
+                {
+                    <div class="row g-1 mb-2 cost-row">
+                        <input type="hidden" name="CostItems[@i].Id" value="@Model.CostItems[i].Id" />
+                        <div class="col-md-3"><input name="CostItems[@i].Title" value="@Model.CostItems[i].Title" class="form-control" placeholder="title" /></div>
+                        <div class="col-md-2"><input name="CostItems[@i].Type" value="@Model.CostItems[i].Type" class="form-control" placeholder="Inclusion/Exclusion" /></div>
+                        <div class="col-md-2"><input name="CostItems[@i].SortOrder" value="@Model.CostItems[i].SortOrder" class="form-control" placeholder="sort" /></div>
+                        <div class="col-md-2">
+                            <select name="CostItems[@i].IsActive" class="form-select">
+                                @if (Model.CostItems[i].IsActive)
+                                {
+                                    <option value="true" selected>Active</option><option value="false">Inactive</option>
+                                }
+                                else
+                                {
+                                    <option value="true">Active</option><option value="false" selected>Inactive</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3"><input name="CostItems[@i].ShortDescription" value="@Model.CostItems[i].ShortDescription" class="form-control" placeholder="description" /></div>
+                        <div class="col-12 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addCost">Add Cost Item</button>
+
+            <h6 class="mt-3">Fixed Departures</h6>
+            <div id="departureWrap">
+                @for (var i = 0; i < Model.FixedDepartures.Count; i++)
+                {
+                    <div class="row g-1 mb-2 departure-row">
+                        <input type="hidden" name="FixedDepartures[@i].Id" value="@Model.FixedDepartures[i].Id" />
+                        <div class="col-md-2"><input type="date" name="FixedDepartures[@i].StartDate" value="@Model.FixedDepartures[i].StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div>
+                        <div class="col-md-2"><input type="date" name="FixedDepartures[@i].EndDate" value="@Model.FixedDepartures[i].EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div>
+                        <div class="col-md-2"><input name="FixedDepartures[@i].ForDays" value="@Model.FixedDepartures[i].ForDays" class="form-control" placeholder="days" /></div>
+                        <div class="col-md-3"><input name="FixedDepartures[@i].Status" value="@Model.FixedDepartures[i].Status" class="form-control" placeholder="BookingOpen" /></div>
+                        <div class="col-md-2"><input name="FixedDepartures[@i].GroupSize" value="@Model.FixedDepartures[i].GroupSize" class="form-control" placeholder="group" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addDeparture">Add Departure</button>
+        </div>
+
+        <div class="tab-pane fade" id="tab-files">
+            <h6>Gear Files</h6>
+            <div id="gearWrap">
+                @for (var i = 0; i < Model.GearLists.Count; i++)
+                {
+                    <div class='row mb-1 gear-row'>
+                        <input type='hidden' name='GearLists[@i].Id' value='@Model.GearLists[i].Id' />
+                        <input type='hidden' name='GearLists[@i].ExistingPath' value='@Model.GearLists[i].ExistingPath' />
+                        <input type='hidden' name='GearLists[@i].ExistingImagePath' value='@Model.GearLists[i].ExistingImagePath' />
+                        <div class='col'><input name='GearLists[@i].ShortDescription' value='@Model.GearLists[i].ShortDescription' class='form-control' placeholder='description' /></div>
+                        <div class='col'><input type='file' name='GearLists[@i].UploadFile' class='form-control' /></div>
+                        <div class='col'><input type='file' name='GearLists[@i].UploadImage' class='form-control' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addGear">Add Gear</button>
+            <h6 class="mt-3">Maps</h6>
+            <div id="mapWrap">
+                @for (var i = 0; i < Model.Maps.Count; i++)
+                {
+                    <div class='row mb-1 map-row'>
+                        <input type='hidden' name='Maps[@i].Id' value='@Model.Maps[i].Id' />
+                        <input type='hidden' name='Maps[@i].ExistingPath' value='@Model.Maps[i].ExistingPath' />
+                        <div class='col'><input name='Maps[@i].Title' value='@Model.Maps[i].Title' class='form-control' placeholder='title' /></div>
+                        <div class='col'><input name='Maps[@i].Notes' value='@Model.Maps[i].Notes' class='form-control' placeholder='notes' /></div>
+                        <div class='col'><input type='file' name='Maps[@i].UploadFile' class='form-control' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addMap">Add Map</button>
+            <h6 class="mt-3">Media</h6>
+            <div id="mediaWrap">
+                @for (var i = 0; i < Model.Media.Count; i++)
+                {
+                    <div class='row mb-1 media-row'>
+                        <input type='hidden' name='Media[@i].Id' value='@Model.Media[i].Id' />
+                        <input type='hidden' name='Media[@i].ExistingPath' value='@Model.Media[i].ExistingPath' />
+                        <div class='col'><input type='file' name='Media[@i].PhotoFile' class='form-control' /></div>
+                        <div class='col'><input name='Media[@i].VideoUrl' value='@Model.Media[i].VideoUrl' class='form-control' placeholder='video url' /></div>
+                        <div class='col'><input name='Media[@i].Caption' value='@Model.Media[i].Caption' class='form-control' placeholder='caption' /></div>
+                        <div class='col'><input name='Media[@i].SortOrder' value='@Model.Media[i].SortOrder' class='form-control' placeholder='sort' /></div>
+                        <div class='col-12 text-end'><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addMedia">Add Media</button>
+        </div>
+
+        <div class="tab-pane fade" id="tab-reviews">
+            <h6>Highlights</h6>
+            <div id="highlightWrap">
+                @for (var i = 0; i < Model.Highlights.Count; i++)
+                {
+                    <div class="row g-1 mb-2 highlight-row">
+                        <input type="hidden" name="Highlights[@i].Id" value="@Model.Highlights[i].Id" />
+                        <div class="col-md-10"><input name="Highlights[@i].Text" value="@Model.Highlights[i].Text" class="form-control" placeholder="highlight" /></div>
+                        <div class="col-md-1"><input name="Highlights[@i].SortOrder" value="@Model.Highlights[i].SortOrder" class="form-control" placeholder="sort" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addHighlight">Add Highlight</button>
+
+            <h6 class="mt-3">FAQs</h6>
+            <div id="faqWrap">
+                @for (var i = 0; i < faqRows.Count; i++)
+                {
+                    <div class="row g-1 mb-2 faq-row">
+                        <div class="col-md-4"><input value="@faqRows[i][0]" class="form-control faq-question" placeholder="question" /></div>
+                        <div class="col-md-6"><input value="@faqRows[i][1]" class="form-control faq-answer" placeholder="answer" /></div>
+                        <div class="col-md-1"><input value="@faqRows[i][2]" class="form-control faq-order" placeholder="order" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addFaq">Add FAQ</button>
+
+            <h6 class="mt-3">Reviews</h6>
+            <div id="reviewWrap">
+                @for (var i = 0; i < Model.Reviews.Count; i++)
+                {
+                    <div class="row g-1 mb-2 review-row">
+                        <input type="hidden" name="Reviews[@i].Id" value="@Model.Reviews[i].Id" />
+                        <input type="hidden" name="Reviews[@i].ExistingPhotoPath" value="@Model.Reviews[i].ExistingPhotoPath" />
+                        <div class="col-md-2"><input name="Reviews[@i].FullName" value="@Model.Reviews[i].FullName" class="form-control" placeholder="name" /></div>
+                        <div class="col-md-2"><input name="Reviews[@i].EmailAddress" value="@Model.Reviews[i].EmailAddress" class="form-control" placeholder="email" /></div>
+                        <div class="col-md-1"><input name="Reviews[@i].Rating" value="@Model.Reviews[i].Rating" class="form-control" placeholder="rating" /></div>
+                        <div class="col-md-2"><input name="Reviews[@i].ModerationStatus" value="@Model.Reviews[i].ModerationStatus" class="form-control" placeholder="status" /></div>
+                        <div class="col-md-4"><input name="Reviews[@i].ReviewText" value="@Model.Reviews[i].ReviewText" class="form-control" placeholder="review" /></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">Remove</button></div>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="addReview">Add Review</button>
+        </div>
+    </div>
+
+    <button class="btn btn-primary">Save</button> <a asp-action="Index" class="btn btn-light">Cancel</a>
+
+    <textarea asp-for="SectionsText" class="d-none"></textarea><textarea asp-for="ItineraryText" class="d-none"></textarea><textarea asp-for="FaqsText" class="d-none"></textarea><textarea asp-for="MediaText" class="d-none"></textarea>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/expeditions-form-validation.js"></script>
+    <script src="~/js/expeditions-edit.js"></script>
+}
+
+@* @section Styles { *@
+    <style>
+        .expedition-tabs .nav-link {
+            color: #1f2937;
+            background-color: #f8fafc;
+            border-color: #dee2e6;
+        }
+
+        .expedition-tabs .nav-link:hover,
+        .expedition-tabs .nav-link:focus {
+            color: #0d6efd;
+            background-color: #ffffff;
+        }
+
+        .expedition-tabs .nav-link.active {
+            color: #0d6efd;
+            background-color: #ffffff;
+            border-bottom-color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
+@* } *@

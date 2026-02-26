@@ -1,0 +1,48 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.ItineraryBulkFormViewModel
+@{
+    ViewData["Title"] = "Manage Itineraries";
+}
+
+<h2 class="mb-3">Manage Itineraries</h2>
+<form method="post" action="/admin/itineraries/upsert">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label class="form-label">Expedition</label>
+        <select asp-for="ExpeditionId" asp-items="Model.ExpeditionOptions" class="form-select"></select>
+        <span asp-validation-for="ExpeditionId" class="text-danger"></span>
+    </div>
+
+    <div id="itineraryRows">
+        @for (var i = 0; i < Model.Rows.Count; i++)
+        {
+            <div class="row g-2 mb-2 itinerary-row">
+                <input type="hidden" name="Rows[@i].Id" value="@Model.Rows[i].Id" />
+                <div class="col-md-6"><input class="form-control" name="Rows[@i].SeasonTitle" value="@Model.Rows[i].SeasonTitle" placeholder="Season title" /></div>
+                <div class="col-md-2"><input class="form-control" name="Rows[@i].SortOrder" value="@Model.Rows[i].SortOrder" placeholder="Sort" /></div>
+                <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="addRow" class="btn btn-outline-secondary btn-sm">Add Itinerary</button>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a href="/admin/itineraries" class="btn btn-light">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const wrap = document.getElementById('itineraryRows');
+            document.getElementById('addRow').addEventListener('click', () => {
+                const idx = wrap.querySelectorAll('.itinerary-row').length;
+                wrap.insertAdjacentHTML('beforeend', `<div class="row g-2 mb-2 itinerary-row"><input type="hidden" name="Rows[${idx}].Id" value="0" /><div class="col-md-6"><input class="form-control" name="Rows[${idx}].SeasonTitle" placeholder="Season title" /></div><div class="col-md-2"><input class="form-control" name="Rows[${idx}].SortOrder" value="${idx + 1}" placeholder="Sort" /></div><div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-row">Remove</button></div></div>`);
+            });
+            wrap.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-row')) e.target.closest('.itinerary-row').remove();
+            });
+        })();
+    </script>
+}

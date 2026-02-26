@@ -1,0 +1,169 @@
+/*  */
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Distressed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    /* -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; */
+}
+
+.rubik {
+    font-family: "Rubik Distressed", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.roboto {
+    font-family: "Roboto", sans-serif;
+}
+
+
+.header-hover:hover:not(.scrolled) {
+    background-color: rgb(38, 38, 38);
+}
+
+.hover-recco {
+    background-color: rgb(38, 38, 38) !important;
+}
+
+
+/* Remove default Swiper navigation arrows */
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    display: none !important;
+}
+
+.custom-bullet {
+    width: 20px;
+    height: 10px;
+    border-radius: 9999px;
+    border: 1px solid #e1a74e;
+    /* golden border */
+    background-color: transparent;
+    display: inline-block;
+    margin: 0 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Active bullet */
+.custom-bullet-active {
+    background-color: #e1a74e;
+    /* filled */
+}
+
+@keyframes slideRight {
+    0% {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-right {
+    animation: slideRight 0.8s linear forwards;
+}
+
+
+.st0 {
+    fill: transparent !important;
+    stroke: #000000;
+    stroke-width: 6;
+    stroke-miterlimit: 10;
+}
+
+.st1 {
+    fill: transparent !important;
+    stroke: #000000;
+    stroke-width: 0.75;
+    stroke-miterlimit: 10;
+}
+
+.st2 {
+    fill: transparent !important;
+    stroke: #A7A9AC;
+    stroke-width: 1.5;
+    stroke-miterlimit: 10;
+}
+
+.st3 {
+    fill: transparent !important;
+    stroke: #A7A9AC;
+    stroke-width: 1.5;
+    stroke-miterlimit: 10;
+}
+
+.st4 {
+    fill: transparent !important;
+    stroke: #000000;
+    stroke-width: 4;
+    stroke-miterlimit: 10;
+}
+
+a.svg-link {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    position: relative;
+}
+
+a.svg-link:hover {
+    stroke: #e1a74e !important;
+}
+
+@media print {
+    *{
+        box-shadow: unset;
+    }
+    .headpart{
+        margin: 0;
+        padding: 0;
+        height: unset;
+    }
+
+    .mb-6, .mb-5, .mb-4, .mb-3 {
+        margin-bottom: 6px !important;
+    }
+
+    .pb-*, .p-*{
+        padding: 0px !important;
+    }
+
+    .py-*{
+        padding: 0;
+    }
+
+    .my-*, .m-*{
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+  
+    .gap-4{
+        gap: 0 !important;
+    }
+
+    .column-gap{
+        gap: 4px;
+    }
+
+    .self-form *{
+        font-size: 12px !important;
+    }
+
+    .pl-12{
+        padding-left: 0;
+    }
+
+    .px-6.py-12{
+        padding-bottom: 0 !important;
+        border: 0;
+    }
+  }
+
+/*  */

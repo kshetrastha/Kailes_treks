@@ -1,0 +1,102 @@
+@model TravelCleanArch.Application.Abstractions.Travel.ExpeditionPagedResult
+@{
+    ViewData["Title"] = "Expeditions";
+    var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];
+    var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
+    var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Expeditions</h2>
+        <a class="btn btn-primary" asp-action="Create">Add Expedition</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string success)
+    {
+        <div class="alert alert-success">@success</div>
+    }
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input class="form-control" name="search" value="@Context.Request.Query["search"]" placeholder="Search by expedition name" />
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="difficulty">
+                <option value="">All Difficulty Levels</option>
+                @foreach (var difficulty in difficultyLevels)
+                {
+                    <option value="@difficulty" selected="@(Context.Request.Query["difficulty"] == difficulty)">@difficulty</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="country">
+                <option value="">All Countries</option>
+                @foreach (var country in countries)
+                {
+                    <option value="@country" selected="@(Context.Request.Query["country"] == country)">@country</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="status">
+                <option value="">All Travel Statuses</option>
+                @foreach (var status in travelStatuses)
+                {
+                    <option value="@status" selected="@(Context.Request.Query["status"] == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-1 d-grid">
+            <button class="btn btn-outline-primary" type="submit">Filter</button>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="card-body">
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Destination</th>
+                            <th style="width: 110px;">Status</th>
+                            <th style="width: 120px;">Price</th>
+                            <th style="width: 190px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Items.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No expeditions found. Add your first item.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td data-label="Name">@item.Name</td>
+                                    <td data-label="Type">@item.ExpeditionTypeTitle</td>
+                                    <td data-label="Destination">@item.Destination</td>
+                                    <td data-label="Status">@item.Status</td>
+                                    <td data-label="Price">@item.Price</td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this expedition?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

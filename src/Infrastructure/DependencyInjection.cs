@@ -5,12 +5,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TravelCleanArch.Application.Abstractions.Authentication;
 using TravelCleanArch.Application.Abstractions.Identity;
+using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Queries;
 using TravelCleanArch.Infrastructure.Authentication;
 using TravelCleanArch.Infrastructure.Identity;
 using TravelCleanArch.Infrastructure.Persistence;
+using TravelCleanArch.Infrastructure.Persistence.Repositories;
 using TravelCleanArch.Infrastructure.Queries;
 using TravelCleanArch.Infrastructure.Seeding;
+using TravelCleanArch.Infrastructure.Services;
+using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Application.Abstractions.Company;
+using TravelCleanArch.Application.Abstractions.Master;
 
 namespace TravelCleanArch.Infrastructure;
 
@@ -26,7 +32,7 @@ public static class DependencyInjection
             opts.UseNpgsql(cs);
         });
 
-        services.AddIdentityCore<AppUser>(options =>
+        services.AddIdentity<AppUser, AppRole>(options =>
         {
             options.User.RequireUniqueEmail = false;
             options.Password.RequireDigit = true;
@@ -35,15 +41,39 @@ public static class DependencyInjection
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         })
-            .AddRoles<AppRole>()                         // if you use roles
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddSignInManager<SignInManager<AppUser>>() // ✅ THIS is the missing line
-            .AddDefaultTokenProviders();    
+            .AddDefaultTokenProviders();
 
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IInteractiveAuthService, InteractiveAuthService>();
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<IUserProfileReadRepository, UserProfileReadRepository>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IExpeditionService, ExpeditionService>();
+        services.AddScoped<IExpeditionModuleService, ExpeditionModuleService>();
+        services.AddScoped<IExpeditionTypeService, ExpeditionTypeService>();
+        services.AddScoped<IItineraryService, ItineraryService>();
+        services.AddScoped<IItineraryDayService, ItineraryDayService>();
+        services.AddScoped<ITrekkingService, TrekkingService>();
+        services.AddScoped<ITrekkingTypeService, TrekkingTypeService>();
+        services.AddScoped<IWhyWithUsService, WhyWithUsService>();
+        services.AddScoped<IWhyWithUsHeroService, WhyWithUsHeroService>();
+        services.AddScoped<IWhoWeAreService, WhoWeAreService>();
+        services.AddScoped<IWhoWeAreHeroService, WhoWeAreHeroService>();
+        services.AddScoped<IAwardService, AwardService>();
+        services.AddScoped<IPatronService, PatronService>();
+        services.AddScoped<IChairmanMessageService, ChairmanMessageService>();
+        services.AddScoped<ITeamMemberService, TeamMemberService>();
+        services.AddScoped<ICertificateDocumentService, CertificateDocumentService>();
+        services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IBlogPostService, BlogPostService>();
+        services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
+        services.AddScoped<IServiceTypeService, ServiceTypeService>();
+        services.AddScoped<IAccomodationService, AccomodationService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IDifficultyLevelService, DifficultyLevelService>();
         services.AddScoped<IdentitySeeder>();
 
         return services;

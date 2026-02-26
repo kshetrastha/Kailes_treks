@@ -1,0 +1,99 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using TravelCleanArch.Application.Abstractions.Identity;
+using TravelCleanArch.Domain.Constants;
+using TravelCleanArch.SharedKernel.Results;
+
+namespace TravelCleanArch.Infrastructure.Identity;
+
+public sealed class InteractiveAuthService(
+    UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager,
+    RoleManager<AppRole> roleManager,
+    ILogger<InteractiveAuthService> logger) : IInteractiveAuthService
+{
+    public async Task<Result> RegisterCustomerAsync(string email, string password, string fullName, CancellationToken ct)
+    {
+        var existing = await userManager.FindByEmailAsync(email);
+        if (existing is not null)
+            return Result.Failure("user.exists", "A user with this email already exists.");
+
+        if (!await roleManager.RoleExistsAsync(AppRoles.Customer))
+            return Result.Failure("role.missing", "Customer role is not available.");
+
+        var user = new AppUser
+        {
+            UserName = email,
+            Email = email,
+            FullName = fullName
+        };
+
+        var create = await userManager.CreateAsync(user, password);
+        if (!create.Succeeded)
+            return Result.Failure("user.create_failed", string.Join("; ", create.Errors.Select(e => e.Description)));
+
+        var addRole = await userManager.AddToRoleAsync(user, AppRoles.Customer);
+        if (!addRole.Succeeded)
+        {
+            logger.LogWarning("User created but customer role assignment failed: {Errors}", string.Join("; ", addRole.Errors.Select(e => e.Description)));
+            return Result.Failure("user.role_failed", string.Join("; ", addRole.Errors.Select(e => e.Description)));
+        }
+
+        await SignInWithAdditionalClaimsAsync(user, isPersistent: false, BuildRequiredClaims(user));
+        return Result.Success();
+    }
+
+    public async Task<Result> PasswordSignInAsync(string email, string password, bool rememberMe, CancellationToken ct)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+            return Result.Failure("auth.invalid", "Invalid credentials.");
+
+        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+        if (result.Succeeded)
+        {
+            await SignInWithAdditionalClaimsAsync(user, isPersistent: rememberMe, BuildRequiredClaims(user));
+            return Result.Success();
+        }
+
+        if (result.IsLockedOut)
+            return Result.Failure("auth.locked_out", "The account is temporarily locked.");
+
+        return Result.Failure("auth.invalid", "Invalid credentials.");
+    }
+
+    public async Task SignOutAsync(CancellationToken ct)
+    {
+        await signInManager.SignOutAsync();
+    }
+
+    private static IEnumerable<Claim> BuildRequiredClaims(AppUser user)
+    {
+        return new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
+        };
+    }
+
+    private async Task SignInWithAdditionalClaimsAsync(AppUser user, bool isPersistent, IEnumerable<Claim> additionalClaims)
+    {
+        // Create the principal using the SignInManager's claims factory (preserves roles/identity claims).
+        var principal = await signInManager.CreateUserPrincipalAsync(user);
+        if (principal?.Identity is ClaimsIdentity identity)
+        {
+            identity.AddClaims(additionalClaims);
+        }
+        else
+        {
+            // Fallback: add a new identity if none exists
+            principal ??= new ClaimsPrincipal();
+            principal.AddIdentity(new ClaimsIdentity(additionalClaims, IdentityConstants.ApplicationScheme));
+        }
+
+        var authProps = new AuthenticationProperties { IsPersistent = isPersistent };
+        await signInManager.Context.SignInAsync(IdentityConstants.ApplicationScheme, principal, authProps);
+    }
+}

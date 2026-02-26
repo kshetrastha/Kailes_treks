@@ -1,0 +1,1854 @@
+﻿@using Microsoft.AspNetCore.Html
+@using TravelCleanArch.Application.Abstractions.Travel
+@model ExpeditionDetailsDto
+@using System.Globalization
+
+@{
+    // hero image fallback
+    var heroImg = !string.IsNullOrWhiteSpace(Model.HeroImageUrl)
+        ? Model.HeroImageUrl
+        : Url.Content("~/assets/img/contact.jpg");
+
+    string FormatMoney(decimal? v, string? currency) =>
+        v is null ? "" : $"{currency ?? "USD"} {v.Value.ToString("N0", CultureInfo.InvariantCulture)}";
+
+    int Stars(decimal? rating)
+    {
+        if (rating is null) return 0;
+        var r = (double)rating.Value;
+        var s = (int)Math.Round(r, MidpointRounding.AwayFromZero);
+        return Math.Clamp(s, 0, 5);
+    }
+
+    // If you store HTML in Overview/Inclusions/Exclusions, render with Html.Raw (ONLY if trusted/admin-only).
+    IHtmlContent HtmlBlock(string? htmlOrText) =>
+        string.IsNullOrWhiteSpace(htmlOrText) ? HtmlString.Empty : new HtmlString(htmlOrText);
+
+    // Itinerary selector
+    var itineraries = Model.Itineraries ?? Array.Empty<ItineraryDto>();
+    var selectedItinerary = itineraries.FirstOrDefault();
+
+    // For itinerary days: you have both ItineraryDays and Itineraries.
+    // If your ItineraryDto contains days, switch to that. For now: use Model.ItineraryDays.
+    var itineraryDays = Model.ItineraryDays ?? Array.Empty<ItineraryDayDto>();
+
+    // Cost items: assuming CostItemDto has something like Category/Type/Title/Description.
+    // If your dto differs, rename properties accordingly.
+    var costItems = Model.CostItems ?? Array.Empty<CostItemDto>();
+
+    // Fixed departures
+    var departures = Model.FixedDepartures ?? Array.Empty<FixedDepartureDto>();
+
+    // Media
+    var media = Model.MediaItems ?? Array.Empty<ExpeditionMediaDto>();
+
+    // Reviews
+    var reviews = Model.Reviews ?? Array.Empty<ExpeditionReviewDto>();
+
+    var starCount = Stars(Model.AverageRating);
+    var ratingLabel = !string.IsNullOrWhiteSpace(Model.RatingLabel) ? Model.RatingLabel : "Excellent";
+}
+
+<style>
+    input[type="radio"].rating-input:checked + label svg,
+    input[type="radio"].rating-input:focus + label svg,
+    label.rating-label:hover svg {
+        fill: #d97706;
+        stroke: #d97706;
+    }
+
+    .file-box input[type="file"] {
+        opacity: 0;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+</style>
+
+<!-- Hero section -->
+<section class="w-full relative overflow-hidden">
+    <div class="w-full aspect-[16/7.1]
+        bg-[url('/@heroImg')] bg-cover bg-center bg-no-repeat relative">
+        <div class="w-full flex items-start justify-end h-full bg-black/50 pt-8 md:px-39 sm:px-20 px-4 flex-col">
+            <h1 class="text-[48px] text-white font-bold mb-4">
+                @Model.Name
+            </h1>
+            @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
+            {
+                <p class="text-2xl font-light text-neutral-200 max-w-[600px] leading-[1.4] tracking-wide pb-18">
+                    @Model.ShortDescription
+                </p>
+            }
+        </div>
+    </div>
+
+    <div class="w-full bg-[#444444] py-12 md:px-39 sm:px-20 px-4">
+        <div class="w-full grid grid-cols-3 gap-16">
+            <div class="w-full col-span-1 flex items-center justify-center flex-col">
+                <div class="w-fit relative flex items-center justify-center cursor-pointer group mb-2 ease-in-out duration-500">
+                    <img src="/assets/img/stack.svg" alt=""
+                         class="w-38 h-auto object-contain object-center">
+
+                    <div class="absolute w-[200px] -top-24 left-1/2 transform -translate-x-1/2 bg-neutral-600 p-2 group-hover:block hidden ease-in-out duration-500">
+                        <span class="text-xs text-light text-neutral-100 !leading-[0.5]">
+                            Multiday, Extremely technical climb. Require very high level of Physical fitness
+                            ans stamina.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="w-fit relative text-center pb-0 cursor-pointer group ease-in-out duration-500">
+                    <p class="text-base text-neutral-200 font-light py-0 flex items-center gap-x-2">
+                        @(Model.ExpeditionTypeTitle ?? "Expedition")
+                        <span>
+                            <svg width="20" height="20" viewBox="0 0 20 20"
+                                 xmlns="http://www.w3.org/2000/svg" data-svg="question"
+                                 class="text-neutral-200">
+                                <circle fill="none" stroke="currentColor" stroke-width="1.1" cx="10" cy="10"
+                                        r="9">
+                                </circle>
+                                <circle fill="none" stroke="currentColor" cx="10.44" cy="14.42" r="1.05">
+                                </circle>
+                                <path fill="none" stroke="currentColor" stroke-width="1.2"
+                                      d="M8.17,7.79 C8.17,4.75 12.72,4.73 12.72,7.72 C12.72,8.67 11.81,9.15 11.23,9.75 C10.75,10.24 10.51,10.73 10.45,11.4 C10.44,11.53 10.43,11.64 10.43,11.75"
+                                      class="text-neutral-100"></path>
+                            </svg>
+                        </span>
+                    </p>
+                    <div class="absolute w-[200px] -top-24 left-1/2 transform -translate-x-1/2 bg-neutral-600 p-2 group-hover:block hidden ease-in-out duration-500">
+                        <span class="text-xs text-light text-neutral-100 !leading-[0.5]">
+                            Multiday, Extremely technical climb. Require very high level of Physical fitness
+                            ans stamina.
+                        </span>
+                    </div>
+                </div>
+
+                <p class="text-xl text-neutral-200 font-light my-2 py-0">
+                    @Model.DurationDays Days
+                </p>
+
+               
+                <div class="flex item-center gap-x-1 mb-4">
+                    <div class="flex items-center gap-x-2">
+                        @for (var i = 1; i <= 5; i++)
+                        {
+                            if (i <= starCount)
+                            {
+                                <i class="fa-solid fa-star text-sm text-[#E1A74E]"></i>
+                            }
+                            else
+                            {
+                                <i class="fa-regular fa-star text-sm text-[#E1A74E]"></i>
+                            }
+                        }
+                    </div>
+                    <p class="text-sm text-neutral-200 font-light">
+                        @Model.AverageRating @ratingLabel
+                    </p>
+                </div>
+
+                <p class="text-xs text-neutral-200 font-light uppercase">
+                    Share with friends
+                </p>
+
+                <div class="flex items-center justify-center gap-x-2 py-1">
+                    <p class="text-[9px] text-center text-neutral-200 font-light">
+                        <span class="text-base">4</span> <br>
+                        Shares
+                    </p>
+                    <a href="/"
+                           class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="/"
+                           class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="/"
+                           class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                        <i class="fa-brands fa-comments"></i>
+                    </a>
+                    <a href="/"
+                           class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="w-full col-span-1 flex items-center justify-between flex-col">
+                <div class="w-full flex items-center justify-between">
+                    <div class="flex items-center gap-x-2">
+                        <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full flex items-center">
+                            <i class="fa-solid fa-chart-area"></i>
+                        </div>
+                        <p class="text-base text-neutral-50 font-light">Max. Elevation:</p>
+                    </div>
+                    <p class="text-base text-neutral-50 font-light">
+                        @Model.MaxAltitudeMeters m
+                        @if (Model.MaxAltitudeFeet is not null)
+                        {
+                            <span>/ @Model.MaxAltitudeFeet ft</span>
+                        }
+                    </p>
+                </div>
+              
+                @if (!string.IsNullOrWhiteSpace(Model.WalkingPerDay))
+                {
+                    <div class="w-full flex items-center justify-between">
+                        <div class="flex items-center gap-x-2">
+                            <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full flex items-center">
+                                <i class="fa-solid fa-person-hiking"></i>
+                            </div>
+                            <p class="text-base text-neutral-50 font-light">Walking Per Day:</p>
+                        </div>
+                        <p class="text-base text-neutral-50 font-light">@Model.WalkingPerDay Hours</p>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Accommodation))
+                {
+                    <div class="w-full flex items-center justify-between">
+                        <div class="flex items-center gap-x-2">
+                            <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full flex items-center">
+                                <i class="fa-solid fa-bed"></i>
+                            </div>
+                            <p class="text-base text-neutral-50 font-light">Accommodation:</p>
+                        </div>
+                        <p class="text-base text-neutral-50 font-light">@Model.Accommodation</p>
+
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.BestSeason))
+                {
+                    <div class="w-full flex items-center justify-between">
+                        <div class="flex items-center gap-x-2">
+                            <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full flex items-center">
+                                <i class="fa-solid fa-sun"></i>
+                            </div>
+                            <p class="text-base text-neutral-50 font-light">Best Season:</p>
+                        </div>
+                        <p class="text-base text-neutral-50 font-light">
+                            @Model.BestSeason
+                        </p>
+                    </div>
+                }
+            
+                <div class="w-full flex items-center justify-between">
+                    <div class="flex items-center gap-x-2">
+                        <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full flex items-center">
+                            <i class="fa-solid fa-chart-area"></i>
+                        </div>
+                        <p class="text-base text-neutral-50 font-light">Group Size:</p>
+                    </div>
+                    <p class="text-base text-neutral-50 font-light">
+                        @if (!string.IsNullOrWhiteSpace(Model.GroupSizeText))
+                        {
+                            @Model.GroupSizeText
+                        }
+                        else
+                        {
+                            @($"{Model.MinGroupSize}-{Model.MaxGroupSize} PAX")
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <div class="w-full col-span-1">
+                <div class="w-full space-y-6">
+                    <div class="w-full flex items-center gap-x-2 text-neutral-100 border-b border-neutral-100 pb-5">
+                        <i class="fa-solid fa-phone"></i>
+                        <p class="text-xl font-medium">+9779801238848</p>
+                    </div>
+                    <div class="w-full flex items-center gap-x-2 text-neutral-100 border-b border-neutral-100 pb-5">
+                        <i class="fa-solid fa-envelope"></i>
+                        <p class="text-xl font-medium">info@sevensummittreks.com</p>
+                    </div>
+                    <button class="relative w-full px-6 py-2 text-base font-light bg-white text-[#e1a74e] border border-white hover:border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out cursor-pointer">
+                        <span class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
+                        </span>
+
+                        <span class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
+                            Inquiry
+                            <span class="block group-hover:hidden ease-in-out duration-300">
+                                <i class="fa-regular fa-circle-right"></i>
+                            </span>
+                            <span class="hidden group-hover:block ease-in-out duration-300">
+                                <i class="fa-solid fa-circle-right"></i>
+                            </span>
+                        </span>
+                    </button>
+                    <button class="relative w-full px-6 py-2 text-base font-light bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] text-white capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out cursor-pointer">
+                        <span class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
+                        </span>
+
+                        <span class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
+                            Book Now
+                            <span class="block group-hover:hidden ease-in-out duration-300">
+                                <i class="fa-regular fa-circle-right"></i>
+                            </span>
+                            <span class="hidden group-hover:block ease-in-out duration-300">
+                                <i class="fa-solid fa-circle-right"></i>
+                            </span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="w-full bg-neutral-50 relative z-60">
+    <div class="w-full bg-[#e1a74e] backdrop-blur-xl z-50 md:px-39 sm:px-20 px-4 py-0 sticky top-0">
+        <div class="w-full flex items-center justify-between overflow-x-auto whitespace-nowrap gap-x-4">
+
+            <a href="#overview"
+                   class="flex items-center gap-x-2 py-1.5 px-2 bg-neutral-900/20 text-neutral-50">
+                <i class="fa-solid fa-file-text text-sm"></i>
+                <p class="text-sm font-light">Overview</p>
+            </a>
+
+            <a href="#itinerary"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-regular fa-calendar"></i>
+                <p class="text-sm font-light">Itinerary</p>
+            </a>
+
+            <a href="#map"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-regular fa-map"></i>
+                <p class="text-sm font-light">Map</p>
+            </a>
+
+            <a href="#cost-includes"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-regular fa-check-circle"></i>
+                <p class="text-sm font-light">Cost Includes</p>
+            </a>
+
+            <a href="#cost-excludes"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300 whitespace-nowrap">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <p class="text-sm font-light">Cost Excludes</p>
+            </a>
+
+            <a href="#fixed-dates"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-regular fa-calendar-days"></i>
+                <p class="text-sm font-light">Fixed Dates</p>
+            </a>
+
+            <a href="#gears"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-solid fa-gears"></i>
+                <p class="text-sm font-light">Gears List</p>
+            </a>
+
+            <a href="#photos"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-regular fa-image"></i>
+                <p class="text-sm font-light">Photo/Videos</p>
+            </a>
+
+            <a href="#reviews"
+                   class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50 ease-in-out duration-300">
+                <i class="fa-solid fa-comment"></i>
+                <p class="text-sm font-light">Reviews</p>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Other contents -->
+    <div class="w-full space-y-5 z-40">
+
+        <!-- Overview -->
+        <div id="overview" class="w-full">
+
+            <!-- Top facts grid -->
+            <div class="w-full grid grid-cols-4 gap-x-10 gap-y-12 bg-neutral-200/40 py-20 md:px-39 sm:px-20 px-4">
+
+                @if (!string.IsNullOrWhiteSpace(Model.OverviewCountry))
+                {
+                    <div class="w-full flex items-center gap-x-4">
+                        <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                            <img src="~/assets/img/country.png" alt="" class="w-full h-full object-contain object-center">
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-base font-normal text-[#e1a74e]">Country</p>
+                                <p class="text-base font-light text-neutral-600">@Model.OverviewCountry</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.PeakName))
+                    {
+                        <div class="w-full flex items-center gap-x-4">
+                            <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                <img src="~/assets/img/peak.png" alt="" class="w-full h-full object-contain object-center">
+                                </div>
+                                <div class="space-y-0.5">
+                                    <p class="text-base font-normal text-[#e1a74e]">Peak Name</p>
+                                    <p class="text-base font-light text-neutral-600">@Model.PeakName</p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="w-full flex items-center gap-x-4">
+                            <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                <img src="~/assets/img/duration.png" alt="" class="w-full h-full object-contain object-center">
+                                </div>
+                                <div class="space-y-0.5">
+                                    <p class="text-base font-normal text-[#e1a74e]">Duration</p>
+                                    <p class="text-base font-light text-neutral-600">@Model.DurationDays Days</p>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Route))
+                            {
+                                <div class="w-full flex items-center gap-x-4">
+                                    <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                        <img src="~/assets/img/route.png" alt="" class="w-full h-full object-contain object-center">
+                                        </div>
+                                        <div class="space-y-0.5">
+                                            <p class="text-base font-normal text-[#e1a74e]">Route</p>
+                                            <p class="text-base font-light text-neutral-600">@Model.Route</p>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Rank))
+                                {
+                                    <div class="w-full flex items-center gap-x-4">
+                                        <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                            <img src="~/assets/img/rank.png" alt="" class="w-full h-full object-contain object-center">
+                                            </div>
+                                            <div class="space-y-0.5">
+                                                <p class="text-base font-normal text-[#e1a74e]">Rank</p>
+                                                <p class="text-base font-light text-neutral-600">@Model.Rank</p>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.CoordinatesText) || (Model.Latitude is not null && Model.Longitude is not null))
+                                    {
+                                        var coordsText = !string.IsNullOrWhiteSpace(Model.CoordinatesText)
+                                            ? Model.CoordinatesText
+                                            : $"{Model.Latitude}, {Model.Longitude}";
+
+                                        var mapUrl = (Model.Latitude is not null && Model.Longitude is not null)
+                                            ? $"https://www.google.com/maps?q={Model.Latitude},{Model.Longitude}"
+                                            : null;
+
+                                        <div class="w-full flex items-center gap-x-4">
+                                            <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                <img src="~/assets/img/Co-ordinates.png" alt="" class="w-full h-full object-contain object-center">
+                                                </div>
+                                                <div class="space-y-0.5">
+                                                    <p class="text-base font-normal text-[#e1a74e]">Co-ordinates</p>
+                                                    @if (!string.IsNullOrWhiteSpace(mapUrl))
+                                                    {
+                                                        <a href="@mapUrl" target="_blank" class="text-base font-light text-neutral-600 hover:text-[#e1a74e]">
+                                                            @coordsText
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-base font-light text-neutral-600">@coordsText</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(Model.WeatherReport))
+                                        {
+                                            <div class="w-full flex items-center gap-x-4">
+                                                <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                    <img src="~/assets/img/weather.png" alt="" class="w-full h-full object-contain object-center">
+                                                    </div>
+                                                    <div class="space-y-0.5">
+                                                        <p class="text-base font-normal text-[#e1a74e]">Weather Reports</p>
+                                                        <a href="@Model.WeatherReport" target="_blank" class="text-base font-light text-neutral-600 hover:text-[#e1a74e]">
+                                                            Live Weather Report
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(Model.Range))
+                                            {
+                                                <div class="w-full flex items-center gap-x-4">
+                                                    <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                        <img src="~/assets/img/range.png" alt="" class="w-full h-full object-contain object-center">
+                                                        </div>
+                                                        <div class="space-y-0.5">
+                                                            <p class="text-base font-normal text-[#e1a74e]">Range</p>
+                                                            <p class="text-base font-light text-neutral-600">@Model.Range</p>
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                            </div>
+
+                                            <!-- Main content + sidebar -->
+                                            <div class="w-full grid grid-cols-3 gap-8 pt-16 relative md:px-39 sm:px-20 px-4">
+                                                <div class="w-full col-span-2 space-y-12">
+
+                                                    <!-- Trip Overview -->
+                                                    <div class="w-full space-y-4">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-file-text text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Trip Overview</h1>
+                                                            </div>
+                                                            <div class="flex-1 bg-neutral-200 h-px"></div>
+                                                        </div>
+
+                                                        <div class="w-full text-neutral-600">
+                                                            @* If Overview is plain text, wrap it in <p>. If it's HTML from admin, use Html.Raw *@
+                                                            @if (!string.IsNullOrWhiteSpace(Model.Overview))
+                                                            {
+                                                                <div class="prose max-w-none">
+                                                                    @HtmlBlock(Model.Overview)
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-base font-light text-neutral-600">No overview available.</p>
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Itinerary -->
+                                                    <div id="itinerary" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-regular fa-calendar text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Itinerary</h1>
+                                                            </div>
+
+                                                            <div class="flex-1 flex items-center gap-0">
+                                                                <div class="flex-1 bg-neutral-200 h-px"></div>
+
+                                                                @if (itineraries.Any())
+                                                                {
+                                                                    <select id="itinerarySelect"
+                                                                            class="w-fit rounded-full px-4 py-1 border border-neutral-200 focus:border-[#e1a74e] text-base text-neutral-600 outline-none">
+                                                                        @foreach (var it in itineraries)
+                                                                        {
+                                                                            <option value="@it.Id">@it.Title</option>
+                                                                        }
+                                                                    </select>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="w-full rounded-xl border border-neutral-200">
+
+                                                            @if (!itineraryDays.Any())
+                                                            {
+                                                                <div class="p-6 text-neutral-600">No itinerary days available.</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                foreach (var day in itineraryDays.OrderBy(x => x.DayNumber))
+                                                                {
+                                                                    <div class="border-b border-neutral-200">
+                                                                        <button class="w-full flex items-start justify-between p-4 accordion-header cursor-pointer">
+                                                                            <div class="flex items-center gap-4">
+                                                                                <div class="bg-[#e1a74e] text-white px-4 py-2 rounded-md text-center">
+                                                                                    Day @day.DayNumber
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p class="text-base font-normal text-neutral-800">
+                                                                                        @day.ShortDescription
+                                                                                    </p>
+
+                                                                                    @if (!string.IsNullOrWhiteSpace(day.AccommodationType) || !string.IsNullOrWhiteSpace(day.Meals))
+                                                                                    {
+                                                                                        <div class="flex items-center gap-3 text-[#d6a557] mt-1">
+                                                                                            @if (!string.IsNullOrWhiteSpace(day.Meals))
+                                                                                            {
+                                                                                                <i class="fa-solid fa-utensils"></i>
+                                                                                                <span>@day.Meals</span>
+                                                                                            }
+                                                                                            @if (!string.IsNullOrWhiteSpace(day.AccommodationType))
+                                                                                            {
+                                                                                                <i class="fa-solid fa-bed"></i>
+                                                                                                <span>@day.AccommodationType</span>
+                                                                                            }
+                                                                                        </div>
+                                                                                    }
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <i class="fa-solid fa-chevron-down text-[#d6a557] text-base transition-transform"></i>
+                                                                        </button>
+
+                                                                        <div class="accordion-content hidden border-t border-neutral-200 px-4 py-6 text-neutral-700">
+                                                                            @if (!string.IsNullOrWhiteSpace(day.Description))
+                                                                            {
+                                                                                <div class="prose max-w-none">
+                                                                                    @HtmlBlock(day.Description)
+                                                                                </div>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <p>No details.</p>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            }
+
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Map -->
+                                                    <div id="map" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-regular fa-map text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Route Map</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (Model.Maps is not null && Model.Maps.Any())
+                                                        {
+                                                            var firstMap = Model.Maps.First();
+                                                            <div class="w-full">
+                                                                <img src="@firstMap.FilePath" alt="Route map"
+                                                                     class="w-full aspect-video object-cover object-center cursor-pointer">
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="text-neutral-600">No map available.</p>
+                                                        }
+                                                    </div>
+
+                                                    <!-- Cost Includes -->
+                                                    <div id="cost-includes" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-regular fa-circle-check text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Cost Includes</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @* If you store full HTML blocks *@
+                                                        @if (!string.IsNullOrWhiteSpace(Model.Inclusions))
+                                                        {
+                                                            <div class="prose max-w-none">
+                                                                @HtmlBlock(Model.Inclusions)
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            @* If you store items list *@
+                                                            var includes = costItems.Where(x => (x.Type ?? "").Equals("Include", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                            if (!includes.Any())
+                                                            {
+                                                                <p class="text-neutral-600">No inclusions listed.</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="w-full space-y-2">
+                                                                    @foreach (var item in includes)
+                                                                    {
+                                                                        <div class="w-full flex items-start gap-x-3 border-b border-neutral-200/50 pb-2">
+                                                                            <i class="fa-solid fa-circle-check text-green-700 text-base pt-1"></i>
+                                                                            <p class="text-base text-neutral-700 font-light">
+                                                                                @item.Title
+                                                                            </p>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+
+                                                    <!-- Cost Excludes -->
+                                                    <div id="cost-excludes" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-circle-xmark text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Cost Excludes</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (!string.IsNullOrWhiteSpace(Model.Exclusions))
+                                                        {
+                                                            <div class="prose max-w-none">
+                                                                @HtmlBlock(Model.Exclusions)
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            var excludes = costItems.Where(x => (x.Type ?? "").Equals("Exclude", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                            if (!excludes.Any())
+                                                            {
+                                                                <p class="text-neutral-600">No exclusions listed.</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="w-full space-y-2">
+                                                                    @foreach (var item in excludes)
+                                                                    {
+                                                                        <div class="w-full flex items-start gap-x-3 border-b border-neutral-200/50 pb-2">
+                                                                            <i class="fa-solid fa-circle-xmark text-red-700 text-base pt-1"></i>
+                                                                            <p class="text-base text-neutral-700 font-light">
+                                                                                @item.Title
+                                                                            </p>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+
+                                                    <!-- Fixed Dates -->
+                                                    <div id="fixed-dates" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-calendar text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Fixed Dates</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (!departures.Any())
+                                                        {
+                                                            <p class="text-neutral-600">No fixed departures available.</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="w-full overflow-x-auto">
+                                                                <table class="w-full">
+                                                                    <thead>
+                                                                        <tr class="border-b border-neutral-200">
+                                                                            <th class="text-start py-4 px-2 font-light text-base w-xs">Date</th>
+                                                                            <th class="text-center py-4 px-2 font-light text-base">Status</th>
+                                                                            <th class="text-center py-4 px-2 font-light text-base">Group Size</th>
+                                                                            <th class="text-center py-4 px-2 font-light text-base">Action</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var d in departures.OrderBy(x => x.StartDate))
+                                                                        {
+                                                                            <tr class="hover:bg-yellow-50 ease-in-out duration-300">
+                                                                                <td class="text-start py-4 px-2 font-light text-base">
+                                                                                    <span class="text-[#e1a74e]">@Model.DurationDays Days</span> <br />
+                                                                                    <span>Start - @d.StartDate.ToString("yyyy-MM-dd")</span> <br />
+                                                                                    <span>End - @d.EndDate.ToString("yyyy-MM-dd")</span>
+                                                                                </td>
+                                                                                <td class="text-center py-4 px-2 font-light text-base text-[#32D296]">
+                                                                                    @d.Status
+                                                                                </td>
+                                                                                <td class="text-center py-4 px-2 font-light text-base">
+                                                                                    @if (d.GroupSize.HasValue)
+                                                                                    {
+                                                            
+                                                                                    }
+                                                                                    @* @(!string.IsNullOrWhiteSpace(d.GroupSize) ? d.GroupSizeText : $"{d.MaxGroupSize} PAX") *@
+                                                                                </td>
+                                                                                <td class="text-center py-4 px-2 font-light text-base">
+                                                                                    <div class="flex items-center gap-x-1 justify-center">
+                                                                                        <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                                                               class="w-fit px-2 py-1 border border-[#e1a74e] text-[#e1a74e] hover:text-white hover:bg-[#e1a74e] text-base">
+                                                                                            Inquiry Now
+                                                                                        </a>
+                                                                                        <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                                                               class="w-fit px-2 py-1 text-white bg-[#284182] border border-[#284182] hover:border-[#e1a74e] hover:bg-[#e1a74e] text-base">
+                                                                                            Book Now
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <!-- Gears -->
+                                                    <div id="gears" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-gears text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Gears List</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (Model.GearLists is null || !Model.GearLists.Any())
+                                                        {
+                                                            <p class="text-neutral-600">No gear lists available.</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="w-full grid grid-cols-2 gap-4 my-8">
+                                                                @foreach (var g in Model.GearLists)
+                                                                {
+                                                                    <a href="@g.FilePath"
+                                                                           class="w-full aspect-[16/6.5] relative overflow-hidden group ease-in-out duration-300 block">
+                                                                        <img src="@(g.ImagePath ?? Url.Content("~/assets/img/expeditions/exp4.png"))"
+                                                                             alt=""
+                                                                             class="w-full h-full object-center object-cover neutralscale-50 group-hover:neutralscale-0 ease-in-out duration-1000">
+                                                                        <div class="absolute top-0 left-0 w-full px-4 py-6 h-full bg-black/30 flex items-center justify-center text-center">
+                                                                            <h2 class="text-2xl text-white font-bold">@g.ShortDescription</h2>
+                                                                        </div>
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <!-- Photos/Videos -->
+                                                    <div id="photos" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-image text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Photo/Videos</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (!media.Any())
+                                                        {
+                                                            <p class="text-neutral-600">No media available.</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            var photos = media.Where(x => (x.MediaType ?? "").Equals("image", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                            var videos = media.Where(x => (x.MediaType ?? "").Equals("video", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                                                            if (photos.Any())
+                                                            {
+                                                                <div class="w-full grid grid-cols-3 gap-0">
+                                                                    @foreach (var p in photos.Take(6))
+                                                                    {
+                                                                        <img src="@p.Url" alt="@p.Caption"
+                                                                             class="w-full aspect-video object-cover object-center cursor-pointer" />
+                                                                    }
+                                                                </div>
+                                                            }
+
+                                                            if (videos.Any())
+                                                            {
+                                                                <div class="w-full space-y-3 pt-6">
+                                                                    @foreach (var v in videos.Take(2))
+                                                                    {
+                                                                        <a href="@v.Url" target="_blank" class="text-[#e1a74e] underline">
+                                                                            Watch video
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+
+                                                    <!-- Reviews -->
+                                                    <div id="reviews" class="w-full space-y-12">
+                                                        <div class="w-full flex items-center gap-x-1">
+                                                            <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                <i class="fa-solid fa-comment text-xl text-[#e1a74e]"></i>
+                                                                <h1 class="text-xl font-black text-neutral-800 uppercase">Reviews</h1>
+                                                            </div>
+                                                            <div class="flex-1 h-px bg-neutral-200"></div>
+                                                        </div>
+
+                                                        @if (!reviews.Any())
+                                                        {
+                                                            <p class="text-neutral-600">No reviews yet.</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="space-y-4">
+                                                                @foreach (var r in reviews.Take(10))
+                                                                {
+                                                                    <div class="bg-white border border-neutral-200 rounded-xl p-5">
+                                                                        <div class="flex items-center justify-between">
+                                                                            <div>
+                                                                                <p class="font-medium text-neutral-800">@r.FullName</p>
+                                                                                @* <p class="text-sm text-neutral-500">@r.CreatedAtUtc.ToString("yyyy-MM-dd")</p> *@
+                                                                            </div>
+                                                                            <div class="flex items-center gap-1">
+                                                                                @for (var i = 1; i <= 5; i++)
+                                                                                {
+                                                                                    if (i <= r.Rating)
+                                                                                    {
+                                                                                        <i class="fa-solid fa-star text-sm text-[#E1A74E]"></i>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <i class="fa-regular fa-star text-sm text-[#E1A74E]"></i>
+                                                                                    }
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <p class="mt-3 text-neutral-700 font-light">
+                                                                            @r.ReviewText
+                                                                        </p>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+
+                                                        @* Keep your existing "Write a review" form here (POST to your controller) *@
+                                                    </div>
+
+                                                </div>
+
+                                                <!-- Sidebar sticky -->
+                                                <div class="w-full col-span-1 sticky top-20">
+                                                    <div class="bg-white border border-neutral-200 rounded-xl p-6 space-y-4">
+                                                        <p class="text-lg font-semibold text-neutral-800">Quick Info</p>
+
+                                                        <div class="text-sm text-neutral-700 space-y-2">
+                                                            <div class="flex justify-between">
+                                                                <span>Destination</span>
+                                                                <span class="font-medium">@Model.Destination</span>
+                                                            </div>
+
+                                                            @if (!string.IsNullOrWhiteSpace(Model.Region))
+                                                            {
+                                                                <div class="flex justify-between">
+                                                                    <span>Region</span>
+                                                                    <span class="font-medium">@Model.Region</span>
+                                                                </div>
+                                                            }
+
+                                                            <div class="flex justify-between">
+                                                                <span>Difficulty</span>
+                                                                <span class="font-medium">@Model.Difficulty</span>
+                                                            </div>
+
+                                                            <div class="flex justify-between">
+                                                                <span>Group</span>
+                                                                <span class="font-medium">@($"{Model.MinGroupSize}-{Model.MaxGroupSize}")</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                               class="block text-center w-full px-4 py-3 bg-[#e1a74e] text-white rounded-lg">
+                                                            Inquiry / Book
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Similar Trips placeholder -->
+                                        <div class="w-full md:px-39 sm:px-20 px-4 py-12 mt-12 bg-neutral-200/40 space-y-12">
+                                            <div class="w-full flex items-center gap-x-1">
+                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                    <i class="fa-solid fa-file-text text-xl text-[#e1a74e]"></i>
+                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Similar Trips</h1>
+                                                </div>
+                                                <div class="flex-1 bg-neutral-300 h-px"></div>
+                                            </div>
+
+                                            @* TODO: bind your SimilarTrips list here *@
+                                            <p class="text-neutral-600">Coming soon…</p>
+                                        </div>
+
+                                    </div>
+                                </section>
+
+
+
+                                <div class="w-full min-h-screen">
+
+                                    <!-- Hero section -->
+                                    <section class="w-full relative overflow-hidden">
+    
+
+                                        <!-- Summary bar -->
+                                        <div class="w-full bg-[#444444] py-12 md:px-39 sm:px-20 px-4">
+                                            <div class="w-full grid grid-cols-3 gap-16">
+
+                                                <!-- Left: type + duration + rating + share -->
+                                                <div class="w-full col-span-1 flex items-center justify-center flex-col">
+
+                                                    <div class="w-fit relative flex items-center justify-center cursor-pointer group mb-2 ease-in-out duration-500">
+                                                        <img src="./assets/img/stack.svg" alt=""
+                                                             class="w-38 h-auto object-contain object-center">
+
+                                                        <div class="absolute w-[200px] -top-24 left-1/2 transform -translate-x-1/2 bg-neutral-600 p-2 group-hover:block hidden ease-in-out duration-500">
+                                                            <span class="text-xs text-light text-neutral-100 !leading-[0.5]">
+                                                                Multiday, Extremely technical climb. Require very high level of Physical fitness
+                                                                ans stamina.
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="w-fit relative text-center pb-0 cursor-pointer group ease-in-out duration-500">
+                                                        <p class="text-base text-neutral-200 font-light py-0 flex items-center gap-x-2">
+                                                            @(Model.ExpeditionTypeTitle ?? "Expedition")
+                                                            <span>
+                                                                <svg width="20" height="20" viewBox="0 0 20 20"
+                                                                     xmlns="http://www.w3.org/2000/svg" data-svg="question"
+                                                                     class="text-neutral-200">
+                                                                    <circle fill="none" stroke="currentColor" stroke-width="1.1" cx="10" cy="10" r="9"></circle>
+                                                                    <circle fill="none" stroke="currentColor" cx="10.44" cy="14.42" r="1.05"></circle>
+                                                                    <path fill="none" stroke="currentColor" stroke-width="1.2"
+                                                                          d="M8.17,7.79 C8.17,4.75 12.72,4.73 12.72,7.72 C12.72,8.67 11.81,9.15 11.23,9.75 C10.75,10.24 10.51,10.73 10.45,11.4 C10.44,11.53 10.43,11.64 10.43,11.75"
+                                                                          class="text-neutral-100"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </p>
+
+                                                        @* Optional tooltip text *@
+                                                        @if (!string.IsNullOrWhiteSpace(Model.Difficulty))
+                                                        {
+                                                            <div class="absolute w-[220px] -top-24 left-1/2 transform -translate-x-1/2 bg-neutral-600 p-2 group-hover:block hidden">
+                                                                <span class="text-xs text-neutral-100">
+                                                                    Difficulty: @Model.Difficulty
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <p class="text-xl text-neutral-200 font-light my-2 py-0">
+                                                        @Model.DurationDays Days
+                                                    </p>
+
+                                                    <div class="flex item-center gap-x-1 mb-4">
+                                                        <div class="flex items-center">
+                                                            @for (var i = 1; i <= 5; i++)
+                                                            {
+                                                                if (i <= starCount)
+                                                                {
+                                                                    <i class="fa-solid fa-star text-sm text-[#E1A74E]"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="fa-regular fa-star text-sm text-[#E1A74E]"></i>
+                                                                }
+                                                            }
+                                                        </div>
+
+                                                        <p class="text-sm text-neutral-200 font-light">
+                                                            @(Model.AverageRating?.ToString("0.0") ?? "0.0") @ratingLabel
+                                                            @if (Model.ReviewCount is > 0)
+                                                            {
+                                                                <span class="opacity-80">(@Model.ReviewCount)</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+
+                                                    <p class="text-xs text-neutral-200 font-light uppercase">Share with friends</p>
+
+                                                    <div class="flex items-center justify-center gap-x-2 py-1">
+                                                        <a href="https://www.facebook.com/sharer/sharer.php?u=@(Context.Request.Scheme + "://" + Context.Request.Host + Context.Request.Path)"
+                                                               target="_blank"
+                                                               class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                                                            <i class="fa-brands fa-facebook-f"></i>
+                                                        </a>
+                                                        <a href="https://twitter.com/intent/tweet?url=@(Context.Request.Scheme + "://" + Context.Request.Host + Context.Request.Path)&text=@Uri.EscapeDataString(Model.Name)"
+                                                               target="_blank"
+                                                               class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                                                            <i class="fa-brands fa-x-twitter"></i>
+                                                        </a>
+                                                        <a href="https://wa.me/?text=@Uri.EscapeDataString(Model.Name + " " + (Context.Request.Scheme + "://" + Context.Request.Host + Context.Request.Path))"
+                                                               target="_blank"
+                                                               class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E1A74E] text-sm text-white hover:-translate-y-1 ease-in-out duration-300">
+                                                            <i class="fa-brands fa-whatsapp"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Middle: facts -->
+                                                <div class="w-full col-span-1 flex items-center justify-between flex-col">
+
+                                                    <div class="w-full flex items-center justify-between">
+                                                        <div class="flex items-center gap-x-2">
+                                                            <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full">
+                                                                <i class="fa-solid fa-mountain"></i>
+                                                            </div>
+                                                            <p class="text-base text-neutral-50 font-light">Max. Elevation:</p>
+                                                        </div>
+                                                        <p class="text-base text-neutral-50 font-light">
+                                                            @Model.MaxAltitudeMeters m
+                                                            @if (Model.MaxAltitudeFeet is not null)
+                                                            {
+                                                                <span>/ @Model.MaxAltitudeFeet ft</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(Model.WalkingPerDay))
+                                                    {
+                                                        <div class="w-full flex items-center justify-between">
+                                                            <div class="flex items-center gap-x-2">
+                                                                <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full">
+                                                                    <i class="fa-solid fa-person-hiking"></i>
+                                                                </div>
+                                                                <p class="text-base text-neutral-50 font-light">Walking Per Day:</p>
+                                                            </div>
+                                                            <p class="text-base text-neutral-50 font-light">@Model.WalkingPerDay</p>
+                                                        </div>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(Model.Accommodation))
+                                                    {
+                                                        <div class="w-full flex items-center justify-between">
+                                                            <div class="flex items-center gap-x-2">
+                                                                <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full">
+                                                                    <i class="fa-solid fa-bed"></i>
+                                                                </div>
+                                                                <p class="text-base text-neutral-50 font-light">Accommodation:</p>
+                                                            </div>
+                                                            <p class="text-base text-neutral-50 font-light">@Model.Accommodation</p>
+                                                        </div>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(Model.BestSeason))
+                                                    {
+                                                        <div class="w-full flex items-center justify-between">
+                                                            <div class="flex items-center gap-x-2">
+                                                                <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full">
+                                                                    <i class="fa-solid fa-sun"></i>
+                                                                </div>
+                                                                <p class="text-base text-neutral-50 font-light">Best Season:</p>
+                                                            </div>
+                                                            <p class="text-base text-neutral-50 font-light">@Model.BestSeason</p>
+                                                        </div>
+                                                    }
+
+                                                    <div class="w-full flex items-center justify-between">
+                                                        <div class="flex items-center gap-x-2">
+                                                            <div class="w-10 h-10 bg-[#E1A74E] text-white flex items-center justify-center rounded-full">
+                                                                <i class="fa-solid fa-users"></i>
+                                                            </div>
+                                                            <p class="text-base text-neutral-50 font-light">Group Size:</p>
+                                                        </div>
+                                                        <p class="text-base text-neutral-50 font-light">
+                                                            @if (!string.IsNullOrWhiteSpace(Model.GroupSizeText))
+                                                            {
+                                                                @Model.GroupSizeText
+                                                            }
+                                                            else
+                                                            {
+                                                                @($"{Model.MinGroupSize}-{Model.MaxGroupSize} PAX")
+                                                            }
+                                                        </p>
+                                                    </div>
+
+                                                </div>
+
+                                                <!-- Right: CTA -->
+                                                <div class="w-full col-span-1">
+                                                    <div class="w-full space-y-6">
+
+                                                        @* Replace with your real contact fields later *@
+                                                        <div class="w-full flex items-center gap-x-2 text-neutral-100 border-b border-neutral-100 pb-5">
+                                                            <i class="fa-solid fa-tag"></i>
+                                                            <p class="text-xl font-medium">
+                                                                @if (Model.PriceOnRequest)
+                                                                {
+                                                                    <span>Price on Request</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>@FormatMoney(Model.Price, Model.CurrencyCode)</span>
+                                                                }
+                                                            </p>
+                                                        </div>
+
+                                                        @if (!string.IsNullOrWhiteSpace(Model.TripPdfUrl))
+                                                        {
+                                                            <a href="@Model.TripPdfUrl" target="_blank"
+                                                                   class="w-full block text-center px-6 py-2 text-base font-light bg-white text-[#e1a74e] border border-white hover:border-[#e1a74e]">
+                                                                Download Trip PDF
+                                                            </a>
+                                                        }
+
+                                                        <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                               class="w-full text-center block px-6 py-2 text-base font-light bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] text-white">
+                                                            Book Now
+                                                        </a>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <!-- Sticky nav -->
+                                    <section class="w-full bg-neutral-50 relative z-60">
+                                        <div class="w-full bg-[#e1a74e] z-50 md:px-39 sm:px-20 px-4 py-0 sticky top-0">
+                                            <div class="w-full flex items-center justify-between overflow-x-auto whitespace-nowrap gap-x-4">
+
+                                                <a href="#overview" class="flex items-center gap-x-2 py-1.5 px-2 bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-solid fa-file-text text-sm"></i>
+                                                    <p class="text-sm font-light">Overview</p>
+                                                </a>
+
+                                                <a href="#itinerary" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-regular fa-calendar"></i>
+                                                    <p class="text-sm font-light">Itinerary</p>
+                                                </a>
+
+                                                <a href="#map" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-regular fa-map"></i>
+                                                    <p class="text-sm font-light">Map</p>
+                                                </a>
+
+                                                <a href="#cost-includes" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-regular fa-check-circle"></i>
+                                                    <p class="text-sm font-light">Cost Includes</p>
+                                                </a>
+
+                                                <a href="#cost-excludes" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                    <p class="text-sm font-light">Cost Excludes</p>
+                                                </a>
+
+                                                <a href="#fixed-dates" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-regular fa-calendar-days"></i>
+                                                    <p class="text-sm font-light">Fixed Dates</p>
+                                                </a>
+
+                                                <a href="#gears" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-solid fa-gears"></i>
+                                                    <p class="text-sm font-light">Gears List</p>
+                                                </a>
+
+                                                <a href="#photos" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-regular fa-image"></i>
+                                                    <p class="text-sm font-light">Photo/Videos</p>
+                                                </a>
+
+                                                <a href="#reviews" class="flex items-center gap-x-2 py-1.5 px-2 hover:bg-neutral-900/20 text-neutral-50">
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <p class="text-sm font-light">Reviews</p>
+                                                </a>
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="w-full space-y-5 z-40">
+
+                                            <!-- Overview -->
+                                            <div id="overview" class="w-full">
+
+                                                <!-- Top facts grid -->
+                                                <div class="w-full grid grid-cols-4 gap-x-10 gap-y-12 bg-neutral-200/40 py-20 md:px-39 sm:px-20 px-4">
+
+                                                    @if (!string.IsNullOrWhiteSpace(Model.OverviewCountry))
+                                                    {
+                                                        <div class="w-full flex items-center gap-x-4">
+                                                            <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                <img src="~/assets/img/country.png" alt="" class="w-full h-full object-contain object-center">
+                                                                </div>
+                                                                <div class="space-y-0.5">
+                                                                    <p class="text-base font-normal text-[#e1a74e]">Country</p>
+                                                                    <p class="text-base font-light text-neutral-600">@Model.OverviewCountry</p>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(Model.PeakName))
+                                                        {
+                                                            <div class="w-full flex items-center gap-x-4">
+                                                                <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                    <img src="~/assets/img/peak.png" alt="" class="w-full h-full object-contain object-center">
+                                                                    </div>
+                                                                    <div class="space-y-0.5">
+                                                                        <p class="text-base font-normal text-[#e1a74e]">Peak Name</p>
+                                                                        <p class="text-base font-light text-neutral-600">@Model.PeakName</p>
+                                                                    </div>
+                                                                </div>
+                                                            }
+
+                                                            <div class="w-full flex items-center gap-x-4">
+                                                                <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                    <img src="~/assets/img/duration.png" alt="" class="w-full h-full object-contain object-center">
+                                                                    </div>
+                                                                    <div class="space-y-0.5">
+                                                                        <p class="text-base font-normal text-[#e1a74e]">Duration</p>
+                                                                        <p class="text-base font-light text-neutral-600">@Model.DurationDays Days</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                @if (!string.IsNullOrWhiteSpace(Model.Route))
+                                                                {
+                                                                    <div class="w-full flex items-center gap-x-4">
+                                                                        <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                            <img src="~/assets/img/route.png" alt="" class="w-full h-full object-contain object-center">
+                                                                            </div>
+                                                                            <div class="space-y-0.5">
+                                                                                <p class="text-base font-normal text-[#e1a74e]">Route</p>
+                                                                                <p class="text-base font-light text-neutral-600">@Model.Route</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+
+                                                                    @if (!string.IsNullOrWhiteSpace(Model.Rank))
+                                                                    {
+                                                                        <div class="w-full flex items-center gap-x-4">
+                                                                            <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                                <img src="~/assets/img/rank.png" alt="" class="w-full h-full object-contain object-center">
+                                                                                </div>
+                                                                                <div class="space-y-0.5">
+                                                                                    <p class="text-base font-normal text-[#e1a74e]">Rank</p>
+                                                                                    <p class="text-base font-light text-neutral-600">@Model.Rank</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        }
+
+                                                                        @if (!string.IsNullOrWhiteSpace(Model.CoordinatesText) || (Model.Latitude is not null && Model.Longitude is not null))
+                                                                        {
+                                                                            var coordsText = !string.IsNullOrWhiteSpace(Model.CoordinatesText)
+                                                                                ? Model.CoordinatesText
+                                                                                : $"{Model.Latitude}, {Model.Longitude}";
+
+                                                                            var mapUrl = (Model.Latitude is not null && Model.Longitude is not null)
+                                                                                ? $"https://www.google.com/maps?q={Model.Latitude},{Model.Longitude}"
+                                                                                : null;
+
+                                                                            <div class="w-full flex items-center gap-x-4">
+                                                                                <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                                    <img src="~/assets/img/Co-ordinates.png" alt="" class="w-full h-full object-contain object-center">
+                                                                                    </div>
+                                                                                    <div class="space-y-0.5">
+                                                                                        <p class="text-base font-normal text-[#e1a74e]">Co-ordinates</p>
+                                                                                        @if (!string.IsNullOrWhiteSpace(mapUrl))
+                                                                                        {
+                                                                                            <a href="@mapUrl" target="_blank" class="text-base font-light text-neutral-600 hover:text-[#e1a74e]">
+                                                                                                @coordsText
+                                                                                            </a>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <p class="text-base font-light text-neutral-600">@coordsText</p>
+                                                                                        }
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+
+                                                                            @if (!string.IsNullOrWhiteSpace(Model.WeatherReport))
+                                                                            {
+                                                                                <div class="w-full flex items-center gap-x-4">
+                                                                                    <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                                        <img src="~/assets/img/weather.png" alt="" class="w-full h-full object-contain object-center">
+                                                                                        </div>
+                                                                                        <div class="space-y-0.5">
+                                                                                            <p class="text-base font-normal text-[#e1a74e]">Weather Reports</p>
+                                                                                            <a href="@Model.WeatherReport" target="_blank" class="text-base font-light text-neutral-600 hover:text-[#e1a74e]">
+                                                                                                Live Weather Report
+                                                                                            </a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                }
+
+                                                                                @if (!string.IsNullOrWhiteSpace(Model.Range))
+                                                                                {
+                                                                                    <div class="w-full flex items-center gap-x-4">
+                                                                                        <div class="w-14 h-14 rounded-md flex items-center justify-center">
+                                                                                            <img src="~/assets/img/range.png" alt="" class="w-full h-full object-contain object-center">
+                                                                                            </div>
+                                                                                            <div class="space-y-0.5">
+                                                                                                <p class="text-base font-normal text-[#e1a74e]">Range</p>
+                                                                                                <p class="text-base font-light text-neutral-600">@Model.Range</p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    }
+
+                                                                                </div>
+
+                                                                                <!-- Main content + sidebar -->
+                                                                                <div class="w-full grid grid-cols-3 gap-8 pt-16 relative md:px-39 sm:px-20 px-4">
+                                                                                    <div class="w-full col-span-2 space-y-12">
+
+                                                                                        <!-- Trip Overview -->
+                                                                                        <div class="w-full space-y-4">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-file-text text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Trip Overview</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 bg-neutral-200 h-px"></div>
+                                                                                            </div>
+
+                                                                                            <div class="w-full text-neutral-600">
+                                                                                                @* If Overview is plain text, wrap it in <p>. If it's HTML from admin, use Html.Raw *@
+                                                                                                @if (!string.IsNullOrWhiteSpace(Model.Overview))
+                                                                                                {
+                                                                                                    <div class="prose max-w-none">
+                                                                                                        @HtmlBlock(Model.Overview)
+                                                                                                    </div>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <p class="text-base font-light text-neutral-600">No overview available.</p>
+                                                                                                }
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <!-- Itinerary -->
+                                                                                        <div id="itinerary" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-regular fa-calendar text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Itinerary</h1>
+                                                                                                </div>
+
+                                                                                                <div class="flex-1 flex items-center gap-0">
+                                                                                                    <div class="flex-1 bg-neutral-200 h-px"></div>
+
+                                                                                                    @if (itineraries.Any())
+                                                                                                    {
+                                                                                                        <select id="itinerarySelect"
+                                                                                                                class="w-fit rounded-full px-4 py-1 border border-neutral-200 focus:border-[#e1a74e] text-base text-neutral-600 outline-none">
+                                                                                                            @foreach (var it in itineraries)
+                                                                                                            {
+                                                                                                                <option value="@it.Id">@it.Title</option>
+                                                                                                            }
+                                                                                                        </select>
+                                                                                                    }
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <div class="w-full rounded-xl border border-neutral-200">
+
+                                                                                                @if (!itineraryDays.Any())
+                                                                                                {
+                                                                                                    <div class="p-6 text-neutral-600">No itinerary days available.</div>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    foreach (var day in itineraryDays.OrderBy(x => x.DayNumber))
+                                                                                                    {
+                                                                                                        <div class="border-b border-neutral-200">
+                                                                                                            <button class="w-full flex items-start justify-between p-4 accordion-header cursor-pointer">
+                                                                                                                <div class="flex items-center gap-4">
+                                                                                                                    <div class="bg-[#e1a74e] text-white px-4 py-2 rounded-md text-center">
+                                                                                                                        Day @day.DayNumber
+                                                                                                                    </div>
+                                                                                                                    <div>
+                                                                                                                        <p class="text-base font-normal text-neutral-800">
+                                                                                                                            @day.ShortDescription
+                                                                                                                        </p>
+
+                                                                                                                        @if (!string.IsNullOrWhiteSpace(day.AccommodationType) || !string.IsNullOrWhiteSpace(day.Meals))
+                                                                                                                        {
+                                                                                                                            <div class="flex items-center gap-3 text-[#d6a557] mt-1">
+                                                                                                                                @if (!string.IsNullOrWhiteSpace(day.Meals))
+                                                                                                                                {
+                                                                                                                                    <i class="fa-solid fa-utensils"></i>
+                                                                                                                                    <span>@day.Meals</span>
+                                                                                                                                }
+                                                                                                                                @if (!string.IsNullOrWhiteSpace(day.AccommodationType))
+                                                                                                                                {
+                                                                                                                                    <i class="fa-solid fa-bed"></i>
+                                                                                                                                    <span>@day.AccommodationType</span>
+                                                                                                                                }
+                                                                                                                            </div>
+                                                                                                                        }
+                                                                                                                    </div>
+                                                                                                                </div>
+
+                                                                                                                <i class="fa-solid fa-chevron-down text-[#d6a557] text-base transition-transform"></i>
+                                                                                                            </button>
+
+                                                                                                            <div class="accordion-content hidden border-t border-neutral-200 px-4 py-6 text-neutral-700">
+                                                                                                                @if (!string.IsNullOrWhiteSpace(day.Description))
+                                                                                                                {
+                                                                                                                    <div class="prose max-w-none">
+                                                                                                                        @HtmlBlock(day.Description)
+                                                                                                                    </div>
+                                                                                                                }
+                                                                                                                else
+                                                                                                                {
+                                                                                                                    <p>No details.</p>
+                                                                                                                }
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    }
+                                                                                                }
+
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <!-- Map -->
+                                                                                        <div id="map" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-regular fa-map text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Route Map</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (Model.Maps is not null && Model.Maps.Any())
+                                                                                            {
+                                                                                                var firstMap = Model.Maps.First();
+                                                                                                <div class="w-full">
+                                                                                                    <img src="@firstMap.FilePath" alt="Route map"
+                                                                                                         class="w-full aspect-video object-cover object-center cursor-pointer">
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <p class="text-neutral-600">No map available.</p>
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Cost Includes -->
+                                                                                        <div id="cost-includes" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-regular fa-circle-check text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Cost Includes</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @* If you store full HTML blocks *@
+                                                                                            @if (!string.IsNullOrWhiteSpace(Model.Inclusions))
+                                                                                            {
+                                                                                                <div class="prose max-w-none">
+                                                                                                    @HtmlBlock(Model.Inclusions)
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                @* If you store items list *@
+                                                                                                var includes = costItems.Where(x => (x.Type ?? "").Equals("Include", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                                                                if (!includes.Any())
+                                                                                                {
+                                                                                                    <p class="text-neutral-600">No inclusions listed.</p>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <div class="w-full space-y-2">
+                                                                                                        @foreach (var item in includes)
+                                                                                                        {
+                                                                                                            <div class="w-full flex items-start gap-x-3 border-b border-neutral-200/50 pb-2">
+                                                                                                                <i class="fa-solid fa-circle-check text-green-700 text-base pt-1"></i>
+                                                                                                                <p class="text-base text-neutral-700 font-light">
+                                                                                                                    @item.Title
+                                                                                                                </p>
+                                                                                                            </div>
+                                                                                                        }
+                                                                                                    </div>
+                                                                                                }
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Cost Excludes -->
+                                                                                        <div id="cost-excludes" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-circle-xmark text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Cost Excludes</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (!string.IsNullOrWhiteSpace(Model.Exclusions))
+                                                                                            {
+                                                                                                <div class="prose max-w-none">
+                                                                                                    @HtmlBlock(Model.Exclusions)
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                var excludes = costItems.Where(x => (x.Type ?? "").Equals("Exclude", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                                                                if (!excludes.Any())
+                                                                                                {
+                                                                                                    <p class="text-neutral-600">No exclusions listed.</p>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <div class="w-full space-y-2">
+                                                                                                        @foreach (var item in excludes)
+                                                                                                        {
+                                                                                                            <div class="w-full flex items-start gap-x-3 border-b border-neutral-200/50 pb-2">
+                                                                                                                <i class="fa-solid fa-circle-xmark text-red-700 text-base pt-1"></i>
+                                                                                                                <p class="text-base text-neutral-700 font-light">
+                                                                                                                    @item.Title
+                                                                                                                </p>
+                                                                                                            </div>
+                                                                                                        }
+                                                                                                    </div>
+                                                                                                }
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Fixed Dates -->
+                                                                                        <div id="fixed-dates" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-calendar text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Fixed Dates</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (!departures.Any())
+                                                                                            {
+                                                                                                <p class="text-neutral-600">No fixed departures available.</p>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div class="w-full overflow-x-auto">
+                                                                                                    <table class="w-full">
+                                                                                                        <thead>
+                                                                                                            <tr class="border-b border-neutral-200">
+                                                                                                                <th class="text-start py-4 px-2 font-light text-base w-xs">Date</th>
+                                                                                                                <th class="text-center py-4 px-2 font-light text-base">Status</th>
+                                                                                                                <th class="text-center py-4 px-2 font-light text-base">Group Size</th>
+                                                                                                                <th class="text-center py-4 px-2 font-light text-base">Action</th>
+                                                                                                            </tr>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                            @foreach (var d in departures.OrderBy(x => x.StartDate))
+                                                                                                            {
+                                                                                                                <tr class="hover:bg-yellow-50 ease-in-out duration-300">
+                                                                                                                    <td class="text-start py-4 px-2 font-light text-base">
+                                                                                                                        <span class="text-[#e1a74e]">@Model.DurationDays Days</span> <br />
+                                                                                                                        <span>Start - @d.StartDate.ToString("yyyy-MM-dd")</span> <br />
+                                                                                                                        <span>End - @d.EndDate.ToString("yyyy-MM-dd")</span>
+                                                                                                                    </td>
+                                                                                                                    <td class="text-center py-4 px-2 font-light text-base text-[#32D296]">
+                                                                                                                        @d.Status
+                                                                                                                    </td>
+                                                                                                                    <td class="text-center py-4 px-2 font-light text-base">
+                                                                                                                        @if (d.GroupSize.HasValue)
+                                                                                                                        {
+                                                            
+                                                                                                                        }
+                                                                                                                        @* @(!string.IsNullOrWhiteSpace(d.GroupSize) ? d.GroupSizeText : $"{d.MaxGroupSize} PAX") *@
+                                                                                                                    </td>
+                                                                                                                    <td class="text-center py-4 px-2 font-light text-base">
+                                                                                                                        <div class="flex items-center gap-x-1 justify-center">
+                                                                                                                            <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                                                                                                   class="w-fit px-2 py-1 border border-[#e1a74e] text-[#e1a74e] hover:text-white hover:bg-[#e1a74e] text-base">
+                                                                                                                                Inquiry Now
+                                                                                                                            </a>
+                                                                                                                            <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                                                                                                   class="w-fit px-2 py-1 text-white bg-[#284182] border border-[#284182] hover:border-[#e1a74e] hover:bg-[#e1a74e] text-base">
+                                                                                                                                Book Now
+                                                                                                                            </a>
+                                                                                                                        </div>
+                                                                                                                    </td>
+                                                                                                                </tr>
+                                                                                                            }
+                                                                                                        </tbody>
+                                                                                                    </table>
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Gears -->
+                                                                                        <div id="gears" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-gears text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Gears List</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (Model.GearLists is null || !Model.GearLists.Any())
+                                                                                            {
+                                                                                                <p class="text-neutral-600">No gear lists available.</p>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div class="w-full grid grid-cols-2 gap-4 my-8">
+                                                                                                    @foreach (var g in Model.GearLists)
+                                                                                                    {
+                                                                                                        <a href="@g.FilePath"
+                                                                                                               class="w-full aspect-[16/6.5] relative overflow-hidden group ease-in-out duration-300 block">
+                                                                                                            <img src="@(g.ImagePath ?? Url.Content("~/assets/img/expeditions/exp4.png"))"
+                                                                                                                 alt=""
+                                                                                                                 class="w-full h-full object-center object-cover neutralscale-50 group-hover:neutralscale-0 ease-in-out duration-1000">
+                                                                                                            <div class="absolute top-0 left-0 w-full px-4 py-6 h-full bg-black/30 flex items-center justify-center text-center">
+                                                                                                                <h2 class="text-2xl text-white font-bold">@g.ShortDescription</h2>
+                                                                                                            </div>
+                                                                                                        </a>
+                                                                                                    }
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Photos/Videos -->
+                                                                                        <div id="photos" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-image text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Photo/Videos</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (!media.Any())
+                                                                                            {
+                                                                                                <p class="text-neutral-600">No media available.</p>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                var photos = media.Where(x => (x.MediaType ?? "").Equals("image", StringComparison.OrdinalIgnoreCase)).ToList();
+                                                                                                var videos = media.Where(x => (x.MediaType ?? "").Equals("video", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                                                                                                if (photos.Any())
+                                                                                                {
+                                                                                                    <div class="w-full grid grid-cols-3 gap-0">
+                                                                                                        @foreach (var p in photos.Take(6))
+                                                                                                        {
+                                                                                                            <img src="@p.Url" alt="@p.Caption"
+                                                                                                                 class="w-full aspect-video object-cover object-center cursor-pointer" />
+                                                                                                        }
+                                                                                                    </div>
+                                                                                                }
+
+                                                                                                if (videos.Any())
+                                                                                                {
+                                                                                                    <div class="w-full space-y-3 pt-6">
+                                                                                                        @foreach (var v in videos.Take(2))
+                                                                                                        {
+                                                                                                            <a href="@v.Url" target="_blank" class="text-[#e1a74e] underline">
+                                                                                                                Watch video
+                                                                                                            </a>
+                                                                                                        }
+                                                                                                    </div>
+                                                                                                }
+                                                                                            }
+                                                                                        </div>
+
+                                                                                        <!-- Reviews -->
+                                                                                        <div id="reviews" class="w-full space-y-12">
+                                                                                            <div class="w-full flex items-center gap-x-1">
+                                                                                                <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                                    <i class="fa-solid fa-comment text-xl text-[#e1a74e]"></i>
+                                                                                                    <h1 class="text-xl font-black text-neutral-800 uppercase">Reviews</h1>
+                                                                                                </div>
+                                                                                                <div class="flex-1 h-px bg-neutral-200"></div>
+                                                                                            </div>
+
+                                                                                            @if (!reviews.Any())
+                                                                                            {
+                                                                                                <p class="text-neutral-600">No reviews yet.</p>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div class="space-y-4">
+                                                                                                    @foreach (var r in reviews.Take(10))
+                                                                                                    {
+                                                                                                        <div class="bg-white border border-neutral-200 rounded-xl p-5">
+                                                                                                            <div class="flex items-center justify-between">
+                                                                                                                <div>
+                                                                                                                    <p class="font-medium text-neutral-800">@r.FullName</p>
+                                                                                                                    @* <p class="text-sm text-neutral-500">@r.CreatedAtUtc.ToString("yyyy-MM-dd")</p> *@
+                                                                                                                </div>
+                                                                                                                <div class="flex items-center gap-1">
+                                                                                                                    @for (var i = 1; i <= 5; i++)
+                                                                                                                    {
+                                                                                                                        if (i <= r.Rating)
+                                                                                                                        {
+                                                                                                                            <i class="fa-solid fa-star text-sm text-[#E1A74E]"></i>
+                                                                                                                        }
+                                                                                                                        else
+                                                                                                                        {
+                                                                                                                            <i class="fa-regular fa-star text-sm text-[#E1A74E]"></i>
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                </div>
+                                                                                                            </div>
+
+                                                                                                            <p class="mt-3 text-neutral-700 font-light">
+                                                                                                                @r.ReviewText
+                                                                                                            </p>
+                                                                                                        </div>
+                                                                                                    }
+                                                                                                </div>
+                                                                                            }
+
+                                                                                            @* Keep your existing "Write a review" form here (POST to your controller) *@
+                                                                                        </div>
+
+                                                                                    </div>
+
+                                                                                    <!-- Sidebar sticky -->
+                                                                                    <div class="w-full col-span-1 sticky top-20">
+                                                                                        <div class="bg-white border border-neutral-200 rounded-xl p-6 space-y-4">
+                                                                                            <p class="text-lg font-semibold text-neutral-800">Quick Info</p>
+
+                                                                                            <div class="text-sm text-neutral-700 space-y-2">
+                                                                                                <div class="flex justify-between">
+                                                                                                    <span>Destination</span>
+                                                                                                    <span class="font-medium">@Model.Destination</span>
+                                                                                                </div>
+
+                                                                                                @if (!string.IsNullOrWhiteSpace(Model.Region))
+                                                                                                {
+                                                                                                    <div class="flex justify-between">
+                                                                                                        <span>Region</span>
+                                                                                                        <span class="font-medium">@Model.Region</span>
+                                                                                                    </div>
+                                                                                                }
+
+                                                                                                <div class="flex justify-between">
+                                                                                                    <span>Difficulty</span>
+                                                                                                    <span class="font-medium">@Model.Difficulty</span>
+                                                                                                </div>
+
+                                                                                                <div class="flex justify-between">
+                                                                                                    <span>Group</span>
+                                                                                                    <span class="font-medium">@($"{Model.MinGroupSize}-{Model.MaxGroupSize}")</span>
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <a href="@(Model.BookingCtaUrl ?? "#")"
+                                                                                                   class="block text-center w-full px-4 py-3 bg-[#e1a74e] text-white rounded-lg">
+                                                                                                Inquiry / Book
+                                                                                            </a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <!-- Similar Trips placeholder -->
+                                                                            <div class="w-full md:px-39 sm:px-20 px-4 py-12 mt-12 bg-neutral-200/40 space-y-12">
+                                                                                <div class="w-full flex items-center gap-x-1">
+                                                                                    <div class="flex w-fit items-center gap-x-2 py-1.5 px-2">
+                                                                                        <i class="fa-solid fa-file-text text-xl text-[#e1a74e]"></i>
+                                                                                        <h1 class="text-xl font-black text-neutral-800 uppercase">Similar Trips</h1>
+                                                                                    </div>
+                                                                                    <div class="flex-1 bg-neutral-300 h-px"></div>
+                                                                                </div>
+
+                                                                                @* TODO: bind your SimilarTrips list here *@
+                                                                                <p class="text-neutral-600">Coming soon…</p>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </section>
+                                                                </div>
+
+                                                                @section Scripts {
+                                                                    <script>
+                                                                        // Simple accordion: toggle next sibling .accordion-content
+                                                                        document.querySelectorAll(".accordion-header").forEach(btn => {
+                                                                            btn.addEventListener("click", () => {
+                                                                                const content = btn.parentElement.querySelector(".accordion-content");
+                                                                                if (!content) return;
+                                                                                content.classList.toggle("hidden");
+                                                                            });
+                                                                        });
+                                                                    </script>
+                                                                }
