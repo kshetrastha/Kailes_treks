@@ -1,0 +1,97 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model TravelCleanArch.Web.Areas.Admin.Models.ServiceRegionFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Service Region" : "Create Service Region";
+    var serviceTypeOptions = ViewBag.ServiceTypeOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Service Region</h2>
+        <a class="btn btn-outline-secondary" href="/admin/service-regions">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/service-regions/{Model.Id}/edit" : "/admin/service-regions/create")">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="ServiceTypeId" class="form-label">Service Type</label>
+                        <select asp-for="ServiceTypeId" class="form-select" asp-items="serviceTypeOptions"></select>
+                        <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Ordering" class="form-label"></label>
+                        <input asp-for="Ordering" class="form-control" />
+                        <span asp-validation-for="Ordering" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Reason" class="form-label"></label>
+                        <input asp-for="Reason" class="form-control" />
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SlugURL" class="form-label"></label>
+                        <input asp-for="SlugURL" class="form-control" />
+                        <span asp-validation-for="SlugURL" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BannerImage" class="form-label">Banner Image</label>
+                        <input asp-for="BannerImage" type="file" class="form-control" accept="image/*" />
+                        <span asp-validation-for="BannerImage" class="text-danger"></span>
+                        @if (!string.IsNullOrWhiteSpace(Model.ExistingBannerImagePath))
+                        {
+                            <div class="mt-2">
+                                <img src="/@Model.ExistingBannerImagePath" alt="Current banner" class="img-thumbnail" style="max-width: 220px; max-height: 120px; object-fit: cover;" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DashboardImage" class="form-label">Dashboard Image</label>
+                        <input asp-for="DashboardImage" type="file" class="form-control" accept="image/*" />
+                        <span asp-validation-for="DashboardImage" class="text-danger"></span>
+                        @if (!string.IsNullOrWhiteSpace(Model.ExistingDashboardImagePath))
+                        {
+                            <div class="mt-2">
+                                <img src="/@Model.ExistingDashboardImagePath" alt="Current dashboard" class="img-thumbnail" style="max-width: 220px; max-height: 120px; object-fit: cover;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                    <a href="/admin/service-regions" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

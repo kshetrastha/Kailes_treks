@@ -1,0 +1,61 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model TravelCleanArch.Web.Areas.Admin.Models.ServiceRegionFaqFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Service Region FAQ" : "Create Service Region FAQ";
+    var serviceRegionOptions = ViewBag.ServiceRegionOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Service Region FAQ</h2>
+        <a class="btn btn-outline-secondary" href="/admin/service-region/service-faqs">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" action="@(isEdit ? $"/admin/service-region/service-faqs/{Model.Id}/edit" : "/admin/service-region/service-faqs/create")">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="ServiceRegionId" class="form-label">Service Region</label>
+                        <select asp-for="ServiceRegionId" class="form-select" asp-items="serviceRegionOptions"></select>
+                        <span asp-validation-for="ServiceRegionId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="DisplayOrder" class="form-label"></label>
+                        <input asp-for="DisplayOrder" class="form-control" />
+                        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Question" class="form-label"></label>
+                        <input asp-for="Question" class="form-control" />
+                        <span asp-validation-for="Question" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Answer" class="form-label"></label>
+                        <textarea asp-for="Answer" class="form-control" rows="6"></textarea>
+                        <span asp-validation-for="Answer" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                    <a href="/admin/service-region/service-faqs" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

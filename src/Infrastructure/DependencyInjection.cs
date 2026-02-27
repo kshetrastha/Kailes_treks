@@ -71,6 +71,8 @@ public static class DependencyInjection
         services.AddScoped<IBlogPostService, BlogPostService>();
         services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
         services.AddScoped<IServiceTypeService, ServiceTypeService>();
+        services.AddScoped<IServiceRegionService, ServiceRegionService>();
+        services.AddScoped<IServiceRegionFaqService, ServiceRegionFaqService>();
         services.AddScoped<IAccomodationService, AccomodationService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IDifficultyLevelService, DifficultyLevelService>();

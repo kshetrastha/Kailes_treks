@@ -25,5 +25,7 @@ public interface IUnitOfWork
     ICategoryService CategoryService { get; }
     IDifficultyLevelService DifficultyLevelService { get; }
     IServiceTypeService ServiceTypeService { get; }
+    IServiceRegionService ServiceRegionService { get; }
+    IServiceRegionFaqService ServiceRegionFaqService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

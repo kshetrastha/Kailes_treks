@@ -125,6 +125,30 @@ public sealed class ServiceTypeFormViewModel
     [StringLength(2000)] public string? Description { get; set; }
 }
 
+public sealed class ServiceRegionFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(1000)] public string? Description { get; set; }
+    [Range(1, int.MaxValue)] public int ServiceTypeId { get; set; }
+    [Required, StringLength(100)] public string Reason { get; set; } = string.Empty;
+    [StringLength(100)] public string? SlugURL { get; set; }
+    [Range(0, int.MaxValue)] public int Ordering { get; set; }
+    public IFormFile? BannerImage { get; set; }
+    public IFormFile? DashboardImage { get; set; }
+    public string? ExistingBannerImagePath { get; set; }
+    public string? ExistingDashboardImagePath { get; set; }
+}
+
+public sealed class ServiceRegionFaqFormViewModel
+{
+    public int? Id { get; set; }
+    [Range(1, int.MaxValue)] public int ServiceRegionId { get; set; }
+    [Required, StringLength(500)] public string Question { get; set; } = string.Empty;
+    [Required, StringLength(4000)] public string Answer { get; set; } = string.Empty;
+    [Range(0, int.MaxValue)] public int DisplayOrder { get; set; }
+}
+
 public sealed class CategoryFormViewModel
 {
     public int? Id { get; set; }

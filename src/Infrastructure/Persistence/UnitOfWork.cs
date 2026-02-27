@@ -44,6 +44,8 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
     public IDifficultyLevelService DifficultyLevelService => new DifficultyLevelService(dbContext);
 
     public IServiceTypeService ServiceTypeService => new ServiceTypeService(dbContext);
+    public IServiceRegionService ServiceRegionService => new ServiceRegionService(dbContext);
+    public IServiceRegionFaqService ServiceRegionFaqService => new ServiceRegionFaqService(dbContext);
 
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
         => dbContext.SaveChangesAsync(ct);

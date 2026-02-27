@@ -740,6 +740,10 @@
                                 class="collapse first-level">
                                 <li class="sidebar-item"> <a href="/admin/service-types"
                                         class="sidebar-link"><i class="mdi mdi-view-list"></i><span class="hide-menu"> Service Types</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/service-regions"
+                                        class="sidebar-link"><i class="mdi mdi-map-marker-radius"></i><span class="hide-menu"> Service Regions</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/service-region/service-faqs"
+                                        class="sidebar-link"><i class="mdi mdi-comment-question-outline"></i><span class="hide-menu"> Service FAQs</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/categories"
                                         class="sidebar-link"><i class="mdi mdi-shape-outline"></i><span class="hide-menu"> Categories</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/difficulty-levels"
@@ -836,6 +840,14 @@
                 else if (requestPath.Contains("/admin/service-types"))
                 {
                     breadcrumbSection = "Service Types";
+                }
+                else if (requestPath.Contains("/admin/service-regions"))
+                {
+                    breadcrumbSection = "Service Regions";
+                }
+                else if (requestPath.Contains("/admin/service-region/service-faqs"))
+                {
+                    breadcrumbSection = "Service FAQs";
                 }
                 else if (requestPath.Contains("/admin/categories"))
                 {

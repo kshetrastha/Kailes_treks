@@ -1,0 +1,102 @@
+@model TravelCleanArch.Application.Abstractions.Master.ServiceRegionFaqPagedResult
+@{
+    var effectivePageSize = Model.PageSize <= 0 ? Math.Max(1, Model.TotalCount) : Model.PageSize;
+    var totalPages = Math.Max(1, (int)Math.Ceiling(Model.TotalCount / (double)effectivePageSize));
+    var previousPage = Math.Max(1, Model.Page - 1);
+    var nextPage = Math.Min(totalPages, Model.Page + 1);
+    var hasPrevious = Model.Page > 1;
+    var hasNext = Model.Page < totalPages;
+    var firstItemIndex = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * effectivePageSize) + 1;
+    var lastItemIndex = Model.TotalCount == 0 ? 0 : Math.Min(Model.Page * effectivePageSize, Model.TotalCount);
+    var pageWindow = 2;
+    var startPage = Math.Max(1, Model.Page - pageWindow);
+    var endPage = Math.Min(totalPages, Model.Page + pageWindow);
+}
+
+<div id="serviceRegionFaqsTableSection">
+    <div id="no-more-tables" class="table-responsive mb-2">
+        <table class="table table-hover color-table info-table align-middle">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th style="width: 80px;">Id</th>
+                    <th style="min-width: 200px;">Service Region</th>
+                    <th style="min-width: 300px;">Question</th>
+                    <th style="min-width: 260px;">Answer</th>
+                    <th style="width: 100px;">Order</th>
+                    <th style="width: 190px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No service region FAQs found. Add your first FAQ.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td data-label="Id">@item.Id</td>
+                            <td data-label="Service Region">@item.ServiceRegion.Name</td>
+                            <td data-label="Question">@item.Question</td>
+                            <td data-label="Answer">
+                                <div style="max-height: 70px; overflow: hidden;">@item.Answer</div>
+                            </td>
+                            <td data-label="Order">@item.DisplayOrder</td>
+                            <td data-label="Actions">
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/service-region/service-faqs/@item.Id/edit">Edit</a>
+                                <form method="post" action="/admin/service-region/service-faqs/@item.Id/delete?serviceRegionId=@item.ServiceRegionId" class="d-inline" onsubmit="return confirm('Delete this service region FAQ?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalCount > 0)
+    {
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                @if (totalPages > 0)
+                {
+                    <nav aria-label="Service region faq pagination">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(hasPrevious ? string.Empty : "disabled")">
+                                <button type="button" class="page-link js-service-region-faqs-page" data-page="1" @(hasPrevious ? null : "disabled")>&laquo;</button>
+                            </li>
+                            <li class="page-item @(hasPrevious ? string.Empty : "disabled")">
+                                <button type="button" class="page-link js-service-region-faqs-page" data-page="@previousPage" @(hasPrevious ? null : "disabled")>&lt;</button>
+                            </li>
+                            @for (var p = startPage; p <= endPage; p++)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : string.Empty)">
+                                    <button type="button" class="page-link js-service-region-faqs-page" data-page="@p">@p</button>
+                                </li>
+                            }
+                            <li class="page-item @(hasNext ? string.Empty : "disabled")">
+                                <button type="button" class="page-link js-service-region-faqs-page" data-page="@nextPage" @(hasNext ? null : "disabled")>&gt;</button>
+                            </li>
+                            <li class="page-item @(hasNext ? string.Empty : "disabled")">
+                                <button type="button" class="page-link js-service-region-faqs-page" data-page="@totalPages" @(hasNext ? null : "disabled")>&raquo;</button>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+            @if (totalPages > 1)
+            {
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
+            }
+            else
+            {
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records</div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,132 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model TravelCleanArch.Application.Abstractions.Master.ServiceRegionFaqPagedResult
+@{
+    ViewData["Title"] = "Travel - Service Region FAQs";
+    var selectedPageSize = ViewBag.PageSize is int value ? value : 20;
+    var selectedServiceRegionId = ViewBag.ServiceRegionId as int?;
+    var question = ViewBag.Question as string ?? string.Empty;
+    var serviceRegionOptions = ViewBag.ServiceRegionOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var pageSizeOptions = new List<SelectListItem>
+    {
+        new("10 Rows/Page", "10", selectedPageSize == 10),
+        new("20 Rows/Page", "20", selectedPageSize == 20),
+        new("50 Rows/Page", "50", selectedPageSize == 50),
+        new("100 Rows/Page", "100", selectedPageSize == 100),
+        new("All Rows/Page", "-1", selectedPageSize == -1)
+    };
+}
+
+<div class="container-fluid">
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form id="serviceRegionFaqFilterForm" method="post" action="/admin/service-region/service-faqs" class="row g-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="serviceRegionFaqPage" name="page" value="@Model.Page" />
+                <input type="hidden" id="pageSize" name="pageSize" value="@selectedPageSize" />
+
+                <div class="col-md-3">
+                    <label for="serviceRegionId" class="form-label text-muted">Service Region</label>
+                    <select id="serviceRegionId" name="serviceRegionId" class="form-select" asp-items="serviceRegionOptions"></select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="question" class="form-label text-muted">Question</label>
+                    <input type="text" id="question" name="question" value="@question" class="form-control" placeholder="Search by question" />
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                        Search
+                    </button>
+                    <a href="/admin/service-region/service-faqs" class="btn btn-outline-secondary ms-2">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center mb-3">
+                <div class="col-md-6">
+                    <a class="btn btn-primary" href="/admin/service-region/service-faqs/create@(selectedServiceRegionId.HasValue ? $"?serviceRegionId={selectedServiceRegionId}" : string.Empty)">Add New</a>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-md-end align-items-center">
+                    <label for="pageSizeTop" class="me-2 mb-0 text-muted">Rows / Page</label>
+                    <select id="pageSizeTop" asp-items="pageSizeOptions" class="form-select" style="width:120px;"></select>
+                </div>
+            </div>
+
+            <partial name="_ServiceRegionFaqsTable" model="Model" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("serviceRegionFaqFilterForm");
+            const pageSizeInput = document.getElementById("pageSize");
+            const pageSizeSelect = document.getElementById("pageSizeTop");
+            const pageInput = document.getElementById("serviceRegionFaqPage");
+            const tableSectionId = "serviceRegionFaqsTableSection";
+
+            if (!form || !pageSizeInput || !pageSizeSelect || !pageInput) {
+                return;
+            }
+
+            pageSizeSelect.value = pageSizeInput.value;
+
+            async function postTable() {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!response.ok) {
+                    form.submit();
+                    return;
+                }
+
+                const html = await response.text();
+                const tableSection = document.getElementById(tableSectionId);
+                if (!tableSection) {
+                    form.submit();
+                    return;
+                }
+
+                tableSection.outerHTML = html;
+            }
+
+            pageSizeSelect.addEventListener("change", () => {
+                pageSizeInput.value = pageSizeSelect.value;
+                pageInput.value = "1";
+                postTable();
+            });
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                pageInput.value = "1";
+                postTable();
+            });
+
+            document.addEventListener("click", (event) => {
+                const pageButton = event.target.closest(`#${tableSectionId} .js-service-region-faqs-page`);
+                if (!pageButton) {
+                    return;
+                }
+
+                event.preventDefault();
+                pageInput.value = pageButton.dataset.page || "1";
+                postTable();
+            });
+        })();
+    </script>
+}

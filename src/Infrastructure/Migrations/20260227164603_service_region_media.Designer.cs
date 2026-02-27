@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227164603_service_region_media")]
+    partial class service_region_media
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1716,52 +1719,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasIndex("ServiceTypeId");
 
                     b.ToTable("ServiceRegions", "Service");
-                });
-
-            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegionFaq", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Answer")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Question")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("ServiceRegionId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("UpdatedBy")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceRegionId");
-
-                    b.ToTable("ServiceRegionFAQ", "Service");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceType", b =>
@@ -3488,17 +3445,6 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ServiceType");
-                });
-
-            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegionFaq", b =>
-                {
-                    b.HasOne("TravelCleanArch.Domain.Entities.Master.ServiceRegion", "ServiceRegion")
-                        .WithMany()
-                        .HasForeignKey("ServiceRegionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ServiceRegion");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.TrekkingTypeImage", b =>
