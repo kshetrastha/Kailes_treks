@@ -139,3 +139,10 @@ public sealed class DifficultyLevelFormViewModel
     [StringLength(2000)] public string? Description { get; set; }
     [Range(0, int.MaxValue)] public int Ordering { get; set; }
 }
+
+public sealed class AccomodationFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(1000)] public string? Description { get; set; }
+}

@@ -744,6 +744,8 @@
                                         class="sidebar-link"><i class="mdi mdi-shape-outline"></i><span class="hide-menu"> Categories</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/difficulty-levels"
                                         class="sidebar-link"><i class="mdi mdi-chart-bubble"></i><span class="hide-menu"> Difficulty Levels</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/accomodations"
+                                        class="sidebar-link"><i class="mdi mdi-home-city-outline"></i><span class="hide-menu"> Accomodations</span></a> </li>
                                   </ul>
                         </li>
                                 
@@ -842,6 +844,10 @@
                 else if (requestPath.Contains("/admin/difficulty-levels"))
                 {
                     breadcrumbSection = "Difficulty Levels";
+                }
+                else if (requestPath.Contains("/admin/accomodations"))
+                {
+                    breadcrumbSection = "Accomodations";
                 }
                 else if (requestPath.Contains("/admin/company"))
                 {
