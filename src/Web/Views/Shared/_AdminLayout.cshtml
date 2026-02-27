@@ -740,6 +740,8 @@
                                 class="collapse first-level">
                                 <li class="sidebar-item"> <a href="/admin/service-types"
                                         class="sidebar-link"><i class="mdi mdi-view-list"></i><span class="hide-menu"> Service Types</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/categories"
+                                        class="sidebar-link"><i class="mdi mdi-shape-outline"></i><span class="hide-menu"> Categories</span></a> </li>
                                   </ul>
                         </li>
                                 
@@ -830,6 +832,10 @@
                 else if (requestPath.Contains("/admin/service-types"))
                 {
                     breadcrumbSection = "Service Types";
+                }
+                else if (requestPath.Contains("/admin/categories"))
+                {
+                    breadcrumbSection = "Categories";
                 }
                 else if (requestPath.Contains("/admin/company"))
                 {

@@ -5,5 +5,5 @@ namespace TravelCleanArch.Application.Abstractions.Master;
 
 public interface ICategoryService : IGenericRepository<Category>
 {
-    Task<IReadOnlyList<Category>> ListOrderedAsync(CancellationToken ct);
+    Task<CategoryPagedResult> ListOrderedAsync(int page, int pageSize, string? categoryName, CancellationToken ct);
 }
