@@ -12,4 +12,7 @@ public sealed class DifficultyLevel : BaseEntity
 
     [MaxLength(2000)]
     public string? Description { get; set; }
+
+    public int Ordering { get; set; } = 0;
+
 }

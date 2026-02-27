@@ -5,5 +5,5 @@ namespace TravelCleanArch.Application.Abstractions.Master;
 
 public interface IDifficultyLevelService : IGenericRepository<DifficultyLevel>
 {
-    Task<IReadOnlyList<DifficultyLevel>> ListOrderedAsync(CancellationToken ct);
+    Task<DifficultyLevelPagedResult> ListOrderedAsync(int page, int pageSize, string? levelName, CancellationToken ct);
 }

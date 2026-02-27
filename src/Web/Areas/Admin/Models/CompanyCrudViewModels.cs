@@ -131,3 +131,11 @@ public sealed class CategoryFormViewModel
     [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
     [StringLength(1000)] public string? Description { get; set; }
 }
+
+public sealed class DifficultyLevelFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(2000)] public string? Description { get; set; }
+    [Range(0, int.MaxValue)] public int Ordering { get; set; }
+}
