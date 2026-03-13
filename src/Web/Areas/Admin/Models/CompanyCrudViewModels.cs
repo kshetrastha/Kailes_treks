@@ -164,6 +164,32 @@ public sealed class DifficultyLevelFormViewModel
     [Range(0, int.MaxValue)] public int Ordering { get; set; }
 }
 
+public sealed class PackageFormViewModel
+{
+    public int? Id { get; set; }
+    [Range(1, int.MaxValue)] public int CategoryId { get; set; }
+    [Range(1, int.MaxValue)] public int ServiceRegionId { get; set; }
+    [Range(1, int.MaxValue)] public int DifficultyLevelId { get; set; }
+    [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(500)] public string? ShortDescription { get; set; }
+    [StringLength(1000)] public string? Description { get; set; }
+    [Range(typeof(decimal), "0", "999999999")] public decimal Price { get; set; }
+    public bool IsDiscounted { get; set; }
+    [Range(typeof(decimal), "0", "999999999")] public decimal? DiscountedPrice { get; set; }
+    [Range(typeof(decimal), "0", "9999")] public decimal Duration { get; set; }
+    [Required, StringLength(50)] public string DurationType { get; set; } = string.Empty;
+    [StringLength(100)] public string WalkingPerDay { get; set; } = string.Empty;
+    [Range(1, int.MaxValue)] public int MaxGroupSize { get; set; }
+    [Required, StringLength(200)] public string StartingPoint { get; set; } = string.Empty;
+    [Required, StringLength(200)] public string EndingPoint { get; set; } = string.Empty;
+    public bool BestSeller { get; set; }
+    [Range(0, int.MaxValue)] public int PopularityRank { get; set; }
+    [StringLength(200)] public string? Availability { get; set; }
+    [Range(typeof(decimal), "0", "999999")] public decimal TotalDistance { get; set; }
+    [StringLength(100)] public string? MaxElevation { get; set; }
+    [StringLength(250)] public string? SlugURL { get; set; }
+}
+
 public sealed class AccomodationFormViewModel
 {
     public int? Id { get; set; }

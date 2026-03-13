@@ -28,6 +28,7 @@ public sealed class AppDbContext:
     public DbSet<Accomodation> Accomodations => Set<Accomodation>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<DifficultyLevel> DifficultyLevels => Set<DifficultyLevel>();
+    public DbSet<Package> Packages => Set<Package>();
     public DbSet<FileDetail> FileDetails => Set<FileDetail>();
     public DbSet<FileMapping> FileMappings => Set<FileMapping>();
 

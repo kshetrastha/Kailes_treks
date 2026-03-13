@@ -27,5 +27,6 @@ public interface IUnitOfWork
     IServiceTypeService ServiceTypeService { get; }
     IServiceRegionService ServiceRegionService { get; }
     IServiceRegionFaqService ServiceRegionFaqService { get; }
+    IPackageService PackageService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
