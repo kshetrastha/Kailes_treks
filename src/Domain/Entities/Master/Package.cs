@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TravelCleanArch.Domain.Entities.Master;
 
-[Table("PackageDetail", Schema = "Package")]
+[Table("PackageDetail", Schema = "Master")]
 public sealed class Package : BaseEntity
 {
     public int CategoryId { get; set; }
