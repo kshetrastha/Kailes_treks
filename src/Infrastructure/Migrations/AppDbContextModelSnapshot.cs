@@ -1748,6 +1748,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ServiceRegionId")
                         .HasColumnType("integer");
 

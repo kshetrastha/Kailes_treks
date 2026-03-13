@@ -6,8 +6,11 @@ namespace TravelCleanArch.Domain.Entities.Master;
 [Table("ServiceRegionFAQ", Schema = "Service")]
 public sealed class ServiceRegionFaq : BaseEntity
 {
+    public int ServiceId { get; set; }
+
     public int ServiceRegionId { get; set; }
 
+    [Required]
     [ForeignKey(nameof(ServiceRegionId))]
     public ServiceRegion ServiceRegion { get; set; } = default!;
 

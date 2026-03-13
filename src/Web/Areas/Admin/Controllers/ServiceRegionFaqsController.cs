@@ -60,9 +60,21 @@ public sealed class ServiceRegionFaqsController(IUnitOfWork uow, ICurrentUser cu
         await LoadServiceRegionOptionsAsync(model.ServiceRegionId, ct);
         if (!await ValidateModelAsync(model, ct)) return View("Upsert", model);
 
+        var serviceRegion = await uow.ServiceRegionService.Query()
+            .AsNoTracking()
+            .Where(x => x.Id == model.ServiceRegionId)
+            .Select(x => new { x.Id, x.ServiceTypeId })
+            .FirstOrDefaultAsync(ct);
+        if (serviceRegion is null)
+        {
+            ModelState.AddModelError(nameof(model.ServiceRegionId), "Select a valid service region.");
+            return View("Upsert", model);
+        }
+
         var now = DateTime.UtcNow;
         await uow.ServiceRegionFaqService.AddAsync(new ServiceRegionFaq
         {
+            ServiceId = serviceRegion.ServiceTypeId,
             ServiceRegionId = model.ServiceRegionId,
             Question = model.Question.Trim(),
             Answer = model.Answer.Trim(),
@@ -89,6 +101,18 @@ public sealed class ServiceRegionFaqsController(IUnitOfWork uow, ICurrentUser cu
         var item = await uow.ServiceRegionFaqService.GetByIdAsync(id, ct);
         if (item is null) return NotFound();
 
+        var serviceRegion = await uow.ServiceRegionService.Query()
+            .AsNoTracking()
+            .Where(x => x.Id == model.ServiceRegionId)
+            .Select(x => new { x.Id, x.ServiceTypeId })
+            .FirstOrDefaultAsync(ct);
+        if (serviceRegion is null)
+        {
+            ModelState.AddModelError(nameof(model.ServiceRegionId), "Select a valid service region.");
+            return View("Upsert", model);
+        }
+
+        item.ServiceId = serviceRegion.ServiceTypeId;
         item.ServiceRegionId = model.ServiceRegionId;
         item.Question = model.Question.Trim();
         item.Answer = model.Answer.Trim();
