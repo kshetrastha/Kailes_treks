@@ -10,4 +10,45 @@
     <div class="col-md-2"><label asp-for="MaxElevation"></label><input asp-for="MaxElevation" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="Duration"></label><input asp-for="Duration" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="GroupSize"></label><input asp-for="GroupSize" class="form-control" /></div>
+
+    <div class="col-md-6">
+        <label asp-for="BannerImagePath"></label>
+        <input asp-for="BannerImagePath" class="form-control" placeholder="uploads/expeditions/banner.jpg" />
+        <span asp-validation-for="BannerImagePath" class="text-danger"></span>
+        <img id="bannerImagePreview" src="@(string.IsNullOrWhiteSpace(Model.BannerImagePath) ? string.Empty : $"/{Model.BannerImagePath.TrimStart('/')}")" alt="Banner image preview" class="img-thumbnail mt-2 @(string.IsNullOrWhiteSpace(Model.BannerImagePath) ? "d-none" : string.Empty)" style="max-height: 120px; object-fit: cover;" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ThumbnailImagePath"></label>
+        <input asp-for="ThumbnailImagePath" class="form-control" placeholder="uploads/expeditions/thumbnail.jpg" />
+        <span asp-validation-for="ThumbnailImagePath" class="text-danger"></span>
+        <img id="thumbnailImagePreview" src="@(string.IsNullOrWhiteSpace(Model.ThumbnailImagePath) ? string.Empty : $"/{Model.ThumbnailImagePath.TrimStart('/')}")" alt="Thumbnail image preview" class="img-thumbnail mt-2 @(string.IsNullOrWhiteSpace(Model.ThumbnailImagePath) ? "d-none" : string.Empty)" style="max-height: 120px; object-fit: cover;" />
+    </div>
 </div>
+
+<script>
+    (function () {
+        const bindImagePreview = (inputId, imageId) => {
+            const input = document.getElementById(inputId);
+            const image = document.getElementById(imageId);
+            if (!input || !image) return;
+
+            const render = () => {
+                const value = (input.value || '').trim();
+                if (!value) {
+                    image.classList.add('d-none');
+                    image.removeAttribute('src');
+                    return;
+                }
+
+                image.src = value.startsWith('/') ? value : `/${value}`;
+                image.classList.remove('d-none');
+            };
+
+            input.addEventListener('input', render);
+            render();
+        };
+
+        bindImagePreview('BannerImagePath', 'bannerImagePreview');
+        bindImagePreview('ThumbnailImagePath', 'thumbnailImagePreview');
+    })();
+</script>
