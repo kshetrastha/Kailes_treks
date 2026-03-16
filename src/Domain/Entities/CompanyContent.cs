@@ -111,3 +111,29 @@ public sealed class TermsAndCondition : BaseEntity
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 }
+
+
+public sealed class Banner : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string? SubDescription { get; set; }
+    public string? Description { get; set; }
+    public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public DateTime CreatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+    public ICollection<BannerImage> Images { get; set; } = new List<BannerImage>();
+}
+
+public sealed class BannerImage : BaseEntity
+{
+    public int BannerId { get; set; }
+    public Banner Banner { get; set; } = default!;
+    public string ImagePath { get; set; } = string.Empty;
+    public string? SubDescription { get; set; }
+    public string? Description { get; set; }
+    public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public DateTime CreatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+}

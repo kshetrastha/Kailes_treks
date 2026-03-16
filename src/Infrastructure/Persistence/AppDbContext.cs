@@ -77,6 +77,8 @@ public sealed class AppDbContext:
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     public DbSet<TermsAndCondition> TermsAndConditions => Set<TermsAndCondition>();
+    public DbSet<Banner> Banners => Set<Banner>();
+    public DbSet<BannerImage> BannerImages => Set<BannerImage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -92,6 +94,28 @@ public sealed class AppDbContext:
         //ConfigureWhyWithUs(builder);
         //ConfigureWhoWeAre(builder);
         //ConfigureCompanyPages(builder);
+
+        builder.Entity<Banner>(b =>
+        {
+            b.ToTable("company_banners");
+            b.Property(x => x.Title).HasMaxLength(220).IsRequired();
+            b.Property(x => x.SubDescription).HasMaxLength(1000);
+            b.Property(x => x.Description).HasMaxLength(4000);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+            b.HasMany(x => x.Images).WithOne(x => x.Banner).HasForeignKey(x => x.BannerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<BannerImage>(b =>
+        {
+            b.ToTable("company_banner_images");
+            b.Property(x => x.ImagePath).HasMaxLength(500).IsRequired();
+            b.Property(x => x.SubDescription).HasMaxLength(1000);
+            b.Property(x => x.Description).HasMaxLength(4000);
+            b.HasIndex(x => x.BannerId);
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
+        });
     }
 
     private static void ConfigureExpeditions(ModelBuilder builder)

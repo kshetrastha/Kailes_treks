@@ -53,13 +53,13 @@
                     </div>
 
                     <div class="col-12">
-                        <label asp-for="Description" class="form-label"></label>
+                        <label asp-for="Description" class="form-label">Region Description</label>
                         <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="BannerImage" class="form-label">Banner Image</label>
+                        <label asp-for="BannerImage" class="form-label">Primary Banner Image</label>
                         <input asp-for="BannerImage" type="file" class="form-control" accept="image/*" />
                         <span asp-validation-for="BannerImage" class="text-danger"></span>
                         @if (!string.IsNullOrWhiteSpace(Model.ExistingBannerImagePath))
@@ -68,6 +68,50 @@
                                 <img src="/@Model.ExistingBannerImagePath" alt="Current banner" class="img-thumbnail" style="max-width: 220px; max-height: 120px; object-fit: cover;" />
                             </div>
                         }
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="PrimaryBannerShortDescription" class="form-label">Primary Banner Short Description</label>
+                        <input asp-for="PrimaryBannerShortDescription" class="form-control" />
+                        <span asp-validation-for="PrimaryBannerShortDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="PrimaryBannerDescription" class="form-label">Primary Banner Description</label>
+                        <input asp-for="PrimaryBannerDescription" class="form-control" />
+                        <span asp-validation-for="PrimaryBannerDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">Additional Banner Images</label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="addBannerImage">Add image</button>
+                        </div>
+                        <div id="bannerImagesWrap" class="d-grid gap-2">
+                            @for (var i = 0; i < Model.BannerImages.Count; i++)
+                            {
+                                <div class="row g-2 border rounded p-2">
+                                    <input type="hidden" name="BannerImages[@i].ExistingFileDetailId" value="@Model.BannerImages[i].ExistingFileDetailId" />
+                                    <input type="hidden" name="BannerImages[@i].ExistingPath" value="@Model.BannerImages[i].ExistingPath" />
+                                    <div class="col-md-3">
+                                        <input type="file" name="BannerImages[@i].File" class="form-control" accept="image/*" />
+                                        @if (!string.IsNullOrWhiteSpace(Model.BannerImages[i].ExistingPath))
+                                        {
+                                            <img src="/@Model.BannerImages[i].ExistingPath" alt="Banner image" class="img-thumbnail mt-2" style="max-width: 100%; max-height: 80px; object-fit: cover;" />
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input name="BannerImages[@i].ShortDescription" value="@Model.BannerImages[i].ShortDescription" class="form-control" placeholder="Short description" />
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input name="BannerImages[@i].Description" value="@Model.BannerImages[i].Description" class="form-control" placeholder="Description" />
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-center">
+                                        <input type="hidden" name="BannerImages[@i].Remove" value="false" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -94,4 +138,22 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            let idx = @Model.BannerImages.Count;
+            document.getElementById('addBannerImage')?.addEventListener('click', function () {
+                const wrap = document.getElementById('bannerImagesWrap');
+                if (!wrap) return;
+
+                const html = `<div class="row g-2 border rounded p-2">
+                    <div class="col-md-3"><input type="file" name="BannerImages[${idx}].File" class="form-control" accept="image/*" /></div>
+                    <div class="col-md-3"><input name="BannerImages[${idx}].ShortDescription" class="form-control" placeholder="Short description" /></div>
+                    <div class="col-md-5"><input name="BannerImages[${idx}].Description" class="form-control" placeholder="Description" /></div>
+                    <div class="col-md-1 d-flex align-items-center"><input type="hidden" name="BannerImages[${idx}].Remove" value="false" /></div>
+                </div>`;
+                wrap.insertAdjacentHTML('beforeend', html);
+                idx++;
+            });
+        })();
+    </script>
 }

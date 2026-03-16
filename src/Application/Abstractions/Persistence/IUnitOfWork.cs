@@ -18,6 +18,7 @@ public interface IUnitOfWork
     IReviewService ReviewService { get; }
     IBlogPostService BlogPostService { get; }
     ITermsAndConditionService TermsAndConditionService { get; }
+    IBannerService BannerService { get; }
     IExpeditionService ExpeditionService { get; }
     ITrekkingService TrekkingService { get; }
     ITrekkingTypeService TrekkingTypeService { get; }

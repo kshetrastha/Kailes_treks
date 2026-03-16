@@ -31,6 +31,7 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
     public IBlogPostService BlogPostService => new BlogPostService(dbContext);
 
     public ITermsAndConditionService TermsAndConditionService => new TermsAndConditionService(dbContext);
+    public IBannerService BannerService => new BannerService(dbContext);
 
     public IExpeditionService ExpeditionService => new ExpeditionService(dbContext);
 

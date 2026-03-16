@@ -1,0 +1,84 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.BannerFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Banner" : "Create Banner";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Banner</h2>
+        <a class="btn btn-outline-secondary" href="/admin/company/banners">Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/banners/{Model.Id}/edit" : "/admin/company/banners/create")">
+                @Html.AntiForgeryToken()
+                @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+
+                <div class="row g-3">
+                    <div class="col-md-6"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
+                    <div class="col-md-3"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control" /><span asp-validation-for="Ordering" class="text-danger"></span></div>
+                    <div class="col-md-3 d-flex align-items-end"><div class="form-check mb-2"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div></div>
+                    <div class="col-md-6"><label asp-for="SubDescription" class="form-label">Sub Description</label><input asp-for="SubDescription" class="form-control" /><span asp-validation-for="SubDescription" class="text-danger"></span></div>
+                    <div class="col-12"><label asp-for="Description" class="form-label">Description</label><textarea asp-for="Description" class="form-control" rows="4"></textarea><span asp-validation-for="Description" class="text-danger"></span></div>
+                </div>
+
+                <hr class="my-4" />
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Banner Images</h5>
+                    <button type="button" id="addBannerImage" class="btn btn-sm btn-outline-secondary">Add image</button>
+                </div>
+                <div id="bannerImagesWrap" class="d-grid gap-2">
+                    @for (var i = 0; i < Model.Images.Count; i++)
+                    {
+                        <div class="row g-2 border rounded p-2">
+                            <input type="hidden" name="Images[@i].Id" value="@Model.Images[i].Id" />
+                            <input type="hidden" name="Images[@i].ExistingImagePath" value="@Model.Images[i].ExistingImagePath" />
+                            <div class="col-md-3">
+                                <input type="file" name="Images[@i].Image" class="form-control" accept="image/*" />
+                                @if (!string.IsNullOrWhiteSpace(Model.Images[i].ExistingImagePath))
+                                {
+                                    <img src="/@Model.Images[i].ExistingImagePath" alt="Banner image" class="img-thumbnail mt-2" style="max-height:90px; object-fit:cover;" />
+                                }
+                            </div>
+                            <div class="col-md-2"><input name="Images[@i].SubDescription" value="@Model.Images[i].SubDescription" class="form-control" placeholder="Sub description" /></div>
+                            <div class="col-md-3"><input name="Images[@i].Description" value="@Model.Images[i].Description" class="form-control" placeholder="Description" /></div>
+                            <div class="col-md-1"><input name="Images[@i].Ordering" value="@Model.Images[i].Ordering" type="number" class="form-control" /></div>
+                            <div class="col-md-2 form-check mt-2"><input name="Images[@i].IsPublished" class="form-check-input" type="checkbox" @(Model.Images[i].IsPublished ? "checked" : "") /><label class="form-check-label">Published</label></div>
+                            <div class="col-md-1 form-check mt-2"><input name="Images[@i].Remove" class="form-check-input" type="checkbox" /><label class="form-check-label">Remove</label></div>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Create")</button>
+                    <a href="/admin/company/banners" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            let idx = @Model.Images.Count;
+            document.getElementById('addBannerImage')?.addEventListener('click', function () {
+                const wrap = document.getElementById('bannerImagesWrap');
+                if (!wrap) return;
+                const html = `<div class="row g-2 border rounded p-2">
+                    <div class="col-md-3"><input type="file" name="Images[${idx}].Image" class="form-control" accept="image/*" /></div>
+                    <div class="col-md-2"><input name="Images[${idx}].SubDescription" class="form-control" placeholder="Sub description" /></div>
+                    <div class="col-md-3"><input name="Images[${idx}].Description" class="form-control" placeholder="Description" /></div>
+                    <div class="col-md-1"><input name="Images[${idx}].Ordering" value="${idx}" type="number" class="form-control" /></div>
+                    <div class="col-md-2 form-check mt-2"><input name="Images[${idx}].IsPublished" class="form-check-input" type="checkbox" checked /><label class="form-check-label">Published</label></div>
+                    <div class="col-md-1 form-check mt-2"><input name="Images[${idx}].Remove" class="form-check-input" type="checkbox" /><label class="form-check-label">Remove</label></div>
+                </div>`;
+                wrap.insertAdjacentHTML('beforeend', html);
+                idx++;
+            });
+        })();
+    </script>
+}

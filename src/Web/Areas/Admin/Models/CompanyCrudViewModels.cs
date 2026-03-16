@@ -125,6 +125,17 @@ public sealed class ServiceTypeFormViewModel
     [StringLength(2000)] public string? Description { get; set; }
 }
 
+
+public sealed class ServiceRegionBannerImageInput
+{
+    public int? ExistingFileDetailId { get; set; }
+    public string? ExistingPath { get; set; }
+    [StringLength(500)] public string? ShortDescription { get; set; }
+    [StringLength(2000)] public string? Description { get; set; }
+    public IFormFile? File { get; set; }
+    public bool Remove { get; set; }
+}
+
 public sealed class ServiceRegionFormViewModel
 {
     public int? Id { get; set; }
@@ -135,6 +146,9 @@ public sealed class ServiceRegionFormViewModel
     [StringLength(100)] public string? SlugURL { get; set; }
     [Range(0, int.MaxValue)] public int Ordering { get; set; }
     public IFormFile? BannerImage { get; set; }
+    [StringLength(500)] public string? PrimaryBannerShortDescription { get; set; }
+    [StringLength(2000)] public string? PrimaryBannerDescription { get; set; }
+    public List<ServiceRegionBannerImageInput> BannerImages { get; set; } = [];
     public IFormFile? DashboardImage { get; set; }
     public string? ExistingBannerImagePath { get; set; }
     public string? ExistingDashboardImagePath { get; set; }
@@ -153,6 +167,7 @@ public sealed class CategoryFormViewModel
 {
     public int? Id { get; set; }
     [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(500)] public string? ShortDescription { get; set; }
     [StringLength(1000)] public string? Description { get; set; }
 }
 
@@ -194,5 +209,31 @@ public sealed class AccomodationFormViewModel
 {
     public int? Id { get; set; }
     [Required, StringLength(250)] public string Name { get; set; } = string.Empty;
+    [StringLength(500)] public string? ShortDescription { get; set; }
     [StringLength(1000)] public string? Description { get; set; }
 }
+
+
+public sealed class BannerImageInput
+{
+    public int? Id { get; set; }
+    [StringLength(1000)] public string? SubDescription { get; set; }
+    [StringLength(4000)] public string? Description { get; set; }
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public string? ExistingImagePath { get; set; }
+    public IFormFile? Image { get; set; }
+    public bool Remove { get; set; }
+}
+
+public sealed class BannerFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(220)] public string Title { get; set; } = string.Empty;
+    [StringLength(1000)] public string? SubDescription { get; set; }
+    [StringLength(4000)] public string? Description { get; set; }
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public List<BannerImageInput> Images { get; set; } = [];
+}
+

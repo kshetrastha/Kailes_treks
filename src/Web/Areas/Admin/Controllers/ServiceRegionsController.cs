@@ -46,7 +46,8 @@ public sealed class ServiceRegionsController(
         var item = await uow.ServiceRegionService.GetByIdAsync(id, ct);
         if (item is null) return NotFound();
 
-        var (bannerImagePath, dashboardImagePath) = await GetExistingMediaPathsAsync(item.Id, ct);
+        var (bannerImagePath, bannerShortDescription, bannerDescription, dashboardImagePath) = await GetExistingMediaPathsAsync(item.Id, ct);
+        var existingBannerImages = await GetBannerImagesAsync(item.Id, ct);
         await LoadServiceTypeOptionsAsync(item.ServiceTypeId, ct);
 
         return View("Upsert", new ServiceRegionFormViewModel
@@ -59,7 +60,10 @@ public sealed class ServiceRegionsController(
             SlugURL = item.SlugURL,
             Ordering = item.Ordering,
             ExistingBannerImagePath = bannerImagePath,
-            ExistingDashboardImagePath = dashboardImagePath
+            PrimaryBannerShortDescription = bannerShortDescription,
+            PrimaryBannerDescription = bannerDescription,
+            ExistingDashboardImagePath = dashboardImagePath,
+            BannerImages = existingBannerImages
         });
     }
 
@@ -87,8 +91,9 @@ public sealed class ServiceRegionsController(
         await uow.ServiceRegionService.AddAsync(entity, ct);
         await uow.SaveChangesAsync(ct);
 
-        await UpsertMediaAsync(entity.Id, FileMappingMediaTypes.BannerImage, model.BannerImage, ct);
-        await UpsertMediaAsync(entity.Id, FileMappingMediaTypes.DashboardImage, model.DashboardImage, ct);
+        await UpsertMediaAsync(entity.Id, FileMappingMediaTypes.BannerImage, model.BannerImage, model.PrimaryBannerShortDescription, model.PrimaryBannerDescription, ct);
+        await UpsertBannerImagesAsync(entity.Id, model.BannerImages, ct);
+        await UpsertMediaAsync(entity.Id, FileMappingMediaTypes.DashboardImage, model.DashboardImage, null, null, ct);
 
         await uow.SaveChangesAsync(ct);
         TempData["SuccessMessage"] = "Service region created.";
@@ -105,7 +110,10 @@ public sealed class ServiceRegionsController(
         {
             var existing = await GetExistingMediaPathsAsync(id, ct);
             model.ExistingBannerImagePath = existing.BannerImagePath;
+            model.PrimaryBannerShortDescription = existing.BannerShortDescription;
+            model.PrimaryBannerDescription = existing.BannerDescription;
             model.ExistingDashboardImagePath = existing.DashboardImagePath;
+            model.BannerImages = await GetBannerImagesAsync(id, ct);
             return View("Upsert", model);
         }
 
@@ -121,8 +129,9 @@ public sealed class ServiceRegionsController(
         item.UpdatedAtUtc = DateTime.UtcNow;
         item.UpdatedBy = currentUser.UserId;
 
-        await UpsertMediaAsync(item.Id, FileMappingMediaTypes.BannerImage, model.BannerImage, ct);
-        await UpsertMediaAsync(item.Id, FileMappingMediaTypes.DashboardImage, model.DashboardImage, ct);
+        await UpsertMediaAsync(item.Id, FileMappingMediaTypes.BannerImage, model.BannerImage, model.PrimaryBannerShortDescription, model.PrimaryBannerDescription, ct);
+        await UpsertBannerImagesAsync(item.Id, model.BannerImages, ct);
+        await UpsertMediaAsync(item.Id, FileMappingMediaTypes.DashboardImage, model.DashboardImage, null, null, ct);
 
         await uow.SaveChangesAsync(ct);
         TempData["SuccessMessage"] = "Service region updated.";
@@ -209,6 +218,11 @@ public sealed class ServiceRegionsController(
 
         ValidateImageInput(model.BannerImage, nameof(model.BannerImage));
         ValidateImageInput(model.DashboardImage, nameof(model.DashboardImage));
+        for (var i = 0; i < model.BannerImages.Count; i++)
+        {
+            var image = model.BannerImages[i];
+            ValidateImageInput(image.File, $"BannerImages[{i}].File");
+        }
 
         return ModelState.IsValid;
     }
@@ -250,7 +264,7 @@ public sealed class ServiceRegionsController(
         return items;
     }
 
-    private async Task<(string? BannerImagePath, string? DashboardImagePath)> GetExistingMediaPathsAsync(int serviceRegionId, CancellationToken ct)
+    private async Task<(string? BannerImagePath, string? BannerShortDescription, string? BannerDescription, string? DashboardImagePath)> GetExistingMediaPathsAsync(int serviceRegionId, CancellationToken ct)
     {
         var media = await dbContext.FileMappings
             .AsNoTracking()
@@ -268,10 +282,102 @@ public sealed class ServiceRegionsController(
             .Select(x => x.FileDetail?.FileURL)
             .FirstOrDefault();
 
-        return (banner, dashboard);
+        var bannerShortDescription = media
+            .Where(x => x.MediaType == FileMappingMediaTypes.BannerImage)
+            .Select(x => x.FileDetail != null ? x.FileDetail.ShortDescription : null)
+            .FirstOrDefault();
+
+        var bannerDescription = media
+            .Where(x => x.MediaType == FileMappingMediaTypes.BannerImage)
+            .Select(x => x.FileDetail != null ? x.FileDetail.Description : null)
+            .FirstOrDefault();
+
+        return (banner, bannerShortDescription, bannerDescription, dashboard);
     }
 
-    private async Task UpsertMediaAsync(int serviceRegionId, string mediaType, IFormFile? file, CancellationToken ct)
+    private async Task<List<ServiceRegionBannerImageInput>> GetBannerImagesAsync(int serviceRegionId, CancellationToken ct)
+    {
+        return await dbContext.FileMappings
+            .AsNoTracking()
+            .Include(x => x.FileDetail)
+            .Where(x =>
+                x.TargetType == FileMappingTargetTypes.ServiceRegion &&
+                x.TargetId == serviceRegionId &&
+                x.MediaType == FileMappingMediaTypes.BannerImage &&
+                x.FileDetail != null)
+            .OrderBy(x => x.Id)
+            .Select(x => new ServiceRegionBannerImageInput
+            {
+                ExistingFileDetailId = x.FileDetailId,
+                ExistingPath = x.FileDetail.FileURL,
+                ShortDescription = x.FileDetail.ShortDescription,
+                Description = x.FileDetail.Description
+            })
+            .ToListAsync(ct);
+    }
+
+    private async Task UpsertBannerImagesAsync(int serviceRegionId, List<ServiceRegionBannerImageInput> bannerImages, CancellationToken ct)
+    {
+        if (bannerImages.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var image in bannerImages.Where(x => !x.Remove))
+        {
+            if (image.ExistingFileDetailId is > 0)
+            {
+                var existingFileDetail = await dbContext.FileDetails.FirstOrDefaultAsync(x => x.Id == image.ExistingFileDetailId.Value, ct);
+                if (existingFileDetail is null)
+                {
+                    continue;
+                }
+
+                existingFileDetail.ShortDescription = string.IsNullOrWhiteSpace(image.ShortDescription) ? null : image.ShortDescription.Trim();
+                existingFileDetail.Description = string.IsNullOrWhiteSpace(image.Description) ? null : image.Description.Trim();
+                existingFileDetail.UpdatedAtUtc = DateTime.UtcNow;
+                existingFileDetail.UpdatedBy = currentUser.UserId;
+                continue;
+            }
+
+            if (image.File is not { Length: > 0 })
+            {
+                continue;
+            }
+
+            var fileUrl = await SaveImageAsync(image.File, "banner", ct);
+            var now = DateTime.UtcNow;
+            var fileDetail = new FileDetail
+            {
+                FileURL = fileUrl,
+                OriginalName = Path.GetFileName(image.File.FileName),
+                ContentType = image.File.ContentType,
+                FileName = Path.GetFileName(fileUrl),
+                ShortDescription = string.IsNullOrWhiteSpace(image.ShortDescription) ? null : image.ShortDescription.Trim(),
+                Description = string.IsNullOrWhiteSpace(image.Description) ? null : image.Description.Trim(),
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now,
+                CreatedBy = currentUser.UserId,
+                UpdatedBy = currentUser.UserId
+            };
+
+            var mapping = new FileMapping
+            {
+                FileDetail = fileDetail,
+                TargetId = serviceRegionId,
+                TargetType = FileMappingTargetTypes.ServiceRegion,
+                MediaType = FileMappingMediaTypes.BannerImage,
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now,
+                CreatedBy = currentUser.UserId,
+                UpdatedBy = currentUser.UserId
+            };
+
+            await dbContext.FileMappings.AddAsync(mapping, ct);
+        }
+    }
+
+    private async Task UpsertMediaAsync(int serviceRegionId, string mediaType, IFormFile? file, string? shortDescription, string? description, CancellationToken ct)
     {
         if (file is not { Length: > 0 })
         {
@@ -321,6 +427,8 @@ public sealed class ServiceRegionsController(
             OriginalName = Path.GetFileName(file.FileName),
             ContentType = file.ContentType,
             FileName = Path.GetFileName(fileUrl),
+            ShortDescription = string.IsNullOrWhiteSpace(shortDescription) ? null : shortDescription.Trim(),
+            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
             CreatedAtUtc = now,
             UpdatedAtUtc = now,
             CreatedBy = currentUser.UserId,
