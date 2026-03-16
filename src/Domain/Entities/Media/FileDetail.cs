@@ -17,4 +17,10 @@ public sealed class FileDetail : BaseEntity
 
     [MaxLength(255)]
     public required string FileName { get; set; }
+
+    [MaxLength(500)]
+    public string? ShortDescription { get; set; }
+
+    [MaxLength(2000)]
+    public string? Description { get; set; }
 }
