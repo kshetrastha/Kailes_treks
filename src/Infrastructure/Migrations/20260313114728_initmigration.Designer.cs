@@ -12,8 +12,8 @@ using TravelCleanArch.Infrastructure.Persistence;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260227164603_service_region_media")]
-    partial class service_region_media
+    [Migration("20260313114728_initmigration")]
+    partial class initmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1667,6 +1667,118 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("Itineraries");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.Package", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Availability")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("BestSeller")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("DifficultyLevelId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("DiscountedPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Duration")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("DurationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("EndingPoint")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDiscounted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MaxElevation")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("MaxGroupSize")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<int>("PopularityRank")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("ServiceRegionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("SlugURL")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("StartingPoint")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("TotalDistance")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WalkingPerDay")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("DifficultyLevelId");
+
+                    b.HasIndex("ServiceRegionId");
+
+                    b.ToTable("PackageDetail", "Master");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegion", b =>
                 {
                     b.Property<int>("Id")
@@ -1719,6 +1831,55 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.HasIndex("ServiceTypeId");
 
                     b.ToTable("ServiceRegions", "Service");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegionFaq", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServiceRegionId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRegionId");
+
+                    b.ToTable("ServiceRegionFAQ", "Service");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceType", b =>
@@ -3436,6 +3597,33 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Navigation("Expedition");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.Package", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Master.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelCleanArch.Domain.Entities.Master.DifficultyLevel", "DifficultyLevel")
+                        .WithMany()
+                        .HasForeignKey("DifficultyLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TravelCleanArch.Domain.Entities.Master.ServiceRegion", "ServiceRegion")
+                        .WithMany()
+                        .HasForeignKey("ServiceRegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("DifficultyLevel");
+
+                    b.Navigation("ServiceRegion");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegion", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Master.ServiceType", "ServiceType")
@@ -3445,6 +3633,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("ServiceType");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.ServiceRegionFaq", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Master.ServiceRegion", "ServiceRegion")
+                        .WithMany()
+                        .HasForeignKey("ServiceRegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceRegion");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Master.TrekkingTypeImage", b =>
