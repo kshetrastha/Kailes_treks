@@ -100,7 +100,7 @@ public sealed class AppDbContext:
             b.ToTable("company_banners");
             b.Property(x => x.Title).HasMaxLength(220).IsRequired();
             b.Property(x => x.SubDescription).HasMaxLength(1000);
-            b.Property(x => x.Description).HasMaxLength(4000);
+            b.Property(x => x.Description).HasColumnType("text");
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
             b.HasMany(x => x.Images).WithOne(x => x.Banner).HasForeignKey(x => x.BannerId).OnDelete(DeleteBehavior.Cascade);
@@ -111,7 +111,7 @@ public sealed class AppDbContext:
             b.ToTable("company_banner_images");
             b.Property(x => x.ImagePath).HasMaxLength(500).IsRequired();
             b.Property(x => x.SubDescription).HasMaxLength(1000);
-            b.Property(x => x.Description).HasMaxLength(4000);
+            b.Property(x => x.Description).HasColumnType("text");
             b.HasIndex(x => x.BannerId);
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
