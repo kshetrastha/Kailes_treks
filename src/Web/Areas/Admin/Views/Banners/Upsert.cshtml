@@ -45,8 +45,16 @@
                             <div class="col-md-2"><input name="Images[@i].SubDescription" value="@Model.Images[i].SubDescription" class="form-control" placeholder="Sub description" /></div>
                             <div class="col-md-3"><input name="Images[@i].Description" value="@Model.Images[i].Description" class="form-control" placeholder="Description" /></div>
                             <div class="col-md-1"><input name="Images[@i].Ordering" value="@Model.Images[i].Ordering" type="number" class="form-control" /></div>
-                            <div class="col-md-2 form-check mt-2"><input name="Images[@i].IsPublished" class="form-check-input" type="checkbox" @(Model.Images[i].IsPublished ? "checked" : "") /><label class="form-check-label">Published</label></div>
-                            <div class="col-md-1 form-check mt-2"><input name="Images[@i].Remove" class="form-check-input" type="checkbox" /><label class="form-check-label">Remove</label></div>
+                            <div class="col-md-2 form-check mt-2">
+                                <input type="hidden" name="Images[@i].IsPublished" value="false" />
+                                <input name="Images[@i].IsPublished" class="form-check-input" type="checkbox" value="true" @(Model.Images[i].IsPublished ? "checked" : "") />
+                                <label class="form-check-label">Published</label>
+                            </div>
+                            <div class="col-md-1 form-check mt-2">
+                                <input type="hidden" name="Images[@i].Remove" value="false" />
+                                <input name="Images[@i].Remove" class="form-check-input" type="checkbox" value="true" />
+                                <label class="form-check-label">Remove</label>
+                            </div>
                         </div>
                     }
                 </div>
@@ -73,8 +81,16 @@
                     <div class="col-md-2"><input name="Images[${idx}].SubDescription" class="form-control" placeholder="Sub description" /></div>
                     <div class="col-md-3"><input name="Images[${idx}].Description" class="form-control" placeholder="Description" /></div>
                     <div class="col-md-1"><input name="Images[${idx}].Ordering" value="${idx}" type="number" class="form-control" /></div>
-                    <div class="col-md-2 form-check mt-2"><input name="Images[${idx}].IsPublished" class="form-check-input" type="checkbox" checked /><label class="form-check-label">Published</label></div>
-                    <div class="col-md-1 form-check mt-2"><input name="Images[${idx}].Remove" class="form-check-input" type="checkbox" /><label class="form-check-label">Remove</label></div>
+                    <div class="col-md-2 form-check mt-2">
+                        <input type="hidden" name="Images[${idx}].IsPublished" value="false" />
+                        <input name="Images[${idx}].IsPublished" class="form-check-input" type="checkbox" value="true" checked />
+                        <label class="form-check-label">Published</label>
+                    </div>
+                    <div class="col-md-1 form-check mt-2">
+                        <input type="hidden" name="Images[${idx}].Remove" value="false" />
+                        <input name="Images[${idx}].Remove" class="form-check-input" type="checkbox" value="true" />
+                        <label class="form-check-label">Remove</label>
+                    </div>
                 </div>`;
                 wrap.insertAdjacentHTML('beforeend', html);
                 idx++;
