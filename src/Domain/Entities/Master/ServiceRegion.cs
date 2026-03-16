@@ -12,6 +12,9 @@ public sealed class ServiceRegion : BaseEntity
     [MaxLength(1000)]
     public string? Description { get; set; }
 
+    [MaxLength(500)]
+    public string? ShortDescription { get; set; }
+
     public int ServiceTypeId { get; set; }
 
     [ForeignKey(nameof(ServiceTypeId))]
