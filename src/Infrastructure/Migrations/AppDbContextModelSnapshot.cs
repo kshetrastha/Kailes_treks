@@ -178,6 +178,113 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("Awards");
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Banner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SubDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsPublished");
+
+                    b.HasIndex("Ordering");
+
+                    b.ToTable("company_banners", (string)null);
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.BannerImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BannerId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SubDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BannerId");
+
+                    b.HasIndex("IsPublished");
+
+                    b.HasIndex("Ordering");
+
+                    b.ToTable("company_banner_images", (string)null);
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.BlogPost", b =>
                 {
                     b.Property<int>("Id")
@@ -2029,6 +2136,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -2046,6 +2157,10 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -3372,6 +3487,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.BannerImage", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Banner", "Banner")
+                        .WithMany("Images")
+                        .HasForeignKey("BannerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Banner");
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionBasicInfo", b =>
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Master.ExpeditionType", "ExpeditionType")
@@ -3797,6 +3923,11 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("WhoWeAre");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.Banner", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.ExpeditionBasicInfo", b =>

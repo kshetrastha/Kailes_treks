@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TravelCleanArch.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initmigration : Migration
+    public partial class initMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -205,6 +205,28 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "company_banners",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(220)", maxLength: 220, nullable: false),
+                    SubDescription = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_banners", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DifficultyLevel",
                 schema: "Master",
                 columns: table => new
@@ -259,6 +281,8 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     OriginalName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     ContentType = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     FileName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    ShortDescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
@@ -603,6 +627,35 @@ namespace TravelCleanArch.Infrastructure.Migrations
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "company_banner_images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BannerId = table.Column<int>(type: "integer", nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    SubDescription = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    Ordering = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    UpdatedBy = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_company_banner_images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_company_banner_images_company_banners_BannerId",
+                        column: x => x.BannerId,
+                        principalTable: "company_banners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1854,6 +1907,31 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_company_banner_images_BannerId",
+                table: "company_banner_images",
+                column: "BannerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_banner_images_IsPublished",
+                table: "company_banner_images",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_banner_images_Ordering",
+                table: "company_banner_images",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_banners_IsPublished",
+                table: "company_banners",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_company_banners_Ordering",
+                table: "company_banners",
+                column: "Ordering");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CostItems_ExpeditionId",
                 table: "CostItems",
                 column: "ExpeditionId");
@@ -2101,6 +2179,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 name: "ChairmanMessages");
 
             migrationBuilder.DropTable(
+                name: "company_banner_images");
+
+            migrationBuilder.DropTable(
                 name: "CostItems");
 
             migrationBuilder.DropTable(
@@ -2222,6 +2303,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "company_banners");
 
             migrationBuilder.DropTable(
                 name: "ExpeditionBasicInfos");
