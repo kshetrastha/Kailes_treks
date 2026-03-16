@@ -53,6 +53,7 @@ public sealed class BannersController(IUnitOfWork uow, IWebHostEnvironment env) 
     [HttpPost("create"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BannerFormViewModel model, CancellationToken ct)
     {
+        HydrateImageFilesFromRequest(model);
         ValidateImages(model);
         if (!ModelState.IsValid) return View("Upsert", model);
 
@@ -88,6 +89,7 @@ public sealed class BannersController(IUnitOfWork uow, IWebHostEnvironment env) 
     {
         if (id != model.Id) return BadRequest();
 
+        HydrateImageFilesFromRequest(model);
         ValidateImages(model);
         if (!ModelState.IsValid) return View("Upsert", model);
 
@@ -175,6 +177,20 @@ public sealed class BannersController(IUnitOfWork uow, IWebHostEnvironment env) 
             {
                 ModelState.AddModelError($"Images[{i}].Image", "Only image files are allowed.");
             }
+        }
+    }
+
+    private void HydrateImageFilesFromRequest(BannerFormViewModel model)
+    {
+        if (model.Images.Count == 0 || Request.Form.Files.Count == 0) return;
+
+        for (var i = 0; i < model.Images.Count; i++)
+        {
+            if (model.Images[i].Image is not null) continue;
+
+            var key = $"Images[{i}].Image";
+            var file = Request.Form.Files.GetFile(key);
+            if (file is { Length: > 0 }) model.Images[i].Image = file;
         }
     }
 
