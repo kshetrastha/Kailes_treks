@@ -218,7 +218,7 @@ public sealed class BannerImageInput
 {
     public int? Id { get; set; }
     [StringLength(1000)] public string? SubDescription { get; set; }
-    [StringLength(4000)] public string? Description { get; set; }
+    public string? Description { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
     public string? ExistingImagePath { get; set; }
@@ -231,9 +231,8 @@ public sealed class BannerFormViewModel
     public int? Id { get; set; }
     [Required, StringLength(220)] public string Title { get; set; } = string.Empty;
     [StringLength(1000)] public string? SubDescription { get; set; }
-    [StringLength(4000)] public string? Description { get; set; }
+    public string? Description { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
     public List<BannerImageInput> Images { get; set; } = [];
 }
-
