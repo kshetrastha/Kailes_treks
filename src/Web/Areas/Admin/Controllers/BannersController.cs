@@ -91,7 +91,13 @@ public sealed class BannersController(IUnitOfWork uow, IWebHostEnvironment env) 
 
         HydrateImageFilesFromRequest(model);
         ValidateImages(model);
-        if (!ModelState.IsValid) return View("Upsert", model);
+        if (!ModelState.IsValid)
+        {
+            string messages = string.Join("; ", ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+            return View("Upsert", model);
+        }
 
         var entity = await uow.BannerService.Query().Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id, ct);
         if (entity is null) return NotFound();
