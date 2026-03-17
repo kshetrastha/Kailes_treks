@@ -1,5 +1,6 @@
 (function () {
     const CROP_CLASS = 'js-crop-image';
+    const DEFAULT_ASPECT_RATIO = 478 / 825;
     const state = {
         activeInput: null,
         imageUrl: null,
@@ -13,15 +14,15 @@
 
         const modalHtml = `
 <div class="modal fade" id="sharedImageCropperModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-fullscreen">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Crop image</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="ratio ratio-16x9 bg-light rounded overflow-hidden">
-          <img id="sharedImageCropperPreview" alt="Crop preview" style="max-width:100%; display:block;" />
+        <div class="bg-light rounded overflow-hidden h-100" style="min-height:75vh;">
+          <img id="sharedImageCropperPreview" alt="Crop preview" style="display:block; width:100%; max-width:100%;" />
         </div>
       </div>
       <div class="modal-footer">
@@ -86,12 +87,12 @@
         state.imageUrl = URL.createObjectURL(file);
         state.image.src = state.imageUrl;
 
-        const aspectRatio = parseFloatOrNull(input.dataset.aspectRatio);
+        const aspectRatio = parseFloatOrNull(input.dataset.aspectRatio) ?? DEFAULT_ASPECT_RATIO;
 
         state.image.onload = function () {
             if (!state.image) return;
             state.cropper = new window.Cropper(state.image, {
-                aspectRatio: aspectRatio ?? NaN,
+                aspectRatio: aspectRatio,
                 viewMode: 1,
                 autoCropArea: 1,
                 responsive: true,
