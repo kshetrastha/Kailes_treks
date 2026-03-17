@@ -21,6 +21,7 @@ public sealed class BannersController(IUnitOfWork uow, IWebHostEnvironment env) 
     public IActionResult Create() => View("Upsert", new BannerFormViewModel());
 
     [HttpGet("{id:int}/edit")]
+
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {
         var entity = await uow.BannerService.Query().Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id, ct);
