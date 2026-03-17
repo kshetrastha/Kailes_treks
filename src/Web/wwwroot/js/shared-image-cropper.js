@@ -106,12 +106,7 @@
     function applyCrop() {
         if (!state.cropper || !state.activeInput) return;
 
-        const outputWidth = parseInt(state.activeInput.dataset.cropWidth || '0', 10);
-        const outputHeight = parseInt(state.activeInput.dataset.cropHeight || '0', 10);
-
         const canvas = state.cropper.getCroppedCanvas({
-            width: outputWidth > 0 ? outputWidth : undefined,
-            height: outputHeight > 0 ? outputHeight : undefined,
             imageSmoothingQuality: 'high'
         });
 
