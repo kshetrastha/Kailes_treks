@@ -113,14 +113,14 @@
         return Number.isFinite(parsed) ? parsed : null;
     }
 
-    function fitImageToViewport(cropper) {
+    function fillImageViewport(cropper) {
         const containerData = cropper.getContainerData();
         const imageData = cropper.getImageData();
         if (!containerData.width || !containerData.height || !imageData.naturalWidth || !imageData.naturalHeight) {
             return;
         }
 
-        const zoomRatio = Math.min(
+        const zoomRatio = Math.max(
             containerData.width / imageData.naturalWidth,
             containerData.height / imageData.naturalHeight
         );
@@ -131,6 +131,12 @@
         cropper.setCanvasData({
             left: (containerData.width - updatedImageData.width) / 2,
             top: (containerData.height - updatedImageData.height) / 2
+        });
+
+        const cropBoxData = cropper.getCropBoxData();
+        cropper.setCropBoxData({
+            left: (containerData.width - cropBoxData.width) / 2,
+            top: (containerData.height - cropBoxData.height) / 2
         });
     }
 
@@ -159,13 +165,14 @@
             state.cropper = new window.Cropper(state.image, {
                 aspectRatio: aspectRatio,
                 viewMode: 1,
-                autoCropArea: 1,
+                autoCropArea: 0.8,
                 responsive: true,
                 background: false,
+                dragMode: 'move',
                 ready: function () {
                     window.setTimeout(function () {
                         if (state.cropper) {
-                            fitImageToViewport(state.cropper);
+                            fillImageViewport(state.cropper);
                         }
                     }, 0);
                 }
