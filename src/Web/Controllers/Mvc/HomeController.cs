@@ -199,6 +199,11 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
 
         var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(2).ToList();
 
+        var bannerContent = (await TryGetBannerAsync(ct));
+
+
+
+
         return new HomeIndexViewModel
         {
             WhyWithUsHeader = whyWithUsHero?.Header ?? "Because we are the best",
@@ -212,7 +217,8 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             WhoWeAreDescription = whoWeAreHero?.Description ?? "Seven Summit Treks is a registered Nepali trek and expedition operator specializing in Himalayan climbs and personalized adventures.",
             WhoWeAreBackgroundImagePath = whoWeAreHero?.BackgroundImagePath,
             WhoWeAreItems = whoWeAreItems,
-            RecentBlogs = recentBlogs
+            RecentBlogs = recentBlogs,
+            GetBannerContent = bannerContent
         };
     }
 
@@ -301,6 +307,23 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         try
         {
             return await uow.BlogPostService.GetBySlugAsync(slug, true, ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
+        {
+            return null;
+        }
+    }
+
+    private async Task<Banner?> TryGetBannerAsync(CancellationToken ct)
+    {
+        try
+        {
+            var banner = await uow.BannerService
+                .Query()
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(ct);
+
+            return banner;
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UndefinedTable)
         {

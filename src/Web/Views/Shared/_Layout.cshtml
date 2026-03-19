@@ -1,1361 +1,448 @@
-@using TravelCleanArch.Application.Abstractions.Travel
-@inject IExpeditionTypeService ExpeditionTypeService
-@inject IExpeditionService ExpeditionService
-@{
-    var expeditionTypes = await ExpeditionTypeService.ListAsync(includeUnpublished: false, Context.RequestAborted);
-    var expeditions = (await ExpeditionService.ListAsync(null, "published", null, null, 1, 100, Context.RequestAborted)).Items;
-
-    var expeditionNavData = expeditionTypes
-        .Select(type => new
-        {
-            Type = type,
-            Items = expeditions
-                .Where(item => item.ExpeditionTypeId == type.Id)
-                .OrderBy(item => item.Ordering)
-                .ThenBy(item => item.Name)
-                .Take(4)
-                .ToList()
-        })
-        .Where(group => group.Items.Count > 0)
-        .ToList();
-}
-
 <!DOCTYPE html>
-<html lang="en">
+<html class="no-js" lang="zxx">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trek Website | Home</title>
-
-    <!-- External CSS -->
-    <link rel="stylesheet" href="~/customer/assets//css/style.css">
-
-    <!-- Link Swiper's CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-    <!-- tailwind css CDN link -->
-    <script src="https://cdn.jsdelivr.net/npm/@@tailwindcss/browser@4"></script>
-
-    <!-- fontawesome CDN link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- AOS Animation CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>@ViewData["Title"] | Visit Kailash Treks</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="shortcut icon" type="image/x-icon" href="~/cusassests/images/favicon.png">
+    <!-- CSS here -->
+    <link href="~/cusassests/css/vendor/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/vendor/animate.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/swiper.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/flatpickr.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/chosen.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/nice-select.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/dropzone.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/plugins/nouislider.min.css" rel="stylesheet" />
+    <link href="~/cusassests/css/vendor/magnific-popup.css" rel="stylesheet" />
+    <link href="~/cusassests/css/vendor/fontawesome-pro.css" rel="stylesheet" />
+    <link href="~/cusassests/css/vendor/icomoon.css" rel="stylesheet" />
+    <link href="~/cusassests/css/vendor/spacing.css" rel="stylesheet" />
+    <link href="~/cusassests/css/main.css" rel="stylesheet" />
 </head>
 
 <body>
 
-    <!-- main section -->
-    <main class="w-full min-h-screen flex flex-col bg-neutral-50 text-neutral-600 overflow-hidden">
+    <!-- preloader start -->
+    <div id="preloader">
+        <div class="bd-three-bounce">
+            <div class="bd-child bd-bounce1"></div>
+            <div class="bd-child bd-bounce2"></div>
+            <div class="bd-child bd-bounce3"></div>
+        </div>
+    </div>
+    <!-- preloader end -->
 
-        <!-- header -->
-        <header id="siteHeader"
-            class="w-full h-[8ch] md:px-39 sm:px-20 px-4 header-hover flex items-center justify-between fixed top-0 z-50 ease-in-out duration-700">
-            <!-- Logo section -->
-            <div class="w-28 h-auto block">
-                <a href="/" class="w-full h-auto block">
-                    <img id="headerLogo" src="./assets/img/white.png" alt="logo"
-                        class="w-full h-auto object-contain object-center">
-                </a>
-            </div>
-
-            <!-- navbar links section -->
-            <div class="w-full h-full flex-1 flex items-center justify-end gap-x-8">
-                <a href="/"
-                    class="relative navLinks text-base text-neutral-200 font-medium h-full flex items-center justify-center py-1 hover:text-[#e1a74e] group ease-in-out duration-300 transition-all">
-                    Home
-
-                    <!-- Animated top border -->
-                    <span
-                        class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
-                </a>
-
-                <!-- company -->
-                <div class="h-full cursor-pointer group">
-                    <div class="h-full py-1 relative flex items-center justify-center">
-                        <span
-                            class="flex items-center navLinks text-base text-neutral-200 font-medium gap-x-1 group-hover:text-[#e1a74e] ease-in-out duration-300 transition-all">
-                            Company
-                            <i
-                                class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 ease-in-out duration-300"></i>
-                        </span>
-
-                        <!-- Animated top border -->
-                        <span
-                            class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
+     <!-- Header area start -->
+    <header>
+        <div class="header-area header-style header-style-two header-transparent" id="header-sticky">
+            <div class="container">
+                <div class="header-inner">
+                    <div class="header-logo">
+                        <a href="/"><img src="cusassests/images/logo/logo.png" alt="Logo"></a>
                     </div>
+                    <div class="header-menu">
+                        <nav class="main-menu main-menu-two" id="mobile-menu">
+                            <ul>
+                                <li>
+                                    <a href="/">Home</a>
+                                    
+                                </li>
+                                <li class="menu-item-has-children">
+                                        <a href="javascript:void(0)">Nepal</a>
 
-                    <!-- dropdown -->
-                    <div class="absolute top-[70%] left-0 w-full hidden group-hover:block ease-in-out duration-700 transition-all">
-                        <div class="w-full bg-neutral-800 mt-6 pb-4 shadow-sm px-2 md:px-39 sm:px-20 px-4">
-                            <div class="w-full border-t-2 pt-4 border-neutral-900/50"></div>
-                            <div class="max-w-4xl w-full">
-                                <div class="w-full grid capitalize grid-cols-3 gap-x-16 gap-y-1">
-                                    <a href="/why-with-us"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        why with us?
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="chairmans-message.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Chairmen's Message
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="/our-blogs"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Our Blog
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="/who-we-are"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Who we are?
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="our-team.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Our Team
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="attorney.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Attorney
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="awards.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Awards
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="certificates-documents.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Certificates & Documents
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="partnership-with-recco.html"
-                                        class="relative block text-red-600 px-0 pt-1 pb-3 text-base font-normal whitespace-nowrap group/item hover:text-red-600 transition-colors duration-300">
-                                        Partnership with RECCO
-                                        <sup
-                                            class="w-3 h-3 inline-flex text-[10px] font-medium items-center justify-center rounded-full border border-red-600">R</sup>
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="our-patrons.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Our Patrons
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="reviews.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Reviews
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                    <a href="partnership-with-sst.html"
-                                        class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                        Partnership with SST
-                                        <span
-                                            class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                                        <ul class="submenu">
+
+                                            <!-- Adventures Trekking -->
+                                            <li class="menu-item-has-children has-arrow">
+                                                <a href="javascript:void(0)">Adventures Trekking</a>
+
+                                                <ul class="submenu">
+
+                                                    <!-- Everest Region -->
+                                                    <li class="menu-item-has-children has-arrow">
+                                                        <a href="javascript:void(0)">Everest Region Trekking</a>
+
+                                                        <ul class="submenu">
+                                                            <li><a href="#">Everest Basecamp Trek</a></li>
+                                                            <li><a href="#">Everest Two High Passes Trek</a></li>
+                                                            <li><a href="#">Everest Three High Passes Trek</a></li>
+                                                            <li><a href="#">Sherpa Culture Trek</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <!-- Annapurna Region -->
+                                                    <li class="menu-item-has-children has-arrow">
+                                                        <a href="javascript:void(0)">Annapurna Region Trekking</a>
+
+                                                        <ul class="submenu">
+                                                            <li><a href="#">Annapurna Base Camp Trek</a></li>
+                                                            <li><a href="#">Annapurna Circuit Trek</a></li>
+                                                            <li><a href="#">Ghorepani Poon Hill Trek</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <!-- Langtang Region -->
+                                                    <li class="menu-item-has-children has-arrow">
+                                                        <a href="javascript:void(0)">Langtang Region Trekking</a>
+
+                                                        <ul class="submenu">
+                                                            <li><a href="#">Langtang Valley Trek</a></li>
+                                                            <li><a href="#">Gosaikunda Trek</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <!-- Eastern Himalaya -->
+                                                    <li class="menu-item-has-children has-arrow">
+                                                        <a href="javascript:void(0)">Eastern Himalaya Trekking</a>
+
+                                                        <ul class="submenu">
+                                                            <li><a href="#">Kanchenjunga Trek</a></li>
+                                                            <li><a href="#">Makalu Base Camp Trek</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <!-- Restricted Area -->
+                                                    <li class="menu-item-has-children has-arrow">
+                                                        <a href="javascript:void(0)">Restricted Area Trekking</a>
+
+                                                        <ul class="submenu">
+                                                            <li><a href="#">Upper Mustang Trek</a></li>
+                                                            <li><a href="#">Manaslu Circuit Trek</a></li>
+                                                            <li><a href="#">Dolpo Trek</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                </ul>
+                                            </li>
+
+                                            <!-- Pilgrimage Holidays -->
+                                            <li class="menu-item-has-children has-arrow">
+                                                <a href="javascript:void(0)">Pilgrimage Holidays</a>
+
+                                                <ul class="submenu">
+                                                    <li><a href="#">Muktinath Pilgrimage Tour</a></li>
+                                                    <li><a href="#">Pashupatinath Darshan Tour</a></li>
+                                                    <li><a href="#">Lumbini Buddhist Tour</a></li>
+                                                </ul>
+                                            </li>
+
+                                            <!-- Wildlife -->
+                                            <li class="menu-item-has-children has-arrow">
+                                                <a href="javascript:void(0)">National Park and Wildlife Holidays</a>
+
+                                                <ul class="submenu">
+                                                    <li><a href="#">Chitwan National Park Safari</a></li>
+                                                    <li><a href="#">Bardia National Park Safari</a></li>
+                                                </ul>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+                                <li class="menu-item-has-children">
+                                    <a href="javascript:void(0)">India</a>
+                                    <ul class="submenu">
+                                        <li class="menu-item-has-children has-arrow">
+                                            <a href="javascript:void(0)">Destination Grid</a>
+                                            <ul class="submenu">
+                                                <li><a href="destinations-grid.html">No Sidebar</a></li>
+                                                <li><a href="destinations-grid-right.html">Right Sidebar</a></li>
+                                                <li><a href="destinations-grid-left.html">Left Sidebar</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class="menu-item-has-children has-arrow">
+                                            <a href="javascript:void(0)">Destination Details</a>
+                                            <ul class="submenu">
+                                                <li><a href="destinations-details.html">No Sidebar</a></li>
+                                                <li><a href="destinations-details-right.html">Right Sidebar</a></li>
+                                                <li><a href="destinations-details-left.html">Left Sidebar</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                
+                                <li><a href="blog.html">Tibet</a>                                    
+                                </li>
+                                <li><a href="contact.html">Contact</a></li>
+                            </ul>
+                        </nav>
                     </div>
-                </div>
-
-
-
-
-                <!-- expeditions -->
-                <div class="h-full cursor-pointer group/main ease-in-out duration-300 transition-all">
-                    <div class="h-full py-1 relative flex items-center justify-center">
-                        <span
-                            class="flex items-center navLinks text-base text-neutral-200 font-medium gap-x-1 group-hover/main:text-[#e1a74e] ease-in-out duration-300 transition-all">
-                            Expeditions
-                            <i
-                                class="fa-solid fa-chevron-down text-xs group-hover/main:rotate-180 ease-in-out duration-300"></i>
-                        </span>
-
-                        <!-- Animated top border -->
-                        <span
-                            class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
-                    </div>
-
-                    <!-- dropdown -->
-                    <div
-                        class="absolute top-[70%] left-0 w-full hidden group-hover/main:block ease-in-out duration-300 transition-all cursor-default">
-                        <div class="w-full bg-neutral-800 mt-6 shadow-sm px-2 md:px-39 sm:px-20 px-4">
-                            <div class="w-full border-t-2 border-neutral-900/70"></div>
-                            <div class="w-full flex items-start gap-14 cursor-default">
-                                <!-- tabs button -->
-                                <div
-                                    class="w-fit py-4 space-y-3 flex flex-col items-start border-r-2 border-neutral-900/70">
-                                    @if (expeditionNavData.Count == 0)
-                                    {
-                                        <span class="text-neutral-400 pr-6">No expedition types available.</span>
-                                    }
-                                    else
-                                    {
-                                        @for (var i = 0; i < expeditionNavData.Count; i++)
-                                        {
-                                            var group = expeditionNavData[i];
-                                            <button data-tab="@i"
-                                                class="tab-btn w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                                @group.Type.Title
+                    <div class="header-right">
+                        <div class="header-action d-flex align-items-center">
+                            <div class="header-btn-wrap">
+                                <div class="d-none d-sm-inline-flex h-gap-55">
+                                    <div class="header-currency-item header-currency">
+                                       <div class="bd-search-btn-wrapper">
+                                            <button class="bd-search-open-btn">
+                                                <i class="fa-regular fa-magnifying-glass"></i>
                                             </button>
-                                        }
-                                    }
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <!-- tabs content -->
-                                <div class="flex-1">
-                                    @if (expeditionNavData.Count == 0)
-                                    {
-                                        <div class="py-8 text-neutral-400">No expeditions are published yet.</div>
-                                    }
-                                    else
-                                    {
-                                        @for (var i = 0; i < expeditionNavData.Count; i++)
-                                        {
-                                            var group = expeditionNavData[i];
-                                            <div data-content="@i" class="tab-content w-full space-y-4 @(i == 0 ? string.Empty : "hidden")">
-                                                <div class="w-full grid grid-cols-4 gap-4 py-4">
-                                                    @foreach (var expedition in group.Items)
-                                                    {
-                                                        <a href="#" class="block w-full aspect-[3/2.7] relative">
-                                                            <img src="/@(string.IsNullOrWhiteSpace(group.Type.ImagePath) ? "https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png" : group.Type.ImagePath)"
-                                                                alt="@expedition.Name" class="w-full h-full object-cover">
-
-                                                            <div
-                                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                                    @expedition.Name
-                                                                </h1>
-                                                            </div>
-                                                        </a>
-                                                    }
-                                                </div>
-
-                                                <div class="w-fit group">
-                                                    <a href="/expeditions/type/@group.Type.Id/@(Uri.EscapeDataString((group.Type.Title ?? string.Empty).Trim().ToLowerInvariant().Replace(" ", "-")))"
-                                                        class="relative w-fit px-6 py-2 text-base font-light text-[#e1a74e] border border-[#e1a74e] capitalize flex items-center justify-center gap-x-2 group overflow-hidden transition-all duration-300 ease-in-out">
-                                                        <span
-                                                            class="absolute inset-0 bg-gradient-to-r from-[#e1a74e] to-[#e1a74e] translate-x-[-100%] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                                                        </span>
-
-                                                        <span
-                                                            class="relative flex items-center gap-x-2 z-10 transition-colors duration-300 ease-in-out group-hover:text-white">
-                                                            View all
-                                                            <span class="block group-hover:hidden ease-in-out duration-300">
-                                                                <i class="fa-regular fa-circle-down"></i>
-                                                            </span>
-                                                            <span class="hidden group-hover:block ease-in-out duration-300">
-                                                                <i class="fa-solid fa-circle-down"></i>
-                                                            </span>
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        }
-                                    }
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trekking -->
-                <div class="h-full cursor-pointer group ease-in-out duration-300 transition-all">
-                    <div class="h-full py-1 relative flex items-center justify-center">
-                        <span
-                            class="flex items-center navLinks text-base text-neutral-200 font-medium gap-x-1 group-hover:text-[#e1a74e] ease-in-out duration-300 transition-all">
-                            Trekking
-                            <i
-                                class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 ease-in-out duration-300"></i>
-                        </span>
-
-                        <!-- Animated top border -->
-                        <span
-                            class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
-                    </div>
-
-                    <!-- dropdown -->
-                    <div
-                        class="absolute top-[70%] left-0 w-full hidden group-hover:block ease-in-out duration-300 transition-all cursor-default">
-                        <div class="w-full bg-neutral-800 mt-6 shadow-sm px-2 md:px-39 sm:px-20 px-4">
-                            <div class="w-full border-t-2 border-neutral-900/70"></div>
-                            <div class="w-full flex gap-14 cursor-default">
-                                <!-- tabs button -->
-                                <div
-                                    class="w-fit py-4 space-y-3 flex flex-col items-start border-r-2 border-neutral-900/70">
-                                    <button data-tab="0"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Everest Region
-                                    </button>
-                                    <button data-tab="1"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Annapurna Region
-                                    </button>
-                                    <button data-tab="2"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Langtang Region
-                                    </button>
-                                    <button data-tab="3"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Manaslu Region
-                                    </button>
-                                    <button data-tab="4"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Kanchanjunga Region
-                                    </button>
-                                    <button data-tab="5"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Makalu Region
-                                    </button>
-                                    <button data-tab="6"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Rolwaling Region
-                                    </button>
-                                    <button data-tab="7"
-                                        class="tab-btn-trekking w-full text-start pl-0 pr-6 py-1 text-base text-neutral-50 hover:text-[#e1a74e] font-medium border-r-2 border-transparent hover:border-[#e1a74e] ease-in-out duration-300 cursor-pointer">
-                                        Karakoram Region
-                                    </button>
-                                </div>
-
-                                <!-- tabs content -->
-                                <div class="flex-1">
-                                    <!-- tab 0 -->
-                                    <div data-content="0"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2025/05/23/23/07/nepal-9618583_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Vvip Manaslu expedition (8163m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 1 -->
-                                    <div data-content="1"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 2 -->
-                                    <div data-content="2"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 3 -->
-                                    <div data-content="3"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 4 -->
-                                    <div data-content="4"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 5 -->
-                                    <div data-content="5"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 6 -->
-                                    <div data-content="6"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-                                    </div>
-
-                                    <!-- Tab 7 -->
-                                    <div data-content="7"
-                                        class="tab-content-trekking w-full grid grid-cols-3 gap-4 py-4 hidden">
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/08/04/04/58/ai-generated-8168346_1280.png"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition ultimate - vvip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2010/11/29/mount-everest-413_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition Signature - vip (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
-
-                                        <a href="#" class="block w-full aspect-[3/2] relative">
-                                            <img src="https://cdn.pixabay.com/photo/2023/11/20/18/23/ai-generated-8401672_1280.jpg"
-                                                alt="trekking img" class="w-full h-full object-cover">
-
-                                            <!-- absolute content -->
-                                            <div
-                                                class="absolute top-0 left-0 w-full p-4 h-full bg-black/30 flex items-center justify-center text-center">
-                                                <h1 class="text-xl text-white font-medium uppercase">
-                                                    Everest Expedition premium (8848.86m)
-                                                </h1>
-                                            </div>
-                                        </a>
+                                <div class="d-flex h-gap-55">
+                                    <div class="">
+                                        <a class="bd-btn btn-style text-btn" href="contact.html">Help</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- useful info -->
-                <div class="h-full cursor-pointer relative group">
-                    <div class="h-full py-1 relative flex items-center justify-center">
-                        <span
-                            class="flex items-center navLinks text-base text-neutral-200 font-medium gap-x-1 group-hover:text-[#e1a74e] ease-in-out duration-300 transition-all">
-                            Useful Info
-                            <i
-                                class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 ease-in-out duration-300"></i>
-                        </span>
-
-                        <!-- Animated top border -->
-                        <span
-                            class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
-                    </div>
-                    <!-- dropdown -->
-                    <div
-                        class="absolute top-[70%] left-0 w-fit hidden group-hover:block ease-in-out duration-300 transition-all">
-                        <div class="w-full bg-neutral-800 w-[500px] mt-6 shadow-sm p-2">
-                            <div class="w-full space-y-1">
-                                <a href="terms-and-conditions.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Terms and Conditions
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="gear-list.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Gear List
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="travel-advisory.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Travel Advisory
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="fixed-departures.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Fixed Departures
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="permit-garbage-fees.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Permit / Garbase Fees
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="visa-procedure-fees.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Visa Procedures / Fees
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="inquirybookingpayment.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    Inquiry / Booking / Payment
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
-                                <a href="faq.html"
-                                    class="relative block px-0 pt-1 pb-3 text-base font-normal text-neutral-100 whitespace-nowrap group/item hover:text-[#e1a74e] transition-colors duration-300">
-                                    FAQ
-                                    <span
-                                        class="absolute left-0 bottom-0 h-[1.5px] bg-[#e1a74e] w-0 transition-all duration-300 group-hover/item:w-full group-leave/item:w-0 group-leave/item:left-auto group-leave/item:right-0"></span>
-                                </a>
+                            <div class="header-hamburger">
+                                <div class="sidebar-toggle">
+                                    <a class="bar-icon" href="javascript:void(0)">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </a>
+                                </div>
                             </div>
+                           
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </header>
+    <!-- Header area end -->
 
-                <!-- contact us -->
-                <a href="contact-us.html"
-                    class="relative text-base navLinks text-neutral-200 font-medium h-full flex items-center justify-center py-1 hover:text-[#e1a74e] group ease-in-out duration-300 transition-all">
-                    Contact Us
-
-                    <!-- Animated top border -->
-                    <span
-                        class="absolute left-0 top-0 h-[2px] w-0 bg-[#e1a74e] transition-all duration-300 group-hover:w-full"></span>
-                </a>
-
-                <!-- Trigger Button -->
-                <button id="openModalBtn" class="text-lg text-neutral-200 hover:text-[#e1a74e] cursor-pointer">
-                    <i class="fa-solid fa-search"></i>
-                </button>
-
-                <!-- modal content for search button here -->
-                <!-- Modal Overlay -->
-                <div id="modalOverlay"
-                    class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible transition-opacity duration-300 z-[50]">
-                </div>
-
-                <!-- Modal Content -->
-                <div id="modalBox"
-                    class="fixed top-1/2 left-1/2 w-[90%] max-w-[620px] bg-white shadow-xl transform -translate-x-1/2 -translate-y-1/2 scale-95 opacity-0 invisible transition-all duration-300 z-[60]">
-
-                    <!-- Close Icon -->
-                    <button id="closeModalIcon"
-                        class="absolute -top-4 -right-4 bg-white text-neutral-600 hover:text-red-600 shadow-md w-10 h-10 rounded-full flex items-center justify-center text-xl opacity-0 invisible transition-opacity duration-300 cursor-pointer">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-
-                    <!-- Search Box -->
-                    <div class="w-full bg-neutral-100 p-4 mb-4">
-                        <div class="flex items-center border border-[#e1a74e] rounded-full px-6 py-3">
-
-                            <!-- Input -->
-                            <input type="text" placeholder="Search..."
-                                class="flex-1 bg-transparent outline-none text-lg placeholder-neutral-600" />
-
-                            <!-- Search Icon -->
-                            <button class="bg-none p-0 outline-none">
-                                <i class="fa-solid fa-magnifying-glass text-[#e1a74e] text-xl cursor-pointer"></i>
+    <!-- Offcanvas area start -->
+    <div class="fix">
+        <div class="offcanvas-area">
+            <div class="offcanvas-wrapper">
+                <div class="offcanvas-content">
+                    <div class="offcanvas-top d-flex justify-content-between align-items-center mb-25">
+                        <div class="offcanvas-logo">
+                            <a href="index.html">
+                                <img src="cusassests/images/logo/logo.png" alt="logo not found">
+                            </a>
+                        </div>
+                        <div class="offcanvas-close">
+                            <button class="offcanvas-close-icon animation--flip">
+                                <span class="offcanvas-m-lines">
+                                <span class="offcanvas-m-line line--1"></span><span
+                                    class="offcanvas-m-line line--2"></span><span
+                                    class="offcanvas-m-line line--3"></span>
+                                </span>
                             </button>
                         </div>
                     </div>
-
-                    <!-- Popular Search -->
-                    <div class="w-full p-4">
-                        <h2 class="text-2xl font-bold mb-3 text-xl font-medium text-neutral-700">Popular Search</h2>
-                        <div class="w-full space-y-3">
-                            <!-- Item -->
-                            <a href="#"
-                                class="w-fit flex items-center gap-x-2 border border-[#e1a74e] rounded-full px-4 py-1.5">
-                                <span class="w-3 h-3 rounded-full border border-[#e1a74e]"></span>
-                                <p class="text-neutral-600 font-normal text-sm">
-                                    EVEREST EXPEDITION ULTIMATE – VVIP (8848.86M)
-                                </p>
-                            </a>
-
-                            <!-- Item -->
-                            <a href="#"
-                                class="w-fit flex items-center gap-x-2 border border-[#e1a74e] rounded-full px-4 py-1.5">
-                                <span class="w-3 h-3 rounded-full border border-[#e1a74e]"></span>
-                                <p class="text-neutral-600 font-normal text-sm">
-                                    MT. EVEREST EXPEDITION CLASSIC SOUTH (8848.86M)
-                                </p>
-                            </a>
-
-                            <!-- Item -->
-                            <a href="#"
-                                class="w-fit flex items-center gap-x-2 border border-[#e1a74e] rounded-full px-4 py-1.5">
-                                <span class="w-3 h-3 rounded-full border border-[#e1a74e]"></span>
-                                <p class="text-neutral-600 font-normal text-sm">
-                                    MT. MANASLU EXPEDITION (8163M)
-                                </p>
-                            </a>
-
-                            <!-- Item -->
-                            <a href="#"
-                                class="w-fit flex items-center gap-x-2 border border-[#e1a74e] rounded-full px-4 py-1.5">
-                                <span class="w-3 h-3 rounded-full border border-[#e1a74e]"></span>
-                                <p class="text-neutral-600 font-normal text-sm">
-                                    MT. AMADABLAM EXPEDITION (6812M)
-                                </p>
-                            </a>
-
-                            <!-- Item -->
-                            <a href="#"
-                                class="w-fit flex items-center gap-x-2 border border-[#e1a74e] rounded-full px-4 py-1.5">
-                                <span class="w-3 h-3 rounded-full border border-[#e1a74e]"></span>
-                                <p class="text-neutral-600 font-normal text-sm">
-                                    MT. ANNAPURNA I EXPEDITION (8091M)
-                                </p>
-                            </a>
-                        </div>
+                    <div class="offcanvas-search mb-0">
+                        <form action="#">
+                            <input type="text" name="offcanvasSearch" placeholder="Search here">
+                            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </form>
                     </div>
+                    <div class="mobile-menu fix mb-25"></div>
+                    
+                   
                 </div>
             </div>
-        </header>
-
-        <!-- Body content -->
-        <div class="w-full min-h-screen">
-           @RenderBody()
-
         </div>
+    </div>
+    <div class="offcanvas-overlay"></div>
+    <div class="offcanvas-overlay-white"></div>
+    <!-- Offcanvas area start -->
 
-        <!-- footer -->
-        <footer class="w-full bg-neutral-800 text-neutral-300 pt-14 pb-10 relative overflow-hidden">
-
-            <!-- Top Section -->
-            <div class="w-full overflow-hidden relative pb-20">
-
-                <img src="./assets/img/footer-14-peak.svg"
-                    class="absolute -bottom-52 left-0 w-full h-full pointer-events-none" />
-
-                <!-- partners carousel section -->
-                <div class="w-full md:px-36 sm:px-20 px-6">
-                    <div class="w-full mb-2">
-                        <h2 class="text-xl text-white font-normal">Partners</h2>
-                    </div>
-
-                    <!-- carousel -->
-                    <div class="w-full">
-                        <div class="swiper myPartnersSwiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners1.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
+    <!-- search popup area start here  -->
+    <div class="bd-search-popup-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="bd-search-popup">
+                        <div class="bd-search-form">
+                            <form action="#">
+                                <div class="bd-search-input">
+                                    <input type="search" name="search" placeholder="Type here to serach ...">
+                                    <div class="bd-search-submit">
+                                        <button type="submit"><i class="fa-regular fa-magnifying-glass"></i></button>
+                                    </div>
                                 </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners2.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners3.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners4.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners5.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners6.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners7.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners8.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-                                <div class="swiper-slide">
-                                    <a href="#"
-                                        class="block w-full bg-white rounded-md group flex items-center justify-center py-2 ease-in-out duration-300">
-                                        <img src="./assets/img/partners/partners9.png" alt="trekking img"
-                                            class="w-auto h-10 object-contain object-center grayscale-60 group-hover:grayscale-0 ease-in-out duration-300">
-                                    </a>
-                                </div>
-
-                            </div>
-
-                            <!-- Custom navigation buttons using Font Awesome icons -->
-                            <div class="swiper-button-next absolute top-1/2 right-4 transform -translate-y-1/2">
-                                <div
-                                    class="w-10 h-10 bg-transparent flex items-center pt-10 justify-center rounded-full group transition duration-300 ease-in-out">
-                                    <i
-                                        class="fas fa-chevron-right text-[#e1a74e] text-sm transition duration-300 ease-in-out"></i>
-                                </div>
-                            </div>
-
-                            <div class="swiper-button-prev absolute top-1/2 left-4 transform -translate-y-1/2">
-                                <div
-                                    class="w-16 h-10 bg-transparent pt-10 flex items-center justify-center rounded-full group transition duration-300 ease-in-out">
-                                    <i
-                                        class="fas fa-chevron-left text-[#e1a74e] text-sm transition duration-300 ease-in-out"></i>
+                            </form>
+                            <div class="bd-search-close">
+                                <div class="bd-search-close-btn">
+                                    <button><i class="fa-thin fa-close"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- search popup overlay  -->
+    <div class="bd-search-overlay"></div>
+    <!-- search popup area end here  -->
 
-                <!-- Divider -->
-                <div class="border-t border-neutral-700 mt-20"></div>
+	<main class="main-area fix">
+        @RenderBody()
+	</main>
 
-                <div class="w-full md:px-36 sm:px-20 px-6 pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14">
-                    <!-- About Us -->
-                    <div>
-                        <h3 class="text-xl font-semibold text-white mb-5">About Us</h3>
-                        <ul class="space-y-3">
-                            <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
-                                <a href="/why-with-us" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Why with us?
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1200" data-aos-delay="200">
-                                <a href="/who-we-are" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Who we are?
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1300" data-aos-delay="300">
-                                <a href="#" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Our Team
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1400" data-aos-delay="400">
-                                <a href="#"
-                                    class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">Awards</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1500" data-aos-delay="500">
-                                <a href="#" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Our Patrons
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1600" data-aos-delay="600">
-                                <a href="#"
-                                    class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">Attorney</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1700" data-aos-delay="700">
-                                <a href="#" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Partnership with RECCO®
-                                </a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1800" data-aos-delay="800">
-                                <a href="#" class="text-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                    Partnership with SST
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Trekking -->
-                    <div>
-                        <h3 class="text-xl font-semibold text-white mb-5">Trekking</h3>
-                        <ul class="space-y-3">
-                            <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Everest
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1100" data-aos-delay="200">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Annapurna
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1200" data-aos-delay="300">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Langtang
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1300" data-aos-delay="400">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Manaslu
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1400" data-aos-delay="500">
-                                <a href="#"
-                                    class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Kanchenjunga
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1500" data-aos-delay="600">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Makalu
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1600" data-aos-delay="700">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Rolwaling
-                                    Region</a>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1700" data-aos-delay="800">
-                                <a href="#" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">Karakoram
-                                    Region</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Expeditions -->
-                    <div>
-                        <h3 class="text-xl font-semibold text-white mb-5">Expeditions</h3>
-                        <ul class="space-y-3">
-                            @foreach (var type in expeditionTypes.OrderBy(x => x.Ordering).ThenBy(x => x.Title).Take(7))
-                            {
-                                <li data-aos="fade-right" data-aos-duration="1000" data-aos-delay="100">
-                                    <a href="/expeditions/type/@type.Id/@(Uri.EscapeDataString((type.Title ?? string.Empty).Trim().ToLowerInvariant().Replace(" ", "-")))" class="ext-base font-light text-neutral-200 hover:text-[#e1a74e]">
-                                        @type.Title
+   
+    <footer class="bd-footer-area footer-bg image-bg fix">
+        <div class="section-space">
+            <div class="container">
+                <div class="row justify-content-between">
+                    <div class="footer-grid">
+                        <div class="footer-1-col-1">
+                            <div class="footer-widget">
+                                <div class="footer-widget-logo mb-40">
+                                    <a href="index.html">
+                                        <img src="cusassests/images/logo/logo.png" alt="logo not found">
                                     </a>
-                                </li>
-                            }
-                        </ul>
+                                </div>
+                                <div class="footer-widget-content">
+                                    <p>Welcome to Visit Kailash Treks, your gateway to unforgettable adventures and immersive travel experiences. Explore with us and let your journey begin!</p>
+                                    <div class="d-flex flex-wrap align-items-center gap--5">
+                                        <span class="b6">Follow Us:</span>
+                                        <div class="theme-social">
+                                            <a href="#"><i class="icon-facebook"></i></a>
+                                            <a href="#"><i class="icon-twitter-x"></i></a>
+                                            <a href="#"><i class="icon-linkedin"></i></a>
+                                            <a href="#"><i class="icon-youtube"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-1-col-2">
+                            <div class="footer-widget">
+                                <h5 class="footer-widget-title">Company</h5>
+                                <div class="footer-widget-links">
+                                    <ul>
+                                        <li class="underline"><a href="about.html">About Us</a></li>
+                                        <li class="underline"><a href="contact.html">Careers</a></li>
+                                        <li class="underline"><a href="team.html">Travel Guides</a></li>
+                                        <li class="underline"><a href="destinations-right.html">Destinations</a></li>
+                                        <li class="underline"><a href="contact.html">Contact Now</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-1-col-3">
+                            <div class="footer-widget">
+                                <h5 class="footer-widget-title">Service</h5>
+                                <div class="footer-widget-links">
+                                    <ul>
+                                        <li class="underline"><a href="tour-listing.html">Tour Listing</a></li>
+                                        <li class="underline"><a href="booking.html">Tour Booking </a></li>
+                                        <li class="underline"><a href="tour-details-right.html">Traveler Review</a><span class="bd-badge warning">New</span>
+                                        </li>
+                                        <li class="underline"><a href="team.html">Travel Agents</a></li>
+                                        <li class="underline"><a href="contact.html">Help</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-1-col-4">
+                            <div class="footer-widget">
+                                <h5 class="footer-widget-title">Quick links</h5>
+                                <ul class="footer-widget-list-items">
+                                    <li class="footer-widget-list-single-item">
+                                        <span class="footer-widget-list-icon"><i class="icon-call"></i></span>
+                                        <span class="footer-widget-list-text">
+                                 <span class="footer-widget-list-text-top">
+                                    Call Us
+                                 </span>
+                                        <a href="tel:+00123456889">+977 1 5912501</a>
+                                        </span>
+                                    </li>
+                                    <li class="footer-widget-list-single-item">
+                                        <span class="footer-widget-list-icon"><i class="icon-envelope"></i></span>
+                                        <span class="footer-widget-list-text">
+                                 <span class="footer-widget-list-text-top">
+                                    Email Us
+                                 </span>
+                                        <a href="mailto:visitkailashtreks@gmail.com">visitkailashtreks@gmail.com</a>
+                                        </span>
+                                    </li>
+                                    <li class="footer-widget-list-single-item">
+                                        <span class="footer-widget-list-icon"><i class="icon-location-fill"></i></span>
+                                        <span class="footer-widget-list-text">
+                                 <span class="footer-widget-list-text-top">
+                                    Our office
+                                 </span>
+                                        <a href="contact.html">Kathmandu, Nepal</a>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Contact -->
-                    <div>
-                        <h3 class="text-xl font-semibold text-white mb-5">Seven Summit Treks</h3>
-                        <ul class="space-y-5">
-                            <li data-aos="fade-right" data-aos-duration="1300" data-aos-delay="500"
-                                class="flex items-start gap-3">
-                                <span
-                                    class="w-9 h-9 rounded-full bg-[#e1a74e] text-neutral-700 hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                                    <i class="fa-solid fa-map-pin text-base"></i>
-                                </span>
-                                <span class="flex-1">Kapan, Budhanilkantha-11, Kathmandu, Nepal</span>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1400" data-aos-delay="600"
-                                class="flex items-center gap-3">
-                                <span
-                                    class="w-9 h-9 rounded-full bg-[#e1a74e] text-neutral-700 hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                                    <i class="fa-solid fa-phone text-base"></i>
-                                </span>
-                                <span class="flex-1">+9779801238848</span>
-                            </li>
-                            <li data-aos="fade-right" data-aos-duration="1500" data-aos-delay="700"
-                                class="flex items-center gap-3">
-                                <span
-                                    class="w-9 h-9 rounded-full bg-[#e1a74e] text-neutral-700 hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                                    <i class="fa-solid fa-envelope text-base"></i>
-                                </span>
-                                <span class="flex-1">info@sevensummittreks.com</span>
-                            </li>
-                        </ul>
-
-                        <p data-aos="fade-right" data-aos-duration="1600" data-aos-delay="800"
-                            class="text-sm text-neutral-200 mt-6 leading-relaxed">
-                            Copyright © 2025, Seven Summit Treks. All Rights Reserved |
-                            Design & Developed By Cyberlink Pvt. Ltd.
-                        </p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright-area">
+            <div class="container">
+                <div class="row gy-24 align-items-center justify-content-between align-content-end">
+                    <div class="col-xl-4 col-lg-6 col-md-6 col-12">
+                        <div class="footer-copyright underline">
+                            <p>Copyright @@ 2026 <a href="https://themeforest.net/user/bdevs" target="_blank">Visit Kailash Treks</a> . All Right Reserved</p>
+                        </div>
                     </div>
-
-                </div>
-
-            </div>
-
-            <!-- Divider -->
-            <div class="border-t border-neutral-700 mb-8"></div>
-
-            <!-- Bottom Section -->
-            <div class="w-full md:px-36 sm:px-20 px-6 flex flex-col md:flex-row md:justify-between items-center gap-6">
-
-                <!-- Terms -->
-                <div class="flex items-center gap-10 text-sm">
-                    <a href="#" class="hover:text-[#e1a74e]">Terms & Conditions</a>
-                    <a href="#" class="hover:text-[#e1a74e]">Privacy Policy</a>
-                </div>
-
-                <!-- Social Icons -->
-                <div class="flex items-center gap-10 text-lg text-neutral-800">
-                    <a href="#"
-                        class="w-10 h-10 rounded-full bg-[#e1a74e] hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                        <i class="fa-brands fa-facebook-f"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-full bg-[#e1a74e] hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                        <i class="fa-brands fa-youtube"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-full bg-[#e1a74e] hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                        <i class="fa-brands fa-x-twitter"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-full bg-[#e1a74e] hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                        <i class="fa-brands fa-instagram"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-full bg-[#e1a74e] hover:bg-neutral-200 flex items-center justify-center ease-in-out duration-200">
-                        <i class="fa-brands fa-tiktok"></i>
-                    </a>
+                    <div class="col-xl-3 col-lg-5 col-md-6 col-12">
+                        <div class="footer-card">
+                            <img src="cusassests/images/icons/payment-option-black.png" alt="">
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </footer>
+    <!-- Footer area end -->
 
-        </footer>
+    <!-- back to top -->
+    <!-- Backtotop start -->
+    <div class="backtotop-wrap cursor-pointer">
+        <svg class="backtotop-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+        </svg>
+    </div>
+    <!-- Backtotop end -->
 
-    </main>
+	<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/9779850000000" class="whatsapp-float" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span class="whatsapp-text">+977-9851008008 <br> +977-9851210987</span>
+</a>
 
+    <!-- JS here -->
+    <script src="~/cusassests/js/vendor/jquery-3.7.1.min.js"></script>
+    <script src="~/cusassests/js/plugins/waypoints.min.js"></script>
+    <script src="~/cusassests/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="~/cusassests/js/plugins/meanmenu.min.js"></script>
+    <script src="~/cusassests/js/plugins/swiper.min.js"></script>
+    <script src="~/cusassests/js/plugins/wow.js"></script>
+    <script src="~/cusassests/js/plugins/dropzone.min.js"></script>
+    <script src="~/cusassests/js/vendor/magnific-popup.min.js"></script>
+    <script src="~/cusassests/js/vendor/isotope.pkgd.min.js"></script>
+    <script src="~/cusassests/js/vendor/imagesloaded.pkgd.min.js"></script>
+    <script src="~/cusassests/js/vendor/purecounter.js"></script>
+    <script src="~/cusassests/js/plugins/nouislider.min.js"></script>
+    <script src="~/cusassests/js/plugins/nice-select.min.js"></script>
+    <script src="~/cusassests/js/plugins/cleave.min.js"></script>
+    <script src="~/cusassests/js/plugins/flatpickr.js"></script>
+    <script src="~/cusassests/js/plugins/tinymce.min.js"></script>
+    <script src="~/cusassests/js/vendor/smooth-scroll.min.js"></script>
+    <script src="~/cusassests/js/main.js"></script>
+	<script src="~/cusassests/js/main.js"></script>
+	<script>
+		const iframe = document.getElementById("ytVideo");
+		const btn = document.getElementById("muteBtn");
+		let isMuted = true;
+		btn.addEventListener("click", function () {
+			iframe.contentWindow.postMessage(JSON.stringify({
+				event: "command",
+				func: isMuted ? "unMute" : "mute",
+      args: []
+    }), "*");
 
-    <!-- External JS -->
-    <script src="~/customer/assets/js/main.js"></script>
-
-    <script src="~/customer/assets/js/tab.js"></script>
-
-    <script>
-        const video = document.getElementById("bannerVideo");
-        const toggleBtn = document.getElementById("volumeToggle");
-        const icon = document.getElementById("volumeIcon");
-
-        toggleBtn.addEventListener("click", () => {
-            if (video.muted) {
-                video.muted = false;      // Unmute
-                video.volume = 1;         // Full volume
-                video.play();             // Ensure playing
-
-                icon.classList.remove("fa-volume-xmark");
-                icon.classList.add("fa-volume-high");
-            } else {
-                video.muted = true;       // Mute
-                icon.classList.remove("fa-volume-high");
-                icon.classList.add("fa-volume-xmark");
-            }
-        });
-    </script>
-
-
-    <!-- AOS Animation js -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <script>
-        AOS.init();
-    </script>
-
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-    <!-- Initialize Swiper -->
-    <script>
-        var swiper = new Swiper(".mySwiper", {
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                bulletClass: "custom-bullet",
-                bulletActiveClass: "custom-bullet-active",
-            },
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-        });
-    </script>
-
-    <script>
-        var swiper2 = new Swiper(".myRatioSwiper", {
-            slidesPerView: 4,
-            spaceBetween: 20,
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                bulletClass: "custom-bullet",
-                bulletActiveClass: "custom-bullet-active",
-            },
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            breakpoints: {
-                "@@0.00": {
-                    slidesPerView: 1,
-                    spaceBetween: 10,
-                },
-                "@@0.75": {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
-                },
-                "@@1.00": {
-                    slidesPerView: 3,
-                    spaceBetween: 40,
-                },
-                "@@1.50": {
-                    slidesPerView: 4,
-                    spaceBetween: 15,
-                },
-            },
-        });
-    </script>
-
-    <script>
-        var swiper3 = new Swiper(".myRegionSwiper", {
-            slidesPerView: 4,
-            spaceBetween: 20,
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                bulletClass: "custom-bullet",
-                bulletActiveClass: "custom-bullet-active",
-            },
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            breakpoints: {
-                "@@0.00": {
-                    slidesPerView: 1,
-                    spaceBetween: 10,
-                },
-                "@@0.75": {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
-                },
-                "@@1.00": {
-                    slidesPerView: 3,
-                    spaceBetween: 40,
-                },
-                "@@1.50": {
-                    slidesPerView: 3,
-                    spaceBetween: 15,
-                },
-            },
-        });
-    </script>
-
-    <script>
-        var swiper4 = new Swiper(".myTestimonialSwiper", {
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                bulletClass: "custom-bullet",
-                bulletActiveClass: "custom-bullet-active",
-            },
-        });
-    </script>
-
-    <script>
-        const swiper5 = new Swiper(".myInstagramSwiper", {
-            slidesPerView: 1,
-            spaceBetween: 20,
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            loop: true,
-        });
-    </script>
-
-    <script>
-        var swiper6 = new Swiper(".myPartnersSwiper", {
-            slidesPerView: 4,
-            spaceBetween: 20,
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                bulletClass: "custom-bullet",
-                bulletActiveClass: "custom-bullet-active",
-            },
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            breakpoints: {
-                "@@0.00": {
-                    slidesPerView: 1,
-                    spaceBetween: 10,
-                },
-                "@@0.75": {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
-                },
-                "@@1.00": {
-                    slidesPerView: 3,
-                    spaceBetween: 40,
-                },
-                "@@1.50": {
-                    slidesPerView: 5,
-                    spaceBetween: 20,
-                },
-            },
-        });
-    </script>
-        @await RenderSectionAsync("Scripts", required: false)
-
-
+    btn.innerHTML = isMuted ? "🔊" : "🔇";
+    isMuted = !isMuted;
+  });
+</script>
+    
 </body>
 
 </html>

@@ -1,3 +1,5 @@
+using TravelCleanArch.Domain.Entities;
+
 namespace TravelCleanArch.Web.Models.Home;
 
 public sealed class HomeIndexViewModel
@@ -16,5 +18,6 @@ public sealed class HomeIndexViewModel
     public string? WhoWeAreBackgroundImagePath { get; init; }
     public IReadOnlyList<WhoWeAreItemViewModel> WhoWeAreItems { get; init; } = [];
     public IReadOnlyList<BlogCardViewModel> RecentBlogs { get; init; } = [];
+    public Banner GetBannerContent { get; set; } = new Banner();
 
 }
