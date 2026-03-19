@@ -1,9 +1,11 @@
 @using TravelCleanArch.Domain.Entities
+@using TravelCleanArch.Web.Models.Home
 @model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
 @{
     ViewData["Title"] = "Home";
 
     var banner = Model.GetBannerContent;
+   var aboutUs = Model.WhoWeAreItems?.FirstOrDefault();
 
     var bgImage = Url.Content("~/cusassests/images/bg/banner-bg.png");
 
@@ -27,6 +29,49 @@
     var secondaryImage = images.Count > 1 && !string.IsNullOrWhiteSpace(images[1].ImagePath)
         ? Url.Content(images[1].ImagePath)
         : Url.Content("~/cusassests/images/banner/banner-1-img-2.png");
+
+
+    var aboutDesc = !string.IsNullOrWhiteSpace(aboutUs?.Description)
+        ? aboutUs.Description
+        : @"<div class='section-title-wrapper mb-35'>
+                <span class='section-subtitle mb-15'>About Our Company</span>
+                <h2 class='section-title mb-20'>Explore the Himalayas with Trusted Experts</h2>
+                <p style='text-align: justify;'>
+                    Welcome to Visit Kailash Treks Nepal, a professional trekking and tour operator offering unforgettable adventures across Nepal, Tibet, India, and Bhutan. We specialize in organizing Kailash Manasarovar tours, Himalayan trekking, rafting adventures, and spiritual pilgrimage journeys. Our experienced team ensures every trip is safe, comfortable, and perfectly organized for travelers from around the world.
+                </p>
+            </div>
+            <div class='about-feature-list'>
+                <ul>
+                    <li>
+                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
+                        <p>Expert trekking guides and local travel specialists</p>
+                    </li>
+                    <li>
+                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
+                        <p>Kailash Manasarovar and Himalayan pilgrimage tours</p>
+                    </li>
+                    <li>
+                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
+                        <p>Safe, reliable, and well-planned travel experiences</p>
+                    </li>
+                </ul>
+            </div>";
+
+var abtImages = aboutUs?.Images?.ToList() ?? new List<WhoWeAreImageItemViewModel>();
+var abtmainImage = !string.IsNullOrWhiteSpace(aboutUs?.ImagePath)
+    ? Url.Content(aboutUs.ImagePath)
+    : Url.Content("~/cusassests/images/about/about-img-1.png");
+
+    var abtsecondaryImage = abtImages.Count > 1 && !string.IsNullOrWhiteSpace(abtImages[1].ImagePath)
+        ? Url.Content(abtImages[1].ImagePath)
+        : Url.Content("~/cusassests/images/about/about-img-2.png");
+
+        
+    var abtsecondaryImages = abtImages.Count > 1 && !string.IsNullOrWhiteSpace(abtImages[1].ImagePath)
+        ? Url.Content(abtImages[1].ImagePath)
+        : Url.Content("~/cusassests/images/about/about-img-2.png");
+
+
 }
 
   <!-- Banner area start -->
@@ -138,10 +183,10 @@
                     <div class="col-xl-6 col-lg-6">
                         <div class="about-thumb-wrap about-style">
                             <div class="about-thumb-one wow img-custom-anim-left">
-                                <img src="~/cusassests/images/about/about-img-1.png" alt="image">
+                                <img src="@abtmainImage" alt="image">
                             </div>
                             <div class="about-thumb-two wow img-custom-anim-right image-hover-effect">
-                                <img src="~/cusassests/images/about/about-img-2.png" alt="image">
+                                <img src="@abtsecondaryImage" alt="image">
                             </div>
                             <div class="about-text">
                                 <h5 class="about-text-title">12+ Successful Years</h5>
