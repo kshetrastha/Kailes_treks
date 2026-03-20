@@ -113,6 +113,12 @@
         return Number.isFinite(parsed) ? parsed : null;
     }
 
+    function parseIntOrNull(value) {
+        if (!value) return null;
+        const parsed = parseInt(value, 10);
+        return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    }
+
     function fillImageViewport(cropper) {
         const containerData = cropper.getContainerData();
         const imageData = cropper.getImageData();
@@ -185,7 +191,12 @@
     function applyCrop() {
         if (!state.cropper || !state.activeInput) return;
 
+        const cropWidth = parseIntOrNull(state.activeInput.dataset.cropWidth);
+        const cropHeight = parseIntOrNull(state.activeInput.dataset.cropHeight);
         const canvas = state.cropper.getCroppedCanvas({
+            width: cropWidth ?? undefined,
+            height: cropHeight ?? undefined,
+            imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high'
         });
 
