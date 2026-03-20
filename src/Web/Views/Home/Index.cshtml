@@ -5,7 +5,7 @@
     ViewData["Title"] = "Home";
 
     var banner = Model.GetBannerContent;
-   var aboutUs = Model.WhoWeAreItems?.FirstOrDefault();
+    var aboutUs = Model.WhoWeAreItems?.FirstOrDefault();
 
     var bgImage = Url.Content("~/cusassests/images/bg/banner-bg.png");
 
@@ -57,10 +57,10 @@
                 </ul>
             </div>";
 
-var abtImages = aboutUs?.Images?.ToList() ?? new List<WhoWeAreImageItemViewModel>();
-var abtmainImage = !string.IsNullOrWhiteSpace(aboutUs?.ImagePath)
-    ? Url.Content(aboutUs.ImagePath)
-    : Url.Content("~/cusassests/images/about/about-img-1.png");
+    var abtImages = aboutUs?.Images?.ToList() ?? new List<WhoWeAreImageItemViewModel>();
+    var abtmainImage = !string.IsNullOrWhiteSpace(aboutUs?.ImagePath)
+        ? Url.Content(aboutUs.ImagePath)
+        : Url.Content("~/cusassests/images/about/about-img-1.png");
 
     var abtsecondaryImage = abtImages.Count > 1 && !string.IsNullOrWhiteSpace(abtImages[1].ImagePath)
         ? Url.Content(abtImages[1].ImagePath)
@@ -74,178 +74,181 @@ var abtmainImage = !string.IsNullOrWhiteSpace(aboutUs?.ImagePath)
 
 }
 
-  <!-- Banner area start -->
-        <section class="banner-area banner-height p-relative z-index-11 image-bg" style="background: url('@bgImage') no-repeat; width: 100%;">
-            <div class="banner-shape">
-                <div class="banner-shape-one">
-                    <img src="cusassests/images/shapes/circle-bg.png" alt="image">
-                </div>
-                <div class="banner-shape-two">
-                    <img src="cusassests/images/shapes/sky.png" alt="image">
-                </div>
-                <div class="banner-shape-three">
-                    <img src="cusassests/images/shapes/circle.png" alt="image">
-                </div>
-                <div class="banner-shape-four">
-                    <img src="cusassests/images/shapes/circle-bg2.png" alt="image">
-                </div>
+<!-- Banner area start -->
+<section class="banner-area banner-height p-relative z-index-11 image-bg" style="background: url('@bgImage') no-repeat; width: 100%;">
+    <div class="banner-shape">
+        <div class="banner-shape-one">
+            <img src="~/cusassests/images/shapes/circle-bg.png" alt="image">
+        </div>
+        <div class="banner-shape-two">
+            <img src="~/cusassests/images/shapes/sky.png" alt="image">
+        </div>
+        <div class="banner-shape-three">
+            <img src="~/cusassests/images/shapes/circle.png" alt="image">
+        </div>
+        <div class="banner-shape-four">
+            <img src="~/cusassests/images/shapes/circle-bg2.png" alt="image">
+        </div>
                 
-                <div class="banner-shape-eight">
-                    <img src="cusassests/images/shapes/dot-square.png" alt="image">
-                </div>
-            </div>
-            <div class="swiper banner__active overflow-visible p-relative">
-                <div class="swiper-wrapper">
-                    <!-- if ypu active slider then duplicate "swiper-slide" -->
-                    <div class="swiper-slide banner_more_item">
-                        <div class="container">
-                            <div class="row gy-24 align-items-center justify-content-between">
-                                <div class="col-xxl-7 col-xl-6 col-lg-6">
-                                    <div class="mt-50">
-                                        <div class="banner-content p-relative wow bdFadeInLeft" data-wow-delay=".2s">
-                                            <span class="section-subtitle mb-25 wow bdFadeInLeft" data-wow-delay=".3s">   
-                                                @Html.Raw(subtitle)
-                                                </span>
-                                            <h1 class="banner-title wow bdFadeInLeft" data-wow-delay=".4s">@title  <span class="yellow-shape">Kailash & the Himalayas. <img
-                                          src="cusassests/images/shapes/yellow-shape.png" alt="yellow-shape"></span></h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xxl-5 col-xl-6 col-lg-6">
-                                    <div class="banner-thumb-wrapper position-relative wow bdFadeInRight" data-wow-delay=".3s">
-                                        <div class="banner-thumb-one wow bdFadeInRight" data-wow-delay=".4s">
-                                            <img src="@mainImage" alt="image">
-                                        </div>
-                                        <div class="banner-thumb-two wow bdFadeInRight" data-wow-delay=".5s">
-                                            <img src="@secondaryImage" alt="image">
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="banner-shape-eight">
+            <img src="~/cusassests/images/shapes/dot-square.png" alt="image">
+        </div>
+    </div>
+    <div class="swiper banner__active overflow-visible p-relative">
+        <div class="swiper-wrapper">
+            <!-- if ypu active slider then duplicate "swiper-slide" -->
+            <div class="swiper-slide banner_more_item">
+                <div class="container">
+                    <div class="row gy-24 align-items-center justify-content-between">
+                        <div class="col-xxl-7 col-xl-6 col-lg-6">
+                            <div class="mt-50">
+                                <div class="banner-content p-relative wow bdFadeInLeft" data-wow-delay=".2s">
+                                    <span class="section-subtitle mb-25 wow bdFadeInLeft" data-wow-delay=".3s">@subtitle</span>
+                                    <h1 class="banner-title wow bdFadeInLeft" data-wow-delay=".4s">
+                                        @title  <span class="yellow-shape">
+                                       @Html.Raw(highlightText)
+                                        <img src="~/cusassests/images/shapes/yellow-shape.png" alt="yellow-shape">
+                                    </span>
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-5 col-xl-6 col-lg-6">
+                        <div class="banner-thumb-wrapper position-relative wow bdFadeInRight" data-wow-delay=".3s">
+                            <div class="banner-thumb-one wow bdFadeInRight" data-wow-delay=".4s">
+                                <img src="@mainImage" alt="image">
+                            </div>
+                            <div class="banner-thumb-two wow bdFadeInRight" data-wow-delay=".5s">
+                                <img src="@secondaryImage" alt="image">
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- if you active slider then remove "d-none" -->
-                <div class="banner-nav-btn banner-one-navigation d-none">
-                    <div class="banner-pagination">
-                        <div class="swiper-pagination bd-pagination justify-content-center"></div>
-                    </div>
-                    <div class="banner-navigation-btn">
-                        <button class="Visit Kailash Treks-navigation-prev"><i class="fa-regular fa-angle-left"></i></button>
-                        <button class="Visit Kailash Treks-navigation-next"><i class="fa-regular fa-angle-right"></i></button>
-                    </div>
-                </div>
             </div>
-        </section>
+        </div>
+    </div>
+    <!-- if you active slider then remove "d-none" -->
+    <div class="banner-nav-btn banner-one-navigation d-none">
+        <div class="banner-pagination">
+            <div class="swiper-pagination bd-pagination justify-content-center"></div>
+        </div>
+        <div class="banner-navigation-btn">
+            <button class="Visit Kailash Treks-navigation-prev"><i class="fa-regular fa-angle-left"></i></button>
+            <button class="Visit Kailash Treks-navigation-next"><i class="fa-regular fa-angle-right"></i></button>
+        </div>
+    </div>
+</div>
+</section>
 
-                         <!-- Banner area start -->
-        <section class="section-space work-with">
-            <div class="container"><img src="~/cusassests/images/partner_web_view.png"></div>            
-        </section> 
+<!-- Banner area start -->
+<section class="section-space work-with">
+    <div class="container"><img src="~/cusassests/images/partner_web_view.png"></div>
+</section>
 
-        <!-- activity area start -->
-        <section class="bd-activity-area">
-           <div class="video-container">
+<!-- activity area start -->
+<section class="bd-activity-area">
+    <div class="video-container">
   
-					<iframe id="ytVideo"
-						width="100%"
-						height="auto"
-						src="https://www.youtube.com/embed/onvqFHmDA5Y?autoplay=1&mute=1&controls=0&loop=1&playlist=onvqFHmDA5Y&enablejsapi=1"
-						frameborder="0"
-						title="YouTube video player"
-						allow="autoplay; encrypted-media"
-						allowfullscreen>
-					</iframe>
+        <iframe id="ytVideo"
+                width="100%"
+                height="auto"
+                src="https://www.youtube.com/embed/onvqFHmDA5Y?autoplay=1&mute=1&controls=0&loop=1&playlist=onvqFHmDA5Y&enablejsapi=1"
+                frameborder="0"
+                title="YouTube video player"
+                allow="autoplay; encrypted-media"
+                allowfullscreen>
+        </iframe>
 
-					<!-- Mute Button -->
-					<button id="muteBtn"
-						style="position:absolute; top:10px; z-index: 2; right:10px; padding:8px 12px; background:rgba(0,0,0,0.5); color:#fff; border:none; cursor:pointer;">
-						🔇
-					</button>
-            </div>
-        </section>
-         <!-- about area Start -->
-        <section class="bd-about-area section-space about-bg p-relative image-bg">
-            <div class="container">
-                <div class="about-shape">
+        <!-- Mute Button -->
+        <button id="muteBtn"
+                style="position:absolute; top:10px; z-index: 2; right:10px; padding:8px 12px; background:rgba(0,0,0,0.5); color:#fff; border:none; cursor:pointer;">
+            🔇
+        </button>
+    </div>
+</section>
+<!-- about area Start -->
+<section class="bd-about-area section-space about-bg p-relative image-bg">
+    <div class="container">
+        <div class="about-shape">
                     
-                    <div class="about-shape-two">
-                        <img src="~/cusassests/images/shapes/circle.png" alt="shape">
+            <div class="about-shape-two">
+                <img src="~/cusassests/images/shapes/circle.png" alt="shape">
+            </div>
+            <div class="about-shape-three">
+                <img src="~/cusassests/images/shapes/plane-3.png" alt="shape">
+            </div>
+            <div class="about-shape-four">
+                <img src="~/cusassests/images/shapes/camera-2.png" alt="shape">
+            </div>
+        </div>
+        <div class="row gy-24 align-items-center">
+            <div class="col-xl-6 col-lg-6">
+                <div class="about-thumb-wrap about-style">
+                    <div class="about-thumb-one wow img-custom-anim-left">
+                        <img src="@abtmainImage" alt="image">
                     </div>
-                    <div class="about-shape-three">
-                        <img src="~/cusassests/images/shapes/plane-3.png" alt="shape">
+                    <div class="about-thumb-two wow img-custom-anim-right image-hover-effect">
+                        <img src="@abtsecondaryImage" alt="image">
                     </div>
-                    <div class="about-shape-four">
-                        <img src="~/cusassests/images/shapes/camera-2.png" alt="shape">
+                    <div class="about-text">
+                        <h5 class="about-text-title">12+ Successful Years</h5>
+                    </div>
+                    <div class="about-badge">
+                        <img src="~/cusassests/images/shapes/white-badge.png" alt="shape">
+                                
                     </div>
                 </div>
-                <div class="row gy-24 align-items-center">
-                    <div class="col-xl-6 col-lg-6">
-                        <div class="about-thumb-wrap about-style">
-                            <div class="about-thumb-one wow img-custom-anim-left">
-                                <img src="@abtmainImage" alt="image">
-                            </div>
-                            <div class="about-thumb-two wow img-custom-anim-right image-hover-effect">
-                                <img src="@abtsecondaryImage" alt="image">
-                            </div>
-                            <div class="about-text">
-                                <h5 class="about-text-title">12+ Successful Years</h5>
-                            </div>
-                            <div class="about-badge">
-                                <img src="~/cusassests/images/shapes/white-badge.png" alt="shape">
-                                
-                            </div>
-                        </div>
+            </div>
+            <div class="col-xl-6 col-lg-6">
+                <div class="about-content">
+                    <div class="section-title-wrapper mb-35">
+                        <span class="section-subtitle mb-15">About Our Company</span>
+                        <h2 class="section-title mb-20">Explore the Himalayas with Trusted Experts</h2>
+                        <p style="text-align:justify">
+                            Welcome to Visit Kailash Treks Nepal, a professional trekking and tour operator offering unforgettable adventures across Nepal, Tibet, India, and Bhutan.
+
+                            We specialize in organizing Kailash Manasarovar tours, Himalayan trekking, rafting adventures, and spiritual pilgrimage journeys. Our experienced team ensures every trip is safe, comfortable, and perfectly organized for travelers from around the world.
+                        </p>
                     </div>
-                    <div class="col-xl-6 col-lg-6">
-                        <div class="about-content">
-                            <div class="section-title-wrapper mb-35">
-                                <span class="section-subtitle mb-15">About Our Company</span>
-                                <h2 class="section-title mb-20">Explore the Himalayas with Trusted Experts</h2>
-                                <p style="text-align:justify">Welcome to Visit Kailash Treks Nepal, a professional trekking and tour operator offering unforgettable adventures across Nepal, Tibet, India, and Bhutan.
+                    <div class="about-feature-list">
+                        <ul>
+                            <li>
+                                <span class="list-icon">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <p>Expert trekking guides and local travel specialists</p>
+                            </li>
+                            <li>
+                                <span class="list-icon">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <p>Kailash Manasarovar and Himalayan pilgrimage tours</p>
+                            </li>
+                            <li>
+                                <span class="list-icon">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <p>Safe, reliable, and well-planned travel experiences</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="about-btn-wrap">
+                        <div class="about-btn">
+                            <a href="contact.html" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
+                                <span class="bd-primary-btn-text">Know More</span>
+                                <span class="bd-primary-btn-circle"></span>
+                                <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
+                            </a>
 
-We specialize in organizing Kailash Manasarovar tours, Himalayan trekking, rafting adventures, and spiritual pilgrimage journeys. Our experienced team ensures every trip is safe, comfortable, and perfectly organized for travelers from around the world.
-                                </p>
-                            </div>
-                            <div class="about-feature-list">
-                                <ul>
-                                    <li>
-                                        <span class="list-icon">
-                   <i class="fa-solid fa-check"></i>
-                </span>
-                                        <p>Expert trekking guides and local travel specialists</p>
-                                    </li>
-                                    <li>
-                                        <span class="list-icon">
-                   <i class="fa-solid fa-check"></i>
-                </span>
-                                        <p>Kailash Manasarovar and Himalayan pilgrimage tours</p>
-                                    </li>
-                                    <li>
-                                        <span class="list-icon">
-                   <i class="fa-solid fa-check"></i>
-                </span>
-                                        <p>Safe, reliable, and well-planned travel experiences</p>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="about-btn-wrap">
-                                <div class="about-btn">
-                                    <a href="contact.html" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
-                                        <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
-                                        <span class="bd-primary-btn-text">Know More</span>
-                                        <span class="bd-primary-btn-circle"></span>
-                                        <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
-                                    </a>
-
-                                </div>
-                                <div class="about-call">
-                                    <span><i class="icon-support"></i></span>
-                                    <a class="fw-5" href="tel:18004536744">+977-9851008008</a>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="about-call">
+                            <span><i class="icon-support"></i></span>
+                            <a class="fw-5" href="tel:18004536744">+977-9851008008</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
