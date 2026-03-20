@@ -41,7 +41,7 @@
                 <div id="bannerImagesWrap" class="d-grid gap-2">
                     @for (var i = 0; i < Model.Images.Count; i++)
                     {
-                        <div class="row g-2 border rounded p-2">
+                        <div class="row g-2 border rounded p-2 banner-image-item">
                             <input type="hidden" name="Images[@i].Id" value="@Model.Images[i].Id" />
                             <input type="hidden" name="Images[@i].ExistingImagePath" value="@Model.Images[i].ExistingImagePath" />
                             <div class="col-md-3">
@@ -111,6 +111,15 @@
                 return new Blob(byteArrays, { type: contentType });
             }
 
+            function applyCropperContainerStyle($container) {
+                window.requestAnimationFrame(function () {
+                    $container.find(".cropper-container").css({
+                        width: "668px",
+                        height: "631px"
+                    });
+                });
+            }
+
             function imageInitialize($container) {
                 const $image = $container.find(".image-crop > img");
                 const $inputImage = $container.find(".js-crop-image");
@@ -127,7 +136,10 @@
                     preview: $preview,
                     viewMode: 1,
                     autoCropArea: 1,
-                    responsive: true
+                    responsive: true,
+                    built: function () {
+                        applyCropperContainerStyle($container);
+                    }
                 });
 
                 cropInstances.set($inputImage[0], {
@@ -152,6 +164,7 @@
                             fileReader.readAsDataURL(file);
                             fileReader.onload = function () {
                                 $image.cropper("reset", true).cropper("replace", this.result);
+                                applyCropperContainerStyle($container);
                             };
                         } else {
                             alert("Please choose an image file.");
