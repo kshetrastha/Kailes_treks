@@ -40,12 +40,7 @@ $(function () {
                     display: block;
                     max-width: none;
                     max-height: none;
-                }
-
-                #sharedImageCropperModal .cropper-container {
-                    width: 100% !important;
-                    height: 100% !important;
-                }
+                }            
             </style>
         `;
 
@@ -55,7 +50,7 @@ $(function () {
     function ensureModal() {
         if (state.modal) return;
 
-        ensureStyles();
+  
 
         const modalHtml = `
 <div class="modal fade" id="sharedImageCropperModal" tabindex="-1" aria-hidden="true">
@@ -79,7 +74,7 @@ $(function () {
 </div>`;
 
         $('body').append(modalHtml);
-
+        ensureStyles();
         const modalElement = document.getElementById('sharedImageCropperModal');
         if (!modalElement || !window.bootstrap) return;
 
