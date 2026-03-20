@@ -125,7 +125,26 @@ $(function () {
         return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
     }
 
-    function fillImageViewport(cropper) {
+    function getFittedCropBox(containerData, aspectRatio) {
+        if (!containerData.width || !containerData.height) return null;
+
+        let width = containerData.width;
+        let height = width / aspectRatio;
+
+        if (height > containerData.height) {
+            height = containerData.height;
+            width = height * aspectRatio;
+        }
+
+        return {
+            width: width,
+            height: height,
+            left: (containerData.width - width) / 2,
+            top: (containerData.height - height) / 2
+        };
+    }
+
+    function fillImageViewport(cropper, aspectRatio) {
         const containerData = cropper.getContainerData();
         const imageData = cropper.getImageData();
 
@@ -133,24 +152,25 @@ $(function () {
             return;
         }
 
+        const cropBox = getFittedCropBox(containerData, aspectRatio);
+        if (!cropBox) return;
+
+        cropper.setCropBoxData(cropBox);
+
         const zoomRatio = Math.max(
-            containerData.width / imageData.naturalWidth,
-            containerData.height / imageData.naturalHeight
+            cropBox.width / imageData.naturalWidth,
+            cropBox.height / imageData.naturalHeight
         );
 
         cropper.zoomTo(zoomRatio);
 
         const updatedImageData = cropper.getImageData();
         cropper.setCanvasData({
-            left: (containerData.width - updatedImageData.width) / 2,
-            top: (containerData.height - updatedImageData.height) / 2
+            left: cropBox.left + ((cropBox.width - updatedImageData.width) / 2),
+            top: cropBox.top + ((cropBox.height - updatedImageData.height) / 2)
         });
 
-        const cropBoxData = cropper.getCropBoxData();
-        cropper.setCropBoxData({
-            left: (containerData.width - cropBoxData.width) / 2,
-            top: (containerData.height - cropBoxData.height) / 2
-        });
+        cropper.setCropBoxData(cropBox);
     }
 
     function onFileSelect(input) {
@@ -179,15 +199,15 @@ $(function () {
 
             state.cropper = new Cropper(state.image, {
                 aspectRatio: aspectRatio,
-                viewMode: 1,
-                autoCropArea: 0.8,
+                viewMode: 2,
+                autoCropArea: 1,
                 responsive: true,
                 background: false,
                 dragMode: 'move',
                 ready: function () {
                     setTimeout(function () {
                         if (state.cropper) {
-                            fillImageViewport(state.cropper);
+                            fillImageViewport(state.cropper, aspectRatio);
                         }
                     }, 0);
                 }
