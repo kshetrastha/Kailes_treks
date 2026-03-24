@@ -3,7 +3,26 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit Banner" : "Create Banner";
 }
-@* <link href="~/cusassests/cropper/cropper.min.css" rel="stylesheet" /> *@
+
+<style>
+    .banner-crop-stage {
+        width: 100%;
+        height: 520px;
+        background: #eef1f7;
+        border: 1px solid #d7deea;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .banner-crop-stage img {
+        display: block;
+        max-width: 100%;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Banner</h2>
@@ -14,7 +33,10 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/banners/{Model.Id}/edit" : "/admin/company/banners/create")">
                 @Html.AntiForgeryToken()
-                @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
 
                 <div class="row g-3">
                     <div class="col-md-6"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
@@ -30,40 +52,52 @@
                     <button type="button" id="addBannerImage" class="btn btn-sm btn-outline-secondary">Add image</button>
                 </div>
 
-
-
-                <div id="bannerImagesWrap" class="d-grid gap-2">
+                <div id="bannerImagesWrap" class="d-grid gap-3">
                     @for (var i = 0; i < Model.Images.Count; i++)
                     {
-                        <div class="row g-2 border rounded p-2 banner-image-item">
+                        <div class="border rounded p-3 banner-image-item">
                             <input type="hidden" name="Images[@i].Id" value="@Model.Images[i].Id" />
                             <input type="hidden" name="Images[@i].ExistingImagePath" value="@Model.Images[i].ExistingImagePath" />
-                            <div class="col-md-3">
-                                <input type="file"
-                                       name="Images[@i].Image"
-                                       class="form-control js-crop-image"
-                                       accept="image/*"
-                                       data-aspect-ratio="0.5793939394"
-                                       data-crop-width="478"
-                                       data-crop-height="825" />
-                                <small class="text-muted">Image opens Cropper.js before upload (478:825 portrait).</small>
-                                @if (!string.IsNullOrWhiteSpace(Model.Images[i].ExistingImagePath))
-                                {
-                                    <img src="/@Model.Images[i].ExistingImagePath" alt="Banner image" class="img-thumbnail mt-2" style="max-height:90px; object-fit:cover;" />
-                                }
-                            </div>
-                            <div class="col-md-2"><input name="Images[@i].SubDescription" value="@Model.Images[i].SubDescription" class="form-control" placeholder="Sub description" /></div>
-                            <div class="col-md-3"><input name="Images[@i].Description" value="@Model.Images[i].Description" class="form-control" placeholder="Description" /></div>
-                            <div class="col-md-1"><input name="Images[@i].Ordering" value="@Model.Images[i].Ordering" type="number" class="form-control" /></div>
-                            <div class="col-md-2 form-check mt-2">
-                                <input name="Images[@i].IsPublished" class="form-check-input" type="checkbox" value="true" @(Model.Images[i].IsPublished ? "checked" : "") />
-                                <input type="hidden" name="Images[@i].IsPublished" value="false" />
-                                <label class="form-check-label">Published</label>
-                            </div>
-                            <div class="col-md-1 form-check mt-2">
-                                <input name="Images[@i].Remove" class="form-check-input" type="checkbox" value="true" />
-                                <input type="hidden" name="Images[@i].Remove" value="false" />
-                                <label class="form-check-label">Remove</label>
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="file"
+                                           name="Images[@i].Image"
+                                           class="form-control js-crop-image"
+                                           accept="image/*"
+                                           data-aspect-ratio="0.5793939394"
+                                           data-crop-width="478"
+                                           data-crop-height="825" />
+                                    <small class="text-muted d-block mt-2">Crop directly on the page (478:825 portrait).</small>
+                                    @if (!string.IsNullOrWhiteSpace(Model.Images[i].ExistingImagePath))
+                                    {
+                                        <img src="/@Model.Images[i].ExistingImagePath" alt="Banner image" class="img-thumbnail mt-2" style="max-height:90px; object-fit:cover;" />
+                                    }
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="banner-crop-stage">
+                                        <img class="crop-preview-image" src="/images/placeholder.png" alt="Crop preview" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="row g-2">
+                                        <div class="col-12"><input name="Images[@i].SubDescription" value="@Model.Images[i].SubDescription" class="form-control" placeholder="Sub description" /></div>
+                                        <div class="col-12"><input name="Images[@i].Description" value="@Model.Images[i].Description" class="form-control" placeholder="Description" /></div>
+                                        <div class="col-6"><input name="Images[@i].Ordering" value="@Model.Images[i].Ordering" type="number" class="form-control" /></div>
+                                        <div class="col-6 form-check mt-2">
+                                            <input name="Images[@i].IsPublished" class="form-check-input" type="checkbox" value="true" @(Model.Images[i].IsPublished ? "checked" : "") />
+                                            <input type="hidden" name="Images[@i].IsPublished" value="false" />
+                                            <label class="form-check-label">Published</label>
+                                        </div>
+                                        <div class="col-12 form-check mt-2">
+                                            <input name="Images[@i].Remove" class="form-check-input" type="checkbox" value="true" />
+                                            <input type="hidden" name="Images[@i].Remove" value="false" />
+                                            <label class="form-check-label">Remove</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
@@ -80,57 +114,149 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    @* <script src="~/cusassests/cropper/cropper.min.js"></script> *@
-    <script src="~/js/shared-image-cropper.js"></script>
 
     <script>
         (function () {
             let idx = @Model.Images.Count;
+            const cropInstances = new Map();
 
-            document.getElementById("addBannerImage")?.addEventListener("click", function () {
-                const wrap = document.getElementById("bannerImagesWrap");
+            function destroyCropper(input) {
+                const existing = cropInstances.get(input);
+                if (existing) {
+                    existing.destroy();
+                    cropInstances.delete(input);
+                }
+            }
+
+            function initializeCropperForFile(input, file) {
+                const item = input.closest('.banner-image-item');
+                if (!item || !file || !window.Cropper) return;
+
+                const image = item.querySelector('.crop-preview-image');
+                if (!image) return;
+
+                const aspectRatio = parseFloat(input.dataset.aspectRatio || '0.5793939394');
+                const imageUrl = URL.createObjectURL(file);
+
+                destroyCropper(input);
+
+                image.onload = function () {
+                    const cropper = new Cropper(image, {
+                        aspectRatio: aspectRatio,
+                        viewMode: 1,
+                        autoCropArea: 0.95,
+                        responsive: true,
+                        background: false,
+                        dragMode: 'move'
+                    });
+
+                    cropInstances.set(input, cropper);
+                    URL.revokeObjectURL(imageUrl);
+                };
+
+                image.src = imageUrl;
+            }
+
+            function bindItem(item) {
+                const input = item.querySelector('.js-crop-image');
+                if (!input) return;
+
+                input.addEventListener('change', function () {
+                    const file = input.files && input.files[0];
+                    if (!file || !file.type.startsWith('image/')) return;
+                    initializeCropperForFile(input, file);
+                });
+            }
+
+
+            function dataUrlToFile(dataUrl, fileName, mimeType) {
+                const base64 = dataUrl.split(',')[1] || '';
+                const byteCharacters = atob(base64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+
+                const byteArray = new Uint8Array(byteNumbers);
+                return new File([byteArray], fileName, { type: mimeType });
+            }
+
+            function applyCropsBeforeSubmit(form) {
+                cropInstances.forEach(function (cropper, input) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+
+                    const cropWidth = parseInt(input.dataset.cropWidth || '478', 10);
+                    const cropHeight = parseInt(input.dataset.cropHeight || '825', 10);
+                    const canvas = cropper.getCroppedCanvas({ width: cropWidth, height: cropHeight });
+                    if (!canvas) return;
+
+                    const mimeType = file.type || 'image/jpeg';
+                    const dataUrl = canvas.toDataURL(mimeType, 0.92);
+                    const croppedFile = dataUrlToFile(dataUrl, file.name, mimeType);
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(croppedFile);
+                    input.files = dataTransfer.files;
+                });
+            }
+
+            document.querySelectorAll('.banner-image-item').forEach(function (item) {
+                bindItem(item);
+            });
+
+            document.getElementById('addBannerImage')?.addEventListener('click', function () {
+                const wrap = document.getElementById('bannerImagesWrap');
                 if (!wrap) return;
 
                 const html = `
-                <div class="row g-3 border rounded p-3 mb-3 banner-image-item">
-                    <div class="col-md-3">
-                        <input type="file"
-                               name="Images[${idx}].Image"
-                               class="form-control js-crop-image"
-                               accept="image/*"
-                               data-aspect-ratio="0.5793939394"
-                               data-crop-width="478"
-                               data-crop-height="825" />
-                        <small class="text-muted">Choose image and crop before upload.</small>
-                    </div>
+                <div class="border rounded p-3 banner-image-item">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="file"
+                                   name="Images[${idx}].Image"
+                                   class="form-control js-crop-image"
+                                   accept="image/*"
+                                   data-aspect-ratio="0.5793939394"
+                                   data-crop-width="478"
+                                   data-crop-height="825" />
+                            <small class="text-muted d-block mt-2">Crop directly on the page (478:825 portrait).</small>
+                        </div>
 
-                    <div class="col-md-2">
-                        <input name="Images[${idx}].SubDescription" class="form-control" placeholder="Sub description" />
-                    </div>
+                        <div class="col-md-4">
+                            <div class="banner-crop-stage">
+                                <img class="crop-preview-image" src="/images/placeholder.png" alt="Crop preview" />
+                            </div>
+                        </div>
 
-                    <div class="col-md-3">
-                        <input name="Images[${idx}].Description" class="form-control" placeholder="Description" />
-                    </div>
-
-                    <div class="col-md-1">
-                        <input name="Images[${idx}].Ordering" value="${idx}" type="number" class="form-control" />
-                    </div>
-
-                    <div class="col-md-2 form-check mt-2">
-                        <input name="Images[${idx}].IsPublished" class="form-check-input" type="checkbox" value="true" checked />
-                        <input type="hidden" name="Images[${idx}].IsPublished" value="false" />
-                        <label class="form-check-label">Published</label>
-                    </div>
-
-                    <div class="col-md-1 form-check mt-2">
-                        <input name="Images[${idx}].Remove" class="form-check-input" type="checkbox" value="true" />
-                        <input type="hidden" name="Images[${idx}].Remove" value="false" />
-                        <label class="form-check-label">Remove</label>
+                        <div class="col-md-4">
+                            <div class="row g-2">
+                                <div class="col-12"><input name="Images[${idx}].SubDescription" class="form-control" placeholder="Sub description" /></div>
+                                <div class="col-12"><input name="Images[${idx}].Description" class="form-control" placeholder="Description" /></div>
+                                <div class="col-6"><input name="Images[${idx}].Ordering" value="${idx}" type="number" class="form-control" /></div>
+                                <div class="col-6 form-check mt-2">
+                                    <input name="Images[${idx}].IsPublished" class="form-check-input" type="checkbox" value="true" checked />
+                                    <input type="hidden" name="Images[${idx}].IsPublished" value="false" />
+                                    <label class="form-check-label">Published</label>
+                                </div>
+                                <div class="col-12 form-check mt-2">
+                                    <input name="Images[${idx}].Remove" class="form-check-input" type="checkbox" value="true" />
+                                    <input type="hidden" name="Images[${idx}].Remove" value="false" />
+                                    <label class="form-check-label">Remove</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>`;
 
-                wrap.insertAdjacentHTML("beforeend", html);
+                wrap.insertAdjacentHTML('beforeend', html);
+                const item = wrap.lastElementChild;
+                if (item) bindItem(item);
                 idx++;
+            });
+
+            const form = document.querySelector('form');
+            form?.addEventListener('submit', function () {
+                applyCropsBeforeSubmit(form);
             });
         })();
     </script>
