@@ -3,6 +3,12 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit Banner" : "Create Banner";
 }
+<style>
+    .cropper-container {
+        width: 1256px !important;
+        height: 552px !important;
+    }
+</style>
 @* <link href="~/cusassests/cropper/cropper.min.css" rel="stylesheet" /> *@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -14,7 +20,10 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" action="@(isEdit ? $"/admin/company/banners/{Model.Id}/edit" : "/admin/company/banners/create")">
                 @Html.AntiForgeryToken()
-                @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
 
                 <div class="row g-3">
                     <div class="col-md-6"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
