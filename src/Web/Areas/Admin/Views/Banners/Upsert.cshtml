@@ -3,12 +3,6 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit Banner" : "Create Banner";
 }
-<style>
-    .cropper-container{
-        height: 100% !important;
-        width: 100% !important;
-    }
-</style>
 @* <link href="~/cusassests/cropper/cropper.min.css" rel="stylesheet" /> *@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -92,126 +86,6 @@
     <script>
         (function () {
             let idx = @Model.Images.Count;
-            const cropInstances = new Map();
-
-            function base64ToBlob(base64String, contentType) {
-                var byteCharacters = atob(base64String);
-                var byteArrays = [];
-
-                for (var offset = 0; offset < byteCharacters.length; offset += 512) {
-                    var slice = byteCharacters.slice(offset, offset + 512);
-
-                    var byteNumbers = new Array(slice.length);
-                    for (var i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
-                    }
-
-                    var byteArray = new Uint8Array(byteNumbers);
-                    byteArrays.push(byteArray);
-                }
-
-                return new Blob(byteArrays, { type: contentType });
-            }
-
-            function applyCropperContainerStyle($container) {
-                window.requestAnimationFrame(function () {
-                    $container.find(".cropper-container").css({
-                        width: "668px",
-                        height: "631px"
-                    });
-                });
-            }
-
-            function imageInitialize($container) {
-                const $image = $container.find(".image-crop > img");
-                const $inputImage = $container.find(".js-crop-image");
-                const $preview = $container.find(".img-preview");
-
-                if (!$image.length || !$inputImage.length) return;
-
-                const aspectRatio = parseFloat($inputImage.data("aspect-ratio")) || 1.1;
-                const cropWidth = parseInt($inputImage.data("crop-width")) || 478;
-                const cropHeight = parseInt($inputImage.data("crop-height")) || 825;
-
-                const cropper = $image.cropper({
-                    aspectRatio: aspectRatio,
-                    preview: $preview,
-                    viewMode: 1,
-                    autoCropArea: 1,
-                    responsive: true,
-                    built: function () {
-                        applyCropperContainerStyle($container);
-                    }
-                });
-
-                cropInstances.set($inputImage[0], {
-                    cropper: cropper,
-                    width: cropWidth,
-                    height: cropHeight
-                });
-
-                if (window.FileReader) {
-                    $inputImage.on("change", function () {
-                        var fileReader = new FileReader(),
-                            files = this.files,
-                            file;
-
-                        if (!files || !files.length) {
-                            return;
-                        }
-
-                        file = files[0];
-
-                        if (/^image\/\w+$/.test(file.type)) {
-                            fileReader.readAsDataURL(file);
-                            fileReader.onload = function () {
-                                $image.cropper("reset", true).cropper("replace", this.result);
-                                applyCropperContainerStyle($container);
-                            };
-                        } else {
-                            alert("Please choose an image file.");
-                        }
-                    });
-                } else {
-                    $inputImage.addClass("hide");
-                }
-            }
-
-            function bindCropSubmit() {
-                const form = document.querySelector("form");
-                if (!form) return;
-
-                form.addEventListener("submit", function () {
-                    cropInstances.forEach(function (item, input) {
-                        const $input = $(input);
-                        const file = input.files && input.files[0];
-
-                        if (!file) return;
-
-                        const canvas = $input.closest(".banner-image-item")
-                            .find(".image-crop > img")
-                            .cropper("getCroppedCanvas", {
-                                width: item.width,
-                                height: item.height
-                            });
-
-                        if (!canvas) return;
-
-                        const dataUrl = canvas.toDataURL(file.type || "image/jpeg");
-                        const base64 = dataUrl.split(",")[1];
-                        const blob = base64ToBlob(base64, file.type || "image/jpeg");
-
-                        const croppedFile = new File([blob], file.name, {
-                            type: file.type || "image/jpeg",
-                            lastModified: new Date().getTime()
-                        });
-
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(croppedFile);
-                        input.files = dataTransfer.files;
-                    });
-                });
-            }
 
             document.getElementById("addBannerImage")?.addEventListener("click", function () {
                 const wrap = document.getElementById("bannerImagesWrap");
@@ -228,14 +102,6 @@
                                data-crop-width="478"
                                data-crop-height="825" />
                         <small class="text-muted">Choose image and crop before upload.</small>
-
-                        <div class="mt-3 image-crop" style="width:100%; max-height:350px; overflow:hidden; border:1px solid #ddd;">
-                            <img src="/images/placeholder.png" alt="Preview" style="max-width:100%; display:block;">
-                        </div>
-
-                        <div class="mt-2">
-                            <div class="img-preview" style="width:120px; height:160px; overflow:hidden; border:1px solid #ddd;"></div>
-                        </div>
                     </div>
 
                     <div class="col-md-2">
@@ -264,20 +130,7 @@
                 </div>`;
 
                 wrap.insertAdjacentHTML("beforeend", html);
-        
-                const $newItem = $(wrap).children().last();
-                imageInitialize($newItem);
-
                 idx++;
-            });
-
-            $(document).ready(function () {
-                debugger
-                $(".banner-image-item").each(function () {
-                    imageInitialize($(this));
-                });
-
-                bindCropSubmit();
             });
         })();
     </script>
