@@ -161,12 +161,14 @@ $(function () {
 
         cropper.setCropBoxData(cropBox);
 
-        const zoomRatio = Math.max(
-            cropBox.width / imageData.naturalWidth,
-            cropBox.height / imageData.naturalHeight
+        const currentRatio = imageData.width / imageData.naturalWidth;
+        const zoomFactor = Math.max(
+            cropBox.width / imageData.width,
+            cropBox.height / imageData.height
         );
+        const targetRatio = currentRatio * zoomFactor;
 
-        cropper.zoomTo(zoomRatio);
+        cropper.zoomTo(targetRatio);
 
         const updatedImageData = cropper.getImageData();
         cropper.setCanvasData({
