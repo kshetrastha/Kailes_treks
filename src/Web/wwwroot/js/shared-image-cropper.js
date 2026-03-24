@@ -36,11 +36,11 @@ $(function () {
                     background: #eef1f7;
                 }
 
-                #sharedImageCropperModal .shared-image-cropper-stage img {
-                    display: block;
-                    max-width: none;
-                    max-height: none;
-                }            
+                //#sharedImageCropperModal .shared-image-cropper-stage img {
+                //    display: block;
+                //    max-width: none;
+                //    max-height: none;
+                //}            
             </style>
         `;
 
