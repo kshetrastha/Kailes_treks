@@ -56,8 +56,13 @@
 
                     <div class="col-md-6">
                         <label asp-for="Image" class="form-label"></label>
-                        <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                        <input asp-for="Image"
+                               class="form-control js-crop-image"
+                               type="file"
+                               accept="image/*"
+                               data-aspect-ratio="0.8734177215" />
                         <span asp-validation-for="Image" class="text-danger"></span>
+                        <small class="text-muted d-block">Crop ratio: 69:79.</small>
                         @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
                         {
                             <div class="mt-2">
@@ -73,6 +78,7 @@
                             <button type="button" class="btn btn-outline-primary btn-sm" id="addAdditionalImageRowBtn">Add image</button>
                         </div>
                         <small class="text-muted d-block mb-2">Selecting new images during edit will replace existing additional images.</small>
+                        <small class="text-muted d-block mb-2">Additional image crop ratio: 690:757.</small>
                         <div id="additionalImageRowsContainer" class="d-flex flex-column gap-2"></div>
                     </div>
 
@@ -103,6 +109,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/shared-image-cropper.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const additionalImageRowsContainer = document.getElementById('additionalImageRowsContainer');
@@ -127,7 +134,13 @@
                         </div>
                         <div class="col-md-5">
                             <label class="form-label">Upload image</label>
-                            <input type="file" name="AdditionalImages" class="form-control" accept="image/*" />
+                            <input type="file"
+                                   name="AdditionalImages"
+                                   class="form-control js-crop-image"
+                                   accept="image/*"
+                                   data-aspect-ratio="0.9114927345"
+                                   data-crop-width="690"
+                                   data-crop-height="757" />
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-outline-danger w-100 remove-additional-image-row" title="Remove image row">✕</button>
