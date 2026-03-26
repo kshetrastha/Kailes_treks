@@ -3,13 +3,39 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit Banner" : "Create Banner";
 }
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
 <style>
-    .cropper-container{
-        height: 100% !important;
+    .banner-image-item .image-crop {
+        width: 100%;
+        max-height: 360px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        border-radius: 0.375rem;
+        background-color: #f8f9fa;
+    }
+
+    .banner-image-item .image-crop > img {
+        display: block;
+        max-width: 100%;
+    }
+
+    .banner-image-item .img-preview {
+        width: 120px;
+        height: 160px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        border-radius: 0.375rem;
+        background-color: #fff;
+    }
+
+    .banner-image-item .cropper-container {
         width: 100% !important;
+        height: 360px !important;
     }
 </style>
-@* <link href="~/cusassests/cropper/cropper.min.css" rel="stylesheet" /> *@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">@(isEdit ? "Edit" : "Create") Banner</h2>
@@ -57,6 +83,13 @@
                                 {
                                     <img src="/@Model.Images[i].ExistingImagePath" alt="Banner image" class="img-thumbnail mt-2" style="max-height:90px; object-fit:cover;" />
                                 }
+                                <div class="mt-3 image-crop">
+                                    <img src="@(string.IsNullOrWhiteSpace(Model.Images[i].ExistingImagePath) ? "/images/placeholder.png" : $"/{Model.Images[i].ExistingImagePath}")"
+                                         alt="Preview" />
+                                </div>
+                                <div class="mt-2">
+                                    <div class="img-preview"></div>
+                                </div>
                             </div>
                             <div class="col-md-2"><input name="Images[@i].SubDescription" value="@Model.Images[i].SubDescription" class="form-control" placeholder="Sub description" /></div>
                             <div class="col-md-3"><input name="Images[@i].Description" value="@Model.Images[i].Description" class="form-control" placeholder="Description" /></div>
@@ -86,8 +119,6 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    @* <script src="~/cusassests/cropper/cropper.min.js"></script> *@
-    <script src="~/js/shared-image-cropper.js"></script>
 
     <script>
         (function () {
@@ -113,15 +144,6 @@
                 return new Blob(byteArrays, { type: contentType });
             }
 
-            function applyCropperContainerStyle($container) {
-                window.requestAnimationFrame(function () {
-                    $container.find(".cropper-container").css({
-                        width: "668px",
-                        height: "631px"
-                    });
-                });
-            }
-
             function imageInitialize($container) {
                 const $image = $container.find(".image-crop > img");
                 const $inputImage = $container.find(".js-crop-image");
@@ -138,10 +160,7 @@
                     preview: $preview,
                     viewMode: 1,
                     autoCropArea: 1,
-                    responsive: true,
-                    built: function () {
-                        applyCropperContainerStyle($container);
-                    }
+                    responsive: true
                 });
 
                 cropInstances.set($inputImage[0], {
@@ -166,7 +185,6 @@
                             fileReader.readAsDataURL(file);
                             fileReader.onload = function () {
                                 $image.cropper("reset", true).cropper("replace", this.result);
-                                applyCropperContainerStyle($container);
                             };
                         } else {
                             alert("Please choose an image file.");
@@ -229,12 +247,12 @@
                                data-crop-height="825" />
                         <small class="text-muted">Choose image and crop before upload.</small>
 
-                        <div class="mt-3 image-crop" style="width:100%; max-height:350px; overflow:hidden; border:1px solid #ddd;">
-                            <img src="/images/placeholder.png" alt="Preview" style="max-width:100%; display:block;">
+                        <div class="mt-3 image-crop">
+                            <img src="/images/placeholder.png" alt="Preview">
                         </div>
 
                         <div class="mt-2">
-                            <div class="img-preview" style="width:120px; height:160px; overflow:hidden; border:1px solid #ddd;"></div>
+                            <div class="img-preview"></div>
                         </div>
                     </div>
 
@@ -272,7 +290,6 @@
             });
 
             $(document).ready(function () {
-                debugger
                 $(".banner-image-item").each(function () {
                     imageInitialize($(this));
                 });
