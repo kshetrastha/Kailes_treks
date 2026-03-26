@@ -16,6 +16,10 @@ $(function () {
 
         const style = `
             <style id="${MODAL_STYLE_ID}">
+                #sharedImageCropperModal .modal-dialog {
+                    max-width: min(1100px, 96vw);
+                }
+
                 #sharedImageCropperModal .modal-content {
                     min-height: 100vh;
                 }
@@ -23,6 +27,7 @@ $(function () {
                 #sharedImageCropperModal .modal-body {
                     display: flex;
                     min-height: 0;
+                    padding: 0.75rem;
                 }
 
                 #sharedImageCropperModal .shared-image-cropper-stage {
@@ -30,17 +35,15 @@ $(function () {
                     align-items: center;
                     justify-content: center;
                     width: 100%;
-                    min-height: 75vh;
-                    height: 100%;
+                    min-height: clamp(420px, 78vh, 900px);
                     overflow: hidden;
                     background: #eef1f7;
                 }
 
-                //#sharedImageCropperModal .shared-image-cropper-stage img {
-                //    display: block;
-                //    max-width: none;
-                //    max-height: none;
-                //}            
+                #sharedImageCropperModal .shared-image-cropper-stage img {
+                    display: block;
+                    max-width: 100%;
+                }
             </style>
         `;
 
@@ -102,6 +105,7 @@ $(function () {
         }
 
         if (state.image) {
+            state.image.onload = null;
             $(state.image).removeAttr('src');
         }
 
@@ -152,12 +156,12 @@ $(function () {
 
         cropper.setCropBoxData(cropBox);
 
-        const zoomRatio = Math.max(
+        const targetZoomRatio = Math.max(
             cropBox.width / imageData.naturalWidth,
             cropBox.height / imageData.naturalHeight
         );
 
-        cropper.zoomTo(zoomRatio);
+        cropper.zoomTo(targetZoomRatio);
 
         const updatedImageData = cropper.getImageData();
         cropper.setCanvasData({
@@ -183,14 +187,20 @@ $(function () {
         ensureModal();
         if (!state.modal || !state.image || typeof window.Cropper === 'undefined') return;
 
+        cleanupCropper();
         state.activeInput = input;
         state.imageUrl = URL.createObjectURL(file);
         $(state.image).attr('src', state.imageUrl);
 
         const aspectRatio = parseFloatOrNull($(input).data('aspect-ratio')) ?? DEFAULT_ASPECT_RATIO;
 
-        state.image.onload = function () {
+        const initializeCropper = function () {
             if (!state.image) return;
+
+            if (state.cropper) {
+                state.cropper.destroy();
+                state.cropper = null;
+            }
 
             state.cropper = new Cropper(state.image, {
                 aspectRatio: aspectRatio,
@@ -208,6 +218,17 @@ $(function () {
                 }
             });
         };
+
+        $('#sharedImageCropperModal').one('shown.bs.modal', function () {
+            if (!state.image) return;
+
+            if (state.image.complete) {
+                initializeCropper();
+                return;
+            }
+
+            state.image.onload = initializeCropper;
+        });
 
         state.modal.show();
     }
