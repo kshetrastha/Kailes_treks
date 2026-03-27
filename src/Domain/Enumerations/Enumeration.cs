@@ -17,7 +17,8 @@ public enum Country
 {
     Nepal = 1,
     Tibet = 2,
-    India = 3
+    India = 3,
+    Bhutan = 4,
 }
 public enum Season
 {
