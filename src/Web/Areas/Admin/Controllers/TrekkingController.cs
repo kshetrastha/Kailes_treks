@@ -270,10 +270,10 @@ public sealed class TrekkingController(
     }
 
     [HttpGet("create")]
-    public IActionResult Create(string? activeTab = null)
+    public async Task<IActionResult> Create(string? activeTab = null)
     {
         ViewBag.ActiveTab = activeTab;
-        LoadDropdowns();
+        await LoadDropdowns();
         return View(new TrekkingAdminViewModel());
     }
 
@@ -283,7 +283,7 @@ public sealed class TrekkingController(
         ViewBag.ActiveTab = nextTab;
         if (!ModelState.IsValid)
         {
-            LoadDropdowns();
+            await LoadDropdowns();
             return View(model);
         }
 
@@ -299,7 +299,7 @@ public sealed class TrekkingController(
         var details = await service.GetByIdAsync(id, ct);
         if (details is null) return NotFound();
         ViewBag.ActiveTab = activeTab;
-        LoadDropdowns();
+        await LoadDropdowns();
         return View("Create", ToViewModel(details));
     }
 
@@ -309,7 +309,7 @@ public sealed class TrekkingController(
         ViewBag.ActiveTab = nextTab;
         if (!ModelState.IsValid)
         {
-            LoadDropdowns();
+            await LoadDropdowns();
             return View("Create", model);
         }
 
