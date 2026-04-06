@@ -44,6 +44,18 @@
                     <span asp-validation-for="Image" class="text-danger"></span>
                 </div>
 
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Country" class="form-label"></label>
+                        <select asp-for="Country" class="form-select" asp-items="Html.GetEnumSelectList<TravelCleanArch.Domain.Enumerations.Country>()"></select>
+                    </div>
+                    <div class="col-md-4 mb-3 form-check mt-4">
+                        <input asp-for="HasRegions" class="form-check-input" />
+                        <label asp-for="HasRegions" class="form-check-label">Type uses region level before package</label>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label asp-for="Ordering" class="form-label"></label>

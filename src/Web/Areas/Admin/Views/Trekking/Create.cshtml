@@ -1,5 +1,6 @@
 @using TravelCleanArch.Application.Abstractions.Travel
 @using TravelCleanArch.Web.Areas.Admin.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model TrekkingAdminViewModel
 @{
     var isEdit = Model.Id.HasValue;
@@ -8,6 +9,7 @@
     var countries = ViewBag.Countries as IReadOnlyCollection<string> ?? [];
     var travelStatuses = ViewBag.TravelStatuses as IReadOnlyCollection<string> ?? [];
     var seasons = ViewBag.Seasons as IReadOnlyCollection<string> ?? [];
+    var serviceRegions = ViewBag.ServiceRegions as IReadOnlyCollection<SelectListItem> ?? [];
     var activeTab = ViewBag.ActiveTab as string;
 
 }
@@ -39,14 +41,15 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label asp-for="TrekkingTypeId" class="form-label"></label>
-                                <select asp-for="TrekkingTypeId" class="form-select" required>
+                                <select asp-for="TrekkingTypeId" class="form-select" id="trekkingTypeSelect" required>
                                     <option value="">-- Select type --</option>
                                     @foreach (var t in types)
                                     {
-                                        <option value="@t.Id">@t.Title</option>
+                                        <option value="@t.Id" data-country="@t.Country" data-has-regions="@t.HasRegions.ToString().ToLowerInvariant()">@t.Title (@t.Country)</option>
                                     }
                                 </select>
                                 <span asp-validation-for="TrekkingTypeId" class="text-danger"></span>
+                                <small class="text-muted">Choose type by country. Some types use region level before package.</small>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="Status" class="form-label"></label>
@@ -92,9 +95,17 @@
                                 <input asp-for="Destination" class="form-control" required />
                                 <span asp-validation-for="Destination" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4">
-                                <label asp-for="Region" class="form-label"></label>
-                                <input asp-for="Region" class="form-control" />
+                            <div class="col-md-4" id="regionFieldWrap">
+                                <label asp-for="ServiceRegionId" class="form-label">Service Region</label>
+                                <select asp-for="ServiceRegionId" class="form-select" id="serviceRegionSelect">
+                                    <option value="">-- Select service region --</option>
+                                    @foreach (var region in serviceRegions)
+                                    {
+                                        <option value="@region.Value">@region.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ServiceRegionId" class="text-danger"></span>
+                                <small id="regionHelp" class="text-muted d-block">Required when selected type uses regions.</small>
                             </div>
                             <div class="col-md-4">
                                 <label asp-for="DurationDays" class="form-label"></label>
@@ -143,7 +154,7 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label asp-for="OverviewCountry" class="form-label"></label>
-                                <select asp-for="OverviewCountry" class="form-select">
+                                <select asp-for="OverviewCountry" class="form-select" id="overviewCountrySelect">
                                     @foreach (var country in countries)
                                     {
                                         <option value="@country">@country</option>
@@ -499,6 +510,39 @@
             heroImageUrlInput?.addEventListener('input', renderHeroImagePreview);
             renderHeroVideoPreview();
             renderHeroImagePreview();
+
+            const syncTrekkingHierarchy = () => {
+                const typeSelect = document.getElementById('trekkingTypeSelect');
+                const countrySelect = document.getElementById('overviewCountrySelect');
+                const regionWrap = document.getElementById('regionFieldWrap');
+                const regionInput = document.getElementById('serviceRegionSelect');
+                const regionHelp = document.getElementById('regionHelp');
+                if (!typeSelect || !countrySelect || !regionWrap || !regionInput) return;
+
+                const option = typeSelect.options[typeSelect.selectedIndex];
+                const hasRegions = option?.dataset?.hasRegions === 'true';
+                const typeCountry = option?.dataset?.country;
+
+                regionWrap.classList.toggle('d-none', !hasRegions);
+                regionInput.required = hasRegions;
+                if (!hasRegions) {
+                    regionInput.value = '';
+                }
+
+                if (typeCountry && countrySelect.value !== typeCountry) {
+                    countrySelect.value = typeCountry;
+                }
+
+                if (regionHelp) {
+                    regionHelp.textContent = hasRegions
+                        ? 'Required when selected type uses regions.'
+                        : 'This type goes directly to package, so region is hidden.';
+                }
+            };
+
+            document.getElementById('trekkingTypeSelect')?.addEventListener('change', syncTrekkingHierarchy);
+            document.getElementById('overviewCountrySelect')?.addEventListener('change', syncTrekkingHierarchy);
+            syncTrekkingHierarchy();
 
             const activeTabFromServer = '@(activeTab ?? string.Empty)';
             if (activeTabFromServer) {
