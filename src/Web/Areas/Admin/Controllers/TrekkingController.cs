@@ -281,6 +281,7 @@ public sealed class TrekkingController(
     public async Task<IActionResult> Create(TrekkingAdminViewModel model, string? nextTab = null, CancellationToken ct = default)
     {
         ViewBag.ActiveTab = nextTab;
+        await ValidateHierarchyRulesAsync(model, ct);
         if (!ModelState.IsValid)
         {
             await LoadDropdowns();
@@ -307,6 +308,7 @@ public sealed class TrekkingController(
     public async Task<IActionResult> Edit(int id, TrekkingAdminViewModel model, string? nextTab = null, CancellationToken ct = default)
     {
         ViewBag.ActiveTab = nextTab;
+        await ValidateHierarchyRulesAsync(model, ct);
         if (!ModelState.IsValid)
         {
             await LoadDropdowns();
@@ -327,6 +329,37 @@ public sealed class TrekkingController(
         await service.DeleteAsync(id, ct);
         TempData["SuccessMessage"] = "Trekking deleted.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task ValidateHierarchyRulesAsync(TrekkingAdminViewModel model, CancellationToken ct)
+    {
+        if (!model.TrekkingTypeId.HasValue || model.TrekkingTypeId.Value <= 0)
+        {
+            return;
+        }
+
+        var trekkingType = await uow.TrekkingTypeService.GetByIdAsync(model.TrekkingTypeId.Value, ct);
+        if (trekkingType is null)
+        {
+            ModelState.AddModelError(nameof(model.TrekkingTypeId), "Select a valid trekking type.");
+            return;
+        }
+
+        var selectedCountry = model.OverviewCountry.ToString();
+        if (!string.Equals(trekkingType.Country, selectedCountry, StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.OverviewCountry), $"Selected trekking type belongs to {trekkingType.Country}. Please choose the same country.");
+        }
+
+        if (trekkingType.HasRegions && string.IsNullOrWhiteSpace(model.Region))
+        {
+            ModelState.AddModelError(nameof(model.Region), "Region is required for trekking types that use region-level navigation.");
+        }
+
+        if (!trekkingType.HasRegions)
+        {
+            model.Region = null;
+        }
     }
 
     private async Task<ExpeditionItineraryTabsViewModel?> BuildDetailModelAsync(int id, string activeTab, int? itineraryId, CancellationToken ct)

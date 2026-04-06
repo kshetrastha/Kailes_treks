@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
 
@@ -23,6 +24,8 @@ public sealed class TrekkingTypeFormViewModel : IValidatableObject
     [Display(Name = "Image")] public IFormFile? Image { get; set; }
     [Range(0, 999)] public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
+    public Country Country { get; set; } = Country.Nepal;
+    public bool HasRegions { get; set; } = true;
     public List<TrekkingTypeImageInput> Images { get; set; } = [];
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
