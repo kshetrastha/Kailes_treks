@@ -9,6 +9,7 @@ public sealed class TrekkingAdminViewModel
 
     [Required]
     public int? TrekkingTypeId { get; set; }
+    public int? ServiceRegionId { get; set; }
 
     [Required]
     [MaxLength(200)]

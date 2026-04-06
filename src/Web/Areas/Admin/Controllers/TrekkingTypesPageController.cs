@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Constants;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Web.Areas.Admin.Models;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
@@ -43,6 +44,8 @@ public sealed class TrekkingTypesPageController(ITrekkingTypeService service, IC
             ExistingImagePath = item.ImagePath,
             Ordering = item.Ordering,
             IsPublished = item.IsPublished,
+            Country = Enum.TryParse<Country>(item.Country, true, out var country) ? country : Country.Nepal,
+            HasRegions = item.HasRegions,
             Images = item.Images?.Select(x => new TrekkingTypeImageInput { ExistingPath = x.FilePath, AltText = x.AltText, SortOrder = x.SortOrder, IsCover = x.IsCover }).ToList() ?? []
         });
     }
@@ -56,7 +59,7 @@ public sealed class TrekkingTypesPageController(ITrekkingTypeService service, IC
         var images = await BuildImagesAsync(m.Images, ct);
         var imagePath = m.Image is { Length: > 0 } ? await UploadImageAsync(m.Image, "trekking-types", ct) : null;
 
-        await service.CreateAsync(new TrekkingTypeUpsertDto(m.Title, m.ShortDescription, m.Description, imagePath, m.Ordering, m.IsPublished, images), currentUser.UserId, ct);
+        await service.CreateAsync(new TrekkingTypeUpsertDto(m.Title, m.ShortDescription, m.Description, imagePath, m.Ordering, m.IsPublished, m.Country.ToString(), m.HasRegions, images), currentUser.UserId, ct);
         TempData["SuccessMessage"] = "Trekking type created.";
         return RedirectToAction(nameof(Index));
     }
@@ -74,7 +77,7 @@ public sealed class TrekkingTypesPageController(ITrekkingTypeService service, IC
         if (m.Image is { Length: > 0 }) imagePath = await UploadImageAsync(m.Image, "trekking-types", ct);
 
         var images = await BuildImagesAsync(m.Images, ct);
-        var ok = await service.UpdateAsync(id, new TrekkingTypeUpsertDto(m.Title, m.ShortDescription, m.Description, imagePath, m.Ordering, m.IsPublished, images), currentUser.UserId, ct);
+        var ok = await service.UpdateAsync(id, new TrekkingTypeUpsertDto(m.Title, m.ShortDescription, m.Description, imagePath, m.Ordering, m.IsPublished, m.Country.ToString(), m.HasRegions, images), currentUser.UserId, ct);
         if (!ok) return NotFound();
 
         TempData["SuccessMessage"] = "Trekking type updated.";

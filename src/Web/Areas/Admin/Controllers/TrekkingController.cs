@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Security;
 using TravelCleanArch.Application.Abstractions.Travel;
@@ -270,10 +271,10 @@ public sealed class TrekkingController(
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(string? activeTab = null)
+    public async Task<IActionResult> Create(string? activeTab = null, CancellationToken ct = default)
     {
         ViewBag.ActiveTab = activeTab;
-        await LoadDropdowns();
+        await LoadDropdowns(ct);
         return View(new TrekkingAdminViewModel());
     }
 
@@ -281,9 +282,10 @@ public sealed class TrekkingController(
     public async Task<IActionResult> Create(TrekkingAdminViewModel model, string? nextTab = null, CancellationToken ct = default)
     {
         ViewBag.ActiveTab = nextTab;
+        await ValidateHierarchyRulesAsync(model, ct);
         if (!ModelState.IsValid)
         {
-            await LoadDropdowns();
+            await LoadDropdowns(ct);
             return View(model);
         }
 
@@ -299,17 +301,19 @@ public sealed class TrekkingController(
         var details = await service.GetByIdAsync(id, ct);
         if (details is null) return NotFound();
         ViewBag.ActiveTab = activeTab;
-        await LoadDropdowns();
-        return View("Create", ToViewModel(details));
+        await LoadDropdowns(ct);
+        var vm = await ToViewModelAsync(details, ct);
+        return View("Create", vm);
     }
 
     [HttpPost("{id:int}/edit"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TrekkingAdminViewModel model, string? nextTab = null, CancellationToken ct = default)
     {
         ViewBag.ActiveTab = nextTab;
+        await ValidateHierarchyRulesAsync(model, ct);
         if (!ModelState.IsValid)
         {
-            await LoadDropdowns();
+            await LoadDropdowns(ct);
             return View("Create", model);
         }
 
@@ -327,6 +331,56 @@ public sealed class TrekkingController(
         await service.DeleteAsync(id, ct);
         TempData["SuccessMessage"] = "Trekking deleted.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task ValidateHierarchyRulesAsync(TrekkingAdminViewModel model, CancellationToken ct)
+    {
+        if (!model.TrekkingTypeId.HasValue || model.TrekkingTypeId.Value <= 0)
+        {
+            return;
+        }
+
+        var trekkingType = await uow.TrekkingTypeService.GetByIdAsync(model.TrekkingTypeId.Value, ct);
+        if (trekkingType is null)
+        {
+            ModelState.AddModelError(nameof(model.TrekkingTypeId), "Select a valid trekking type.");
+            return;
+        }
+
+        var selectedCountry = model.OverviewCountry.ToString();
+        if (!string.Equals(trekkingType.Country, selectedCountry, StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.OverviewCountry), $"Selected trekking type belongs to {trekkingType.Country}. Please choose the same country.");
+        }
+
+        if (trekkingType.HasRegions)
+        {
+            if (!model.ServiceRegionId.HasValue || model.ServiceRegionId.Value <= 0)
+            {
+                ModelState.AddModelError(nameof(model.ServiceRegionId), "Service region is required for trekking types that use region-level navigation.");
+                return;
+            }
+
+            var serviceRegion = await uow.ServiceRegionService.Query()
+                .AsNoTracking()
+                .Where(x => x.Id == model.ServiceRegionId.Value)
+                .Select(x => new { x.Id, x.Name })
+                .FirstOrDefaultAsync(ct);
+
+            if (serviceRegion is null)
+            {
+                ModelState.AddModelError(nameof(model.ServiceRegionId), "Select a valid service region from master service regions.");
+                return;
+            }
+
+            model.Region = serviceRegion.Name;
+        }
+
+        if (!trekkingType.HasRegions)
+        {
+            model.ServiceRegionId = null;
+            model.Region = null;
+        }
     }
 
     private async Task<ExpeditionItineraryTabsViewModel?> BuildDetailModelAsync(int id, string activeTab, int? itineraryId, CancellationToken ct)
@@ -398,9 +452,14 @@ public sealed class TrekkingController(
         return relative;
     }
 
-    private async Task LoadDropdowns()
+    private async Task LoadDropdowns(CancellationToken ct = default)
     {
-        ViewBag.TrekkingTypes = await uow.TrekkingTypeService.ListAsync(false, default);
+        ViewBag.TrekkingTypes = await uow.TrekkingTypeService.ListAsync(false, ct);
+        ViewBag.ServiceRegions = await uow.ServiceRegionService.Query()
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString()))
+            .ToListAsync(ct);
         ViewBag.DifficultyLevels = Enum.GetNames<DifficultyLevel>();
         ViewBag.Countries = Enum.GetNames<Country>();
         ViewBag.TravelStatuses = Enum.GetNames<TravelStatus>();
@@ -417,11 +476,23 @@ public sealed class TrekkingController(
         return await SaveUploadedAssetAsync(model.HeroImageFile, "hero", model.HeroImageUrl, ct);
     }
 
-    private static TrekkingAdminViewModel ToViewModel(TrekkingDetailsDto x)
-        => new()
+    private async Task<TrekkingAdminViewModel> ToViewModelAsync(TrekkingDetailsDto x, CancellationToken ct)
+    {
+        int? serviceRegionId = null;
+        if (!string.IsNullOrWhiteSpace(x.Region))
+        {
+            serviceRegionId = await uow.ServiceRegionService.Query()
+                .AsNoTracking()
+                .Where(r => r.Name == x.Region)
+                .Select(r => (int?)r.Id)
+                .FirstOrDefaultAsync(ct);
+        }
+
+        return new TrekkingAdminViewModel
         {
             Id = x.Id,
             TrekkingTypeId = x.TrekkingTypeId,
+            ServiceRegionId = serviceRegionId,
             Name = x.Name,
             Slug = x.Slug,
             ShortDescription = x.ShortDescription,
@@ -476,6 +547,7 @@ public sealed class TrekkingController(
             SummitRoute = x.SummitRoute,
             OverviewDuration = x.OverviewDuration
         };
+    }
 
     private static TrekkingUpsertDto ToDto(TrekkingAdminViewModel m)
         => new(

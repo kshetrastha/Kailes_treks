@@ -1,4 +1,5 @@
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Domain.Entities.Master;
 
@@ -10,6 +11,8 @@ public sealed class TrekkingType : BaseEntity
     public string? ImagePath { get; set; }
     public int Ordering { get; set; }
     public bool IsPublished { get; set; } = true;
+    public Country Country { get; set; } = Country.Nepal;
+    public bool HasRegions { get; set; } = true;
 
     public List<Trekking> TrekkingItems { get; set; } = [];
     public List<TrekkingTypeImage> Images { get; set; } = [];
