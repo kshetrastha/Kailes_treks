@@ -22222,3 +22222,36 @@ svg#kailash-map text
 #kailash-map .kailash-item:hover {
   transform: scale(1.1);
 }
+
+/* ----------------------------------------
+   Home page usability fixes
+---------------------------------------- */
+@media only screen and (min-width: 1200px) and (max-width: 1499px) {
+    .main-menu li {
+        margin: 0 8px;
+    }
+
+    .main-menu li a {
+        font-size: 15px;
+        padding: 30px 8px;
+    }
+}
+
+.main-menu .submenu {
+    min-width: 260px;
+    max-width: 300px;
+}
+
+.main-menu .submenu li a {
+    line-height: 1.35;
+}
+
+.trip-wrapper .trip-thumb {
+    overflow: hidden;
+}
+
+.trip-wrapper .trip-thumb img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
