@@ -175,18 +175,23 @@ public sealed class TrekkingCountryGroupDto
 {
     public Country Country { get; set; }
     public List<TrekkingTypeGroupDto> TrekkingTypes { get; set; } = new();
+    public string HeroImage { get; set; } = string.Empty;
+
 }
 
 public sealed class TrekkingTypeGroupDto
 {
     public int TrekkingTypeId { get; set; }
     public string TrekkingTypeName { get; set; } = string.Empty;
+    public string HeroImageUrl { get; set; } = string.Empty;
     public List<TrekkingRegionGroupDto> Regions { get; set; } = new();
     public List<TrekkingPackageDto> PackagesWithoutRegion { get; set; } = new();
 }
 
 public sealed class TrekkingRegionGroupDto
 {
+    public string HeroImage { get; set; } = string.Empty;
+
     public string Region { get; set; } = string.Empty;
     public List<TrekkingPackageDto> Packages { get; set; } = new();
 }
@@ -196,4 +201,12 @@ public sealed class TrekkingPackageDto
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
+    public string ImageURL { get; set; } = string.Empty;
 }
+
+
+public sealed record TrekkingCountryPackageCountDto(
+    string Country,
+    int PackageCount,
+    string? ImageUrl
+);

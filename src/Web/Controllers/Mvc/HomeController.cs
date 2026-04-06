@@ -200,7 +200,7 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(2).ToList();
 
         var bannerContent = (await TryGetBannerAsync(ct));
-
+        var countryGroups = await uow.TrekkingService.GetPublicTrekkingPackageCountByCountryAsync(ct);
 
 
 
@@ -218,7 +218,9 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
             WhoWeAreBackgroundImagePath = whoWeAreHero?.BackgroundImagePath,
             WhoWeAreItems = whoWeAreItems,
             RecentBlogs = recentBlogs,
-            GetBannerContent = bannerContent
+            GetBannerContent = bannerContent,
+            TrekkingCountryPackageCountDtos = countryGroups
+                
         };
     }
 

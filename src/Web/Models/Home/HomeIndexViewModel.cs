@@ -21,5 +21,5 @@ public sealed class HomeIndexViewModel
     public IReadOnlyList<BlogCardViewModel> RecentBlogs { get; init; } = [];
     public Banner GetBannerContent { get; set; } = new Banner();
     public List<TrekkingCountryGroupDto> TrekkingCountryGroupDtos { get; set; } =new List<TrekkingCountryGroupDto>();
-
+     public List<TrekkingCountryPackageCountDto> TrekkingCountryPackageCountDtos { get; set; } = new List<TrekkingCountryPackageCountDto>();
 }

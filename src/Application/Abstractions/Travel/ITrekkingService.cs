@@ -9,5 +9,5 @@ public interface ITrekkingService
     Task<bool> DeleteAsync(int id, CancellationToken ct);
     Task<TrekkingDetailsDto?> GetPublicBySlugAsync(string slug, CancellationToken ct);
     Task<List<TrekkingCountryGroupDto>> GetPublicTrekkingHierarchyAsync(CancellationToken ct);
-    
+    Task<List<TrekkingCountryPackageCountDto>> GetPublicTrekkingPackageCountByCountryAsync(CancellationToken ct);
     }

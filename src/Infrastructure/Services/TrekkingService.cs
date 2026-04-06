@@ -349,7 +349,8 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
                 x.Region,
                 x.OverviewCountry,
                 x.TrekkingTypeId,
-                TrekkingTypeName = x.TrekkingType != null ? x.TrekkingType.Title : string.Empty
+                x.HeroImageUrl,
+                TrekkingTypeName = x.TrekkingType != null ? x.TrekkingType.Title : string.Empty,
             })
             .OrderBy(x => x.OverviewCountry)
             .ThenBy(x => x.TrekkingTypeName)
@@ -359,17 +360,13 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
 
         var result = items
             .GroupBy(x => x.OverviewCountry)
-            .Select(countryGroup => new TrekkingCountryGroupDto
+            .Select(countryGroup =>
             {
-                Country = countryGroup.Key,
-                TrekkingTypes = countryGroup
+                var trekkingTypes = countryGroup
                     .GroupBy(x => new { x.TrekkingTypeId, x.TrekkingTypeName })
-                    .Select(typeGroup => new TrekkingTypeGroupDto
+                    .Select(typeGroup =>
                     {
-                        TrekkingTypeId = typeGroup.Key.TrekkingTypeId ?? 0,
-                        TrekkingTypeName = typeGroup.Key.TrekkingTypeName,
-
-                        Regions = typeGroup
+                        var regions = typeGroup
                             .Where(x => !string.IsNullOrWhiteSpace(x.Region))
                             .GroupBy(x => x.Region!.Trim())
                             .Select(regionGroup => new TrekkingRegionGroupDto
@@ -380,24 +377,88 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
                                     {
                                         Id = x.Id,
                                         Name = x.Name,
-                                        Slug = x.Slug
+                                        Slug = x.Slug,
+                                        ImageURL = x.HeroImageUrl
                                     })
-                                    .ToList()
+                                    .ToList(),
+                                HeroImage = regionGroup
+                                    .Where(x => !string.IsNullOrWhiteSpace(x.HeroImageUrl))
+                                    .Select(x => x.HeroImageUrl)
+                                    .FirstOrDefault()
                             })
-                            .ToList(),
+                            .ToList();
 
-                        PackagesWithoutRegion = typeGroup
+                        var packagesWithoutRegion = typeGroup
                             .Where(x => string.IsNullOrWhiteSpace(x.Region))
                             .Select(x => new TrekkingPackageDto
                             {
                                 Id = x.Id,
                                 Name = x.Name,
-                                Slug = x.Slug
+                                Slug = x.Slug,
+                                ImageURL = x.HeroImageUrl
                             })
-                            .ToList()
+                            .ToList();
+
+                        var heroImage =
+                            typeGroup
+                                .Where(x => !string.IsNullOrWhiteSpace(x.Region) && !string.IsNullOrWhiteSpace(x.HeroImageUrl))
+                                .Select(x => x.HeroImageUrl)
+                                .FirstOrDefault()
+                            ??
+                            typeGroup
+                                .Where(x => string.IsNullOrWhiteSpace(x.Region) && !string.IsNullOrWhiteSpace(x.HeroImageUrl))
+                                .Select(x => x.HeroImageUrl)
+                                .FirstOrDefault();
+
+                        return new TrekkingTypeGroupDto
+                        {
+                            TrekkingTypeId = typeGroup.Key.TrekkingTypeId ?? 0,
+                            TrekkingTypeName = typeGroup.Key.TrekkingTypeName,
+                            Regions = regions,
+                            PackagesWithoutRegion = packagesWithoutRegion,
+                        };
                     })
-                    .ToList()
+                    .ToList();
+
+                return new TrekkingCountryGroupDto
+                {
+                    Country = countryGroup.Key,
+                    TrekkingTypes = trekkingTypes,
+                    HeroImage = trekkingTypes
+                        .Where(x => !string.IsNullOrWhiteSpace(x.HeroImageUrl))
+                        .Select(x => x.HeroImageUrl)
+                        .FirstOrDefault()
+                };
             })
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<List<TrekkingCountryPackageCountDto>> GetPublicTrekkingPackageCountByCountryAsync(CancellationToken ct)
+    {
+        var items = await db.Trekking
+            .AsNoTracking()
+            .Where(x => x.Status == TravelStatus.published)
+            .Select(x => new
+            {
+                x.OverviewCountry,
+                x.Name,
+                x.HeroImageUrl
+            })
+            .ToListAsync(ct);
+
+        var result = items
+            .GroupBy(x => x.OverviewCountry)
+            .Select(g => new TrekkingCountryPackageCountDto(
+                g.Key.ToString(),
+                g.Count(),
+                g.OrderBy(x => x.Name)
+                 .Where(x => !string.IsNullOrWhiteSpace(x.HeroImageUrl))
+                 .Select(x => x.HeroImageUrl)
+                 .FirstOrDefault()
+            ))
+            .OrderBy(x => x.Country)
             .ToList();
 
         return result;

@@ -245,6 +245,9 @@
     </div>
 </section>
 
+
+
+    
 <section class="bd-trip-area section-space flash-white p-relative">
     <div class="container">
         <div class="trip-shape">
@@ -264,96 +267,47 @@
             </div>
         </div>
         <div class="row gy-24">
-            <div class="col-xl-4 col-lg-4 col-md-4">
-                <div class="trip-wrapper trip-style-one p-relative">
-                    <div class="trip-thumb image-overly">
-                        <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-1.png" alt="image"></a>
-                    </div>
-                    <div class="trip-tag">
-                        <div class="trip-number">
-                            <span><a href="destinations-details-right.html">8 Tours</a></span>
-                        </div>
-                        <div class="trip-location">
-                            <span><a href="destinations-details-right.html">Nepal</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-lg-3 col-md-3">
-                <div class="trip-wrapper trip-style-one p-relative">
-                    <div class="trip-thumb image-overly">
-                        <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-2.png" alt="image"></a>
-                    </div>
-                    <div class="trip-tag">
-                        <div class="trip-number">
-                            <span><a href="destinations-details-right.html">2 Tours</a></span>
-                        </div>
-                        <div class="trip-location">
-                            <span><a href="destinations-details-right.html">Bhutan</a></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="trip-wrapper trip-style-one p-relative">
-                    <div class="trip-thumb image-overly">
-                        <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-3.png" alt="image"></a>
-                    </div>
-                    <div class="trip-tag">
-                        <div class="trip-number">
-                            <span><a href="destinations-details-right.html">3 Tours</a></span>
-                        </div>
-                        <div class="trip-location">
-                            <span><a href="destinations-details-right.html">Kailash Tour</a></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-5 col-lg-5 col-md-5">
-                <div class="trip-wrapper trip-style-one p-relative">
-                    <div class="trip-thumb image-overly">
-                        <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-4.png" alt="image"></a>
-                    </div>
-                    <div class="trip-tag">
-                        <div class="trip-number">
-                            <span><a href="destinations-details-right.html">4 Tours</a></span>
-                        </div>
-                        <div class="trip-location">
-                            <span><a href="destinations-details-right.html">Lhasa</a></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row gy-24">
-                    <div class="col-md-6">
+            @if (Model.TrekkingCountryPackageCountDtos != null && Model.TrekkingCountryPackageCountDtos.Any())
+            {
+                var items = Model.TrekkingCountryPackageCountDtos.ToList();
+
+                @for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+
+                    var colClass = i == 0
+                        ? "col-xl-4 col-lg-4 col-md-4"
+                        : i == items.Count - 1
+                            ? "col-xl-5 col-lg-5 col-md-5"
+                            : "col-xl-3 col-lg-3 col-md-3";
+
+                    var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
+                        ? item.ImageUrl
+                        : Url.Content("~/cusassests/images/trip/trip-img-1.png");
+
+                    <div class="@colClass">
                         <div class="trip-wrapper trip-style-one p-relative">
                             <div class="trip-thumb image-overly">
-                                <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-5.png" alt="image"></a>
+                                <a href="#">
+                                    <img src="@imageUrl" alt="@item.Country">
+                                </a>
                             </div>
                             <div class="trip-tag">
                                 <div class="trip-number">
-                                    <span><a href="destinations-details-right.html">2 Tours</a></span>
+                                    <span>
+                                        <a href="#">@item.PackageCount Tours</a>
+                                    </span>
                                 </div>
                                 <div class="trip-location">
-                                    <span><a href="destinations-details-right.html">ABC Trek</a></span>
+                                    <span>
+                                        <a href="#">@item.Country</a>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="trip-wrapper trip-style-one p-relative">
-                            <div class="trip-thumb image-overly">
-                                <a href="destinations-details-right.html"><img src="~/cusassests/images/trip/trip-img-6.png" alt="image"></a>
-                            </div>
-                            <div class="trip-tag">
-                                <div class="trip-number">
-                                    <span><a href="destinations-details-right.html">2 Tours</a></span>
-                                </div>
-                                <div class="trip-location">
-                                    <span><a href="destinations-details-right.html">India</a></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                }
+            }
         </div>
     </div>
 </section>
