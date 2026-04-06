@@ -2029,6 +2029,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Country")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -2037,6 +2040,9 @@ namespace TravelCleanArch.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<bool>("HasRegions")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");

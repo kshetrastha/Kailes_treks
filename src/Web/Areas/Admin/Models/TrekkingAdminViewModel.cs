@@ -19,7 +19,7 @@ public sealed class TrekkingAdminViewModel
     public string Slug { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(1000)]
+    [MaxLength(int.MaxValue)]
     public string ShortDescription { get; set; } = string.Empty;
 
     public bool Featured { get; set; }
