@@ -7,6 +7,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc;
 
 [AllowAnonymous]
 [Route("account")]
+
 public sealed class AccountController(IInteractiveAuthService interactiveAuthService) : Controller
 {
     [HttpGet("login")]
