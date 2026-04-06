@@ -146,11 +146,15 @@
                             <div class="col-md-4">
                                 <label asp-for="OverviewCountry" class="form-label"></label>
                                 <select asp-for="OverviewCountry" class="form-select" id="overviewCountrySelect">
+                                    <option value="">-- Select Country --</option>
                                     @foreach (var country in countries)
                                     {
-                                        <option value="@country">@country</option>
+                                        <option value="@country">
+                                            @country
+                                        </option>
                                     }
                                 </select>
+                                <span asp-validation-for="OverviewCountry" class="text-danger"></span>
                             </div>
                             <div class="col-md-4">
                                 <label asp-for="PeakName" class="form-label"></label>
@@ -503,6 +507,7 @@
             renderHeroImagePreview();
 
             const syncTrekkingHierarchy = () => {
+                debugger;
                 const typeSelect = document.getElementById('trekkingTypeSelect');
                 const countrySelect = document.getElementById('overviewCountrySelect');
                 const regionWrap = document.getElementById('regionFieldWrap');
