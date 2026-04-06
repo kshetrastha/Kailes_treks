@@ -1,3 +1,8 @@
+@using TravelCleanArch.Application.Abstractions.Persistence
+@inject IUnitOfWork unitOfWork
+@{
+    var nav = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
+}
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
 
@@ -36,8 +41,7 @@
         </div>
     </div>
     <!-- preloader end -->
-
-     <!-- Header area start -->
+    <!-- Header area start -->
     <header>
         <div class="header-area header-style header-style-two header-transparent" id="header-sticky">
             <div class="container">
@@ -52,121 +56,71 @@
                                     <a href="/">Home</a>
                                     
                                 </li>
-                                <li class="menu-item-has-children">
-                                        <a href="javascript:void(0)">Nepal</a>
+                                @if (nav is not null && nav.Count > 0)
+                                {
+                                    foreach (var nv in nav)
+                                    {
+                                        <li class="menu-item-has-children">
+                                            <a href="javascript:void(0)">@nv.Country</a>
 
-                                        <ul class="submenu">
 
-                                            <!-- Adventures Trekking -->
-                                            <li class="menu-item-has-children has-arrow">
-                                                <a href="javascript:void(0)">Adventures Trekking</a>
-
-                                                <ul class="submenu">
-
-                                                    <!-- Everest Region -->
-                                                    <li class="menu-item-has-children has-arrow">
-                                                        <a href="javascript:void(0)">Everest Region Trekking</a>
-
-                                                        <ul class="submenu">
-                                                            <li><a href="#">Everest Basecamp Trek</a></li>
-                                                            <li><a href="#">Everest Two High Passes Trek</a></li>
-                                                            <li><a href="#">Everest Three High Passes Trek</a></li>
-                                                            <li><a href="#">Sherpa Culture Trek</a></li>
-                                                        </ul>
-                                                    </li>
-
-                                                    <!-- Annapurna Region -->
-                                                    <li class="menu-item-has-children has-arrow">
-                                                        <a href="javascript:void(0)">Annapurna Region Trekking</a>
-
-                                                        <ul class="submenu">
-                                                            <li><a href="#">Annapurna Base Camp Trek</a></li>
-                                                            <li><a href="#">Annapurna Circuit Trek</a></li>
-                                                            <li><a href="#">Ghorepani Poon Hill Trek</a></li>
-                                                        </ul>
-                                                    </li>
-
-                                                    <!-- Langtang Region -->
-                                                    <li class="menu-item-has-children has-arrow">
-                                                        <a href="javascript:void(0)">Langtang Region Trekking</a>
-
-                                                        <ul class="submenu">
-                                                            <li><a href="#">Langtang Valley Trek</a></li>
-                                                            <li><a href="#">Gosaikunda Trek</a></li>
-                                                        </ul>
-                                                    </li>
-
-                                                    <!-- Eastern Himalaya -->
-                                                    <li class="menu-item-has-children has-arrow">
-                                                        <a href="javascript:void(0)">Eastern Himalaya Trekking</a>
-
-                                                        <ul class="submenu">
-                                                            <li><a href="#">Kanchenjunga Trek</a></li>
-                                                            <li><a href="#">Makalu Base Camp Trek</a></li>
-                                                        </ul>
-                                                    </li>
-
-                                                    <!-- Restricted Area -->
-                                                    <li class="menu-item-has-children has-arrow">
-                                                        <a href="javascript:void(0)">Restricted Area Trekking</a>
-
-                                                        <ul class="submenu">
-                                                            <li><a href="#">Upper Mustang Trek</a></li>
-                                                            <li><a href="#">Manaslu Circuit Trek</a></li>
-                                                            <li><a href="#">Dolpo Trek</a></li>
-                                                        </ul>
-                                                    </li>
-
-                                                </ul>
-                                            </li>
-
-                                            <!-- Pilgrimage Holidays -->
-                                            <li class="menu-item-has-children has-arrow">
-                                                <a href="javascript:void(0)">Pilgrimage Holidays</a>
-
-                                                <ul class="submenu">
-                                                    <li><a href="#">Muktinath Pilgrimage Tour</a></li>
-                                                    <li><a href="#">Pashupatinath Darshan Tour</a></li>
-                                                    <li><a href="#">Lumbini Buddhist Tour</a></li>
-                                                </ul>
-                                            </li>
-
-                                            <!-- Wildlife -->
-                                            <li class="menu-item-has-children has-arrow">
-                                                <a href="javascript:void(0)">National Park and Wildlife Holidays</a>
-
-                                                <ul class="submenu">
-                                                    <li><a href="#">Chitwan National Park Safari</a></li>
-                                                    <li><a href="#">Bardia National Park Safari</a></li>
-                                                </ul>
-                                            </li>
-
-                                        </ul>
-                                    </li>
-                                <li class="menu-item-has-children">
-                                    <a href="javascript:void(0)">India</a>
-                                    <ul class="submenu">
-                                        <li class="menu-item-has-children has-arrow">
-                                            <a href="javascript:void(0)">Destination Grid</a>
                                             <ul class="submenu">
-                                                <li><a href="destinations-grid.html">No Sidebar</a></li>
-                                                <li><a href="destinations-grid-right.html">Right Sidebar</a></li>
-                                                <li><a href="destinations-grid-left.html">Left Sidebar</a></li>
+
+                                                @if (nv.TrekkingTypes.Any())
+                                                {
+                                                    @foreach (var type in nv.TrekkingTypes)
+                                                    {
+                                                            
+                                                        <li class="menu-item-has-children has-arrow">
+                                                            <a href="javascript:void(0)">@type.TrekkingTypeName</a>
+                                                            @if (type.Regions.Any())
+                                                            {
+                                                                <ul class="submenu">
+                                                                    @foreach (var reg in type.Regions)
+                                                                    {
+                                                                            
+                                                                        <li class="menu-item-has-children has-arrow">
+                                                                            <a href="javascript:void(0)">@reg.Region</a>
+                                                                            @if (reg.Packages.Any())
+                                                                            {
+                                                                                <ul class="submenu">
+                                                                                    @foreach (var pkg in reg.Packages)
+                                                                                    {
+                                                                                        <li><a href="@pkg.Slug">@pkg.Name</a></li>
+                                                                                    }
+                                                                                  
+                                                                                </ul>
+                                                                            }
+                                                                           
+                                                                        </li>
+                                                                    }
+
+                                                               
+                                                                </ul>
+                                                            }
+
+                                                            @if (type.PackagesWithoutRegion.Any())
+                                                            {
+                                                                @foreach (var pkg in type.PackagesWithoutRegion)
+                                                                {
+                                                                    <ul class="submenu">
+                                                                        <li><a href="@pkg.Slug">@pkg.Name</a></li>
+                                                                    </ul>
+                                                                }
+                                                            }
+
+                                                        </li>
+
+                                                   
+                                                    }
+
+                                                }
+
+                                               
                                             </ul>
                                         </li>
-                                        <li class="menu-item-has-children has-arrow">
-                                            <a href="javascript:void(0)">Destination Details</a>
-                                            <ul class="submenu">
-                                                <li><a href="destinations-details.html">No Sidebar</a></li>
-                                                <li><a href="destinations-details-right.html">Right Sidebar</a></li>
-                                                <li><a href="destinations-details-left.html">Left Sidebar</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                
-                                <li><a href="blog.html">Tibet</a>                                    
-                                </li>
+                                    }
+                                }
                                 <li><a href="contact.html">Contact</a></li>
                             </ul>
                         </nav>
@@ -176,7 +130,7 @@
                             <div class="header-btn-wrap">
                                 <div class="d-none d-sm-inline-flex h-gap-55">
                                     <div class="header-currency-item header-currency">
-                                       <div class="bd-search-btn-wrapper">
+                                        <div class="bd-search-btn-wrapper">
                                             <button class="bd-search-open-btn">
                                                 <i class="fa-regular fa-magnifying-glass"></i>
                                             </button>
@@ -206,7 +160,6 @@
         </div>
     </header>
     <!-- Header area end -->
-
     <!-- Offcanvas area start -->
     <div class="fix">
         <div class="offcanvas-area">
@@ -221,9 +174,7 @@
                         <div class="offcanvas-close">
                             <button class="offcanvas-close-icon animation--flip">
                                 <span class="offcanvas-m-lines">
-                                <span class="offcanvas-m-line line--1"></span><span
-                                    class="offcanvas-m-line line--2"></span><span
-                                    class="offcanvas-m-line line--3"></span>
+                                    <span class="offcanvas-m-line line--1"></span><span class="offcanvas-m-line line--2"></span><span class="offcanvas-m-line line--3"></span>
                                 </span>
                             </button>
                         </div>
@@ -235,8 +186,8 @@
                         </form>
                     </div>
                     <div class="mobile-menu fix mb-25"></div>
+
                     
-                   
                 </div>
             </div>
         </div>
@@ -244,7 +195,6 @@
     <div class="offcanvas-overlay"></div>
     <div class="offcanvas-overlay-white"></div>
     <!-- Offcanvas area start -->
-
     <!-- search popup area start here  -->
     <div class="bd-search-popup-area">
         <div class="container">
@@ -275,9 +225,9 @@
     <div class="bd-search-overlay"></div>
     <!-- search popup area end here  -->
 
-	<main class="main-area fix">
+    <main class="main-area fix">
         @RenderBody()
-	</main>
+    </main>
 
    
     <footer class="bd-footer-area footer-bg image-bg fix">
@@ -327,7 +277,8 @@
                                     <ul>
                                         <li class="underline"><a href="tour-listing.html">Tour Listing</a></li>
                                         <li class="underline"><a href="booking.html">Tour Booking </a></li>
-                                        <li class="underline"><a href="tour-details-right.html">Traveler Review</a><span class="bd-badge warning">New</span>
+                                        <li class="underline">
+                                            <a href="tour-details-right.html">Traveler Review</a><span class="bd-badge warning">New</span>
                                         </li>
                                         <li class="underline"><a href="team.html">Travel Agents</a></li>
                                         <li class="underline"><a href="contact.html">Help</a></li>
@@ -342,28 +293,28 @@
                                     <li class="footer-widget-list-single-item">
                                         <span class="footer-widget-list-icon"><i class="icon-call"></i></span>
                                         <span class="footer-widget-list-text">
-                                 <span class="footer-widget-list-text-top">
-                                    Call Us
-                                 </span>
-                                        <a href="tel:+00123456889">+977 1 5912501</a>
+                                            <span class="footer-widget-list-text-top">
+                                                Call Us
+                                            </span>
+                                            <a href="tel:+00123456889">+977 1 5912501</a>
                                         </span>
                                     </li>
                                     <li class="footer-widget-list-single-item">
                                         <span class="footer-widget-list-icon"><i class="icon-envelope"></i></span>
                                         <span class="footer-widget-list-text">
-                                 <span class="footer-widget-list-text-top">
-                                    Email Us
-                                 </span>
-                                        <a href="mailto:visitkailashtreks@gmail.com">visitkailashtreks@gmail.com</a>
+                                            <span class="footer-widget-list-text-top">
+                                                Email Us
+                                            </span>
+                                            <a href="mailto:visitkailashtreks@gmail.com">visitkailashtreks@gmail.com</a>
                                         </span>
                                     </li>
                                     <li class="footer-widget-list-single-item">
                                         <span class="footer-widget-list-icon"><i class="icon-location-fill"></i></span>
                                         <span class="footer-widget-list-text">
-                                 <span class="footer-widget-list-text-top">
-                                    Our office
-                                 </span>
-                                        <a href="contact.html">Kathmandu, Nepal</a>
+                                            <span class="footer-widget-list-text-top">
+                                                Our office
+                                            </span>
+                                            <a href="contact.html">Kathmandu, Nepal</a>
                                         </span>
                                     </li>
                                 </ul>
@@ -391,7 +342,6 @@
         </div>
     </footer>
     <!-- Footer area end -->
-
     <!-- back to top -->
     <!-- Backtotop start -->
     <div class="backtotop-wrap cursor-pointer">
@@ -400,12 +350,11 @@
         </svg>
     </div>
     <!-- Backtotop end -->
-
-	<!-- WhatsApp Floating Button -->
-<a href="https://wa.me/9779850000000" class="whatsapp-float" target="_blank">
-    <i class="fa-brands fa-whatsapp"></i>
-    <span class="whatsapp-text">+977-9851008008 <br> +977-9851210987</span>
-</a>
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/9779850000000" class="whatsapp-float" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span class="whatsapp-text">+977-9851008008 <br> +977-9851210987</span>
+    </a>
 
     <!-- JS here -->
     <script src="~/cusassests/js/vendor/jquery-3.7.1.min.js"></script>
@@ -426,22 +375,22 @@
     <script src="~/cusassests/js/plugins/tinymce.min.js"></script>
     <script src="~/cusassests/js/vendor/smooth-scroll.min.js"></script>
     <script src="~/cusassests/js/main.js"></script>
-	<script src="~/cusassests/js/main.js"></script>
-	<script>
-		const iframe = document.getElementById("ytVideo");
-		const btn = document.getElementById("muteBtn");
-		let isMuted = true;
-		btn.addEventListener("click", function () {
-			iframe.contentWindow.postMessage(JSON.stringify({
-				event: "command",
-				func: isMuted ? "unMute" : "mute",
-      args: []
-    }), "*");
+    <script src="~/cusassests/js/main.js"></script>
+    <script>
+                  const iframe = document.getElementById("ytVideo");
+                  const btn = document.getElementById("muteBtn");
+                  let isMuted = true;
+                  btn.addEventListener("click", function () {
+                      iframe.contentWindow.postMessage(JSON.stringify({
+                          event: "command",
+                          func: isMuted ? "unMute" : "mute",
+                args: []
+              }), "*");
 
-    btn.innerHTML = isMuted ? "🔊" : "🔇";
-    isMuted = !isMuted;
-  });
-</script>
+              btn.innerHTML = isMuted ? "🔊" : "🔇";
+              isMuted = !isMuted;
+            });
+    </script>
     
 </body>
 

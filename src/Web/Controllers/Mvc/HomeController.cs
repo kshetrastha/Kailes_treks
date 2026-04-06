@@ -21,7 +21,7 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
     public async Task<IActionResult> WhyWithUs(CancellationToken ct)
     {
         var model = await BuildHomeIndexViewModelAsync(ct);
-
+        var expedition = await uow.TrekkingService.GetPublicTrekkingHierarchyAsync(ct);
         return View(model);
     }
 

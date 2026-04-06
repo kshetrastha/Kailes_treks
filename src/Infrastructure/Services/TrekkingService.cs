@@ -335,4 +335,71 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
             DateTimeKind.Local => value.ToUniversalTime(),
             _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
         };
+
+    public async Task<List<TrekkingCountryGroupDto>> GetPublicTrekkingHierarchyAsync(CancellationToken ct)
+    {
+        var items = await db.Trekking
+            .AsNoTracking()
+            .Where(x => x.Status == TravelStatus.published)
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.Slug,
+                x.Region,
+                x.OverviewCountry,
+                x.TrekkingTypeId,
+                TrekkingTypeName = x.TrekkingType != null ? x.TrekkingType.Title : string.Empty
+            })
+            .OrderBy(x => x.OverviewCountry)
+            .ThenBy(x => x.TrekkingTypeName)
+            .ThenBy(x => x.Region)
+            .ThenBy(x => x.Name)
+            .ToListAsync(ct);
+
+        var result = items
+            .GroupBy(x => x.OverviewCountry)
+            .Select(countryGroup => new TrekkingCountryGroupDto
+            {
+                Country = countryGroup.Key,
+                TrekkingTypes = countryGroup
+                    .GroupBy(x => new { x.TrekkingTypeId, x.TrekkingTypeName })
+                    .Select(typeGroup => new TrekkingTypeGroupDto
+                    {
+                        TrekkingTypeId = typeGroup.Key.TrekkingTypeId ?? 0,
+                        TrekkingTypeName = typeGroup.Key.TrekkingTypeName,
+
+                        Regions = typeGroup
+                            .Where(x => !string.IsNullOrWhiteSpace(x.Region))
+                            .GroupBy(x => x.Region!.Trim())
+                            .Select(regionGroup => new TrekkingRegionGroupDto
+                            {
+                                Region = regionGroup.Key,
+                                Packages = regionGroup
+                                    .Select(x => new TrekkingPackageDto
+                                    {
+                                        Id = x.Id,
+                                        Name = x.Name,
+                                        Slug = x.Slug
+                                    })
+                                    .ToList()
+                            })
+                            .ToList(),
+
+                        PackagesWithoutRegion = typeGroup
+                            .Where(x => string.IsNullOrWhiteSpace(x.Region))
+                            .Select(x => new TrekkingPackageDto
+                            {
+                                Id = x.Id,
+                                Name = x.Name,
+                                Slug = x.Slug
+                            })
+                            .ToList()
+                    })
+                    .ToList()
+            })
+            .ToList();
+
+        return result;
+    }
 }

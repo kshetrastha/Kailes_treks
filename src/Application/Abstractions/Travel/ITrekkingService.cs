@@ -8,4 +8,6 @@ public interface ITrekkingService
     Task<bool> UpdateAsync(int id, TrekkingUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> DeleteAsync(int id, CancellationToken ct);
     Task<TrekkingDetailsDto?> GetPublicBySlugAsync(string slug, CancellationToken ct);
-}
+    Task<List<TrekkingCountryGroupDto>> GetPublicTrekkingHierarchyAsync(CancellationToken ct);
+    
+    }
