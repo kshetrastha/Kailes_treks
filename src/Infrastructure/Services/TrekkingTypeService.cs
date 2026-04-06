@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities.Master;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
 
 namespace TravelCleanArch.Infrastructure.Services;
@@ -21,6 +22,8 @@ public sealed class TrekkingTypeService(AppDbContext db) : ITrekkingTypeService
                 x.ImagePath,
                 x.Ordering,
                 x.IsPublished,
+                x.Country.ToString(),
+                x.HasRegions,
                 x.Images.OrderBy(i => i.SortOrder).Select(i => new TrekkingTypeImageDto(i.Id, i.FilePath, i.AltText, i.SortOrder, i.IsCover)).ToList()))
             .ToListAsync(ct);
     }
@@ -36,6 +39,8 @@ public sealed class TrekkingTypeService(AppDbContext db) : ITrekkingTypeService
                 x.ImagePath,
                 x.Ordering,
                 x.IsPublished,
+                x.Country.ToString(),
+                x.HasRegions,
                 x.Images.OrderBy(i => i.SortOrder).Select(i => new TrekkingTypeImageDto(i.Id, i.FilePath, i.AltText, i.SortOrder, i.IsCover)).ToList()))
             .FirstOrDefaultAsync(ct);
 
@@ -49,6 +54,8 @@ public sealed class TrekkingTypeService(AppDbContext db) : ITrekkingTypeService
             ImagePath = request.ImagePath,
             Ordering = request.Ordering,
             IsPublished = request.IsPublished,
+            Country = Enum.TryParse<Country>(request.Country, true, out var country) ? country : Country.Nepal,
+            HasRegions = request.HasRegions,
             CreatedAtUtc = DateTime.UtcNow,
             UpdatedAtUtc = DateTime.UtcNow,
             CreatedBy = userId,
@@ -83,6 +90,8 @@ public sealed class TrekkingTypeService(AppDbContext db) : ITrekkingTypeService
         entity.ImagePath = request.ImagePath;
         entity.Ordering = request.Ordering;
         entity.IsPublished = request.IsPublished;
+        entity.Country = Enum.TryParse<Country>(request.Country, true, out var country) ? country : Country.Nepal;
+        entity.HasRegions = request.HasRegions;
         entity.UpdatedAtUtc = DateTime.UtcNow;
         entity.UpdatedBy = userId;
 
