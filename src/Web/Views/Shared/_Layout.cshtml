@@ -2,6 +2,7 @@
 @inject IUnitOfWork unitOfWork
 @{
     var nav = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
+    var navs = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
 }
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
@@ -81,16 +82,16 @@
                                                                             
                                                                         <li class="menu-item-has-children has-arrow">
                                                                             <a href="javascript:void(0)">@reg.Region</a>
-                                                                            @if (reg.Packages.Any())
-                                                                            {
-                                                                                <ul class="submenu">
+                                                                            <ul class="submenu">
+                                                                                @if (reg.Packages.Any())
+                                                                                {
                                                                                     @foreach (var pkg in reg.Packages)
                                                                                     {
                                                                                         <li><a href="@pkg.Slug">@pkg.Name</a></li>
                                                                                     }
                                                                                   
-                                                                                </ul>
-                                                                            }
+                                                                                }
+                                                                            </ul>
                                                                            
                                                                         </li>
                                                                     }
@@ -101,12 +102,12 @@
 
                                                             @if (type.PackagesWithoutRegion.Any())
                                                             {
-                                                                @foreach (var pkg in type.PackagesWithoutRegion)
-                                                                {
-                                                                    <ul class="submenu">
+                                                                <ul class="submenu">
+                                                                    @foreach (var pkg in type.PackagesWithoutRegion)
+                                                                    {
                                                                         <li><a href="@pkg.Slug">@pkg.Name</a></li>
-                                                                    </ul>
-                                                                }
+                                                                    }
+                                                                </ul>
                                                             }
 
                                                         </li>
