@@ -248,8 +248,12 @@ public sealed class TrekkingController(
     public async Task<IActionResult> SaveDetailFaqs(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
     {
         var rows = (model.Faqs ?? [])
-            .Where(x => !string.IsNullOrWhiteSpace(x.Question) || !string.IsNullOrWhiteSpace(x.Answer))
-            .Select((x, i) => new TrekkingFaqDto(x.Id, x.Question, x.Answer, x.Ordering == 0 ? i + 1 : x.Ordering))
+            .Where(x => !string.IsNullOrWhiteSpace(x.Question) && !string.IsNullOrWhiteSpace(x.Answer))
+            .Select((x, i) => new TrekkingFaqDto(
+                x.Id,
+                x.Question.Trim(),
+                x.Answer.Trim(),
+                x.Ordering == 0 ? i + 1 : x.Ordering))
             .ToList();
 
         await UpdateTrekkingCollectionsAsync(id, details => Task.FromResult(ToUpsertDto(details) with { Faqs = rows }), ct);
