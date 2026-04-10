@@ -76,7 +76,7 @@
                                 <tr>
                                     <td data-label="Order">@item.Ordering</td>
                                     <td data-label="Title">@item.Title</td>
-                                    <td data-label="Short Description">@item.ShortDescription</td>
+                                    <td data-label="Short Description">@(Html.Raw(item.ShortDescription))</td>
                                     <td data-label="Image">
                                         @if (!string.IsNullOrWhiteSpace(item.ImagePath))
                                         {

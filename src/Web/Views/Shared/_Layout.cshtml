@@ -2,6 +2,7 @@
 @inject IUnitOfWork unitOfWork
 @{
     var nav = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
+    var navs = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
 }
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
@@ -47,7 +48,7 @@
             <div class="container">
                 <div class="header-inner">
                     <div class="header-logo">
-                        <a href="/"><img src="cusassests/images/logo/logo.png" alt="Logo"></a>
+                        <a href="/"><img src="~/cusassests/images/logo/logo.png" alt="Logo"></a>
                     </div>
                     <div class="header-menu">
                         <nav class="main-menu main-menu-two" id="mobile-menu">
@@ -81,16 +82,16 @@
                                                                             
                                                                         <li class="menu-item-has-children has-arrow">
                                                                             <a href="javascript:void(0)">@reg.Region</a>
-                                                                            @if (reg.Packages.Any())
-                                                                            {
-                                                                                <ul class="submenu">
+                                                                            <ul class="submenu">
+                                                                                @if (reg.Packages.Any())
+                                                                                {
                                                                                     @foreach (var pkg in reg.Packages)
                                                                                     {
                                                                                         <li><a href="@pkg.Slug">@pkg.Name</a></li>
                                                                                     }
                                                                                   
-                                                                                </ul>
-                                                                            }
+                                                                                }
+                                                                            </ul>
                                                                            
                                                                         </li>
                                                                     }
@@ -101,12 +102,12 @@
 
                                                             @if (type.PackagesWithoutRegion.Any())
                                                             {
-                                                                @foreach (var pkg in type.PackagesWithoutRegion)
-                                                                {
-                                                                    <ul class="submenu">
-                                                                        <li><a href="@pkg.Slug">@pkg.Name</a></li>
-                                                                    </ul>
-                                                                }
+                                                                <ul class="submenu">
+                                                                    @foreach (var pkg in type.PackagesWithoutRegion)
+                                                                    {
+                                                                        <li><a href="/packages/@pkg.Slug">@pkg.Name</a></li>
+                                                                    }
+                                                                </ul>
                                                             }
 
                                                         </li>
@@ -168,8 +169,10 @@
                     <div class="offcanvas-top d-flex justify-content-between align-items-center mb-25">
                         <div class="offcanvas-logo">
                             <a href="index.html">
-                                <img src="cusassests/images/logo/logo.png" alt="logo not found">
+                                <img src="~/cusassests/images/logo/logo.png" alt="logo not found">
                             </a>
+                            <img src="" 
+
                         </div>
                         <div class="offcanvas-close">
                             <button class="offcanvas-close-icon animation--flip">
@@ -239,7 +242,7 @@
                             <div class="footer-widget">
                                 <div class="footer-widget-logo mb-40">
                                     <a href="index.html">
-                                        <img src="cusassests/images/logo/logo.png" alt="logo not found">
+                                        <img src="~/cusassests/images/logo/logo.png" alt="logo not found">
                                     </a>
                                 </div>
                                 <div class="footer-widget-content">
