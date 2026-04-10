@@ -248,8 +248,12 @@ public sealed class TrekkingController(
     public async Task<IActionResult> SaveDetailFaqs(int id, ExpeditionItineraryTabsViewModel model, CancellationToken ct = default)
     {
         var rows = (model.Faqs ?? [])
-            .Where(x => !string.IsNullOrWhiteSpace(x.Question) || !string.IsNullOrWhiteSpace(x.Answer))
-            .Select((x, i) => new TrekkingFaqDto(x.Id, x.Question, x.Answer, x.Ordering == 0 ? i + 1 : x.Ordering))
+            .Where(x => !string.IsNullOrWhiteSpace(x.Question) && !string.IsNullOrWhiteSpace(x.Answer))
+            .Select((x, i) => new TrekkingFaqDto(
+                x.Id,
+                x.Question.Trim(),
+                x.Answer.Trim(),
+                x.Ordering == 0 ? i + 1 : x.Ordering))
             .ToList();
 
         await UpdateTrekkingCollectionsAsync(id, details => Task.FromResult(ToUpsertDto(details) with { Faqs = rows }), ct);
@@ -318,7 +322,23 @@ public sealed class TrekkingController(
         }
 
         model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
-        var ok = await service.UpdateAsync(id, ToDto(model), currentUser.UserId, ct);
+        var existing = await service.GetByIdAsync(id, ct);
+        if (existing is null) return NotFound();
+
+        var upsert = ToDto(model) with
+        {
+            Faqs = existing.Faqs,
+            MediaItems = existing.MediaItems,
+            Itineraries = existing.Itineraries,
+            Maps = existing.Maps,
+            CostItems = existing.CostItems,
+            FixedDepartures = existing.FixedDepartures,
+            GearLists = existing.GearLists,
+            Highlights = existing.Highlights,
+            Reviews = existing.Reviews
+        };
+
+        var ok = await service.UpdateAsync(id, upsert, currentUser.UserId, ct);
         if (!ok) return NotFound();
 
         TempData["SuccessMessage"] = "Trekking updated.";
