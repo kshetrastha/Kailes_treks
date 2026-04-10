@@ -318,7 +318,23 @@ public sealed class TrekkingController(
         }
 
         model.HeroImageUrl = await ResolveHeroImageUrlAsync(model, ct);
-        var ok = await service.UpdateAsync(id, ToDto(model), currentUser.UserId, ct);
+        var existing = await service.GetByIdAsync(id, ct);
+        if (existing is null) return NotFound();
+
+        var upsert = ToDto(model) with
+        {
+            Faqs = existing.Faqs,
+            MediaItems = existing.MediaItems,
+            Itineraries = existing.Itineraries,
+            Maps = existing.Maps,
+            CostItems = existing.CostItems,
+            FixedDepartures = existing.FixedDepartures,
+            GearLists = existing.GearLists,
+            Highlights = existing.Highlights,
+            Reviews = existing.Reviews
+        };
+
+        var ok = await service.UpdateAsync(id, upsert, currentUser.UserId, ct);
         if (!ok) return NotFound();
 
         TempData["SuccessMessage"] = "Trekking updated.";
