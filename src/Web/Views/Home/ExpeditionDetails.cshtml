@@ -3,81 +3,138 @@
 <h2>@Model.Name</h2>
 <p>@Model.ShortDescription</p>
 
-@if (!string.IsNullOrWhiteSpace(Model.FullDescription))
-{
-    <section>
-        <h4>Overview</h4>
-        <p>@Model.FullDescription</p>
-    </section>
-}
+<div class="tour-details-nav-tabs mb-35">
+    <nav>
+        <div class="nav nav-tabs" id="expedition-nav-tab" role="tablist">
+            <button class="nav-link active" id="expedition-nav-overview-tab" data-bs-toggle="tab" data-bs-target="#expedition-nav-overview" type="button" role="tab" aria-controls="expedition-nav-overview" aria-selected="true">Overview</button>
+            <button class="nav-link" id="expedition-nav-gallery-tab" data-bs-toggle="tab" data-bs-target="#expedition-nav-gallery" type="button" role="tab" aria-controls="expedition-nav-gallery" aria-selected="false">Gallery</button>
+            <button class="nav-link" id="expedition-nav-feedback-tab" data-bs-toggle="tab" data-bs-target="#expedition-nav-feedback" type="button" role="tab" aria-controls="expedition-nav-feedback" aria-selected="false">Feedback</button>
+            <button class="nav-link" id="expedition-nav-gear-list-tab" data-bs-toggle="tab" data-bs-target="#expedition-nav-gear-list" type="button" role="tab" aria-controls="expedition-nav-gear-list" aria-selected="false">Gear List</button>
+        </div>
+    </nav>
 
-<section>
-    <h4>Itineraries</h4>
-    @foreach (var season in Model.ItinerariesBySeason)
-    {
-        <h5>@season.Key</h5>
-        <ul>
-            @foreach (var day in season.Value)
+    <div class="tab-content" id="expedition-nav-tabContent">
+        <div class="tab-pane fade show active" id="expedition-nav-overview" role="tabpanel" aria-labelledby="expedition-nav-overview-tab" tabindex="0">
+            @if (!string.IsNullOrWhiteSpace(Model.FullDescription))
             {
-                <li>Day @day.DayNumber - @day.Title</li>
+                <section class="mt-3">
+                    <h4>Overview</h4>
+                    <p>@Model.FullDescription</p>
+                </section>
             }
-        </ul>
-    }
-</section>
 
-<section>
-    <h4>Inclusions</h4>
-    <ul>@foreach (var item in Model.Inclusions) { <li>@item</li> }</ul>
-    <h4>Exclusions</h4>
-    <ul>@foreach (var item in Model.Exclusions) { <li>@item</li> }</ul>
-</section>
+            <section class="mt-3">
+                <h4>Itineraries</h4>
+                @foreach (var season in Model.ItinerariesBySeason)
+                {
+                    <h5>@season.Key</h5>
+                    <ul>
+                        @foreach (var day in season.Value)
+                        {
+                            <li>Day @day.DayNumber - @day.Title</li>
+                        }
+                    </ul>
+                }
+            </section>
 
-<section>
-    <h4>Fixed Departures</h4>
-    <table class="table">
-        <thead><tr><th>Start</th><th>End</th><th>Status</th><th>Seats</th><th>Price</th></tr></thead>
-        <tbody>
-        @foreach (var d in Model.FixedDepartures)
-        {
-            <tr>
-                <td>@d.StartDate</td>
-                <td>@d.EndDate</td>
-                <td><span class="badge bg-secondary">@d.Status</span></td>
-                <td>@d.RemainingSeats / @d.TotalSeats</td>
-                <td>@d.Currency @d.Price</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-</section>
+            <section class="mt-3">
+                <h4>Inclusions</h4>
+                <ul>@foreach (var item in Model.Inclusions) { <li>@item</li> }</ul>
+                <h4>Exclusions</h4>
+                <ul>@foreach (var item in Model.Exclusions) { <li>@item</li> }</ul>
+            </section>
 
-<section>
-    <h4>Gear List</h4>
-    @foreach (var group in Model.GearByCategory)
-    {
-        <h5>@group.Key</h5>
-        <ul>@foreach (var g in group.Value) { <li>@g.ItemName @(g.IsMandatory ? "(mandatory)" : string.Empty)</li> }</ul>
-    }
-</section>
+            <section class="mt-3">
+                <h4>Fixed Departures</h4>
+                <table class="table">
+                    <thead><tr><th>Start</th><th>End</th><th>Status</th><th>Seats</th><th>Price</th></tr></thead>
+                    <tbody>
+                    @foreach (var d in Model.FixedDepartures)
+                    {
+                        <tr>
+                            <td>@d.StartDate</td>
+                            <td>@d.EndDate</td>
+                            <td><span class="badge bg-secondary">@d.Status</span></td>
+                            <td>@d.RemainingSeats / @d.TotalSeats</td>
+                            <td>@d.Currency @d.Price</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </section>
 
-<section>
-    <h4>Reviews</h4>
-    @foreach (var review in Model.Reviews)
-    {
-        <article>
-            <strong>@review.ClientName</strong> - @review.Rating/5
-            <p>@review.Comment</p>
-        </article>
-    }
-</section>
+            <section class="mt-3">
+                <h4>FAQs</h4>
+                @foreach (var faq in Model.Faqs)
+                {
+                    <details>
+                        <summary>@faq.Question</summary>
+                        <p>@faq.Answer</p>
+                    </details>
+                }
+            </section>
+        </div>
 
-<section>
-    <h4>FAQs</h4>
-    @foreach (var faq in Model.Faqs)
-    {
-        <details>
-            <summary>@faq.Question</summary>
-            <p>@faq.Answer</p>
-        </details>
-    }
-</section>
+        <div class="tab-pane fade" id="expedition-nav-gallery" role="tabpanel" aria-labelledby="expedition-nav-gallery-tab" tabindex="0">
+            <section class="mt-3">
+                <h4>Gallery</h4>
+                <div class="row g-3">
+                    @if (!string.IsNullOrWhiteSpace(Model.BannerImagePath))
+                    {
+                        <div class="col-md-6">
+                            <img class="img-fluid rounded" src="@Model.BannerImagePath" alt="@Model.Name banner image" />
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.ThumbnailImagePath))
+                    {
+                        <div class="col-md-6">
+                            <img class="img-fluid rounded" src="@Model.ThumbnailImagePath" alt="@Model.Name thumbnail image" />
+                        </div>
+                    }
+                    @if (string.IsNullOrWhiteSpace(Model.BannerImagePath) && string.IsNullOrWhiteSpace(Model.ThumbnailImagePath))
+                    {
+                        <p class="mb-0">Gallery images will be available soon.</p>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="tab-pane fade" id="expedition-nav-feedback" role="tabpanel" aria-labelledby="expedition-nav-feedback-tab" tabindex="0">
+            <section class="mt-3">
+                <h4>Feedback</h4>
+                @if (Model.Reviews.Any())
+                {
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <article>
+                            <strong>@review.ClientName</strong> - @review.Rating/5
+                            <p>@review.Comment</p>
+                        </article>
+                    }
+                }
+                else
+                {
+                    <p class="mb-0">No feedback added yet.</p>
+                }
+            </section>
+        </div>
+
+        <div class="tab-pane fade" id="expedition-nav-gear-list" role="tabpanel" aria-labelledby="expedition-nav-gear-list-tab" tabindex="0">
+            <section class="mt-3">
+                <h4>Gear List</h4>
+                @if (Model.GearByCategory.Any())
+                {
+                    @foreach (var group in Model.GearByCategory)
+                    {
+                        <h5>@group.Key</h5>
+                        <ul>@foreach (var g in group.Value) { <li>@g.ItemName @(g.IsMandatory ? "(mandatory)" : string.Empty)</li> }</ul>
+                    }
+                }
+                else
+                {
+                    <p class="mb-0">Gear list will be published soon.</p>
+                }
+            </section>
+        </div>
+    </div>
+</div>
