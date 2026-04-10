@@ -4,8 +4,13 @@
 
 @{
     ViewData["Title"] = Model.Name;
-    var model = Model;
-    var model1 = Model;
+    var inclusions = Model.CostItems.Where(x => x.Type == "Inclusion").ToList();
+    var exclusions = Model.CostItems.Where(x => x.Type == "Exclusion").ToList();
+    var itineraryDays = Model.Itineraries
+        .OrderBy(x => x.SortOrder)
+        .SelectMany(x => x.Days)
+        .OrderBy(x => x.DayNumber)
+        .ToList();
 }
 <div class="section-space-top"></div>
 <!-- breadcrumb area start -->
@@ -35,7 +40,7 @@
                         <div class="tour-details-wrapper">
                             <div class="tour-details mb-25">
                                 <div class="tour-details-thumb details-slide-full mb-30">
-                                    <img src="@Model.HeroImageUrl" alt="image">
+                                    <img src="@Model.HeroImageUrl" alt="@Model.Name" loading="lazy" decoding="async">
                                 </div>
                                 <div class="tour-details-content">
                                     <div class="tour-details-badge d-flex gap--5 mb-10">
@@ -50,7 +55,7 @@
                                     </h3>
                                     <div class="tour-details-meta d-flex flex-wrap gap-10 align-items-center justify-content-between mb-20">
                                         <div class="tour-details-price">
-                                            <h4 class="price-title">$ @Model.Price<span>/Per Person</span></h4>
+                                            <h4 class="price-title">@(Model.PriceOnRequest ? "Price on request" : $"{Model.CurrencyCode ?? "$"} {Model.Price:0.##}")<span>/Per Person</span></h4>
                                         </div>
                                         <div class="tour-details-meta-right d-flex flex-wrap gap-10 align-items-center justify-content-between">
                                             <div class="rating-badge border-badge"><span><i
@@ -71,9 +76,7 @@
                                             </div>
                                             <div class="tour-details-destination-info-title">
                                                 <p class="tour-details-destination-info-top mb-0">Duration</p>
-                                                <span class="tour-details-destination-info-bottom small">21 Days / 20
-                                                    Nights
-                                                </span>
+                                                <span class="tour-details-destination-info-bottom small">@Model.DurationDays Days</span>
                                             </div>
                                         </div>
                                         <div class="tour-details-destination-info">
@@ -82,7 +85,7 @@
                                             </div>
                                             <div class="tour-details-destination-info-title">
                                                 <p class="tour-details-destination-info-top mb-0">Max Elevation</p>
-                                                <span class="tour-details-destination-info-bottom small">3,810m (12,497ft)</span>
+                                                <span class="tour-details-destination-info-bottom small">@Model.MaxAltitudeMeters m@(Model.MaxAltitudeFeet.HasValue ? $" ({Model.MaxAltitudeFeet} ft)" : string.Empty)</span>
                                             </div>
                                         </div>
                                         <div class="tour-details-destination-info">
@@ -91,7 +94,7 @@
                                             </div>
                                             <div class="tour-details-destination-info-title">
                                                 <p class="tour-details-destination-info-top mb-0">Tour Type</p>
-                                                <span class="tour-details-destination-info-bottom small">Pilgrims & Spiritual</span>
+                                                <span class="tour-details-destination-info-bottom small">@Model.Difficulty</span>
                                             </div>
                                         </div>
                                         <div class="tour-details-destination-info">
@@ -100,7 +103,7 @@
                                             </div>
                                             <div class="tour-details-destination-info-title">
                                                 <p class="tour-details-destination-info-top mb-0">Location</p>
-                                                <span class="tour-details-destination-info-bottom">Tibet, China</span>
+                                                <span class="tour-details-destination-info-bottom">@Model.Destination</span>
                                             </div>
                                         </div>
                                         <div class="tour-details-destination-info">
@@ -109,7 +112,7 @@
                                             </div>
                                             <div class="tour-details-destination-info-title">
                                                 <p class="tour-details-destination-info-top mb-0">Best Time to Visit</p>
-                                                <span class="tour-details-destination-info-bottom">Spring & Autumn</span>
+                                                <span class="tour-details-destination-info-bottom">@(string.IsNullOrWhiteSpace(Model.BestSeason) ? "All season" : Model.BestSeason)</span>
                                             </div>
                                         </div>
                                         <div class="tour-details-destination-info">
@@ -166,7 +169,7 @@
                                                     <div class="tour-details-list-box">
                                                         <div class="tour-details-list-include">
                                                             <ul>
-                                                                @foreach (var inc in Model.CostItems.Where(x=>x.Type=="Inclusion"))
+                                                                @foreach (var inc in inclusions)
                                                                 {
                                                             
                                                                 <li>
@@ -179,7 +182,7 @@
                                                         </div>
                                                         <div class="tour-details-list-exclude">
                                                             <ul>
-                                                        @foreach (var exc in Model.CostItems.Where(x => x.Type == "Exclusion"))
+                                                        @foreach (var exc in exclusions)
                                                         {
                                                             <li>
                                                                 <span class="list-icon danger">
@@ -192,31 +195,48 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="tour-details-faq mb-35">
+<div class="tour-details-faq mb-35">
 <h5 class="mb-20">Day-to-day Brief Itinerary</h5>
 <div class="accordion-wrapper faq-style-3">
 <div class="accordion" id="accordionExampleThree">
-    @foreach (var iti in Model.Itineraries)
+    @if (itineraryDays.Any())
     {
-        <!-- Day 01 -->
-        <div class="accordion-item">
-            <h6 class="accordion-header">
-                <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#c1">
-                    <span>Day 01:</span> Arrive in Kathmandu and transfer to hotel
-</button>
-</h6>
-<div id="c1" class="accordion-collapse collapse show" data-bs-parent="#accordionExampleThree">
-<div class="accordion-body">
-<div class="tour-meta">
-<span><i class="fa fa-clock"></i> Duration: 45 minutes</span>
-<span><i class="fa fa-mountain"></i> Altitude: 1300m</span>
-<span><i class="fa fa-map-marker-alt"></i> Destination: Kathmandu</span>
-</div>
-Visit Kailash representative welcomes you with flower garland and drinking water in Kathmandu airport then immediate transfer to the hotel. He / She will deliver a short briefing on immediate and further arrangements. Check in to the hotel, yatra briefing.
-</div>
-</div>
-</div>
-                                                    }
+        @for (var i = 0; i < itineraryDays.Count; i++)
+        {
+            var day = itineraryDays[i];
+            var collapseId = $"itinerary-day-{day.Id}";
+            var isFirstDay = i == 0;
+            <div class="accordion-item">
+                <h6 class="accordion-header">
+                    <button class="accordion-button @(isFirstDay ? string.Empty : "collapsed")"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="@isFirstDay.ToString().ToLowerInvariant()">
+                        <span>Day @day.DayNumber.ToString("00"):</span> @day.ShortDescription
+                    </button>
+                </h6>
+                <div id="@collapseId" class="accordion-collapse collapse @(isFirstDay ? "show" : string.Empty)" data-bs-parent="#accordionExampleThree">
+                    <div class="accordion-body">
+                        <div class="tour-meta">
+                            @if (!string.IsNullOrWhiteSpace(day.Meals))
+                            {
+                                <span><i class="fa fa-utensils"></i> Meals: @day.Meals</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(day.AccommodationType))
+                            {
+                                <span><i class="fa fa-bed"></i> Accommodation: @day.AccommodationType</span>
+                            }
+                        </div>
+                        @Html.Raw(day.Description)
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="mb-0">Detailed itinerary will be available soon.</p>
+    }
 
 
 
