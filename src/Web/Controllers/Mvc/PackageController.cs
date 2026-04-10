@@ -13,12 +13,16 @@ namespace TravelCleanArch.Web.Controllers.Mvc
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)
         {
-            var trekkingPacakges = await uow.TrekkingService.GetPublicBySlugAsync(slug, ct);
-            if (trekkingPacakges is null)
+            if (string.IsNullOrWhiteSpace(slug))
+            {
                 return NotFound();
-            return View(trekkingPacakges);
+            }
 
+            var trekkingPackage = await uow.TrekkingService.GetPublicBySlugAsync(slug.Trim(), ct);
+            if (trekkingPackage is null)
+                return NotFound();
 
+            return View(trekkingPackage);
         }
     }
 }
