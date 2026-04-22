@@ -8,10 +8,10 @@
     var exclusions = Model.CostItems.Where(x => x.Type == "Exclusion").ToList();
     var mediaItems = Model.MediaItems.OrderBy(x => x.Ordering).ToList();
     var galleryImages = mediaItems
-        .Where(x => string.Equals(x.MediaType, "image", StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.Equals(x.MediaType, "Photo", StringComparison.OrdinalIgnoreCase))
         .ToList();
     var videoItems = mediaItems
-        .Where(x => string.Equals(x.MediaType, "video", StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.Equals(x.MediaType, "Video", StringComparison.OrdinalIgnoreCase))
         .ToList();
     var approvedReviews = Model.Reviews
         .Where(x => string.Equals(x.ModerationStatus, "approved", StringComparison.OrdinalIgnoreCase))
@@ -41,9 +41,7 @@
     </div>
 </section>
 <!-- breadcrumb area end -->
-
-
-     <section class="bd-tour-details-area section-space">
+<section class="bd-tour-details-area section-space">
             <div class="container">
                 <div class="row gy-24">
                     <div class="col-xxl-8 col-xl-8 col-lg-7">
