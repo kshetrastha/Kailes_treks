@@ -72,24 +72,6 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(model);
     }
 
-    [HttpGet("gallery")]
-    public IActionResult Gallery()
-    {
-        return View();
-    }
-
-    [HttpGet("feedbacks")]
-    public IActionResult Feedbacks()
-    {
-        return View();
-    }
-
-    [HttpGet("gearList")]
-    public IActionResult GearList()
-    {
-        return View();
-    }
-
     [HttpGet("expeditions/type/{typeId:int}/{slug?}")]
     public async Task<IActionResult> ExpeditionsByType(
         int typeId,
