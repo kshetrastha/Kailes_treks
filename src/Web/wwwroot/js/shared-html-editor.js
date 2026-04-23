@@ -32,7 +32,6 @@ function initHtmlEditor(selector, invalidEle) {
 }
 
 function initDescriptionEditors(invalidEle) {
-    debugger
     if (!window.tinymce) {
         return;
     }
@@ -40,11 +39,16 @@ function initDescriptionEditors(invalidEle) {
     const textareas = document.querySelectorAll('textarea');
 
     textareas.forEach(function (textarea, index) {
+        debugger
         const idText = (textarea.id || '').toLowerCase();
         const nameText = (textarea.name || '').toLowerCase();
+        const hasTextEditorClass = textarea.classList.contains('textEditor');
         const isDescriptionField = idText.indexOf('description') !== -1 || nameText.indexOf('description') !== -1;
+        const isOverviewField = idText.indexOf('overview') !== -1 || nameText.indexOf('overview') !== -1;
+        const shouldInitialize = hasTextEditorClass || isDescriptionField || isOverviewField;
+        debugger
 
-        if (!isDescriptionField || textarea.dataset.htmlEditorInitialized === 'true') {
+        if (!shouldInitialize || textarea.dataset.htmlEditorInitialized === 'true') {
             return;
         }
 
