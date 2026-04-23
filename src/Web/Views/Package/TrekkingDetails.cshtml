@@ -480,6 +480,14 @@
                                                         <h5 class="mb-15">Leave a Review</h5>
                                                         <span class="d-block mb-25">Your email address will not be published. Required fields are marked *</span>
                                                     </div>
+                                                    @if (TempData["ReviewSuccessMessage"] is string reviewSuccessMessage)
+                                                    {
+                                                        <div class="alert alert-success mb-20" role="alert">@reviewSuccessMessage</div>
+                                                    }
+                                                    @if (TempData["ReviewErrorMessage"] is string reviewErrorMessage)
+                                                    {
+                                                        <div class="alert alert-danger mb-20" role="alert">@reviewErrorMessage</div>
+                                                    }
                                                     <div class="tour-details-star-review-box">
                                                         @foreach (var criteria in new[] { "Service", "Locations", "Amenities", "Prices", "Food" })
                                                         {
@@ -488,33 +496,34 @@
                                                                 <div class="tourigo-ratings-two">
                                                                     @for (var i = 1; i <= 5; i++)
                                                                     {
-                                                                        <i class="fa fa-star @(criteria == "Service" ? "active" : string.Empty)" data-value="@i"></i>
+                                                                        <i class="fa fa-star @(criteria == "Service" ? "active" : string.Empty)" data-value="@i" data-criteria="@criteria"></i>
                                                                     }
-                                                                    <input type="hidden" name="rating" value="5">
                                                                 </div>
                                                             </div>
                                                         }
                                                     </div>
-                                                    <form>
+                                                    <form asp-controller="Package" asp-action="AddTrekkingReview" asp-route-slug="@Model.Slug" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" id="review-rating-value" value="5" name="Rating" />
                                                         <div class="row gy-24">
                                                             <div class="col-xl-6">
                                                                 <div class="input-box">
-                                                                    <input type="text" placeholder="Name">
+                                                                    <input name="Name" type="text" placeholder="Name" maxlength="220" required>
                                                                 </div>
                                                             </div>
                                                             <div class="col-xl-6">
                                                                 <div class="input-box">
-                                                                    <input type="email" placeholder="Email">
+                                                                    <input name="Email" type="email" placeholder="Email" maxlength="320" required>
                                                                 </div>
                                                             </div>
                                                             <div class="col-xl-12">
                                                                 <div class="input-box">
-                                                                    <textarea cols="30" rows="10" placeholder="Type Comment here"></textarea>
+                                                                    <textarea name="Comment" cols="30" rows="10" placeholder="Type Comment here" maxlength="4000" required></textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="col-xl-12">
                                                                 <div class="submit-btn">
-                                                                    <button type="button" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                                                    <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
                                                                         <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
                                                                         <span class="bd-primary-btn-text">Post Comment</span>
                                                                         <span class="bd-primary-btn-circle"></span>
@@ -563,3 +572,26 @@
                 </div>
             </div>
         </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const ratingInput = document.getElementById('review-rating-value');
+            const serviceStars = Array.from(document.querySelectorAll('.tourigo-ratings-two i[data-criteria="Service"]'));
+            if (!ratingInput || serviceStars.length === 0) {
+                return;
+            }
+
+            const setServiceStars = (value) => {
+                serviceStars.forEach((star, index) => {
+                    star.classList.toggle('active', index < value);
+                });
+                ratingInput.value = value.toString();
+            };
+
+            serviceStars.forEach((star, index) => {
+                star.addEventListener('click', () => setServiceStars(index + 1));
+            });
+        })();
+    </script>
+}
