@@ -1,5 +1,6 @@
 @using TravelCleanArch.Application.Abstractions.Travel
 @model TrekkingPagedResult
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = "Tour Listing";
@@ -16,7 +17,7 @@
     <div class="section-space-top"></div>
 
     <section class="bd-breadcrumb-area p-relative fix">
-        <div class="bd-breadcrumb-bg" data-background="assets/images/bg/breadcrumb-bg.png"></div>
+        <div class="bd-breadcrumb-bg" data-background="cusassests/images/bg/breadcrumb-bg.png"></div>
         <div class="bd-breadcrumb-wrapper p-relative">
             <div class="container">
                 <div class="row justify-content-center">
@@ -45,6 +46,8 @@
                             <div class="banner-search-form">
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
                                     <div class="search-icon-bg"><span><i class="fa-regular fa-location-dot"></i></span></div>
+
+
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Where to</p>
                                         <div class="banner-search-select">
