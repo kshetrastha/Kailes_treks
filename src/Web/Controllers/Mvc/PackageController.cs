@@ -10,9 +10,25 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 {
     public class PackageController(IUnitOfWork uow, AppDbContext db, IWebHostEnvironment environment) : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string? search, string? location, string? tourType, int page = 1, CancellationToken ct = default)
         {
-            return View();
+            const int pageSize = 12;
+            var result = await uow.TrekkingService.ListAsync(search, "published", location, null, page < 1 ? 1 : page, pageSize, ct);
+
+            if (!string.IsNullOrWhiteSpace(tourType))
+            {
+                var filteredItems = result.Items
+                    .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                result = new(result.Items: filteredItems, Page: result.Page, PageSize: result.PageSize, TotalCount: filteredItems.Count);
+            }
+
+            ViewBag.Search = search;
+            ViewBag.Location = location;
+            ViewBag.TourType = tourType;
+
+            return View(result);
         }
 
         [HttpGet("packages/{slug}")]
