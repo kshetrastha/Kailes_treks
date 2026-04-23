@@ -21,7 +21,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                     .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
-                result = new(result.Items: filteredItems, Page: result.Page, PageSize: result.PageSize, TotalCount: filteredItems.Count);
+                result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(filteredItems, result.Page, result.PageSize, filteredItems.Count);
             }
 
             ViewBag.Search = search;
