@@ -6,11 +6,23 @@
     ViewData["Title"] = Model.Name;
     var inclusions = Model.CostItems.Where(x => x.Type == "Inclusion").ToList();
     var exclusions = Model.CostItems.Where(x => x.Type == "Exclusion").ToList();
+    var mediaItems = Model.MediaItems.OrderBy(x => x.Ordering).ToList();
+    var galleryImages = mediaItems
+        .Where(x => string.Equals(x.MediaType, "Photo", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+    var videoItems = mediaItems
+        .Where(x => string.Equals(x.MediaType, "Video", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+    var approvedReviews = Model.Reviews
+        .Where(x => string.Equals(x.ModerationStatus, "approved", StringComparison.OrdinalIgnoreCase))
+        .ToList();
     var itineraryDays = Model.Itineraries
         .OrderBy(x => x.SortOrder)
         .SelectMany(x => x.Days)
         .OrderBy(x => x.DayNumber)
         .ToList();
+            var mapFilePath = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath.Trim();
+    var mapHtml = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath?.Trim();
 }
 <div class="section-space-top"></div>
 <!-- breadcrumb area start -->
@@ -31,9 +43,7 @@
     </div>
 </section>
 <!-- breadcrumb area end -->
-
-
-     <section class="bd-tour-details-area section-space">
+<section class="bd-tour-details-area section-space">
             <div class="container">
                 <div class="row gy-24">
                     <div class="col-xxl-8 col-xl-8 col-lg-7">
@@ -157,7 +167,7 @@
                                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                                 <button class="nav-link active" id="nav-overview-tab" data-bs-toggle="tab" data-bs-target="#nav-overview" type="button" role="tab" aria-controls="nav-overview" aria-selected="true">Overview</button>
                                                 <button class="nav-link" id="nav-gallery-tab" data-bs-toggle="tab" data-bs-target="#nav-gallery" type="button" role="tab" aria-controls="nav-gallery" aria-selected="false">Gallery</button>
-                                                <button class="nav-link" id="nav-feedback-tab" data-bs-toggle="tab" data-bs-target="#nav-feedback" type="button" role="tab" aria-controls="nav-feedback" aria-selected="false">Feedback</button>
+                                                <button class="nav-link" id="nav-feedback-tab" data-bs-toggle="tab" data-bs-target="#nav-feedback" type="button" role="tab" aria-controls="nav-feedback" aria-selected="false">Feedbacks</button>
                                                 <button class="nav-link" id="nav-gear-list-tab" data-bs-toggle="tab" data-bs-target="#nav-gear-list" type="button" role="tab" aria-controls="nav-gear-list" aria-selected="false">Gear List</button>
                                             </div>
                                         </nav>
@@ -256,38 +266,127 @@
 </div>
 </div>
                                             </div>
-                                            <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
+
+                                                <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
                                                 <div class="tour-details-gallery mb-35">
                                                     <h5 class="mb-20">Tour Galley</h5>
-                                                    <div class="row gy-24">
-                                                        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
-                                                            <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                <img src="assets/images/tour/tour-img-21.png" alt="image">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
-                                                            <div class="row gy-24">
-                                                                <div class="col-xxl-12">
+                                                  @if (galleryImages != null && galleryImages.Any())
+                                                    {
+                                                        var images = galleryImages.ToList();
+
+                                                        <div class="row gy-24">
+                                                            @if (images.Count >= 1)
+                                                            {
+                                                                var firstImage = images[0];
+                                                                var firstAlt = string.IsNullOrWhiteSpace(firstImage.Caption) ? Model.Name : firstImage.Caption;
+
+                                                                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
                                                                     <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                        <img src="assets/images/tour/tour-img-22.png" alt="image">
+                                                                        <img src="@firstImage.Url"
+                                                                             alt="@firstAlt"
+                                                                             class="img-fluid w-100"
+                                                                             loading="lazy"
+                                                                             decoding="async" />
+                                                                    </div>
+
+                                                                    @if (!string.IsNullOrWhiteSpace(firstImage.Caption))
+                                                                    {
+                                                                        <p class="mt-10 mb-0">@firstImage.Caption</p>
+                                                                    }
+                                                                </div>
+                                                            }
+
+                                                            @if (images.Count >= 2)
+                                                            {
+                                                                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                                                    <div class="row gy-24">
+                                                                        @for (int i = 1; i < images.Count && i < 3; i++)
+                                                                        {
+                                                                            var image = images[i];
+                                                                            var altText = string.IsNullOrWhiteSpace(image.Caption) ? Model.Name : image.Caption;
+
+                                                                            <div class="col-xxl-12">
+                                                                                <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
+                                                                                    <img src="@image.Url"
+                                                                                         alt="@altText"
+                                                                                         class="img-fluid w-100"
+                                                                                         loading="lazy"
+                                                                                         decoding="async" />
+                                                                                </div>
+
+                                                                                @if (!string.IsNullOrWhiteSpace(image.Caption))
+                                                                                {
+                                                                                    <p class="mt-10 mb-0">@image.Caption</p>
+                                                                                }
+                                                                            </div>
+                                                                        }
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-xxl-12">
-                                                                    <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                        <img src="assets/images/tour/tour-img-9.png" alt="image">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            }
                                                         </div>
-                                                    </div>
+                                                    }
                                                 </div>
                                                 <div class="tour-details-location mb-35">
                                                     <h5 class="mb-20">Tour Location</h5>
+
                                                     <div class="tour-details-location-map">
-                                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d89245.36062680863!2d25.596462799999998!3d45.652478099999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b35b862aa214f1%3A0x6cf5f2ef54391e0f!2sBra%C8%99ov%2C%20Romania!5e0!3m2!1sen!2sbd!4v1707640089632!5m2!1sen!2sbd"
-                                                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                                    </div>
+                                                    @if (!string.IsNullOrWhiteSpace(mapHtml))
+                                                    {
+                                                        @Html.Raw(mapHtml)
+                                                    }
                                                 </div>
+
+                                              </div>
+                                            </div>
+
+                                            <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
+                                                <div class="tour-details-gallery mb-35">
+                                                    <h5 class="mb-20">Tour Gallery</h5>
+                                                    @if (!galleryImages.Any())
+                                                    {
+                                                        <p class="mb-0">Gallery images will be available soon.</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="row gy-24">
+                                                            @foreach (var image in galleryImages)
+                                                            {
+                                                                <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
+                                                                    <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
+                                                                        <img src="@image.Url" alt="@(string.IsNullOrWhiteSpace(image.Caption) ? Model.Name : image.Caption)" loading="lazy" decoding="async">
+                                                                    </div>
+                                                                    @if (!string.IsNullOrWhiteSpace(image.Caption))
+                                                                    {
+                                                                        <p class="mt-10 mb-0">@image.Caption</p>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                @if (videoItems.Any())
+                                                {
+                                                    <div class="tour-details-location mb-35">
+                                                        <h5 class="mb-20">Videos</h5>
+                                                        <div class="tour-details-list-include">
+                                                            <ul>
+                                                                @foreach (var video in videoItems)
+                                                                {
+                                                                    var videoUrl = string.IsNullOrWhiteSpace(video.VideoUrl) ? video.Url : video.VideoUrl;
+                                                                    <li>
+                                                                        <span class="list-icon success">
+                                                                            <i class="fa-solid fa-video"></i>
+                                                                        </span>
+                                                                        <a href="@videoUrl" target="_blank" rel="noopener">
+                                                                            @(string.IsNullOrWhiteSpace(video.Caption) ? "Watch video" : video.Caption)
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                             <div class="tab-pane fade" id="nav-feedback" role="tabpanel" aria-labelledby="nav-feedback-tab" tabindex="0">
                                                 <div class="tour-details-rating-wrapper mb-35">
@@ -295,296 +394,98 @@
                                                         <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4">
                                                             <div class="rating-box">
                                                                 <div class="inner">
-                                                                    <div class="rating-number">5.0</div>
+                                                                    <div class="rating-number">@((Model.AverageRating ?? 0).ToString("0.0"))</div>
                                                                     <div class="rating">
-                                                                        <a href="#"><i class="fa fa-star"></i></a>
-                                                                        <a href="#"><i class="fa fa-star"></i></a>
-                                                                        <a href="#"><i class="fa fa-star"></i></a>
-                                                                        <a href="#"><i class="fa fa-star"></i></a>
-                                                                        <a href="#"><i class="fa fa-star"></i></a>
+                                                                        @{
+                                                                            var averageRounded = (int)Math.Round(Model.AverageRating ?? 0);
+                                                                        }
+                                                                        @for (var i = 1; i <= 5; i++)
+                                                                        {
+                                                                            <a href="#"><i class="fa @(i <= averageRounded ? "fa-star" : "fa-star-o")"></i></a>
+                                                                        }
                                                                     </div>
-                                                                    <span class="sub-title">(234 Review)</span>
+                                                                    <span class="sub-title">(@(Model.ReviewCount ?? approvedReviews.Count) Review)</span>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="col-xl-9 col-lg-12 col-md-8 col-sm-12">
                                                             <div class="review-wrapper">
-                                                                <div class="single-progress-bar">
-                                                                    <div class="rating-text">5</div>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-1" role="progressbar" style="width: 82%" aria-valuenow="63" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                @for (var star = 5; star >= 1; star--)
+                                                                {
+                                                                    var count = approvedReviews.Count(x => x.Rating == star);
+                                                                    var total = approvedReviews.Count;
+                                                                    var percent = total == 0 ? 0 : (int)Math.Round((count * 100.0) / total);
+                                                                    <div class="single-progress-bar">
+                                                                        <div class="rating-text">@star</div>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar bg-1" role="progressbar" style="width: @percent%" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                        </div>
+                                                                        <span class="value-text">@percent%</span>
+                                                                        <span class="number">@count</span>
                                                                     </div>
-                                                                    <span class="value-text">82%</span>
-                                                                    <span class="number">212</span>
-                                                                </div>
-                                                                <div class="single-progress-bar">
-                                                                    <div class="rating-text">4</div>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-2" role="progressbar" style="width: 8%" aria-valuenow="29" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <span class="value-text">8%</span>
-                                                                    <span class="number">09</span>
-                                                                </div>
-                                                                <div class="single-progress-bar">
-                                                                    <div class="rating-text">3</div>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-3" role="progressbar" style="width: 3%" aria-valuenow="6" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <span class="value-text">3%</span>
-                                                                    <span class="number">02</span>
-                                                                </div>
-
-                                                                <div class="single-progress-bar">
-                                                                    <div class="rating-text">2</div>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-4" role="progressbar" style="width: 2%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <span class="value-text">2%</span>
-                                                                    <span class="number">01</span>
-                                                                </div>
-                                                                <div class="single-progress-bar">
-                                                                    <div class="rating-text">1</div>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-5" role="progressbar" style="width: 7%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <span class="value-text">7%</span>
-                                                                    <span class="number">10</span>
-                                                                </div>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="tour-details-rating-wrapper">
-                                                    <div class="rewiew-content">
-                                                        <div class="tour-review-wrapper">
-                                                            <div class="media">
-                                                                <div class="thumbnail">
-                                                                    <a href="#">
-                                                                        <img src="assets/images/client/01.png" alt="Author Images">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="media-body">
-                                                                    <div class="author-info">
-                                                                        <h6 class="title">
-                                                                            <a class="hover-flip-item-wrapper" href="#">
-                                                                                Mason Rodriguez
-                                                                            </a>
-                                                                            <a href="#">
-                                                                                <i class="fa-solid fa-thumbs-up"></i>
-                                                                            </a>
-                                                                        </h6>
-                                                                        <ul class="bd-meta">
-                                                                            <li class="has-seperator">On: <span>Aug 11, 2025</span>
-                                                                            </li>
-                                                                            <li>
-                                                                                <div class="rating">
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                </div>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                    <div class="content">
-                                                                        <p class="description">The tour kicks off in the bustling metropolis of Bangkok, where the sights and sounds of the city awaken your senses. Explore the ornate temples of Wat Pho and the Grand Palace, marvel
-                                                                            at the intricate architecture of Wat Arun, and cruise along the Chao Phraya River to witness life along its banks.</p>
+                                                    @if (!approvedReviews.Any())
+                                                    {
+                                                        <p class="mb-0">No feedbacks available yet.</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="rewiew-content">
+                                                            @foreach (var review in approvedReviews)
+                                                            {
+                                                                <div class="tour-review-wrapper">
+                                                                    <div class="media">
+                                                                        <div class="thumbnail">
+                                                                            <img src="@(string.IsNullOrWhiteSpace(review.UserPhotoPath) ? Url.Content("~/assets/images/logo-icon.png") : review.UserPhotoPath)"
+                                                                                 alt="@review.FullName">
+                                                                        </div>
+                                                                        <div class="media-body">
+                                                                            <h6 class="title">@review.FullName</h6>
+                                                                            <div class="rating">
+                                                                                @for (var i = 1; i <= 5; i++)
+                                                                                {
+                                                                                    <a href="#"><i class="fa @(i <= review.Rating ? "fa-star" : "fa-star-o")"></i></a>
+                                                                                }
+                                                                            </div>
+                                                                            <p>@review.ReviewText</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            }
                                                         </div>
-                                                        <div class="tour-review-wrapper">
-                                                            <div class="media">
-                                                                <div class="thumbnail">
-                                                                    <a href="#">
-                                                                        <img src="assets/images/client/01.png" alt="Author Images">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="media-body">
-                                                                    <div class="author-info">
-                                                                        <h6 class="title">
-                                                                            <a class="hover-flip-item-wrapper" href="#">
-                                                                                Madison Turner
-                                                                            </a>
-                                                                            <a href="#">
-                                                                                <i class="fa-solid fa-thumbs-up"></i>
-                                                                            </a>
-                                                                        </h6>
-                                                                        <ul class="bd-meta">
-                                                                            <li class="has-seperator">On: <span>Aug 11, 2025</span>
-                                                                            </li>
-                                                                            <li>
-                                                                                <div class="rating">
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                </div>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                    <div class="content">
-                                                                        <p class="description">Throughout the journey, the tour offers a diverse range of activities to suit every traveler's interests. From guided city tours and cultural performances to cooking classes and nature
-                                                                            hikes, there's something for everyone to enjoy. Plus, ample free time allows for personal exploration and relaxation, ensuring a perfect balance of adventure and leisure.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="tour-review-wrapper">
-                                                            <div class="media">
-                                                                <div class="thumbnail">
-                                                                    <a href="#">
-                                                                        <img src="assets/images/client/03.png" alt="Author Images">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="media-body">
-                                                                    <div class="author-info">
-                                                                        <h6 class="title">
-                                                                            <a class="hover-flip-item-wrapper" href="#">
-                                                                                Ethan Mitchell
-                                                                            </a>
-                                                                            <a href="#">
-                                                                                <i class="fa-solid fa-thumbs-up"></i>
-                                                                            </a>
-                                                                        </h6>
-                                                                        <ul class="bd-meta">
-                                                                            <li class="has-seperator">On: <span>Aug 11, 2025</span>
-                                                                            </li>
-                                                                            <li>
-                                                                                <div class="rating">
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                    <a href="#"><i class="fa fa-star"></i></a>
-                                                                                </div>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                    <div class="content">
-                                                                        <p class="description">Accommodation is carefully selected to provide comfort, convenience, and authentic local experiences. From boutique hotels in the heart of the city to beachfront resorts overlooking
-                                                                            the ocean, each property offers impeccable service and a warm Thai welcome. Transportation between destinations is seamless and hassle-free, with air-conditioned vehicles and
-                                                                            knowledgeable guides ensuring a smooth journey throughout.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="post-comment-form">
-                                                    <div class="post-comments-title">
-                                                        <h5 class="mb-15">Leave a Review</h5>
-                                                        <span class="d-block mb-25">Your email address will not be published. Required fields are
-                                                marked *</span>
-                                                    </div>
-                                                    <div class="tour-details-star-review-box">
-                                                        <div class="tour-details-star-review-box-single">
-                                                            <p class="tour-details-star-review-box-text">Service</p>
-                                                            <div class="tourigo-ratings-two">
-                                                                <i class="fa fa-star active" data-value="1"></i>
-                                                                <i class="fa fa-star active" data-value="2"></i>
-                                                                <i class="fa fa-star active" data-value="3"></i>
-                                                                <i class="fa fa-star active" data-value="4"></i>
-                                                                <i class="fa fa-star active" data-value="5"></i>
-                                                                <input type="hidden" name="rating" value="5">
-                                                            </div>
-                                                        </div>
-                                                        <div class="tour-details-star-review-box-single">
-                                                            <p class="tour-details-star-review-box-text">Locations</p>
-                                                            <div class="tourigo-ratings-two">
-                                                                <i class="fa fa-star" data-value="1"></i>
-                                                                <i class="fa fa-star" data-value="2"></i>
-                                                                <i class="fa fa-star" data-value="3"></i>
-                                                                <i class="fa fa-star" data-value="4"></i>
-                                                                <i class="fa fa-star" data-value="5"></i>
-                                                                <input type="hidden" name="rating" value="5">
-                                                            </div>
-                                                        </div>
-                                                        <div class="tour-details-star-review-box-single">
-                                                            <p class="tour-details-star-review-box-text">Amenities</p>
-                                                            <div class="tourigo-ratings-two">
-                                                                <i class="fa fa-star" data-value="1"></i>
-                                                                <i class="fa fa-star" data-value="2"></i>
-                                                                <i class="fa fa-star" data-value="3"></i>
-                                                                <i class="fa fa-star" data-value="4"></i>
-                                                                <i class="fa fa-star" data-value="5"></i>
-                                                                <input type="hidden" name="rating" value="5">
-                                                            </div>
-                                                        </div>
-                                                        <div class="tour-details-star-review-box-single">
-                                                            <p class="tour-details-star-review-box-text">Prices</p>
-                                                            <div class="tourigo-ratings-two">
-                                                                <i class="fa fa-star" data-value="1"></i>
-                                                                <i class="fa fa-star" data-value="2"></i>
-                                                                <i class="fa fa-star" data-value="3"></i>
-                                                                <i class="fa fa-star" data-value="4"></i>
-                                                                <i class="fa fa-star" data-value="5"></i>
-                                                                <input type="hidden" name="rating" value="5">
-                                                            </div>
-                                                        </div>
-                                                        <div class="tour-details-star-review-box-single">
-                                                            <p class="tour-details-star-review-box-text">Food</p>
-                                                            <div class="tourigo-ratings-two">
-                                                                <i class="fa fa-star" data-value="1"></i>
-                                                                <i class="fa fa-star" data-value="2"></i>
-                                                                <i class="fa fa-star" data-value="3"></i>
-                                                                <i class="fa fa-star" data-value="4"></i>
-                                                                <i class="fa fa-star" data-value="5"></i>
-                                                                <input type="hidden" name="rating" value="5">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <form>
-                                                        <div class="row gy-24">
-                                                            <div class="col-xl-6">
-                                                                <div class="input-box">
-                                                                    <input type="text" placeholder="Name">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-6">
-                                                                <div class="input-box">
-                                                                    <input type="email" placeholder="Email">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-12">
-                                                                <div class="input-box">
-                                                                    <textarea cols="30" rows="10" placeholder="Type Comment here"></textarea>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xl-12">
-                                                                <div class="submit-btn">
-                                                                    <button type="button" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
-                                                                        <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
-                                                                        <span class="bd-primary-btn-text">Post Comment</span>
-                                                                        <span class="bd-primary-btn-circle"></span>
-                                                                        <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                    }
                                                 </div>
                                             </div>
                                             <div class="tab-pane fade" id="nav-gear-list" role="tabpanel" aria-labelledby="nav-gear-list-tab" tabindex="0">
                                                 <div class="tour-details-gear-list mb-35">
                                                     <h5 class="mb-20">Tour Gear List</h5>
-                                                    <div class="tour-details-list-include">
-                                                 <ul>
-                                                    <li>
-                                                        <span class="list-icon success">
-                                                            <i class="fa-solid fa-check"></i>
-                                                        </span> Gear checklist 
-                                                    </li>
-                                                    <li>
-                                                        <span class="list-icon success">
-                                                            <i class="fa-solid fa-check"></i>
-                                                        </span> Travel Insurance
-                                                    </li>                                                    
-                                                                                                    
-                                                    </ul>           
-                                                </div>
+                                                    @if (!Model.GearLists.Any())
+                                                    {
+                                                        <p class="mb-0">No gear list available yet.</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="row gy-24">
+                                                            @foreach (var gear in Model.GearLists.OrderBy(x => x.Id))
+                                                            {
+                                                                <div class="col-lg-6">
+                                                                    <a href="@gear.FilePath" target="_blank" rel="noopener" class="d-block border rounded p-3 h-100">
+                                                                        @if (!string.IsNullOrWhiteSpace(gear.ImagePath))
+                                                                        {
+                                                                            <img src="@gear.ImagePath" alt="Gear list image" class="w-100 mb-3" />
+                                                                        }
+                                                                        <h6 class="mb-1">@(string.IsNullOrWhiteSpace(gear.ShortDescription) ? "Download Gear List" : gear.ShortDescription)</h6>
+                                                                        <small class="text-primary">Open file</small>
+                                                                    </a>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
