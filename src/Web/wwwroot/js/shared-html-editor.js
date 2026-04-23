@@ -32,6 +32,7 @@ function initHtmlEditor(selector, invalidEle) {
 }
 
 function initDescriptionEditors(invalidEle) {
+    debugger
     if (!window.tinymce) {
         return;
     }

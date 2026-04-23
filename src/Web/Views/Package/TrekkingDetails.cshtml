@@ -24,6 +24,89 @@
             var mapFilePath = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath.Trim();
     var mapHtml = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath?.Trim();
 }
+<style>
+.upload-wrapper {
+    width: 100%;
+}
+
+.upload-box {
+    border: 2px dashed #cfd6e4;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: block;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+    border-color: #0d6efd;
+    background: #f8fbff;
+}
+
+.upload-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.upload-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #eef4ff;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.upload-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.upload-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #1c2331;
+    line-height: 1.2;
+}
+
+.upload-file-name {
+    font-size: 16px;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.upload-note {
+    display: block;
+    margin-top: 12px;
+    color: #7a869a;
+    font-size: 14px;
+}
+
+.post-btn {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: #fff;
+    border: none;
+    border-radius: 40px;
+    padding: 14px 34px;
+    font-size: 18px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.22);
+}
+
+.post-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(13, 110, 253, 0.28);
+}
+</style>
 <div class="section-space-top"></div>
 <!-- breadcrumb area start -->
 <section class="bd-breadcrumb-area style-two theme-bg-secondary">
@@ -518,11 +601,31 @@
                                                                     <textarea name="Comment" cols="30" rows="10" placeholder="Type Comment here" maxlength="4000" required></textarea>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-xl-12">
-                                                                <div class="input-box">
-                                                                    <input name="ProfileImage" type="file" accept=".jpg,.jpeg,.png,.webp" />
-                                                                </div>
-                                                            </div>
+                                                         <div class="col-xl-12">
+    <div class="upload-wrapper">
+        <label for="ProfileImage" class="upload-box">
+            <div class="upload-content">
+                <div class="upload-icon">
+                    <i class="fa fa-image"></i>
+                </div>
+                <div class="upload-text">
+                    <span class="upload-title">Choose profile</span>
+                    <span class="upload-file-name" id="fileName">No file chosen</span>
+                </div>
+            </div>
+        </label>
+
+        <input id="ProfileImage"
+               name="ProfileImage"
+               type="file"
+               accept=".jpg,.jpeg,.png,.webp"
+               class="d-none"
+               onchange="document.getElementById('fileName').innerText = this.files.length ? this.files[0].name : 'No file chosen';" />
+
+        <small class="upload-note">Accepted formats: .jpg, .jpeg, .png, .webp</small>
+    </div>
+</div>
+
                                                             <div class="col-xl-12">
                                                                 <div class="submit-btn">
                                                                     <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-60">

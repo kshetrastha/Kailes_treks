@@ -379,6 +379,8 @@
     <script src="~/cusassests/js/vendor/smooth-scroll.min.js"></script>
     <script src="~/cusassests/js/main.js"></script>
     <script src="~/cusassests/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
     <script>
                   const iframe = document.getElementById("ytVideo");
                   const btn = document.getElementById("muteBtn");
