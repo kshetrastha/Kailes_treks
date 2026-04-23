@@ -489,20 +489,17 @@
                                                         <div class="alert alert-danger mb-20" role="alert">@reviewErrorMessage</div>
                                                     }
                                                     <div class="tour-details-star-review-box">
-                                                        @foreach (var criteria in new[] { "Service", "Locations", "Amenities", "Prices", "Food" })
-                                                        {
-                                                            <div class="tour-details-star-review-box-single">
-                                                                <p class="tour-details-star-review-box-text">@criteria</p>
-                                                                <div class="tourigo-ratings-two">
-                                                                    @for (var i = 1; i <= 5; i++)
-                                                                    {
-                                                                        <i class="fa fa-star @(criteria == "Service" ? "active" : string.Empty)" data-value="@i" data-criteria="@criteria"></i>
-                                                                    }
-                                                                </div>
+                                                        <div class="tour-details-star-review-box-single">
+                                                            <p class="tour-details-star-review-box-text">Reviews</p>
+                                                            <div class="tourigo-ratings-two" id="review-rating-stars">
+                                                                @for (var i = 1; i <= 5; i++)
+                                                                {
+                                                                    <i class="fa fa-star @(i <= 5 ? "active" : string.Empty)" data-value="@i"></i>
+                                                                }
                                                             </div>
-                                                        }
+                                                        </div>
                                                     </div>
-                                                    <form asp-controller="Package" asp-action="AddTrekkingReview" asp-route-slug="@Model.Slug" method="post">
+                                                    <form asp-controller="Package" asp-action="AddTrekkingReview" asp-route-slug="@Model.Slug" method="post" enctype="multipart/form-data">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" id="review-rating-value" value="5" name="Rating" />
                                                         <div class="row gy-24">
@@ -519,6 +516,11 @@
                                                             <div class="col-xl-12">
                                                                 <div class="input-box">
                                                                     <textarea name="Comment" cols="30" rows="10" placeholder="Type Comment here" maxlength="4000" required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-12">
+                                                                <div class="input-box">
+                                                                    <input name="ProfileImage" type="file" accept=".jpg,.jpeg,.png,.webp" />
                                                                 </div>
                                                             </div>
                                                             <div class="col-xl-12">
@@ -577,20 +579,20 @@
     <script>
         (() => {
             const ratingInput = document.getElementById('review-rating-value');
-            const serviceStars = Array.from(document.querySelectorAll('.tourigo-ratings-two i[data-criteria="Service"]'));
-            if (!ratingInput || serviceStars.length === 0) {
+            const stars = Array.from(document.querySelectorAll('#review-rating-stars i[data-value]'));
+            if (!ratingInput || stars.length === 0) {
                 return;
             }
 
-            const setServiceStars = (value) => {
-                serviceStars.forEach((star, index) => {
+            const setStars = (value) => {
+                stars.forEach((star, index) => {
                     star.classList.toggle('active', index < value);
                 });
                 ratingInput.value = value.toString();
             };
 
-            serviceStars.forEach((star, index) => {
-                star.addEventListener('click', () => setServiceStars(index + 1));
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => setStars(index + 1));
             });
         })();
     </script>

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace TravelCleanArch.Web.Models.Package;
 
@@ -19,4 +20,6 @@ public sealed class TrekkingReviewFormViewModel
 
     [Range(1, 5)]
     public int Rating { get; set; } = 5;
+
+    public IFormFile? ProfileImage { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
@@ -7,7 +8,7 @@ using TravelCleanArch.Web.Models.Package;
 
 namespace TravelCleanArch.Web.Controllers.Mvc
 {
-    public class PackageController(IUnitOfWork uow, AppDbContext db) : Controller
+    public class PackageController(IUnitOfWork uow, AppDbContext db, IWebHostEnvironment environment) : Controller
     {
         public IActionResult Index()
         {
@@ -55,6 +56,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 TrekkingId = trekkingPackage.Id,
                 FullName = model.Name.Trim(),
                 EmailAddress = model.Email.Trim(),
+                UserPhotoPath = await SaveProfileImageAsync(model.ProfileImage, ct),
                 Rating = model.Rating,
                 ReviewText = model.Comment.Trim(),
                 ModerationStatus = ReviewModerationStatus.Pending
@@ -65,6 +67,30 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 
             TempData["ReviewSuccessMessage"] = "Thanks for your review. It has been submitted for moderation.";
             return Redirect($"{Url.Action(nameof(TrekkingDetails), new { slug = trekkingPackage.Slug })}#nav-feedback");
+        }
+
+        private async Task<string?> SaveProfileImageAsync(IFormFile? image, CancellationToken ct)
+        {
+            if (image is null || image.Length == 0)
+            {
+                return null;
+            }
+
+            var extension = Path.GetExtension(image.FileName);
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+            var uploadsDirectory = Path.Combine(environment.WebRootPath, "uploads", "trekking", "reviews");
+            Directory.CreateDirectory(uploadsDirectory);
+
+            var filePath = Path.Combine(uploadsDirectory, fileName);
+            await using var stream = System.IO.File.Create(filePath);
+            await image.CopyToAsync(stream, ct);
+            return Path.Combine("uploads", "trekking", "reviews", fileName).Replace('\\', '/');
         }
     }
 }
