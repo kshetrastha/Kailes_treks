@@ -417,10 +417,10 @@
                                                                     <div class="single-progress-bar">
                                                                         <div class="rating-text">@star</div>
                                                                         <div class="progress">
-                                                                            <div class="progress-bar bg-1" role="progressbar" style="width: @percent%" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                            <div class="progress-bar bg-@(6 - star)" role="progressbar" style="width: @percent%" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
                                                                         </div>
                                                                         <span class="value-text">@percent%</span>
-                                                                        <span class="number">@count</span>
+                                                                        <span class="number">@count.ToString("00")</span>
                                                                     </div>
                                                                 }
                                                             </div>
@@ -440,24 +440,90 @@
                                                                 <div class="tour-review-wrapper">
                                                                     <div class="media">
                                                                         <div class="thumbnail">
-                                                                            <img src="@(string.IsNullOrWhiteSpace(review.UserPhotoPath) ? Url.Content("~/assets/images/logo-icon.png") : review.UserPhotoPath)"
-                                                                                 alt="@review.FullName">
+                                                                            <a href="#">
+                                                                                <img src="@(string.IsNullOrWhiteSpace(review.UserPhotoPath) ? Url.Content("~/assets/images/logo-icon.png") : review.UserPhotoPath)"
+                                                                                     alt="@review.FullName">
+                                                                            </a>
                                                                         </div>
                                                                         <div class="media-body">
-                                                                            <h6 class="title">@review.FullName</h6>
-                                                                            <div class="rating">
-                                                                                @for (var i = 1; i <= 5; i++)
-                                                                                {
-                                                                                    <a href="#"><i class="fa @(i <= review.Rating ? "fa-star" : "fa-star-o")"></i></a>
-                                                                                }
+                                                                            <div class="author-info">
+                                                                                <h6 class="title">
+                                                                                    <a class="hover-flip-item-wrapper" href="#">@review.FullName</a>
+                                                                                    <a href="#">
+                                                                                        <i class="fa-solid fa-thumbs-up"></i>
+                                                                                    </a>
+                                                                                </h6>
+                                                                                <ul class="bd-meta">
+                                                                                    <li class="has-seperator">On: <span>Verified review</span></li>
+                                                                                    <li>
+                                                                                        <div class="rating">
+                                                                                            @for (var i = 1; i <= 5; i++)
+                                                                                            {
+                                                                                                <a href="#"><i class="fa @(i <= review.Rating ? "fa-star" : "fa-star-o")"></i></a>
+                                                                                            }
+                                                                                        </div>
+                                                                                    </li>
+                                                                                </ul>
                                                                             </div>
-                                                                            <p>@review.ReviewText</p>
+                                                                            <div class="content">
+                                                                                <p class="description">@review.ReviewText</p>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             }
                                                         </div>
                                                     }
+                                                </div>
+                                                <div class="post-comment-form">
+                                                    <div class="post-comments-title">
+                                                        <h5 class="mb-15">Leave a Review</h5>
+                                                        <span class="d-block mb-25">Your email address will not be published. Required fields are marked *</span>
+                                                    </div>
+                                                    <div class="tour-details-star-review-box">
+                                                        @foreach (var criteria in new[] { "Service", "Locations", "Amenities", "Prices", "Food" })
+                                                        {
+                                                            <div class="tour-details-star-review-box-single">
+                                                                <p class="tour-details-star-review-box-text">@criteria</p>
+                                                                <div class="tourigo-ratings-two">
+                                                                    @for (var i = 1; i <= 5; i++)
+                                                                    {
+                                                                        <i class="fa fa-star @(criteria == "Service" ? "active" : string.Empty)" data-value="@i"></i>
+                                                                    }
+                                                                    <input type="hidden" name="rating" value="5">
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <form>
+                                                        <div class="row gy-24">
+                                                            <div class="col-xl-6">
+                                                                <div class="input-box">
+                                                                    <input type="text" placeholder="Name">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-6">
+                                                                <div class="input-box">
+                                                                    <input type="email" placeholder="Email">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-12">
+                                                                <div class="input-box">
+                                                                    <textarea cols="30" rows="10" placeholder="Type Comment here"></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-12">
+                                                                <div class="submit-btn">
+                                                                    <button type="button" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                                                        <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
+                                                                        <span class="bd-primary-btn-text">Post Comment</span>
+                                                                        <span class="bd-primary-btn-circle"></span>
+                                                                        <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                             <div class="tab-pane fade" id="nav-gear-list" role="tabpanel" aria-labelledby="nav-gear-list-tab" tabindex="0">
