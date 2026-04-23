@@ -56,7 +56,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 TrekkingId = trekkingPackage.Id,
                 FullName = model.Name.Trim(),
                 EmailAddress = model.Email.Trim(),
-                UserPhotoPath = await SaveProfileImageAsync(model.ProfileImage, ct),
+                UserPhotoPath = "/" + await SaveProfileImageAsync(model.ProfileImage, ct),
                 Rating = model.Rating,
                 ReviewText = model.Comment.Trim(),
                 ModerationStatus = ReviewModerationStatus.Pending
