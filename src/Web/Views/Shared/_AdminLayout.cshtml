@@ -794,6 +794,8 @@
                                         class="sidebar-link"><i class="mdi mdi-terrain"></i><span class="hide-menu"> Expeditions</span></a> </li> *@
                                 <li class="sidebar-item"> <a href="/admin/trekking"
                                         class="sidebar-link"><i class="mdi mdi-pine-tree"></i><span class="hide-menu"> Trekking</span></a> </li>
+                                <li class="sidebar-item"> <a href="/admin/map-destinations"
+                                        class="sidebar-link"><i class="mdi mdi-map-marker-multiple"></i><span class="hide-menu"> Map Destinations</span></a> </li>
                          @*        <li class="sidebar-item"> <a href="/admin/trekking"
                                         class="sidebar-link"><i class="mdi mdi-calendar-range"></i><span class="hide-menu"> Trekking Days</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/itineraries"
@@ -843,6 +845,10 @@
                 else if (requestPath.Contains("/admin/trekking"))
                 {
                     breadcrumbSection = "Trekking";
+                }
+                else if (requestPath.Contains("/admin/map-destinations"))
+                {
+                    breadcrumbSection = "Map Destinations";
                 }
                 else if (requestPath.Contains("/admin/service-types"))
                 {

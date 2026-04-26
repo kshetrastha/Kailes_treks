@@ -1,0 +1,127 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.MapDestinationFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Map Destination" : "Create Map Destination";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title mb-3">@(isEdit ? "Edit" : "Create") Map Destination Detail</h4>
+
+        <form method="post" enctype="multipart/form-data" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ShortDescription" class="form-label"></label>
+                    <input asp-for="ShortDescription" class="form-control" />
+                    <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="HeroImage" class="form-label"></label>
+                    <input asp-for="HeroImage" type="file" class="form-control" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ExistingHeroImagePath))
+                    {
+                        <input asp-for="ExistingHeroImagePath" type="hidden" />
+                        <img src="/@Model.ExistingHeroImagePath" alt="Hero image" class="img-fluid rounded border mt-2" style="max-height: 180px;" />
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Ordering" class="form-label"></label>
+                    <input asp-for="Ordering" class="form-control" />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="IsPublished" class="form-check-input" />
+                        <label asp-for="IsPublished" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h5>Images</h5>
+            <div class="row g-2 mb-2 small text-muted fw-semibold">
+                <div class="col-md-4">File</div>
+                <div class="col-md-4">Caption</div>
+                <div class="col-md-2">Sort Order</div>
+                <div class="col-md-2">Action</div>
+            </div>
+            <div id="imageRows">
+                @for (var i = 0; i < Model.Images.Count; i++)
+                {
+                    <div class="row g-2 mb-2 image-row">
+                        <input type="hidden" name="Images[@i].Id" value="@Model.Images[i].Id" />
+                        <div class="col-md-4">
+                            <input class="form-control" type="file" name="Images[@i].File" />
+                            <input type="hidden" name="Images[@i].ExistingPath" value="@Model.Images[i].ExistingPath" />
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control" name="Images[@i].Caption" value="@Model.Images[i].Caption" placeholder="Caption" />
+                        </div>
+                        <div class="col-md-2">
+                            <input class="form-control" name="Images[@i].SortOrder" value="@Model.Images[i].SortOrder" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-danger remove-image">Remove</button>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.Images[i].ExistingPath))
+                        {
+                            <div class="col-md-12">
+                                <img src="/@Model.Images[i].ExistingPath" alt="Gallery image" class="img-fluid rounded border" style="max-height: 120px;" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <button type="button" id="addImage" class="btn btn-outline-secondary btn-sm">Add Image</button>
+
+            <div class="mt-4 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Save</button>
+                <a asp-action="Index" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+      (() => {
+        const wrap = document.getElementById('imageRows');
+        document.getElementById('addImage')?.addEventListener('click', () => {
+          const i = wrap.querySelectorAll('.image-row').length;
+          const html = `<div class="row g-2 mb-2 image-row">
+            <input type="hidden" name="Images[${i}].Id" value="0" />
+            <div class="col-md-4"><input class="form-control" type="file" name="Images[${i}].File" /><input type="hidden" name="Images[${i}].ExistingPath" value="" /></div>
+            <div class="col-md-4"><input class="form-control" name="Images[${i}].Caption" /></div>
+            <div class="col-md-2"><input class="form-control" name="Images[${i}].SortOrder" value="${i + 1}" /></div>
+            <div class="col-md-2"><button type="button" class="btn btn-outline-danger remove-image">Remove</button></div>
+          </div>`;
+          wrap.insertAdjacentHTML('beforeend', html);
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!event.target.closest('.remove-image')) return;
+          const row = event.target.closest('.image-row');
+          row?.remove();
+          const rows = wrap.querySelectorAll('.image-row');
+          rows.forEach((item, i) => {
+            item.querySelectorAll('[name]').forEach(input => {
+              input.name = input.name.replace(/Images\[\d+\]/, `Images[${i}]`);
+            });
+          });
+        });
+      })();
+    </script>
+}
