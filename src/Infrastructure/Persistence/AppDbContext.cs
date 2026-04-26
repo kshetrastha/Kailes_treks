@@ -79,6 +79,8 @@ public sealed class AppDbContext:
     public DbSet<TermsAndCondition> TermsAndConditions => Set<TermsAndCondition>();
     public DbSet<Banner> Banners => Set<Banner>();
     public DbSet<BannerImage> BannerImages => Set<BannerImage>();
+    public DbSet<MapDestination> MapDestinations => Set<MapDestination>();
+    public DbSet<MapDestinationImage> MapDestinationImages => Set<MapDestinationImage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -95,6 +97,28 @@ public sealed class AppDbContext:
         //ConfigureWhoWeAre(builder);
         //ConfigureCompanyPages(builder);
 
+
+        builder.Entity<MapDestination>(b =>
+        {
+            b.ToTable("map_destinations");
+            b.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            b.Property(x => x.ShortDescription).HasMaxLength(600).IsRequired();
+            b.Property(x => x.Description).HasColumnType("text").IsRequired();
+            b.Property(x => x.HeroImagePath).HasMaxLength(500);
+            b.HasIndex(x => new { x.IsPublished, x.Ordering });
+            b.HasMany(x => x.Images)
+                .WithOne(x => x.MapDestination)
+                .HasForeignKey(x => x.MapDestinationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<MapDestinationImage>(b =>
+        {
+            b.ToTable("map_destination_images");
+            b.Property(x => x.ImagePath).HasMaxLength(500).IsRequired();
+            b.Property(x => x.Caption).HasMaxLength(500);
+            b.HasIndex(x => new { x.MapDestinationId, x.SortOrder });
+        });
         builder.Entity<Banner>(b =>
         {
             b.ToTable("company_banners");
