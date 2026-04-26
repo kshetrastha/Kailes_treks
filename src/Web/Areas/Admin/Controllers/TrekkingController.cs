@@ -29,7 +29,7 @@ public sealed class TrekkingController(
         var currentPageSize = allowedPageSizes.Contains(pageSize) ? pageSize : 10;
 
         ViewBag.PageSize = currentPageSize;
-        return View(await service.ListAsync(search, status, destination, null, currentPage, currentPageSize, ct));
+        return View(await service.ListAsync(search, status, destination,null, null, currentPage, currentPageSize, ct));
     }
 
     [HttpGet("{id:int}/detail")]

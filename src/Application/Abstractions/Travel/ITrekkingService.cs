@@ -2,7 +2,7 @@ namespace TravelCleanArch.Application.Abstractions.Travel;
 
 public interface ITrekkingService
 {
-    Task<TrekkingPagedResult> ListAsync(string? search, string? status, string? destination, bool? featured, int page, int pageSize, CancellationToken ct);
+    Task<TrekkingPagedResult> ListAsync(string? search, string? status, string? destination, string? trekkingType, bool? featured, int page, int pageSize, CancellationToken ct);
     Task<TrekkingDetailsDto?> GetByIdAsync(int id, CancellationToken ct);
     Task<int> CreateAsync(TrekkingUpsertDto request, int? userId, CancellationToken ct);
     Task<bool> UpdateAsync(int id, TrekkingUpsertDto request, int? userId, CancellationToken ct);

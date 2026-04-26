@@ -1,3 +1,4 @@
+using TravelCleanArch.Application.Common;
 using TravelCleanArch.Domain.Enumerations;
 
 namespace TravelCleanArch.Application.Abstractions.Travel;
@@ -168,7 +169,9 @@ public sealed record TrekkingDetailsDto(
     IReadOnlyCollection<TrekkingHighlightDto> Highlights,
     IReadOnlyCollection<TrekkingReviewDto> Reviews);
 
-public sealed record TrekkingPagedResult(IReadOnlyCollection<TrekkingListItemDto> Items, int Page, int PageSize, int TotalCount);
+public sealed record TrekkingPagedResult(IReadOnlyCollection<TrekkingListItemDto> Items, int Page, int PageSize, int TotalCount, 
+    List<SelectOptionDto>? Locations,
+    IReadOnlyCollection<SelectOptionDto>? TrekkingTypes);
 
 
 public sealed class TrekkingCountryGroupDto

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Application.Common;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -8,7 +9,7 @@ namespace TravelCleanArch.Infrastructure.Services;
 
 public sealed class TrekkingService(AppDbContext db) : ITrekkingService
 {
-    public async Task<TrekkingPagedResult> ListAsync(string? search, string? status, string? destination, bool? featured, int page, int pageSize, CancellationToken ct)
+    public async Task<TrekkingPagedResult> ListAsync(string? search, string? status, string? destination, string? trekkingType, bool? featured, int page, int pageSize, CancellationToken ct)
     {
         var query = db.Trekking.AsNoTracking().Include(x => x.TrekkingType).AsQueryable();
         if (!string.IsNullOrWhiteSpace(search)) query = query.Where(x => x.Name.Contains(search));
@@ -37,8 +38,24 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
                 x.DifficultyLevel.HasValue ? x.DifficultyLevel.Value.ToString() : x.Difficulty,
                 x.OverviewCountry.ToString()))
             .ToListAsync(ct);
+        var locations = Enum.GetValues<Country>()
+            .Select(x => new SelectOptionDto(
+                Value: x.ToString(),
+                Text: x.ToString(),
+                Selected: string.Equals(destination, x.ToString(), StringComparison.OrdinalIgnoreCase)
+                ))
+            .ToList();
 
-        return new TrekkingPagedResult(items, page, pageSize, total);
+        var trekkingTypes = await db.TrekkingTypes.AsNoTracking()
+            .OrderBy(t => t.Title)
+            .Select(t => new SelectOptionDto(
+                Value: t.Id.ToString(),
+                Text: t.Title,
+                Selected: trekkingType != null && string.Equals(trekkingType, t.ToString(), StringComparison.OrdinalIgnoreCase)
+                ))
+            .ToListAsync(ct);
+
+        return new TrekkingPagedResult(items, page, pageSize, total, locations, trekkingTypes);
     }
 
     public async Task<TrekkingDetailsDto?> GetByIdAsync(int id, CancellationToken ct)

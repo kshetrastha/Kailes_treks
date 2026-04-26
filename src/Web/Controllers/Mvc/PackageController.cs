@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TravelCleanArch.Application.Abstractions.Persistence;
+using TravelCleanArch.Application.Common;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -10,26 +12,71 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 {
     public class PackageController(IUnitOfWork uow, AppDbContext db, IWebHostEnvironment environment) : Controller
     {
-        public async Task<IActionResult> Index(string? search, string? location, string? tourType, int page = 1, CancellationToken ct = default)
+
+        public async Task<IActionResult> Index(
+            string? search,
+            string? location,
+            string? tourType,
+            int page = 1,
+            CancellationToken ct = default)
         {
             const int pageSize = 12;
-            var result = await uow.TrekkingService.ListAsync(search, "published", location, null, page < 1 ? 1 : page, pageSize, ct);
+
+            var selectedLocation = location?.ToString();
+
+            var result = await uow.TrekkingService.ListAsync(
+                search,
+                "published",
+                selectedLocation,
+                tourType,
+                null,
+                page < 1 ? 1 : page,
+                pageSize,
+                ct);
 
             if (!string.IsNullOrWhiteSpace(tourType))
             {
                 var filteredItems = result.Items
                     .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-
-                result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(filteredItems, result.Page, result.PageSize, filteredItems.Count);
+                result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(
+                    filteredItems,
+                    result.Page,
+                    result.PageSize,
+                    filteredItems.Count,
+                    result.Locations,
+                    result.TrekkingTypes
+                );
             }
 
             ViewBag.Search = search;
             ViewBag.Location = location;
             ViewBag.TourType = tourType;
-
+            ViewBag.Countries = Enum.GetValues<Country>();
             return View(result);
         }
+
+
+        //public async Task<IActionResult> Index(string? search, string? location, string? tourType, int page = 1, CancellationToken ct = default)
+        //{
+        //    const int pageSize = 12;
+        //    var result = await uow.TrekkingService.ListAsync(search, "published", location, null, page < 1 ? 1 : page, pageSize, ct);
+
+        //    if (!string.IsNullOrWhiteSpace(tourType))
+        //    {
+        //        var filteredItems = result.Items
+        //            .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
+        //            .ToList();
+
+        //        result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(filteredItems, result.Page, result.PageSize, filteredItems.Count);
+        //    }
+
+        //    ViewBag.Search = search;
+        //    ViewBag.Location = location;
+        //    ViewBag.TourType = tourType;
+
+        //    return View(result);
+        //}
 
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)

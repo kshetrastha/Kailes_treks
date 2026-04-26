@@ -50,11 +50,14 @@
                                         <div class="banner-search-select">
                                             <select name="location" id="location">
                                                 <option value="">Search location</option>
-                                                <option value="Nepal" selected="@(location == "Nepal")">Nepal</option>
-                                                <option value="India" selected="@(location == "India")">India</option>
-                                                <option value="Bhutan" selected="@(location == "Bhutan")">Bhutan</option>
-                                                <option value="China" selected="@(location == "China")">China</option>
+                                                @foreach (var item in Model.Locations)
+                                                {
+                                                    <option value="@item.Value" selected="@(location == item.Value)">
+                                                        @item.Text
+                                                    </option>
+                                                }
                                             </select>
+                                   
                                         </div>
                                     </div>
                                 </div>
@@ -76,12 +79,19 @@
                                         <div class="banner-search-select">
                                             <select name="tourType">
                                                 <option value="">All Types</option>
-                                                <option value="Pilgrimage" selected="@(tourType == "Pilgrimage")">Pilgrimage</option>
+                                                @foreach (var item in Model.TrekkingTypes)
+                                                {
+                                                    <option value="@item.Value" selected="@(tourType == item.Value)">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                                
+                                              @*   <option value="Pilgrimage" selected="@(tourType == "Pilgrimage")">Pilgrimage</option>
                                                 <option value="Discovery" selected="@(tourType == "Discovery")">Discovery</option>
                                                 <option value="Adventure" selected="@(tourType == "Adventure")">Adventure</option>
                                                 <option value="Mountain" selected="@(tourType == "Mountain")">Mountain</option>
                                                 <option value="Wildlife" selected="@(tourType == "Wildlife")">Wildlife</option>
-                                                <option value="Forest" selected="@(tourType == "Forest")">Forest</option>
+                                                <option value="Forest" selected="@(tourType == "Forest")">Forest</option> *@
                                             </select>
                                         </div>
                                     </div>
