@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Infrastructure.Persistence;
 using TravelCleanArch.Domain.Constants;
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Web.Areas.Admin.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace TravelCleanArch.Web.Areas.Admin.Controllers;
 
@@ -28,7 +32,12 @@ public sealed class MapDestinationsController(AppDbContext db, IWebHostEnvironme
     }
 
     [HttpGet("create")]
-    public IActionResult Create() => View("Upsert", new MapDestinationFormViewModel());
+    public IActionResult Create()
+    {
+        var model = new MapDestinationFormViewModel();
+        PopulateDestinationOptions(model);
+        return View("Upsert", model);
+    }
 
     [HttpGet("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
@@ -39,7 +48,7 @@ public sealed class MapDestinationsController(AppDbContext db, IWebHostEnvironme
 
         if (item is null) return NotFound();
 
-        return View("Upsert", new MapDestinationFormViewModel
+        var model = new MapDestinationFormViewModel
         {
             Id = item.Id,
             Name = item.Name,
@@ -58,13 +67,21 @@ public sealed class MapDestinationsController(AppDbContext db, IWebHostEnvironme
                     SortOrder = x.SortOrder
                 })
                 .ToList()
-        });
+        };
+
+        PopulateDestinationOptions(model);
+        return View("Upsert", model);
     }
 
     [HttpPost("create"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(MapDestinationFormViewModel model, CancellationToken ct)
     {
-        if (!ModelState.IsValid) return View("Upsert", model);
+        ValidateDestination(model);
+        if (!ModelState.IsValid)
+        {
+            PopulateDestinationOptions(model);
+            return View("Upsert", model);
+        }
 
         var now = DateTime.UtcNow;
         var entity = new MapDestination
@@ -114,7 +131,12 @@ public sealed class MapDestinationsController(AppDbContext db, IWebHostEnvironme
     public async Task<IActionResult> Edit(int id, MapDestinationFormViewModel model, CancellationToken ct)
     {
         if (id != model.Id) return BadRequest();
-        if (!ModelState.IsValid) return View("Upsert", model);
+        ValidateDestination(model);
+        if (!ModelState.IsValid)
+        {
+            PopulateDestinationOptions(model);
+            return View("Upsert", model);
+        }
 
         var item = await db.MapDestinations
             .Include(x => x.Images)
@@ -203,5 +225,25 @@ public sealed class MapDestinationsController(AppDbContext db, IWebHostEnvironme
         await file.CopyToAsync(stream, ct);
 
         return Path.Combine("uploads", "map-destinations", kind, fileName).Replace('\\', '/');
+    }
+
+    private static void PopulateDestinationOptions(MapDestinationFormViewModel model)
+    {
+        model.DestinationOptions = Enum.GetValues<PilgrimageDestination>()
+            .Select(x => new SelectListItem(GetDisplayName(x), x.ToString(), string.Equals(model.Name, x.ToString(), StringComparison.Ordinal)))
+            .ToList();
+    }
+
+    private void ValidateDestination(MapDestinationFormViewModel model)
+    {
+        if (Enum.TryParse<PilgrimageDestination>(model.Name, true, out _)) return;
+        ModelState.AddModelError(nameof(MapDestinationFormViewModel.Name), "Please select a valid destination.");
+    }
+
+    private static string GetDisplayName(Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
+        var display = field?.GetCustomAttribute<DisplayAttribute>();
+        return string.IsNullOrWhiteSpace(display?.Name) ? value.ToString() : display.Name!;
     }
 }

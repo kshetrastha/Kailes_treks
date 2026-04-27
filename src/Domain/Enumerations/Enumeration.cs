@@ -63,3 +63,31 @@ public enum ExpeditionMediaType
     Photo = 1,
     Video = 2
 }
+
+public enum PilgrimageDestination
+{
+    // Nepal side
+    Kathmandu = 1,
+    Pokhara = 2,
+    Muktinath = 3,
+    Simikot = 4,
+    Hilsa = 5,
+
+    // Tibet side
+    Lhasa = 6,
+    Kerung = 7,
+    Sigatshe = 8,
+    Saga = 9,
+    Manasarovar = 10,
+    [Display(Name = "Rakshyas Taal")]
+    RakshyasTaal = 11,
+    Darchen = 12,
+    [Display(Name = "YamaDwar")]
+    YamaDwar = 13,
+    Zuthulphuk = 14,
+    Dheraphuk = 15,
+    [Display(Name = "Dolma La")]
+    DolmaLa = 16,
+    Gaurikunda = 17,
+    Ali = 18
+}

@@ -15,7 +15,9 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label asp-for="Name" class="form-label"></label>
-                    <input asp-for="Name" class="form-control" />
+                    <select asp-for="Name" asp-items="Model.DestinationOptions" class="form-select">
+                        <option value="">-- Select Destination --</option>
+                    </select>
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
