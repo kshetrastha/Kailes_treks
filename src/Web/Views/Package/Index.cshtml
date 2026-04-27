@@ -6,6 +6,7 @@
     var location = ViewBag.Location as string;
     var tourType = ViewBag.TourType as string;
     var search = ViewBag.Search as string;
+    var trekkingTypeFiltersJson = System.Text.Json.JsonSerializer.Serialize(Model.TrekkingTypeFilters ?? []);
 }
 
 <main class="main-area fix">
@@ -146,36 +147,70 @@
 
 @section Scripts {
     <script>
-
-                function getOuterNiceSelectValue(selectId) {
-                    debugger
-                    const value = $(selectId)
-                    .closest('.banner-search-item')
-                    .children('.nice-select.banner-search-select')
-                    .find('.option.selected')
-                    .attr('data-value');
-
-            $(selectId).val(value);
-
-            return value || '';
-        }
-
         $(function () {
-
-            // init nice select
-            if ($.fn.niceSelect) {
-                $('#destination, #tourType').niceSelect();
-            }
-            debugger
             const $form = $('#package-search-form');
             const $results = $('#package-listing-results');
-            var t =$("#destination").val();
+            const $destination = $('#destination');
+            const $tourType = $('#tourType');
+            const trekkingTypeFilters = @Html.Raw(trekkingTypeFiltersJson);
+            const selectedTourType = '@(tourType ?? string.Empty)';
+
+            function initializeNiceSelect() {
+                if (!$.fn.niceSelect) {
+                    return;
+                }
+
+                if ($destination.next('.nice-select').length === 0) {
+                    $destination.niceSelect();
+                } else {
+                    $destination.niceSelect('update');
+                }
+
+                if ($tourType.next('.nice-select').length === 0) {
+                    $tourType.niceSelect();
+                } else {
+                    $tourType.niceSelect('update');
+                }
+            }
+
+            function updateTourTypeOptions() {
+                const destination = ($destination.val() || '').toString();
+                const currentSelection = ($tourType.val() || '').toString();
+
+                $tourType.empty().append('<option value="">All Types</option>');
+
+                const matchingTypes = trekkingTypeFilters.filter(function (item) {
+                    if (!destination) {
+                        return true;
+                    }
+
+                    return item.Country && item.Country.toLowerCase() === destination.toLowerCase();
+                });
+
+                matchingTypes.forEach(function (item) {
+                    const isSelected = item.Value === currentSelection || (!currentSelection && item.Value === selectedTourType);
+                    const option = new Option(item.Text, item.Value, false, isSelected);
+                    $tourType.append(option);
+                });
+
+                if (currentSelection && !matchingTypes.some(function (item) { return item.Value === currentSelection; })) {
+                    $tourType.val('');
+                }
+
+                initializeNiceSelect();
+            }
+
+            initializeNiceSelect();
+            updateTourTypeOptions();
+
+            $destination.on('change', function () {
+                updateTourTypeOptions();
+            });
 
             function buildUrl() {
-                debugger
-                    const destination = getOuterNiceSelectValue('#destination');
-                const search = getOuterNiceSelectValue('#search');
-        const tourType = getOuterNiceSelectValue('#tourType');
+                const destination = ($destination.val() || '').toString();
+                const search = ($('#search').val() || '').toString();
+                const tourType = ($tourType.val() || '').toString();
 
                 const params = [];
 
@@ -189,7 +224,6 @@
             }
 
             function loadResults(url, pushState) {
-
                 const ajaxUrl = url + (url.includes('?') ? '&' : '?') + 'partial=true';
 
                 $.ajax({
@@ -200,11 +234,6 @@
                         $results.html(html);
 
                         bindPagination();
-
-                        // re-init nice select after partial render
-                        if ($.fn.niceSelect) {
-                            $('#location, #tourType').niceSelect('update');
-                        }
 
                         if (pushState) {
                             history.pushState({}, '', url);
@@ -228,9 +257,6 @@
                 e.preventDefault();
 
                 const url = buildUrl();
-
-                console.log("Submitting:", url);
-
                 loadResults(url, true);
             });
 
