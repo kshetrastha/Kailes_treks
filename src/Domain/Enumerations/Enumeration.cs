@@ -89,5 +89,8 @@ public enum PilgrimageDestination
     [Display(Name = "Dolma La")]
     DolmaLa = 16,
     Gaurikunda = 17,
-    Ali = 18
+    Ali = 18,
+    [Display(Name = "Mount Kailesh")]
+    MountKailesh=19,
+    Bhutan =20
 }

@@ -173,7 +173,7 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         return View(vm);
     }
 
-    [HttpGet("map-destination/{destination}")]
+    [HttpGet("routes/{destination}")]
     public async Task<IActionResult> MapDestination(string destination, CancellationToken ct)
     {
         var normalizedKey = NormalizeDestinationKey(destination);
