@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Persistence;
+using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -10,17 +11,19 @@ namespace TravelCleanArch.Web.Controllers.Mvc
     public class PackageController(IUnitOfWork uow, AppDbContext db, IWebHostEnvironment environment) : Controller
     {
 
+        [HttpGet]
         public async Task<IActionResult> Index(
-            string? search,
-            string? location,
-            string? tourType,
-            int page = 1,
-            bool partial = false,
-            CancellationToken ct = default)
+    string? search,
+    string? destination,
+    string? tourType,
+    int page = 1,
+    bool partial = false,
+    CancellationToken ct = default)
         {
             const int pageSize = 12;
 
-            var selectedLocation = location?.ToString();
+            page = page < 1 ? 1 : page;
+            var selectedLocation = destination?.ToString();
 
             var result = await uow.TrekkingService.ListAsync(
                 search,
@@ -28,22 +31,74 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 selectedLocation,
                 tourType,
                 null,
-                page < 1 ? 1 : page,
+                page,
                 pageSize,
                 ct);
 
-            ViewBag.Search = search;
-            ViewBag.Location = location;
-            ViewBag.TourType = tourType;
-            ViewBag.Countries = Enum.GetValues<Country>();
+            if (!string.IsNullOrWhiteSpace(tourType))
+            {
+                var filteredItems = result.Items
+                    .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-            if (partial || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                result = new TrekkingPagedResult(
+                    filteredItems,
+                    result.Page,
+                    result.PageSize,
+                    filteredItems.Count,
+                    result.Locations,
+                    result.TrekkingTypes
+                );
+            }
+
+            ViewBag.Search = search;
+            ViewBag.Location = destination;
+            ViewBag.TourType = tourType;
+
+            if (partial)
             {
                 return PartialView("_PackageListingResults", result);
             }
 
             return View(result);
-        }        
+        }
+
+
+        //[HttpGet]
+        //public async Task<IActionResult> Index(
+        // [FromQuery] string? search,
+        // [FromQuery] string? location,
+        // [FromQuery] string? tourType,
+        // [FromQuery] int page = 1,
+        // [FromQuery] bool partial = false,
+        // CancellationToken ct = default)
+        //{
+        //    const int pageSize = 12;
+
+        //    var selectedLocation = location?.ToString();
+
+        //    var result = await uow.TrekkingService.ListAsync(
+        //        search,
+        //        "published",
+        //        selectedLocation,
+        //        tourType,
+        //        null,
+        //        page < 1 ? 1 : page,
+        //        pageSize,
+        //        ct);
+
+        //    ViewBag.Search = search;
+        //    ViewBag.Location = location;
+        //    ViewBag.TourType = tourType;
+        //    ViewBag.Countries = Enum.GetValues<Country>();
+
+        //    if (partial || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        //    {
+        //        return PartialView("_PackageListingResults", result);
+        //    }
+
+        //    return View(result);
+        //}        
 
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)

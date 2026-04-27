@@ -12,7 +12,7 @@
     <div class="section-space-top"></div>
 
     <section class="bd-breadcrumb-area p-relative fix">
-        <div class="bd-breadcrumb-bg" data-background="cusassests/images/bg/breadcrumb-bg.png"></div>
+        <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
         <div class="bd-breadcrumb-wrapper p-relative">
             <div class="container">
                 <div class="row justify-content-center">
@@ -21,7 +21,11 @@
                             <div class="bd-breadcrumb-content text-center">
                                 <h1 class="bd-breadcrumb-title">Tour Listing</h1>
                                 <div class="bd-breadcrumb-list">
-                                    <span><a asp-controller="Home" asp-action="Index"><i class="icon-home"></i>Home</a></span>
+                                    <span>
+                                        <a asp-controller="Home" asp-action="Index">
+                                            <i class="icon-home"></i>Home
+                                        </a>
+                                    </span>
                                     <span>Tour Listing</span>
                                 </div>
                             </div>
@@ -36,55 +40,90 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xxl-10 col-xl-10 col-lg-11">
-                    <form method="get" asp-action="Index" class="banner-search-wrapper style-two w-100" id="package-search-form">
+
+                    <form method="get"
+                          asp-action="Index"
+                          class="banner-search-wrapper style-two w-100"
+                          id="package-search-form">
+
                         <div class="banner-search-box box-shadow">
                             <div class="banner-search-form">
+
+                                <!-- Location -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="fa-regular fa-location-dot"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-location-dot"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Where to</p>
                                         <div class="banner-search-select">
-                                            <select name="location" id="location">
+                                            <select name="destination" id="destination">
                                                 <option value="">Search location</option>
-                                                @foreach (var item in Model.Locations)
+
+                                                @if (Model.Locations != null)
                                                 {
-                                                    <option value="@item.Value" selected="@(string.Equals(location, item.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">
-                                                        @item.Text
-                                                    </option>
+                                                    foreach (var item in Model.Locations)
+                                                    {
+                                                        <option value="@item.Value"
+                                                                selected="@(string.Equals(location, item.Value, StringComparison.OrdinalIgnoreCase))">
+                                                            @item.Text
+                                                        </option>
+                                                    }
                                                 }
                                             </select>
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Search -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="icon-cleander"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-magnifying-glass"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item">
                                         <p class="b2 mb-0 fw-5">Search</p>
                                         <div class="banner-form-input">
-                                            <input class="form-control" type="text" name="search" value="@search" placeholder="Search package" />
+                                            <input class="form-control"
+                                                   type="text"
+                                                   name="search"
+                                                   id="search"
+                                                   value="@search"
+                                                   placeholder="Search package" />
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Tour Type -->
                                 <div class="banner-search-field d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="fa-regular fa-location-dot"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-location-dot"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Tour Types</p>
                                         <div class="banner-search-select">
-                                            <select name="tourType">
+                                            <select name="tourType" id="tourType">
                                                 <option value="">All Types</option>
-                                                @foreach (var item in Model.TrekkingTypes)
+
+                                                @if (Model.TrekkingTypes != null)
                                                 {
-                                                    <option value="@item.Value" selected="@(string.Equals(tourType, item.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">
-                                                        @item.Text
-                                                    </option>
+                                                    foreach (var item in Model.TrekkingTypes)
+                                                    {
+                                                        <option value="@item.Value"
+                                                                selected="@(string.Equals(tourType, item.Value, StringComparison.OrdinalIgnoreCase))">
+                                                            @item.Text
+                                                        </option>
+                                                    }
                                                 }
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
+
                             <div class="banner-search-button">
                                 <button type="submit" class="banner-btn banner-square-btn bd-btn btn-style radius-10">
                                     <span><i class="fa-regular fa-magnifying-glass"></i></span> Search
@@ -92,6 +131,7 @@
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -104,67 +144,102 @@
     </section>
 </main>
 
-<script>
-    (() => {
-        const form = document.getElementById('package-search-form');
-        const resultsContainer = document.getElementById('package-listing-results');
+@section Scripts {
+    <script>
 
-        if (!form || !resultsContainer) {
-            return;
+                function getOuterNiceSelectValue(selectId) {
+                    debugger
+                    const value = $(selectId)
+                    .closest('.banner-search-item')
+                    .children('.nice-select.banner-search-select')
+                    .find('.option.selected')
+                    .attr('data-value');
+
+            $(selectId).val(value);
+
+            return value || '';
         }
 
-        const buildAjaxUrl = (url) => {
-            const target = new URL(url, window.location.origin);
-            target.searchParams.set('partial', 'true');
-            return target;
-        };
+        $(function () {
 
-        const bindPaginationLinks = () => {
-            resultsContainer.querySelectorAll('.basic-pagination a').forEach((link) => {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    loadResults(link.href, true);
-                });
-            });
-        };
+            // init nice select
+            if ($.fn.niceSelect) {
+                $('#destination, #tourType').niceSelect();
+            }
+            debugger
+            const $form = $('#package-search-form');
+            const $results = $('#package-listing-results');
+            var t =$("#destination").val();
 
-        const loadResults = async (url, pushState) => {
-            try {
-                const ajaxUrl = buildAjaxUrl(url);
-                const response = await fetch(ajaxUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+            function buildUrl() {
+                debugger
+                    const destination = getOuterNiceSelectValue('#destination');
+                const search = getOuterNiceSelectValue('#search');
+        const tourType = getOuterNiceSelectValue('#tourType');
+
+                const params = [];
+
+                if (destination) params.push('destination=' + encodeURIComponent(destination));
+                if (search) params.push('search=' + encodeURIComponent(search));
+                if (tourType) params.push('tourType=' + encodeURIComponent(tourType));
+
+                params.push('page=1');
+
+                return window.location.pathname + '?' + params.join('&');
+            }
+
+            function loadResults(url, pushState) {
+
+                const ajaxUrl = url + (url.includes('?') ? '&' : '?') + 'partial=true';
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'GET',
+                    success: function (html) {
+
+                        $results.html(html);
+
+                        bindPagination();
+
+                        // re-init nice select after partial render
+                        if ($.fn.niceSelect) {
+                            $('#location, #tourType').niceSelect('update');
+                        }
+
+                        if (pushState) {
+                            history.pushState({}, '', url);
+                        }
+                    },
+                    error: function () {
+                        window.location.href = url;
                     }
                 });
-
-                if (!response.ok) {
-                    window.location.href = url;
-                    return;
-                }
-
-                resultsContainer.innerHTML = await response.text();
-                bindPaginationLinks();
-
-                if (pushState) {
-                    window.history.pushState({}, '', new URL(url, window.location.origin));
-                }
-            } catch {
-                window.location.href = url;
             }
-        };
 
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const searchParams = new URLSearchParams(formData);
-            const targetUrl = `${form.action}?${searchParams.toString()}`;
-            loadResults(targetUrl, true);
+            function bindPagination() {
+                $('.basic-pagination a').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    loadResults($(this).attr('href'), true);
+                });
+            }
+
+            // FORM SUBMIT
+            $form.on('submit', function (e) {
+                e.preventDefault();
+
+                const url = buildUrl();
+
+                console.log("Submitting:", url);
+
+                loadResults(url, true);
+            });
+
+            // BACK BUTTON SUPPORT
+            $(window).on('popstate', function () {
+                loadResults(window.location.href, false);
+            });
+
+            bindPagination();
         });
-
-        window.addEventListener('popstate', () => {
-            loadResults(window.location.href, false);
-        });
-
-        bindPaginationLinks();
-    })();
-</script>
+    </script>
+}
