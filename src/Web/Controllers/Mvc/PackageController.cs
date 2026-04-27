@@ -13,12 +13,12 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 
         [HttpGet]
         public async Task<IActionResult> Index(
-    string? search,
-    string? destination,
-    string? tourType,
-    int page = 1,
-    bool partial = false,
-    CancellationToken ct = default)
+            string? search,
+            string? destination,
+            string? tourType,
+            int page = 1,
+            bool partial = false,
+            CancellationToken ct = default)
         {
             const int pageSize = 12;
 
@@ -62,44 +62,6 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 
             return View(result);
         }
-
-
-        //[HttpGet]
-        //public async Task<IActionResult> Index(
-        // [FromQuery] string? search,
-        // [FromQuery] string? location,
-        // [FromQuery] string? tourType,
-        // [FromQuery] int page = 1,
-        // [FromQuery] bool partial = false,
-        // CancellationToken ct = default)
-        //{
-        //    const int pageSize = 12;
-
-        //    var selectedLocation = location?.ToString();
-
-        //    var result = await uow.TrekkingService.ListAsync(
-        //        search,
-        //        "published",
-        //        selectedLocation,
-        //        tourType,
-        //        null,
-        //        page < 1 ? 1 : page,
-        //        pageSize,
-        //        ct);
-
-        //    ViewBag.Search = search;
-        //    ViewBag.Location = location;
-        //    ViewBag.TourType = tourType;
-        //    ViewBag.Countries = Enum.GetValues<Country>();
-
-        //    if (partial || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-        //    {
-        //        return PartialView("_PackageListingResults", result);
-        //    }
-
-        //    return View(result);
-        //}        
-
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)
         {
