@@ -178,10 +178,14 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
     {
         var normalizedKey = NormalizeDestinationKey(destination);
 
-        var item = await db.MapDestinations
+        var publishedDestinations = await db.MapDestinations
             .AsNoTracking()
             .Include(x => x.Images)
-            .FirstOrDefaultAsync(x => x.IsPublished && NormalizeDestinationKey(x.Name) == normalizedKey, ct);
+            .Where(x => x.IsPublished)
+            .ToListAsync(ct);
+
+        var item = publishedDestinations
+            .FirstOrDefault(x => NormalizeDestinationKey(x.Name) == normalizedKey);
 
         if (item is null) return NotFound();
 
