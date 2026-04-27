@@ -1,4 +1,5 @@
 @using TravelCleanArch.Domain.Entities
+@using TravelCleanArch.Application.Abstractions.Travel
 @using TravelCleanArch.Web.Models.Home
 @model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
 @{
@@ -388,10 +389,45 @@
             </div>
         </div>
 
-        @if (Model.TrekkingCountryPackageCountDtos != null && Model.TrekkingCountryPackageCountDtos.Any())
-        {
-            var items = Model.TrekkingCountryPackageCountDtos.ToList();
+        @{
+            var tourCountByCountry = (Model.TrekkingCountryPackageCountDtos ?? new List<TrekkingCountryPackageCountDto>())
+                .GroupBy(x => x.Country)
+                .ToDictionary(g => g.Key, g => g.First().PackageCount);
 
+            var trekkingDestinations = (Model.TrekkingCountryGroupDtos ?? new List<TrekkingCountryGroupDto>())
+                .SelectMany(countryGroup => countryGroup.TrekkingTypes
+                    .SelectMany(typeGroup => typeGroup.Regions.SelectMany(region => region.Packages)
+                        .Concat(typeGroup.PackagesWithoutRegion))
+                    .Select(pkg => new
+                    {
+                        Title = pkg.Name,
+                        Country = countryGroup.Country.ToString(),
+                        ImageUrl = pkg.ImageURL,
+                        TourCount = tourCountByCountry.TryGetValue(countryGroup.Country.ToString(), out var count) ? count : 1
+                    }))
+                .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+                .ToList();
+
+            if (!trekkingDestinations.Any())
+            {
+                trekkingDestinations = (Model.TrekkingCountryPackageCountDtos ?? new List<TrekkingCountryPackageCountDto>())
+                    .Select(x => new
+                    {
+                        Title = x.Country,
+                        Country = x.Country,
+                        ImageUrl = x.ImageUrl,
+                        TourCount = x.PackageCount
+                    })
+                    .ToList();
+            }
+
+            var items = trekkingDestinations.Any()
+                ? Enumerable.Range(0, 6).Select(i => trekkingDestinations[i % trekkingDestinations.Count]).ToList()
+                : new List<dynamic>();
+        }
+
+        @if (items.Any())
+        {
             <div class="destination-grid">
                 @for (int i = 0; i < items.Count; i++)
                 {
@@ -413,19 +449,19 @@
                         <div class="trip-wrapper trip-style-one p-relative h-100">
                             <div class="trip-thumb image-overly">
                                 <a href="#">
-                                    <img src="@imageUrl" alt="@item.Country">
+                                    <img src="@imageUrl" alt="@item.Title">
                                 </a>
                             </div>
 
                             <div class="trip-tag">
                                 <div class="trip-number">
                                     <span>
-                                        <a href="#">@item.PackageCount Tours</a>
+                                        <a href="#">@item.TourCount Tours</a>
                                     </span>
                                 </div>
                                 <div class="trip-location">
                                     <span>
-                                        <a href="#">@item.Country</a>
+                                        <a href="#">@item.Title</a>
                                     </span>
                                 </div>
                             </div>
