@@ -66,7 +66,130 @@
         : Url.Content("~/cusassests/images/about/about-img-2.png");
 
 }
+<style>
+	.destination-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 170px;
+    gap: 24px;
+}
 
+.destination-card {
+    grid-column: span 3;
+    grid-row: span 2;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.destination-large {
+    grid-column: span 4;
+    grid-row: span 4;
+}
+
+.destination-small {
+    grid-column: span 3;
+    grid-row: span 2;
+}
+
+.destination-wide {
+    grid-column: span 5;
+    grid-row: span 2;
+}
+
+.destination-card .trip-wrapper,
+.destination-card .trip-thumb,
+.destination-card .trip-thumb a {
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+
+.destination-card .trip-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* keep overlay dark like screenshot */
+.destination-card .image-overly::before {
+    border-radius: 12px;
+}
+
+/* location label */
+.destination-card .trip-location {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+}
+
+.destination-card .trip-location span a {
+    background: #fff;
+    color: #001b3f;
+    padding: 0px 30px;
+    display: inline-block;
+    border-radius: 0 10px 0 0;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+/* tour count */
+.destination-card .trip-number {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 3;
+}
+
+.destination-card .trip-number span a {
+    background: #fff;
+    color: #001b3f;
+    padding: 7px 16px;
+    display: inline-block;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Tablet */
+@@media (max-width: 991px) {
+    .destination-grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-auto-rows: 160px;
+    }
+
+    .destination-large,
+    .destination-wide,
+    .destination-small,
+    .destination-card {
+        grid-column: span 3;
+        grid-row: span 2;
+    }
+}
+
+/* Mobile */
+@@media (max-width: 575px) {
+    .destination-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 260px;
+        gap: 20px;
+    }
+
+    .destination-large,
+    .destination-wide,
+    .destination-small,
+    .destination-card {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+}
+.destination-card .trip-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
 <!-- Banner area start -->
 <section class="banner-area banner-height p-relative z-index-11 image-bg" style="background: url('@bgImage') no-repeat; width: 100%;">
     <div class="banner-shape">
@@ -245,10 +368,77 @@
     </div>
 </section>
 
+<section class="bd-trip-area section-space flash-white p-relative">
+    <div class="container">
+        <div class="trip-shape">
+            <div class="trip-shape-two">
+                <img src="~/cusassests/images/shapes/trip-map.png" alt="shape">
+            </div>
+            <div class="trip-shape-three">
+                <img src="~/cusassests/images/shapes/trip-map-small.png" alt="shape">
+            </div>
+        </div>
 
+        <div class="row gy-24 align-items-center justify-content-center section-title-space">
+            <div class="col-lg-8 col-md-8">
+                <div class="section-title-wrapper text-center">
+                    <span class="section-subtitle mb-10">Our Trips</span>
+                    <h2 class="section-title">Trending Destination</h2>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.TrekkingCountryPackageCountDtos != null && Model.TrekkingCountryPackageCountDtos.Any())
+        {
+            var items = Model.TrekkingCountryPackageCountDtos.ToList();
+
+            <div class="destination-grid">
+                @for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+
+                    var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
+                        ? item.ImageUrl
+                        : Url.Content("~/cusassests/images/trip/trip-img-1.png");
+
+                    var gridClass = i switch
+                    {
+                        0 => "destination-card destination-large",
+                        1 => "destination-card destination-small",
+                        2 => "destination-card destination-wide",
+                        _ => "destination-card"
+                    };
+
+                    <div class="@gridClass">
+                        <div class="trip-wrapper trip-style-one p-relative h-100">
+                            <div class="trip-thumb image-overly">
+                                <a href="#">
+                                    <img src="@imageUrl" alt="@item.Country">
+                                </a>
+                            </div>
+
+                            <div class="trip-tag">
+                                <div class="trip-number">
+                                    <span>
+                                        <a href="#">@item.PackageCount Tours</a>
+                                    </span>
+                                </div>
+                                <div class="trip-location">
+                                    <span>
+                                        <a href="#">@item.Country</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
 
     
-<section class="bd-trip-area section-space flash-white p-relative">
+@* <section class="bd-trip-area section-space flash-white p-relative">
     <div class="container">
         <div class="trip-shape">
             <div class="trip-shape-two">
@@ -310,7 +500,7 @@
             }
         </div>
     </div>
-</section>
+</section> *@
 
 <!-- offer area start -->
 <section class="bd-offer-area section-space-bottom section-space-top">
