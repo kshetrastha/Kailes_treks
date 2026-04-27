@@ -35,21 +35,6 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 pageSize,
                 ct);
 
-            if (!string.IsNullOrWhiteSpace(tourType))
-            {
-                var filteredItems = result.Items
-                    .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(
-                    filteredItems,
-                    result.Page,
-                    result.PageSize,
-                    filteredItems.Count,
-                    result.Locations,
-                    result.TrekkingTypes
-                );
-            }
-
             ViewBag.Search = search;
             ViewBag.Location = location;
             ViewBag.TourType = tourType;
