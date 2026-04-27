@@ -48,7 +48,7 @@
                                                 <option value="">Search location</option>
                                                 @foreach (var item in Model.Locations)
                                                 {
-                                                    <option value="@item.Value" selected="@(location == item.Value)">
+                                                    <option value="@item.Value" selected="@(string.Equals(location, item.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">
                                                         @item.Text
                                                     </option>
                                                 }
@@ -76,7 +76,7 @@
                                                 <option value="">All Types</option>
                                                 @foreach (var item in Model.TrekkingTypes)
                                                 {
-                                                    <option value="@item.Value" selected="@(tourType == item.Value)">
+                                                    <option value="@item.Value" selected="@(string.Equals(tourType, item.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">
                                                         @item.Text
                                                     </option>
                                                 }
