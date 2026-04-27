@@ -16,6 +16,8 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
         if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<TravelStatus>(status, true, out var parsedStatus))
             query = query.Where(x => x.Status == parsedStatus);
         if (!string.IsNullOrWhiteSpace(destination)) query = query.Where(x => x.Destination == destination);
+        if (!string.IsNullOrWhiteSpace(trekkingType) && int.TryParse(trekkingType, out var trekkingTypeId))
+            query = query.Where(x => x.TrekkingTypeId == trekkingTypeId);
         if (featured.HasValue) query = query.Where(x => x.Featured == featured.Value);
 
         var total = await query.CountAsync(ct);
@@ -51,7 +53,7 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
             .Select(t => new SelectOptionDto(
                 Value: t.Id.ToString(),
                 Text: t.Title,
-                Selected: trekkingType != null && string.Equals(trekkingType, t.ToString(), StringComparison.OrdinalIgnoreCase)
+                Selected: trekkingType != null && string.Equals(trekkingType, t.Id.ToString(), StringComparison.OrdinalIgnoreCase)
                 ))
             .ToListAsync(ct);
 

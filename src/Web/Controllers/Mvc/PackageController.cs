@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
@@ -24,32 +25,17 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 
             page = page < 1 ? 1 : page;
             var selectedLocation = destination?.ToString();
+            var selectedTourTypeId = int.TryParse(tourType, out var parsedTourTypeId) ? parsedTourTypeId : (int?)null;
 
             var result = await uow.TrekkingService.ListAsync(
                 search,
                 "published",
                 selectedLocation,
-                tourType,
+                selectedTourTypeId?.ToString(),
                 null,
                 page,
                 pageSize,
                 ct);
-
-            if (!string.IsNullOrWhiteSpace(tourType))
-            {
-                var filteredItems = result.Items
-                    .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                result = new TrekkingPagedResult(
-                    filteredItems,
-                    result.Page,
-                    result.PageSize,
-                    filteredItems.Count,
-                    result.Locations,
-                    result.TrekkingTypes
-                );
-            }
 
             ViewBag.Search = search;
             ViewBag.Location = destination;
@@ -61,6 +47,28 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             }
 
             return View(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTourTypesByDestination(string? destination, CancellationToken ct = default)
+        {
+            var query = db.Trekking
+                .AsNoTracking()
+                .Where(x => x.Status == TravelStatus.published);
+
+            if (!string.IsNullOrWhiteSpace(destination))
+            {
+                query = query.Where(x => x.Destination == destination);
+            }
+
+            var tourTypes = await query
+                .Where(x => x.TrekkingTypeId.HasValue && x.TrekkingType != null)
+                .Select(x => new { Id = x.TrekkingTypeId!.Value, Title = x.TrekkingType!.Title })
+                .Distinct()
+                .OrderBy(x => x.Title)
+                .ToListAsync(ct);
+
+            return Json(tourTypes);
         }
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)

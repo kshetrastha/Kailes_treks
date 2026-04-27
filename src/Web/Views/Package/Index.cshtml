@@ -146,100 +146,44 @@
 
 @section Scripts {
     <script>
-
-                function getOuterNiceSelectValue(selectId) {
-                    debugger
-                    const value = $(selectId)
-                    .closest('.banner-search-item')
-                    .children('.nice-select.banner-search-select')
-                    .find('.option.selected')
-                    .attr('data-value');
-
-            $(selectId).val(value);
-
-            return value || '';
-        }
-
         $(function () {
-
-            // init nice select
             if ($.fn.niceSelect) {
                 $('#destination, #tourType').niceSelect();
             }
-            debugger
-            const $form = $('#package-search-form');
-            const $results = $('#package-listing-results');
-            var t =$("#destination").val();
+            const $destination = $('#destination');
+            const $tourType = $('#tourType');
+            const selectedTourType = '@tourType';
 
-            function buildUrl() {
-                debugger
-                    const destination = getOuterNiceSelectValue('#destination');
-                const search = getOuterNiceSelectValue('#search');
-        const tourType = getOuterNiceSelectValue('#tourType');
+            function updateTourTypeOptions(destinationValue) {
+                $.get('@Url.Action("GetTourTypesByDestination", "Package")', { destination: destinationValue })
+                    .done(function (tourTypes) {
+                        const currentValue = $tourType.val();
+                        $tourType.empty();
+                        $tourType.append($('<option/>', { value: '', text: 'All Types' }));
 
-                const params = [];
+                        $.each(tourTypes, function (_, option) {
+                            $tourType.append($('<option/>', { value: option.id, text: option.title }));
+                        });
 
-                if (destination) params.push('destination=' + encodeURIComponent(destination));
-                if (search) params.push('search=' + encodeURIComponent(search));
-                if (tourType) params.push('tourType=' + encodeURIComponent(tourType));
+                        if (selectedTourType && $tourType.find('option[value="' + selectedTourType + '"]').length) {
+                            $tourType.val(selectedTourType);
+                        } else if (currentValue && $tourType.find('option[value="' + currentValue + '"]').length) {
+                            $tourType.val(currentValue);
+                        } else {
+                            $tourType.val('');
+                        }
 
-                params.push('page=1');
-
-                return window.location.pathname + '?' + params.join('&');
-            }
-
-            function loadResults(url, pushState) {
-
-                const ajaxUrl = url + (url.includes('?') ? '&' : '?') + 'partial=true';
-
-                $.ajax({
-                    url: ajaxUrl,
-                    type: 'GET',
-                    success: function (html) {
-
-                        $results.html(html);
-
-                        bindPagination();
-
-                        // re-init nice select after partial render
                         if ($.fn.niceSelect) {
-                            $('#location, #tourType').niceSelect('update');
+                            $tourType.niceSelect('update');
                         }
-
-                        if (pushState) {
-                            history.pushState({}, '', url);
-                        }
-                    },
-                    error: function () {
-                        window.location.href = url;
-                    }
-                });
+                    });
             }
 
-            function bindPagination() {
-                $('.basic-pagination a').off('click').on('click', function (e) {
-                    e.preventDefault();
-                    loadResults($(this).attr('href'), true);
-                });
-            }
+            updateTourTypeOptions($destination.val());
 
-            // FORM SUBMIT
-            $form.on('submit', function (e) {
-                e.preventDefault();
-
-                const url = buildUrl();
-
-                console.log("Submitting:", url);
-
-                loadResults(url, true);
+            $destination.on('change', function () {
+                updateTourTypeOptions($(this).val());
             });
-
-            // BACK BUTTON SUPPORT
-            $(window).on('popstate', function () {
-                loadResults(window.location.href, false);
-            });
-
-            bindPagination();
         });
     </script>
 }
