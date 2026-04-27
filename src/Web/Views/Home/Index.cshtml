@@ -421,9 +421,13 @@
                     .ToList();
             }
 
-            var items = trekkingDestinations.Any()
-                ? Enumerable.Range(0, 6).Select(i => trekkingDestinations[i % trekkingDestinations.Count]).ToList()
-                : new List<dynamic>();
+            var items = new List<dynamic>();
+            if (trekkingDestinations.Any())
+            {
+                items = Enumerable.Range(0, 6)
+                    .Select(i => (dynamic)trekkingDestinations[i % trekkingDestinations.Count])
+                    .ToList();
+            }
         }
 
         @if (items.Any())
