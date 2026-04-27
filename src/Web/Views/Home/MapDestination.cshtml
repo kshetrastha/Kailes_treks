@@ -1,0 +1,50 @@
+@model TravelCleanArch.Web.Models.Home.MapDestinationDetailsViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" style="background-image: url('@(!string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/" + Model.HeroImagePath : "/assets/images/breadcrumb/breadcrumb-bg.jpg")');"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="bd-breadcrumb-wrapper z-index-100">
+                    <h2 class="bd-breadcrumb-title">@Model.Name</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h3 class="mb-3">@Model.ShortDescription</h3>
+                <div>@Html.Raw(Model.Description)</div>
+            </div>
+            <div class="col-lg-4">
+                @if (!string.IsNullOrWhiteSpace(Model.HeroImagePath))
+                {
+                    <img src="/@Model.HeroImagePath" alt="@Model.Name" class="img-fluid rounded mb-3" />
+                }
+            </div>
+        </div>
+
+        @if (Model.Images.Count > 0)
+        {
+            <div class="row g-3 mt-2">
+                @foreach (var image in Model.Images)
+                {
+                    <div class="col-md-4">
+                        <img src="/@image.ImagePath" alt="@image.Caption" class="img-fluid rounded" />
+                        @if (!string.IsNullOrWhiteSpace(image.Caption))
+                        {
+                            <p class="mt-2 mb-0 small text-muted">@image.Caption</p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

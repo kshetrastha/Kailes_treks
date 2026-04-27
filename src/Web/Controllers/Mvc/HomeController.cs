@@ -4,11 +4,12 @@ using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
+using TravelCleanArch.Infrastructure.Persistence;
 using TravelCleanArch.Web.Models.Home;
 
 namespace TravelCleanArch.Web.Controllers.Mvc;
 
-public sealed class HomeController(IUnitOfWork uow) : Controller
+public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -172,12 +173,54 @@ public sealed class HomeController(IUnitOfWork uow) : Controller
         return View(vm);
     }
 
+    [HttpGet("map-destination/{destination}")]
+    public async Task<IActionResult> MapDestination(string destination, CancellationToken ct)
+    {
+        var normalizedKey = NormalizeDestinationKey(destination);
+
+        var item = await db.MapDestinations
+            .AsNoTracking()
+            .Include(x => x.Images)
+            .FirstOrDefaultAsync(x => x.IsPublished && NormalizeDestinationKey(x.Name) == normalizedKey, ct);
+
+        if (item is null) return NotFound();
+
+        var model = new MapDestinationDetailsViewModel
+        {
+            Name = item.Name,
+            ShortDescription = item.ShortDescription,
+            Description = item.Description,
+            HeroImagePath = item.HeroImagePath,
+            Images = item.Images
+                .OrderBy(x => x.SortOrder)
+                .ThenBy(x => x.Id)
+                .Select(x => new MapDestinationDetailsImageViewModel
+                {
+                    ImagePath = x.ImagePath,
+                    Caption = x.Caption
+                })
+                .ToList()
+        };
+
+        return View(model);
+    }
+
     private static string ToSlug(string value)
     {
         return string.Join('-', value
             .Trim()
             .ToLowerInvariant()
             .Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static string NormalizeDestinationKey(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        return new string(value
+            .Trim()
+            .ToLowerInvariant()
+            .Where(char.IsLetterOrDigit)
+            .ToArray());
     }
 
     private async Task<HomeIndexViewModel> BuildHomeIndexViewModelAsync(CancellationToken ct)
