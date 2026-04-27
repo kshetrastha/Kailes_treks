@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Persistence;
-using TravelCleanArch.Application.Common;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
