@@ -147,35 +147,19 @@
 @section Scripts {
     <script>
 
-                function getOuterNiceSelectValue(selectId) {
-                    debugger
-                    const value = $(selectId)
-                    .closest('.banner-search-item')
-                    .children('.nice-select.banner-search-select')
-                    .find('.option.selected')
-                    .attr('data-value');
-
-            $(selectId).val(value);
-
-            return value || '';
-        }
-
         $(function () {
 
             // init nice select
             if ($.fn.niceSelect) {
                 $('#destination, #tourType').niceSelect();
             }
-            debugger
             const $form = $('#package-search-form');
             const $results = $('#package-listing-results');
-            var t =$("#destination").val();
 
             function buildUrl() {
-                debugger
-                    const destination = getOuterNiceSelectValue('#destination');
-                const search = getOuterNiceSelectValue('#search');
-        const tourType = getOuterNiceSelectValue('#tourType');
+                const destination = $('#destination').val();
+                const search = $('#search').val();
+                const tourType = $('#tourType').val();
 
                 const params = [];
 
@@ -203,7 +187,7 @@
 
                         // re-init nice select after partial render
                         if ($.fn.niceSelect) {
-                            $('#location, #tourType').niceSelect('update');
+                            $('#destination, #tourType').niceSelect('update');
                         }
 
                         if (pushState) {
@@ -231,6 +215,18 @@
 
                 console.log("Submitting:", url);
 
+                loadResults(url, true);
+            });
+
+            $('#destination').on('change', function () {
+                if ($('#tourType').val()) {
+                    $('#tourType').val('');
+                    if ($.fn.niceSelect) {
+                        $('#tourType').niceSelect('update');
+                    }
+                }
+
+                const url = buildUrl();
                 loadResults(url, true);
             });
 
