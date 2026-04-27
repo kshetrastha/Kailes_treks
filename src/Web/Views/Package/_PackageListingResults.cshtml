@@ -1,0 +1,86 @@
+@using TravelCleanArch.Application.Abstractions.Travel
+@model TrekkingPagedResult
+
+@{
+    var location = ViewBag.Location as string;
+    var tourType = ViewBag.TourType as string;
+    var search = ViewBag.Search as string;
+    var currentPage = Model?.Page ?? 1;
+    var pageSize = Model?.PageSize ?? 12;
+    var totalCount = Model?.TotalCount ?? 0;
+    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+}
+
+<div class="row gy-24">
+    @if (Model.Items.Any())
+    {
+        @foreach (var package in Model.Items)
+        {
+            <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6">
+                <div class="tour-wrapper style-one">
+                    <div class="p-relative">
+                        <div class="tour-thumb image-overly">
+                            <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">
+                                <img src="@(string.IsNullOrWhiteSpace(package.HeroImageUrl) ? "assets/images/tour/tour-img-9.png" : package.HeroImageUrl)" alt="@package.Name">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="tour-content">
+                        <div class="tour-rating d-flex align-items-center gap-10 mb-10">
+                            <div class="tour-rating-icon fs-14 d-flex rating-color">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <div class="tour-rating-text"><span>@(package.DifficultyLevel ?? "Top Rated")</span></div>
+                        </div>
+                        <h5 class="tour-title fw-5 underline mb-5">
+                            <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">@package.Name</a>
+                        </h5>
+                        <span class="tour-price b3">$@package.Price.ToString("N2")</span>
+                        <div class="tour-divider"></div>
+                        <div class="tour-meta d-flex align-items-center justify-content-between">
+                            <div class="time d-flex align-items-center gap--5"><i class="icon-heart"></i><span>@package.DurationDays days</span></div>
+                            <div class="tour-btn">
+                                <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug" class="bd-text-btn style-two">
+                                    Book Now
+                                    <span class="icon__box">
+                                        <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                                        <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center">
+            <p class="mb-0">No tours found for selected filters.</p>
+        </div>
+    }
+</div>
+
+@if (totalPages > 1)
+{
+    <div class="pagination-wrapper d-flex justify-content-center">
+        <div class="basic-pagination">
+            <nav>
+                <ul>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        <li>
+                            <a class="@(i == currentPage ? "current" : null)"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-location="@location"
+                               asp-route-search="@search"
+                               asp-route-tourType="@tourType">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+}

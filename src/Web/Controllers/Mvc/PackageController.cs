@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Persistence;
-using TravelCleanArch.Application.Common;
+using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -13,16 +11,19 @@ namespace TravelCleanArch.Web.Controllers.Mvc
     public class PackageController(IUnitOfWork uow, AppDbContext db, IWebHostEnvironment environment) : Controller
     {
 
+        [HttpGet]
         public async Task<IActionResult> Index(
             string? search,
-            string? location,
+            string? destination,
             string? tourType,
             int page = 1,
+            bool partial = false,
             CancellationToken ct = default)
         {
             const int pageSize = 12;
 
-            var selectedLocation = location?.ToString();
+            page = page < 1 ? 1 : page;
+            var selectedLocation = destination?.ToString();
 
             var result = await uow.TrekkingService.ListAsync(
                 search,
@@ -30,7 +31,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 selectedLocation,
                 tourType,
                 null,
-                page < 1 ? 1 : page,
+                page,
                 pageSize,
                 ct);
 
@@ -39,7 +40,8 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 var filteredItems = result.Items
                     .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-                result = new TravelCleanArch.Application.Abstractions.Travel.TrekkingPagedResult(
+
+                result = new TrekkingPagedResult(
                     filteredItems,
                     result.Page,
                     result.PageSize,
@@ -50,12 +52,16 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             }
 
             ViewBag.Search = search;
-            ViewBag.Location = location;
+            ViewBag.Location = destination;
             ViewBag.TourType = tourType;
-            ViewBag.Countries = Enum.GetValues<Country>();
-            return View(result);
-        }        
 
+            if (partial)
+            {
+                return PartialView("_PackageListingResults", result);
+            }
+
+            return View(result);
+        }
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)
         {

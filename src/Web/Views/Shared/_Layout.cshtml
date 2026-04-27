@@ -419,18 +419,26 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-                  const iframe = document.getElementById("ytVideo");
-                  const btn = document.getElementById("muteBtn");
-                  let isMuted = true;
-                  btn.addEventListener("click", function () {
-                      iframe.contentWindow.postMessage(JSON.stringify({
-                          event: "command",
-                          func: isMuted ? "unMute" : "mute",
-                args: []
-              }), "*");
+            document.addEventListener("DOMContentLoaded", function () {
+                const iframe = document.getElementById("ytVideo");
+                const btn = document.getElementById("muteBtn");
 
-              btn.innerHTML = isMuted ? "🔊" : "🔇";
-              isMuted = !isMuted;
+                if (!iframe || !btn) {
+                    return;
+                }
+
+                let isMuted = true;
+
+                btn.addEventListener("click", function () {
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        event: "command",
+                        func: isMuted ? "unMute" : "mute",
+                        args: []
+                    }), "*");
+
+                    isMuted = !isMuted;
+                    btn.innerText = isMuted ? "Unmute" : "Mute";
+                });
             });
     </script>
     

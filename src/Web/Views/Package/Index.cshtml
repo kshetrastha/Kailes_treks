@@ -6,10 +6,6 @@
     var location = ViewBag.Location as string;
     var tourType = ViewBag.TourType as string;
     var search = ViewBag.Search as string;
-    var currentPage = Model?.Page ?? 1;
-    var pageSize = Model?.PageSize ?? 12;
-    var totalCount = Model?.TotalCount ?? 0;
-    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 }
 
 <main class="main-area fix">
@@ -25,7 +21,11 @@
                             <div class="bd-breadcrumb-content text-center">
                                 <h1 class="bd-breadcrumb-title">Tour Listing</h1>
                                 <div class="bd-breadcrumb-list">
-                                    <span><a asp-controller="Home" asp-action="Index"><i class="icon-home"></i>Home</a></span>
+                                    <span>
+                                        <a asp-controller="Home" asp-action="Index">
+                                            <i class="icon-home"></i>Home
+                                        </a>
+                                    </span>
                                     <span>Tour Listing</span>
                                 </div>
                             </div>
@@ -40,56 +40,90 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xxl-10 col-xl-10 col-lg-11">
-                    <form method="get" asp-action="Index" class="banner-search-wrapper style-two w-100">
+
+                    <form method="get"
+                          asp-action="Index"
+                          class="banner-search-wrapper style-two w-100"
+                          id="package-search-form">
+
                         <div class="banner-search-box box-shadow">
                             <div class="banner-search-form">
+
+                                <!-- Location -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="fa-regular fa-location-dot"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-location-dot"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Where to</p>
                                         <div class="banner-search-select">
-                                            <select name="location" id="location">
+                                            <select name="destination" id="destination">
                                                 <option value="">Search location</option>
-                                                @foreach (var item in Model.Locations)
+
+                                                @if (Model.Locations != null)
                                                 {
-                                                    <option value="@item.Value" selected="@(location == item.Value)">
-                                                        @item.Text
-                                                    </option>
+                                                    foreach (var item in Model.Locations)
+                                                    {
+                                                        <option value="@item.Value"
+                                                                selected="@(string.Equals(location, item.Value, StringComparison.OrdinalIgnoreCase))">
+                                                            @item.Text
+                                                        </option>
+                                                    }
                                                 }
                                             </select>
-                                   
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Search -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="icon-cleander"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-magnifying-glass"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item">
                                         <p class="b2 mb-0 fw-5">Search</p>
                                         <div class="banner-form-input">
-                                            <input class="form-control" type="text" name="search" value="@search" placeholder="Search package" />
+                                            <input class="form-control"
+                                                   type="text"
+                                                   name="search"
+                                                   id="search"
+                                                   value="@search"
+                                                   placeholder="Search package" />
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Tour Type -->
                                 <div class="banner-search-field d-flex align-items-center gap-10">
-                                    <div class="search-icon-bg"><span><i class="fa-regular fa-location-dot"></i></span></div>
+                                    <div class="search-icon-bg">
+                                        <span><i class="fa-regular fa-location-dot"></i></span>
+                                    </div>
+
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Tour Types</p>
                                         <div class="banner-search-select">
-                                            <select name="tourType">
+                                            <select name="tourType" id="tourType">
                                                 <option value="">All Types</option>
-                                                @foreach (var item in Model.TrekkingTypes)
+
+                                                @if (Model.TrekkingTypes != null)
                                                 {
-                                                    <option value="@item.Value" selected="@(tourType == item.Value)">
-                                                        @item.Text
-                                                    </option>
+                                                    foreach (var item in Model.TrekkingTypes)
+                                                    {
+                                                        <option value="@item.Value"
+                                                                selected="@(string.Equals(tourType, item.Value, StringComparison.OrdinalIgnoreCase))">
+                                                            @item.Text
+                                                        </option>
+                                                    }
                                                 }
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
+
                             <div class="banner-search-button">
                                 <button type="submit" class="banner-btn banner-square-btn bd-btn btn-style radius-10">
                                     <span><i class="fa-regular fa-magnifying-glass"></i></span> Search
@@ -97,86 +131,115 @@
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 
     <section class="bd-tour-listing-area section-space">
-        <div class="container">
-            <div class="row gy-24">
-                @if (Model.Items.Any())
-                {
-                    @foreach (var package in Model.Items)
-                    {
-                        <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6">
-                            <div class="tour-wrapper style-one">
-                                <div class="p-relative">
-                                    <div class="tour-thumb image-overly">
-                                        <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">
-                                            <img src="@(string.IsNullOrWhiteSpace(package.HeroImageUrl) ? "assets/images/tour/tour-img-9.png" : package.HeroImageUrl)" alt="@package.Name">
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="tour-content">
-                                    <div class="tour-rating d-flex align-items-center gap-10 mb-10">
-                                        <div class="tour-rating-icon fs-14 d-flex rating-color">
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                        </div>
-                                        <div class="tour-rating-text"><span>@(package.DifficultyLevel ?? "Top Rated")</span></div>
-                                    </div>
-                                    <h5 class="tour-title fw-5 underline mb-5">
-                                        <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">@package.Name</a>
-                                    </h5>
-                                    <span class="tour-price b3">$@package.Price.ToString("N2")</span>
-                                    <div class="tour-divider"></div>
-                                    <div class="tour-meta d-flex align-items-center justify-content-between">
-                                        <div class="time d-flex align-items-center gap--5"><i class="icon-heart"></i><span>@package.DurationDays days</span></div>
-                                        <div class="tour-btn">
-                                            <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug" class="bd-text-btn style-two">
-                                                Book Now
-                                                <span class="icon__box">
-                                                    <i class="fa-regular fa-arrow-right-long icon__first"></i>
-                                                    <i class="fa-regular fa-arrow-right-long icon__second"></i>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="col-12 text-center">
-                        <p class="mb-0">No tours found for selected filters.</p>
-                    </div>
-                }
-            </div>
-
-            @if (totalPages > 1)
-            {
-                <div class="pagination-wrapper d-flex justify-content-center">
-                    <div class="basic-pagination">
-                        <nav>
-                            <ul>
-                                @for (var i = 1; i <= totalPages; i++)
-                                {
-                                    <li>
-                                        <a class="@(i == currentPage ? "current" : null)"
-                                           asp-action="Index"
-                                           asp-route-page="@i"
-                                           asp-route-location="@location"
-                                           asp-route-search="@search"
-                                           asp-route-tourType="@tourType">@i</a>
-                                    </li>
-                                }
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            }
+        <div class="container" id="package-listing-results">
+            <partial name="_PackageListingResults" model="Model" />
         </div>
     </section>
 </main>
+
+@section Scripts {
+    <script>
+
+                function getOuterNiceSelectValue(selectId) {
+                    debugger
+                    const value = $(selectId)
+                    .closest('.banner-search-item')
+                    .children('.nice-select.banner-search-select')
+                    .find('.option.selected')
+                    .attr('data-value');
+
+            $(selectId).val(value);
+
+            return value || '';
+        }
+
+        $(function () {
+
+            // init nice select
+            if ($.fn.niceSelect) {
+                $('#destination, #tourType').niceSelect();
+            }
+            debugger
+            const $form = $('#package-search-form');
+            const $results = $('#package-listing-results');
+            var t =$("#destination").val();
+
+            function buildUrl() {
+                debugger
+                    const destination = getOuterNiceSelectValue('#destination');
+                const search = getOuterNiceSelectValue('#search');
+        const tourType = getOuterNiceSelectValue('#tourType');
+
+                const params = [];
+
+                if (destination) params.push('destination=' + encodeURIComponent(destination));
+                if (search) params.push('search=' + encodeURIComponent(search));
+                if (tourType) params.push('tourType=' + encodeURIComponent(tourType));
+
+                params.push('page=1');
+
+                return window.location.pathname + '?' + params.join('&');
+            }
+
+            function loadResults(url, pushState) {
+
+                const ajaxUrl = url + (url.includes('?') ? '&' : '?') + 'partial=true';
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'GET',
+                    success: function (html) {
+
+                        $results.html(html);
+
+                        bindPagination();
+
+                        // re-init nice select after partial render
+                        if ($.fn.niceSelect) {
+                            $('#location, #tourType').niceSelect('update');
+                        }
+
+                        if (pushState) {
+                            history.pushState({}, '', url);
+                        }
+                    },
+                    error: function () {
+                        window.location.href = url;
+                    }
+                });
+            }
+
+            function bindPagination() {
+                $('.basic-pagination a').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    loadResults($(this).attr('href'), true);
+                });
+            }
+
+            // FORM SUBMIT
+            $form.on('submit', function (e) {
+                e.preventDefault();
+
+                const url = buildUrl();
+
+                console.log("Submitting:", url);
+
+                loadResults(url, true);
+            });
+
+            // BACK BUTTON SUPPORT
+            $(window).on('popstate', function () {
+                loadResults(window.location.href, false);
+            });
+
+            bindPagination();
+        });
+    </script>
+}
