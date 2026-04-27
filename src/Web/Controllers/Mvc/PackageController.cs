@@ -18,6 +18,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             string? location,
             string? tourType,
             int page = 1,
+            bool partial = false,
             CancellationToken ct = default)
         {
             const int pageSize = 12;
@@ -53,6 +54,12 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             ViewBag.Location = location;
             ViewBag.TourType = tourType;
             ViewBag.Countries = Enum.GetValues<Country>();
+
+            if (partial || Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_PackageListingResults", result);
+            }
+
             return View(result);
         }        
 
