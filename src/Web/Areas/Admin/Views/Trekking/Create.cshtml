@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 @model TrekkingAdminViewModel
 @{
+    ViewData["Title"]="Trekking";
     var isEdit = Model.Id.HasValue;
     var types = ViewBag.TrekkingTypes as IReadOnlyCollection<TrekkingTypeDto> ?? [];
     var difficultyLevels = ViewBag.DifficultyLevels as IReadOnlyCollection<string> ?? [];

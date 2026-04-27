@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
 
@@ -8,7 +9,10 @@ public sealed class MapDestinationFormViewModel
     public int Id { get; set; }
 
     [Required, StringLength(200)]
+    [Display(Name = "Destination")]
     public string Name { get; set; } = string.Empty;
+
+    public List<SelectListItem> DestinationOptions { get; set; } = [];
 
     [Required, StringLength(600)]
     [Display(Name = "Short Description")]
