@@ -247,6 +247,7 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(2).ToList();
 
         var bannerContent = (await TryGetBannerAsync(ct));
+        var countryHierarchy = await uow.TrekkingService.GetPublicTrekkingHierarchyAsync(ct);
         var countryGroups = await uow.TrekkingService.GetPublicTrekkingPackageCountByCountryAsync(ct);
 
 
@@ -266,8 +267,8 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
             WhoWeAreItems = whoWeAreItems,
             RecentBlogs = recentBlogs,
             GetBannerContent = bannerContent,
+            TrekkingCountryGroupDtos = countryHierarchy,
             TrekkingCountryPackageCountDtos = countryGroups
-                
         };
     }
 
