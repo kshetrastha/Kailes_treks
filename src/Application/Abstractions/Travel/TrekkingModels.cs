@@ -169,9 +169,20 @@ public sealed record TrekkingDetailsDto(
     IReadOnlyCollection<TrekkingHighlightDto> Highlights,
     IReadOnlyCollection<TrekkingReviewDto> Reviews);
 
-public sealed record TrekkingPagedResult(IReadOnlyCollection<TrekkingListItemDto> Items, int Page, int PageSize, int TotalCount, 
+public sealed record TrekkingPagedResult(
+    IReadOnlyCollection<TrekkingListItemDto> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
     List<SelectOptionDto>? Locations,
-    IReadOnlyCollection<SelectOptionDto>? TrekkingTypes);
+    IReadOnlyCollection<SelectOptionDto>? TrekkingTypes,
+    IReadOnlyCollection<TrekkingTypeFilterOptionDto>? TrekkingTypeFilters = null);
+
+public sealed record TrekkingTypeFilterOptionDto(
+    string Value,
+    string Text,
+    string Country,
+    bool Selected = false);
 
 
 public sealed class TrekkingCountryGroupDto
