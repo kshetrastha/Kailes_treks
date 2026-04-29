@@ -15,6 +15,7 @@ namespace TravelCleanArch.Web.Controllers.Mvc
         [HttpGet]
         public async Task<IActionResult> Index(
             string? search,
+            DateTime? dates,
             string? destination,
             string? tourType,
             int page = 1,
@@ -22,6 +23,29 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             CancellationToken ct = default)
         {
             const int pageSize = 12;
+            DateTime? fromDate = null;
+            DateTime? toDate = null;
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var parts = search.Split(" to ", StringSplitOptions.TrimEntries);
+
+                if (parts.Length == 2)
+                {
+                    var year = DateTime.Now.Year;
+
+                    fromDate = DateTime.ParseExact(
+                        $"{parts[0]}-{year}",
+                        "MM-dd-yyyy",
+                        null);
+
+                    toDate = DateTime.ParseExact(
+                        $"{parts[1]}-{year}",
+                        "MM-dd-yyyy",
+                        null);
+                }
+            }
+
 
             page = page < 1 ? 1 : page;
             var selectedLocation = destination?.ToString();
@@ -36,31 +60,27 @@ namespace TravelCleanArch.Web.Controllers.Mvc
                 pageSize,
                 ct);
 
-            if (!string.IsNullOrWhiteSpace(tourType))
-            {
-                var filteredItems = result.Items
-                    .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+            //if (!string.IsNullOrWhiteSpace(tourType))
+            //{
+            //    var filteredItems = result.Items
+            //        .Where(x => string.Equals(x.TrekkingTypeTitle, tourType, StringComparison.OrdinalIgnoreCase))
+            //        .ToList();
 
-                result = new TrekkingPagedResult(
-                    filteredItems,
-                    result.Page,
-                    result.PageSize,
-                    filteredItems.Count,
-                    result.Locations,
-                    result.TrekkingTypes
-                );
-            }
+            //    result = new TrekkingPagedResult(
+            //        filteredItems,
+            //        result.Page,
+            //        result.PageSize,
+            //        filteredItems.Count,
+            //        result.Locations,
+            //        result.TrekkingTypes
+            //    );
+            //}
 
             ViewBag.Search = search;
             ViewBag.Location = destination;
             ViewBag.TourType = tourType;
-
             if (partial)
-            {
                 return PartialView("_PackageListingResults", result);
-            }
-
             return View(result);
         }
 
@@ -70,10 +90,8 @@ namespace TravelCleanArch.Web.Controllers.Mvc
         {
             if (string.IsNullOrWhiteSpace(destination))
                 return Json(new List<SelectOptionDto>());
-
             var tourTypes = await uow.TrekkingService
                 .GetOptionsByDestinationAsync(destination);
-
             return Json(tourTypes);
         }
 

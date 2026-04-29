@@ -57,8 +57,8 @@
 
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Where to</p>
-                                        <div class="banner-search-select">
-                                            <select name="destination" id="destination">
+                                        <div class="banner-search-select-wrapper">
+                                            <select class="banner-search-select" name="destination" id="destination">
                                                 <option value="">Search location</option>
 
                                                 @if (Model.Locations != null)
@@ -75,22 +75,14 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Search -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
                                     <div class="search-icon-bg">
-                                        <span><i class="fa-regular fa-magnifying-glass"></i></span>
+                                        <span><i class="icon-cleander"></i></span>
                                     </div>
-
                                     <div class="banner-search-item">
-                                        <p class="b2 mb-0 fw-5">Search</p>
+                                        <p class="b2 mb-0 fw-5">Duration</p>
                                         <div class="banner-form-input">
-                                            <input class="form-control"
-                                                   type="text"
-                                                   name="search"
-                                                   id="search"
-                                                   value="@search"
-                                                   placeholder="Search package" />
+                                            <input class="form-control selectingMultipleDates" id="search" name="search" type="text" placeholder="Select Your date" autocomplete="off" readonly="readonly">
                                         </div>
                                     </div>
                                 </div>
@@ -103,8 +95,8 @@
 
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Tour Types</p>
-                                        <div class="banner-search-select">
-                                            <select name="tourType" id="tourType">
+                                        <div class="banner-search-select-wrapper">
+                                            <select class="banner-search-select" name="tourType" id="tourType">
                                                 <option value="">All Types</option>
 
                                                 @* @if (Model.TrekkingTypes != null)
@@ -148,7 +140,6 @@
     <script>
         $(function () {
             function refreshTourTypes(destination) {
-                debugger
                 const $tourType = $('#tourType');
                 $tourType.empty().append('<option value="">All Types</option>');
                 if ($.fn.niceSelect) $tourType.niceSelect('update');
@@ -159,12 +150,11 @@
                     type: 'GET',
                     data: { destination: destination },
                     success: function (data) {
-                        debugger
-                        $.each(data, function (_, item) {
-                            debugger
-                            $tourType.append($('<option>', { value: item.value, text: item.text }));
+                                $.each(data, function (_, item) {
+                                        $tourType.append($('<option>', { value: item.value, text: item.text }));
                         });
-                        if ($.fn.niceSelect) $tourType.niceSelect('update');
+                        if ($.fn.niceSelect)
+                        $tourType.niceSelect('update');
                     },
                     error: function () {
                         console.log('Unable to load tour types.');
@@ -173,32 +163,26 @@
             }
 
             $(document).on('change', '#destination', function () {
+                debugger
                 refreshTourTypes($(this).val());
             });
 
-            $(document).on('click', '.banner-search-item .nice-select .option', function () {
-                const $wrapper = $(this).closest('.banner-search-item');
-                const $destination = $wrapper.find('select#destination');
-                if (!$destination.length) return;
+            // $(document).on('click', '.banner-search-item .nice-select .option', function () {
+            //     debugger
+            //     const $wrapper = $(this).closest('.banner-search-item');
+            //     const $destination = $wrapper.find('select#destination');
+            //     if (!$destination.length) return;
 
-                const destination = $(this).data('value') || '';
-                $destination.val(destination).trigger('change');
-            });
+            //     const destination = $(this).data('value') || '';
+            //     $destination.val(destination).trigger('change');
+            // });
         });
     </script>
 
 
     <script>
         function getOuterNiceSelectValue(selectId) {
-            const value = $(selectId)
-            .closest('.banner-search-item')
-            .children('.nice-select.banner-search-select')         
-            .find('.option.selected')
-            .attr('data-value');
-
-            $(selectId).val(value);
-
-            return value || '';
+            return ($(selectId).val() || '').toString();
         }
 
         $(function () {
