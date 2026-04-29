@@ -199,14 +199,22 @@
         }
 
         $(function () {
+            function ensureNiceSelect($elements) {
+                if (!$.fn.niceSelect) return;
 
-            // init nice select
-            if ($.fn.niceSelect) {
-                $('#destination, #tourType').niceSelect();
+                $elements.each(function () {
+                    const $select = $(this);
+                    if ($select.next('.nice-select').length) {
+                        $select.niceSelect('update');
+                    } else {
+                        $select.niceSelect();
+                    }
+                });
             }
+
+            ensureNiceSelect($('#destination, #tourType'));
             const $form = $('#package-search-form');
             const $results = $('#package-listing-results');
-            var t =$("#destination").val();
 
             function buildUrl() {
                         const destination = getOuterNiceSelectValue('#destination');
@@ -237,10 +245,7 @@
 
                         bindPagination();
 
-                        // re-init nice select after partial render
-                        if ($.fn.niceSelect) {
-                            $('#destination, #tourType').niceSelect('update');
-                        }
+                        ensureNiceSelect($('#destination, #tourType'));
 
                         if (pushState) {
                             history.pushState({}, '', url);
