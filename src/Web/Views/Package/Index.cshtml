@@ -107,7 +107,7 @@
                                             <select name="tourType" id="tourType">
                                                 <option value="">All Types</option>
 
-                                                @if (Model.TrekkingTypes != null)
+                                                @* @if (Model.TrekkingTypes != null)
                                                 {
                                                     foreach (var item in Model.TrekkingTypes)
                                                     {
@@ -116,7 +116,7 @@
                                                             @item.Text
                                                         </option>
                                                     }
-                                                }
+                                                } *@
                                             </select>
                                         </div>
                                     </div>
@@ -148,17 +148,20 @@
     <script>
         $(function () {
             function refreshTourTypes(destination) {
+                debugger
                 const $tourType = $('#tourType');
                 $tourType.empty().append('<option value="">All Types</option>');
                 if ($.fn.niceSelect) $tourType.niceSelect('update');
                 if (!destination) return;
 
                 $.ajax({
-                    url: '@Url.Action("GetTourTypesByDestination", "Trekking")',
+                    url: '@Url.Action("GetTourTypesByDestination", "Package")',
                     type: 'GET',
                     data: { destination: destination },
                     success: function (data) {
+                        debugger
                         $.each(data, function (_, item) {
+                            debugger
                             $tourType.append($('<option>', { value: item.value, text: item.text }));
                         });
                         if ($.fn.niceSelect) $tourType.niceSelect('update');
