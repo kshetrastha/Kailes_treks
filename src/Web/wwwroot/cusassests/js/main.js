@@ -1106,7 +1106,7 @@
     $('.contentHidden').remove();
 
     // Flatpicker activation
-    $("#selectingMultipleDates").flatpickr({
+    $(".selectingMultipleDates").flatpickr({
         mode: "range",
         altInput: true,
         altFormat: "j, M",

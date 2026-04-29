@@ -75,22 +75,14 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Search -->
                                 <div class="banner-search-field has-separator d-flex align-items-center gap-10">
                                     <div class="search-icon-bg">
-                                        <span><i class="fa-regular fa-magnifying-glass"></i></span>
+                                        <span><i class="icon-cleander"></i></span>
                                     </div>
-
                                     <div class="banner-search-item">
-                                        <p class="b2 mb-0 fw-5">Search</p>
+                                        <p class="b2 mb-0 fw-5">Duration</p>
                                         <div class="banner-form-input">
-                                            <input class="form-control"
-                                                   type="text"
-                                                   name="search"
-                                                   id="search"
-                                                   value="@search"
-                                                   placeholder="Search package" />
+                                            <input class="form-control selectingMultipleDates" id="search" name="search" type="text" placeholder="Select Your date" autocomplete="off" readonly="readonly">
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +153,8 @@
                                 $.each(data, function (_, item) {
                                         $tourType.append($('<option>', { value: item.value, text: item.text }));
                         });
-                        if ($.fn.niceSelect) $tourType.niceSelect('update');
+                        if ($.fn.niceSelect)
+                        $tourType.niceSelect('update');
                     },
                     error: function () {
                         console.log('Unable to load tour types.');
@@ -170,17 +163,19 @@
             }
 
             $(document).on('change', '#destination', function () {
+                debugger
                 refreshTourTypes($(this).val());
             });
 
-            $(document).on('click', '.banner-search-item .nice-select .option', function () {
-                const $wrapper = $(this).closest('.banner-search-item');
-                const $destination = $wrapper.find('select#destination');
-                if (!$destination.length) return;
+            // $(document).on('click', '.banner-search-item .nice-select .option', function () {
+            //     debugger
+            //     const $wrapper = $(this).closest('.banner-search-item');
+            //     const $destination = $wrapper.find('select#destination');
+            //     if (!$destination.length) return;
 
-                const destination = $(this).data('value') || '';
-                $destination.val(destination).trigger('change');
-            });
+            //     const destination = $(this).data('value') || '';
+            //     $destination.val(destination).trigger('change');
+            // });
         });
     </script>
 

@@ -11,12 +11,24 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
 {
     public async Task<TrekkingPagedResult> ListAsync(string? search, string? status, string? destination, string? trekkingType, bool? featured, int page, int pageSize, CancellationToken ct)
     {
-        var query = db.Trekking.AsNoTracking().Include(x => x.TrekkingType).AsQueryable();
-        if (!string.IsNullOrWhiteSpace(search)) query = query.Where(x => x.Name.Contains(search));
+        var query = db.Trekking.AsNoTracking()
+            .Include(x => x.TrekkingType)
+            .AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search)) 
+            query = query.Where(x => x.Name.Contains(search));
+
         if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<TravelStatus>(status, true, out var parsedStatus))
             query = query.Where(x => x.Status == parsedStatus);
-        if (!string.IsNullOrWhiteSpace(destination)) query = query.Where(x => x.Destination == destination);
-        if (featured.HasValue) query = query.Where(x => x.Featured == featured.Value);
+        if (!string.IsNullOrWhiteSpace(destination)) 
+            query = query.Where(x => x.Destination == destination);
+
+        if (!string.IsNullOrWhiteSpace(trekkingType))
+            query = query.Where(x => x.TrekkingTypeId == int.Parse(trekkingType));
+
+        if (featured.HasValue)
+            query = query.Where(x => x.Featured == featured.Value);
+
+
 
         var total = await query.CountAsync(ct);
         var items = await query.OrderBy(x => x.Ordering).ThenBy(x => x.Name)
