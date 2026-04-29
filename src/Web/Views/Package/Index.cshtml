@@ -57,8 +57,8 @@
 
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Where to</p>
-                                        <div class="banner-search-select">
-                                            <select name="destination" id="destination">
+                                        <div class="banner-search-select-wrapper">
+                                            <select class="banner-search-select" name="destination" id="destination">
                                                 <option value="">Search location</option>
 
                                                 @if (Model.Locations != null)
@@ -103,8 +103,8 @@
 
                                     <div class="banner-search-item banner-select">
                                         <p class="b2 mb-0 fw-5">Tour Types</p>
-                                        <div class="banner-search-select">
-                                            <select name="tourType" id="tourType">
+                                        <div class="banner-search-select-wrapper">
+                                            <select class="banner-search-select" name="tourType" id="tourType">
                                                 <option value="">All Types</option>
 
                                                 @* @if (Model.TrekkingTypes != null)
@@ -148,7 +148,6 @@
     <script>
         $(function () {
             function refreshTourTypes(destination) {
-                debugger
                 const $tourType = $('#tourType');
                 $tourType.empty().append('<option value="">All Types</option>');
                 if ($.fn.niceSelect) $tourType.niceSelect('update');
@@ -159,10 +158,8 @@
                     type: 'GET',
                     data: { destination: destination },
                     success: function (data) {
-                        debugger
-                        $.each(data, function (_, item) {
-                            debugger
-                            $tourType.append($('<option>', { value: item.value, text: item.text }));
+                                $.each(data, function (_, item) {
+                                        $tourType.append($('<option>', { value: item.value, text: item.text }));
                         });
                         if ($.fn.niceSelect) $tourType.niceSelect('update');
                     },
@@ -190,15 +187,7 @@
 
     <script>
         function getOuterNiceSelectValue(selectId) {
-            const value = $(selectId)
-            .closest('.banner-search-item')
-            .children('.nice-select.banner-search-select')         
-            .find('.option.selected')
-            .attr('data-value');
-
-            $(selectId).val(value);
-
-            return value || '';
+            return ($(selectId).val() || '').toString();
         }
 
         $(function () {
