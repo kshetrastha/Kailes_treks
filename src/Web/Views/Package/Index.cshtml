@@ -145,15 +145,147 @@
 </main>
 
 @section Scripts {
-    <script>
 
-                function getOuterNiceSelectValue(selectId) {
-                    debugger
-                    const value = $(selectId)
-                    .closest('.banner-search-item')
-                    .children('.nice-select.banner-search-select')
-                    .find('.option.selected')
-                    .attr('data-value');
+@*     <script>
+        $(document).ready(function () {
+            debugger
+            $('#destination').on('change', function () {
+                debugger
+                const destination = $(this).val();
+
+                const $tourType = $('#tourType');
+                $tourType.empty();
+                $tourType.append('<option value="">All Types</option>');
+
+                if (!destination) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetTourTypesByDestination", "Trekking")',
+                    type: 'GET',
+                    data: { destination: destination },
+                    success: function (data) {
+                        $.each(data, function (index, item) {
+                            $tourType.append(
+                                $('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                })
+                            );
+                        });
+                    },
+                    error: function () {
+                        console.log('Unable to load tour types.');
+                    }
+                });
+            });
+
+        });
+    </script> *@
+
+    <script>
+        $(document).ready(function () {
+
+               $(document).on('click', '.nice-select .option', function () {
+            const $niceSelect = $(this).closest('.nice-select');
+            const $select = $niceSelect.prev('select');
+
+            if ($select.attr('id') === 'destination') {
+
+                const destination = $(this).data('value');
+                const $tourType = $('#tourType');
+
+                // update real select value
+                $select.val(destination);
+
+                // reset tour type
+                $tourType.empty().append('<option value="">All Types</option>');
+                $tourType.niceSelect('update');
+
+                if (!destination) return;
+
+                $.ajax({
+                    url: '@Url.Action("GetTourTypesByDestination", "Trekking")',
+                    type: 'GET',
+                    data: { destination: destination },
+                    success: function (data) {
+
+                        $tourType.empty().append('<option value="">All Types</option>');
+
+                        $.each(data, function (_, item) {
+                            $tourType.append(
+                                $('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                })
+                            );
+                        });
+
+                        $tourType.niceSelect('update');
+                    },
+                    error: function () {
+                        console.log('Unable to load tour types.');
+                    }
+                });
+            }
+        });
+
+            $(document).on('change', '#destination', function () {
+
+                debugger
+                const destination = $(this).val();
+                const $tourType = $('#tourType');
+
+                $tourType.empty();
+                $tourType.append('<option value="">All Types</option>');
+
+                if ($.fn.niceSelect) {
+                    $tourType.niceSelect('update');
+                }
+
+                if (!destination) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetTourTypesByDestination", "Trekking")',
+                    type: 'GET',
+                    data: { destination: destination },
+                    success: function (data) {
+                        $tourType.empty();
+                        $tourType.append('<option value="">All Types</option>');
+
+                        $.each(data, function (index, item) {
+                            $tourType.append(
+                                $('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                })
+                            );
+                        });
+
+                        if ($.fn.niceSelect) {
+                            $tourType.niceSelect('update');
+                        }
+                    },
+                    error: function () {
+                        console.log('Unable to load tour types.');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+
+    <script>
+        function getOuterNiceSelectValue(selectId) {
+            const value = $(selectId)
+            .closest('.banner-search-item')
+            .children('.nice-select.banner-search-select')         
+            .find('.option.selected')
+            .attr('data-value');
 
             $(selectId).val(value);
 

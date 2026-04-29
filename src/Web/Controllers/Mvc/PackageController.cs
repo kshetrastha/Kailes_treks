@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
+using TravelCleanArch.Application.Common;
 using TravelCleanArch.Domain.Entities;
 using TravelCleanArch.Domain.Enumerations;
 using TravelCleanArch.Infrastructure.Persistence;
@@ -62,6 +63,22 @@ namespace TravelCleanArch.Web.Controllers.Mvc
 
             return View(result);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetTourTypesByDestination(string destination, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(destination))
+                return Json(new List<SelectOptionDto>());
+
+            var tourTypes = await uow.TrekkingService
+                .GetOptionsByDestinationAsync(destination);
+
+            return Json(tourTypes);
+        }
+
+
+
         [HttpGet("packages/{slug}")]
         public async Task<IActionResult> TrekkingDetails(string slug, CancellationToken ct)
         {

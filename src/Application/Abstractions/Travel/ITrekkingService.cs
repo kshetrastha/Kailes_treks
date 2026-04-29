@@ -1,3 +1,5 @@
+using TravelCleanArch.Application.Common;
+
 namespace TravelCleanArch.Application.Abstractions.Travel;
 
 public interface ITrekkingService
@@ -10,4 +12,12 @@ public interface ITrekkingService
     Task<TrekkingDetailsDto?> GetPublicBySlugAsync(string slug, CancellationToken ct);
     Task<List<TrekkingCountryGroupDto>> GetPublicTrekkingHierarchyAsync(CancellationToken ct);
     Task<List<TrekkingCountryPackageCountDto>> GetPublicTrekkingPackageCountByCountryAsync(CancellationToken ct);
-    }
+
+    Task<List<SelectOptionDto>> GetAllOptionsAsync(
+        string? selectedTrekkingType = null,
+        CancellationToken ct = default);
+    Task<List<SelectOptionDto>> GetOptionsByDestinationAsync(
+    string? destination,
+    string? selectedTrekkingType = null,
+    CancellationToken ct = default);
+}

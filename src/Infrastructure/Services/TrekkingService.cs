@@ -480,4 +480,60 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
 
         return result;
     }
+
+    public async Task<List<SelectOptionDto>> GetAllOptionsAsync(
+       string? selectedTrekkingType = null,
+       CancellationToken ct = default)
+    {
+        return await db.TrekkingTypes
+            .AsNoTracking()
+            .OrderBy(t => t.Title)
+            .Select(t => new SelectOptionDto(
+                t.Id.ToString(),
+                t.Title,
+                selectedTrekkingType != null &&
+                selectedTrekkingType == t.Id.ToString()
+            ))
+            .ToListAsync(ct);
+    }
+    public async Task<List<SelectOptionDto>> GetOptionsByDestinationAsync(
+          string? destination,
+          string? selectedTrekkingType = null,
+          CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            return await GetAllOptionsAsync(selectedTrekkingType, ct);
+        }
+
+        Country? countryEnum = null;
+
+        if (!string.IsNullOrWhiteSpace(destination) &&
+            Enum.TryParse<Country>(destination, true, out var parsed))
+        {
+            countryEnum = parsed;
+        }
+
+
+        return await db.Trekking
+            .AsNoTracking()
+            .Where(x =>
+                x.Status == TravelStatus.published &&
+                x.OverviewCountry == countryEnum &&
+                x.TrekkingType != null)
+            .Select(x => new
+            {
+                x.TrekkingType.Id,
+                x.TrekkingType.Title
+            })
+            .Distinct()
+            .OrderBy(x => x.Title)
+            .Select(x => new SelectOptionDto(
+                x.Id.ToString(),
+                x.Title,
+                selectedTrekkingType != null &&
+                selectedTrekkingType == x.Id.ToString()
+            ))
+            .ToListAsync(ct);
+    }
 }
