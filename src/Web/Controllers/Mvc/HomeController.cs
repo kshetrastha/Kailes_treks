@@ -245,7 +245,7 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
 
         var whoWeAreHero = await TryGetWhoWeAreHeroAsync(ct);
 
-        var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(2).ToList();
+        var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(3).ToList();
 
         var bannerContent = (await TryGetBannerAsync(ct));
         var countryHierarchy = await uow.TrekkingService.GetPublicTrekkingHierarchyAsync(ct);
