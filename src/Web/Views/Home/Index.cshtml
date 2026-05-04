@@ -3232,139 +3232,53 @@
                         </div>
                     </div>
                 </div>
-                <div class="row gy-24">
-                    <div class="col-xxl-5 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                        <article class="blog-wrapper blog-default blog-style">
-                            <div class="blog-thumb image-hover-effect">
-                                <a href="blog-details.html"><img src="~/cusassests/images/blog/blog-image-1.png" alt="img"></a>
-                            </div>
-                            <div class="blog-content">
-                                <div class="blog-tag">
-                                    <span><a href="blog-list-right.html">Travel</a></span>
-                                </div>
-                                <div class="blog-meta-list">
-                                    <div class="blog-meta-item">
-                                        <span class="meta-icon">
-                    <i class="icon-person"></i>
-                </span>
-                                        <span class="meta-text">By <a class="meta-author" href="blog-details.html">David William</a></span>
-                                    </div>
-                                    <div class="blog-meta-item">
-                                        <span class="meta-icon">
-                    <i class="icon-cleander-check"></i>
-                </span>
-                                        <span class="meta-text"><a href="blog-details.html">March 25 2026</a></span>
-                                    </div>
-                                </div>
-                                <h5 class="blog-title mb-25 underline"><a href="blog-details.html">He Art of Adventure Exploring Uncharted Destinations</a></h5>
-                                <div class="blog-btn">
-                                    <div class="icon-text-btn p-relative">
-                                        <a href="blog-details.html">
-                                            <span>Read More</span>
-                                            <i>
-                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11.2871 1L17 6.71285L11.2871 12.4257" stroke="currentColor" stroke-width="1.5"
-                                stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M1 6.71313H16.8397" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                    <div class="col-xxl-7 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                        <div class="blog-flex">
-                            <article class="blog-wrapper blog-default blog-style-two">
-                                <div class="blog-thumb image-hover-effect">
-                                    <a href="blog-details.html"><img src="~/cusassests/images/blog/blog-image-2.png" alt="img"></a>
-                                </div>
-                                <div class="blog-content">
-                                    <div class="blog-tag">
-                                        <span><a href="blog-list-right.html">Wellness</a></span>
-                                    </div>
-                                    <div class="blog-meta-list">
-                                        <div class="blog-meta-item">
-                                            <span class="meta-icon">
-                    <i class="icon-person"></i>
-                </span>
-                                            <span class="meta-text">By <a class="meta-author" href="blog-details.html">Will Smith</a></span>
-                                        </div>
-                                        <div class="blog-meta-item">
-                                            <span class="meta-icon">
-                    <i class="icon-cleander-check"></i>
-                </span>
-                                            <span class="meta-text"><a href="blog-details.html">March 25 2026</a></span>
-                                        </div>
-                                    </div>
-                                    <h5 class="blog-title mb-30 underline"><a href="blog-details.html">Mind Matters Navigating Mental Wellness in Today's World</a></h5>
-                                    <div class="blog-btn">
-                                        <div class="icon-text-btn p-relative">
-                                            <a href="blog-details.html">
-                                                <span>Read More</span>
-                                                <i>
-                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11.2871 1L17 6.71285L11.2871 12.4257" stroke="currentColor" stroke-width="1.5"
-                                stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M1 6.71313H16.8397" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
+                @if (Model.RecentBlogs.Any())
+                {
+                    var featuredBlog = Model.RecentBlogs.First();
+                    var secondaryBlogs = Model.RecentBlogs.Skip(1).ToList();
 
-                            <article class="blog-wrapper blog-default blog-style-two">
+                    <div class="row gy-24">
+                        <div class="col-xxl-5 col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                            <article class="blog-wrapper blog-default blog-style">
                                 <div class="blog-thumb image-hover-effect">
-                                    <a href="blog-details.html"><img src="~/cusassests/images/blog/blog-image-3.png" alt="img"></a>
+                                    <a href="/our-blogs/@featuredBlog.Slug"><img src="@(string.IsNullOrWhiteSpace(featuredBlog.ThumbnailImagePath) ? Url.Content("~/cusassests/images/blog/blog-image-1.png") : Url.Content(featuredBlog.ThumbnailImagePath))" alt="@featuredBlog.Title"></a>
                                 </div>
                                 <div class="blog-content">
-                                    <div class="blog-tag">
-                                        <span><a href="blog-list-right.html">Trips</a></span>
-                                    </div>
+                                    <div class="blog-tag"><span><a href="/our-blogs">Travel</a></span></div>
                                     <div class="blog-meta-list">
-                                        <div class="blog-meta-item">
-                                            <span class="meta-icon">
-                    <i class="icon-person"></i>
-                </span>
-                                            <span class="meta-text">By <a class="meta-author" href="blog-details.html">Sophia Miller</a></span>
-                                        </div>
-                                        <div class="blog-meta-item">
-                                            <span class="meta-icon">
-                    <i class="icon-cleander-check"></i>
-                </span>
-                                            <span class="meta-text"><a href="blog-details.html">March 25 2026</a></span>
-                                        </div>
+                                        <div class="blog-meta-item"><span class="meta-icon"><i class="icon-person"></i></span><span class="meta-text">By Admin</span></div>
+                                        <div class="blog-meta-item"><span class="meta-icon"><i class="icon-cleander-check"></i></span><span class="meta-text">@featuredBlog.PublishedOnUtc?.ToString("MMMM dd yyyy")</span></div>
                                     </div>
-                                    <h5 class="blog-title mb-30 underline"><a href="blog-details.html">Roaming Routes Adventures in Every Corner of the World</a></h5>
-                                    <div class="blog-btn">
-                                        <div class="icon-text-btn p-relative">
-                                            <a href="blog-details.html">
-                                                <span>Read More</span>
-                                                <i>
-                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11.2871 1L17 6.71285L11.2871 12.4257" stroke="currentColor" stroke-width="1.5"
-                                stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M1 6.71313H16.8397" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </i>
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <h5 class="blog-title mb-25 underline"><a href="/our-blogs/@featuredBlog.Slug">@featuredBlog.Title</a></h5>
+                                    <div class="blog-btn"><div class="icon-text-btn p-relative"><a href="/our-blogs/@featuredBlog.Slug"><span>Read More</span></a></div></div>
                                 </div>
                             </article>
                         </div>
+                        <div class="col-xxl-7 col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                            <div class="blog-flex">
+                                @foreach (var post in secondaryBlogs)
+                                {
+                                    <article class="blog-wrapper blog-default blog-style-two">
+                                        <div class="blog-thumb image-hover-effect"><a href="/our-blogs/@post.Slug"><img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? Url.Content("~/cusassests/images/blog/blog-image-2.png") : Url.Content(post.ThumbnailImagePath))" alt="@post.Title"></a></div>
+                                        <div class="blog-content">
+                                            <div class="blog-tag"><span><a href="/our-blogs">Travel</a></span></div>
+                                            <div class="blog-meta-list">
+                                                <div class="blog-meta-item"><span class="meta-icon"><i class="icon-person"></i></span><span class="meta-text">By Admin</span></div>
+                                                <div class="blog-meta-item"><span class="meta-icon"><i class="icon-cleander-check"></i></span><span class="meta-text">@post.PublishedOnUtc?.ToString("MMMM dd yyyy")</span></div>
+                                            </div>
+                                            <h5 class="blog-title mb-30 underline"><a href="/our-blogs/@post.Slug">@post.Title</a></h5>
+                                            <div class="blog-btn"><div class="icon-text-btn p-relative"><a href="/our-blogs/@post.Slug"><span>Read More</span></a></div></div>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row justify-content-center mt-50">
                     <div class="col-lg-2">
                         <div class="bd-blog-btn">
-                            <a href="blog-list-right.html" class="bd-primary-btn btn-style has-arrow radius-60">
+                            <a href="/our-blogs" class="bd-primary-btn btn-style has-arrow radius-60">
                                 <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
                                 <span class="bd-primary-btn-text">See All</span>
                                 <span class="bd-primary-btn-circle"></span>
