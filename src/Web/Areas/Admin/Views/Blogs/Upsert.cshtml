@@ -35,13 +35,13 @@
 
                 <div class="mb-3">
                     <label asp-for="Summary" class="form-label"></label>
-                    <textarea asp-for="Summary" class="form-control" rows="4"></textarea>
+                    <textarea asp-for="Summary" class="form-control textEditor" rows="4"></textarea>
                     <span asp-validation-for="Summary" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="ContentHtml" class="form-label">Content (HTML allowed)</label>
-                    <textarea asp-for="ContentHtml" class="form-control" rows="14"></textarea>
+                    <textarea asp-for="ContentHtml" class="form-control textEditor" rows="14"></textarea>
                     <span asp-validation-for="ContentHtml" class="text-danger"></span>
                 </div>
 
