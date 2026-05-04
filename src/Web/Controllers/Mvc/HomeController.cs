@@ -248,6 +248,16 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         var recentBlogs = (await TryGetBlogPostsAsync(ct)).Take(3).ToList();
 
         var bannerContent = (await TryGetBannerAsync(ct));
+        var reviews = (await uow.ReviewService.ListOrderedAsync(publishedOnly: true, ct))
+            .Select(x => new HomeReviewViewModel
+            {
+                ReviewerName = x.ReviewerName,
+                ReviewerRole = x.ReviewerRole,
+                ReviewText = x.ReviewText,
+                Rating = x.Rating,
+                ReviewerImagePath = x.ReviewerImagePath
+            })
+            .ToList();
         var countryHierarchy = await uow.TrekkingService.GetPublicTrekkingHierarchyAsync(ct);
         var countryGroups = await uow.TrekkingService.GetPublicTrekkingPackageCountByCountryAsync(ct);
 
@@ -269,7 +279,8 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
             RecentBlogs = recentBlogs,
             GetBannerContent = bannerContent,
             TrekkingCountryGroupDtos = countryHierarchy,
-            TrekkingCountryPackageCountDtos = countryGroups
+            TrekkingCountryPackageCountDtos = countryGroups,
+            Reviews = reviews
         };
     }
 
