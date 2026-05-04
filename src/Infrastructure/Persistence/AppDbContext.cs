@@ -79,6 +79,7 @@ public sealed class AppDbContext:
     public DbSet<TermsAndCondition> TermsAndConditions => Set<TermsAndCondition>();
     public DbSet<Banner> Banners => Set<Banner>();
     public DbSet<BannerImage> BannerImages => Set<BannerImage>();
+    public DbSet<MasterFaq> MasterFaqs => Set<MasterFaq>();
     public DbSet<MapDestination> MapDestinations => Set<MapDestination>();
     public DbSet<MapDestinationImage> MapDestinationImages => Set<MapDestinationImage>();
     public DbSet<NewsletterSubscription> NewsletterSubscriptions => Set<NewsletterSubscription>();
@@ -140,6 +141,15 @@ public sealed class AppDbContext:
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
             b.HasMany(x => x.Images).WithOne(x => x.Banner).HasForeignKey(x => x.BannerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<MasterFaq>(b =>
+        {
+            b.ToTable("master_faqs");
+            b.Property(x => x.Question).HasMaxLength(500).IsRequired();
+            b.Property(x => x.Answer).HasColumnType("text").IsRequired();
+            b.HasIndex(x => x.Ordering);
+            b.HasIndex(x => x.IsPublished);
         });
 
         builder.Entity<BannerImage>(b =>

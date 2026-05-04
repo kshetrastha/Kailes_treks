@@ -137,3 +137,13 @@ public sealed class BannerImage : BaseEntity
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 }
+
+public sealed class MasterFaq : BaseEntity
+{
+    public string Question { get; set; } = string.Empty;
+    public string Answer { get; set; } = string.Empty;
+    public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public DateTime CreatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+}

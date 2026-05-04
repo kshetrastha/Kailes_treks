@@ -1,0 +1,6 @@
+@model IReadOnlyList<TravelCleanArch.Domain.Entities.MasterFaq>
+@{ ViewData["Title"] = "Travel - Master FAQs"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><h2 class="mb-0">Master FAQs</h2><a class="btn btn-primary" href="/admin/company/master-faqs/create">Add FAQ</a></div>
+<table class="table table-bordered"><thead><tr><th>Order</th><th>Question</th><th>Published</th><th></th></tr></thead><tbody>
+@foreach (var item in Model){<tr><td>@item.Ordering</td><td>@item.Question</td><td>@(item.IsPublished?"Yes":"No")</td><td><a class="btn btn-sm btn-outline-primary" href="/admin/company/master-faqs/@item.Id/edit">Edit</a> <form method="post" action="/admin/company/master-faqs/@item.Id/delete" class="d-inline">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this faq?');">Delete</button></form></td></tr>}
+</tbody></table>

@@ -1,0 +1,9 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.MasterFaqFormViewModel
+@{ var isEdit = Model.Id.HasValue; ViewData["Title"] = isEdit ? "Edit FAQ" : "Create FAQ"; }
+<h2>@(isEdit?"Edit":"Create") Master FAQ</h2>
+<form method="post" action="@(isEdit?$"/admin/company/master-faqs/{Model.Id}/edit":"/admin/company/master-faqs/create")">@Html.AntiForgeryToken()
+<div class="mb-3"><label asp-for="Question" class="form-label"></label><input asp-for="Question" class="form-control"/><span asp-validation-for="Question" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Answer" class="form-label"></label><textarea asp-for="Answer" rows="6" class="form-control"></textarea><span asp-validation-for="Answer" class="text-danger"></span></div>
+<div class="row"><div class="col-md-4"><label asp-for="Ordering" class="form-label"></label><input asp-for="Ordering" class="form-control"/></div><div class="col-md-4 d-flex align-items-end"><div class="form-check mb-2"><input class="form-check-input" asp-for="IsPublished"/><label class="form-check-label" asp-for="IsPublished"></label></div></div></div>
+<button class="btn btn-primary">Save</button> <a class="btn btn-secondary" href="/admin/company/master-faqs">Cancel</a>
+</form>
