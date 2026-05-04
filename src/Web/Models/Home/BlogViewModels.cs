@@ -23,6 +23,8 @@ public sealed class BlogDetailViewModel
     public string? Summary { get; init; }
     public string ContentHtml { get; init; } = string.Empty;
     public string? HeroImagePath { get; init; }
+    public string? ThumbnailImagePath { get; set; }
+
     public DateTime? PublishedOnUtc { get; init; }
     public IReadOnlyList<BlogCardViewModel> LatestPosts { get; init; } = [];
 }

@@ -4,7 +4,7 @@
 }
 
 <section class="bd-breadcrumb-area p-relative fix">
-    <div class="bd-breadcrumb-bg" data-background="assets/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-bg" data-background="@(string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/customer/assets/img/contact.jpg" : $"/{Model.HeroImagePath}")"></div>
     <div class="bd-breadcrumb-wrapper p-relative">
         <div class="container">
             <div class="row justify-content-center">
@@ -30,7 +30,7 @@
             <div class="col-lg-8">
                 <article class="post-details mb-50">
                     <div class="post-details-thumb mb-25">
-                        <img src="@(string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/customer/assets/img/contact.jpg" : $"/{Model.HeroImagePath}")" alt="@Model.Title">
+                        <img src="@(string.IsNullOrWhiteSpace(Model.ThumbnailImagePath) ? "/customer/assets/img/contact.jpg" : $"/{Model.ThumbnailImagePath}")" alt="@Model.Title">
                     </div>
 
                     <div class="post-details-content">

@@ -65,7 +65,8 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
             Slug = post.Slug,
             Summary = post.Summary,
             ContentHtml = post.ContentHtml,
-            HeroImagePath = post.HeroImagePath ?? post.ThumbnailImagePath,
+            HeroImagePath = post.HeroImagePath,
+            ThumbnailImagePath = post.ThumbnailImagePath,
             PublishedOnUtc = post.PublishedOnUtc,
             LatestPosts = latest
         };
