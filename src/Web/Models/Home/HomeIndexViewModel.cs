@@ -3,6 +3,15 @@ using TravelCleanArch.Domain.Entities;
 
 namespace TravelCleanArch.Web.Models.Home;
 
+public sealed class HomeReviewViewModel
+{
+    public string ReviewerName { get; init; } = string.Empty;
+    public string? ReviewerRole { get; init; }
+    public string ReviewText { get; init; } = string.Empty;
+    public int Rating { get; init; } = 5;
+    public string? ReviewerImagePath { get; init; }
+}
+
 public sealed class HomeIndexViewModel
 {
     public string WhyWithUsHeader { get; init; } = "Because we are the best";
@@ -22,4 +31,5 @@ public sealed class HomeIndexViewModel
     public Banner GetBannerContent { get; set; } = new Banner();
     public List<TrekkingCountryGroupDto> TrekkingCountryGroupDtos { get; set; } =new List<TrekkingCountryGroupDto>();
      public List<TrekkingCountryPackageCountDto> TrekkingCountryPackageCountDtos { get; set; } = new List<TrekkingCountryPackageCountDto>();
+    public IReadOnlyList<HomeReviewViewModel> Reviews { get; init; } = [];
 }
