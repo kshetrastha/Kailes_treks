@@ -81,6 +81,7 @@ public sealed class AppDbContext:
     public DbSet<BannerImage> BannerImages => Set<BannerImage>();
     public DbSet<MapDestination> MapDestinations => Set<MapDestination>();
     public DbSet<MapDestinationImage> MapDestinationImages => Set<MapDestinationImage>();
+    public DbSet<NewsletterSubscription> NewsletterSubscriptions => Set<NewsletterSubscription>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -119,6 +120,17 @@ public sealed class AppDbContext:
             b.Property(x => x.Caption).HasMaxLength(500);
             b.HasIndex(x => new { x.MapDestinationId, x.SortOrder });
         });
+
+        builder.Entity<NewsletterSubscription>(b =>
+        {
+            b.ToTable("newsletter_subscriptions");
+            b.Property(x => x.Email).HasMaxLength(320).IsRequired();
+            b.Property(x => x.SourcePage).HasMaxLength(500);
+            b.Property(x => x.IpAddress).HasMaxLength(64);
+            b.HasIndex(x => x.Email).IsUnique();
+            b.HasIndex(x => x.SubscribedAtUtc);
+        });
+
         builder.Entity<Banner>(b =>
         {
             b.ToTable("company_banners");

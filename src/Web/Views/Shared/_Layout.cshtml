@@ -184,7 +184,8 @@
                         </div>
                     </div>
                     <div class="offcanvas-search mb-0">
-                        <form action="#">
+                        <form asp-controller="Newsletter" asp-action="Subscribe" method="post">
+                                    @Html.AntiForgeryToken()
                             <input type="text" name="offcanvasSearch" placeholder="Search here">
                             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
@@ -206,7 +207,8 @@
                 <div class="col-12">
                     <div class="bd-search-popup">
                         <div class="bd-search-form">
-                            <form action="#">
+                            <form asp-controller="Newsletter" asp-action="Subscribe" method="post">
+                                    @Html.AntiForgeryToken()
                                 <div class="bd-search-input">
                                     <input type="search" name="search" placeholder="Type here to serach ...">
                                     <div class="bd-search-submit">
@@ -229,6 +231,15 @@
     <div class="bd-search-overlay"></div>
     <!-- search popup area end here  -->
 
+    @if (TempData["NewsletterSuccess"] is string ns)
+{
+    <div class="alert alert-success text-center mb-0">@ns</div>
+}
+@if (TempData["NewsletterError"] is string ne)
+{
+    <div class="alert alert-danger text-center mb-0">@ne</div>
+}
+
     <main class="main-area fix">
         @RenderBody()
     </main>
@@ -244,9 +255,10 @@
                             </h2>
                             <p class="white-text">Share the core values and principles that drive your company Emphasize a commitment to customer satisfaction</p>
                             <div class="cta-form mb-50">
-                                <form action="#">
+                                <form asp-controller="Newsletter" asp-action="Subscribe" method="post">
+                                    @Html.AntiForgeryToken()
                                     <div class="cta-input">
-                                        <input type="text" placeholder="Your email">
+                                        <input type="email" name="email" placeholder="Your email" required>
                                         <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-8">
                                             <span class="bd-primary-btn-arrow arrow-right">
                                                 <i class="fa-regular fa-arrow-right"></i>

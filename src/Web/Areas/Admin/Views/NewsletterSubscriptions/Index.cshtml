@@ -1,0 +1,25 @@
+@model IReadOnlyList<TravelCleanArch.Domain.Entities.NewsletterSubscription>
+@{
+    ViewData["Title"] = "Newsletter Subscriptions";
+}
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title mb-3">Newsletter Subscribers</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead><tr><th>Email</th><th>Subscribed (UTC)</th><th>Source</th><th>IP</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Email</td>
+                        <td>@item.SubscribedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@item.SourcePage</td>
+                        <td>@item.IpAddress</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
