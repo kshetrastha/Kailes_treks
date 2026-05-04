@@ -14242,6 +14242,7 @@ only screen and (min-width: 576px) and (max-width: 767px),
 .contact-form .input-box-select {
     width: 100%;
     height: 56px;
+    margin-bottom: 15px;
     border: none;
     border: 1px solid var(--bd-border-primary);
     background-color: transparent;
@@ -14255,6 +14256,52 @@ only screen and (min-width: 576px) and (max-width: 767px),
     height: 500px;
     filter: grayscale(0.8);
     border-radius: 8px;
+}
+
+textarea.form-control {
+    height: 100px;
+    padding: 22px 20px;
+    resize: none;
+    background: transparent;
+    font-size: 16px;
+}
+
+.social-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Icon base style */
+.social-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Individual brand colors */
+.social-icons a:nth-child(1) { background: #1877f2; } /* Facebook */
+.social-icons a:nth-child(2) { background: #000000; } /* X (Twitter) */
+.social-icons a:nth-child(3) { background: #e4405f; } /* Instagram */
+.social-icons a:nth-child(4) { background: #0077b5; } /* LinkedIn */
+.social-icons a:nth-child(5) { background: #ff0000; } /* YouTube */
+
+/* Hover effect */
+.social-icons a:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+/* Optional: icon font fix */
+.social-icons i {
+    line-height: 1;
 }
 
 /*----------------------------------------*/
@@ -20317,7 +20364,7 @@ only screen and (min-width: 576px) and (max-width: 767px) {
 
 .sidebar-sticky {
     position: sticky;
-    top: 120px;
+    top: 88px;
 }
 
 .sidebar-wrapper {

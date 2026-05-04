@@ -1,9 +1,142 @@
+@using TravelCleanArch.Web.Models.Home
 @model TravelCleanArch.Web.Models.Home.MapDestinationDetailsViewModel
 @{
     ViewData["Title"] = Model.Name;
 }
-
 <section class="bd-breadcrumb-area p-relative fix">
+    <!-- breadcrumb background image -->
+    <div class="bd-breadcrumb-bg" data-background="@(!string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/" + Model.HeroImagePath : "/assets/images/breadcrumb/breadcrumb-bg.jpg")"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">@Model.ShortDescription</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>@Model.Name</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bd-blog-details-area section-space">
+    <div class="container">
+        <div class="row gy-24 justify-content-center">
+            <div class="col-xxl-8 col-xl-8 col-lg-8">
+                <div class="post-details-wrapper">
+                    <article class="post-details mb-50">
+                        <div class="post-details-content">
+                            <h3 class="post-details-title mb-15">
+                                @Model.Name : @Model.ShortDescription
+                            </h3>
+
+                            <div class="post-content mb-30">
+                                @Html.Raw(Model.Description)
+                            </div>
+                            @{
+                                var images = Model.Images?.ToList() ?? new List<MapDestinationDetailsImageViewModel>();
+                                var firstImage = images.ElementAtOrDefault(0);
+                                var secondImage = images.ElementAtOrDefault(1);
+                                var thirdImage = images.ElementAtOrDefault(2);
+                                var hiddenImages = images.Skip(3).ToList();
+                            }
+
+                            @if (images.Any())
+                            {
+                                <div class="tour-details-gallery mb-35">
+                                    <h5 class="mb-20">Tour Gallery</h5>
+
+                                    <div class="row gy-24">
+                                        <!-- Left big image -->
+                                        @if (firstImage != null)
+                                        {
+                                            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                                <div class="tour-details-gallery-thumb position-relative">
+                                                    <a href="/@firstImage.ImagePath" data-fancybox="tour-gallery">
+                                                        <img src="/@firstImage.ImagePath"
+                                                             alt="@(firstImage.Caption ?? "Tour image")">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <!-- Right stacked images -->
+                                        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                            <div class="row gy-24">
+                                                @if (secondImage != null)
+                                                {
+                                                    <div class="col-12">
+                                                        <div class="tour-details-gallery-thumb position-relative">
+                                                            <a href="/@secondImage.ImagePath" data-fancybox="tour-gallery">
+                                                                <img src="/@secondImage.ImagePath"
+                                                                     alt="@(secondImage.Caption ?? "Tour image")">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                                @if (thirdImage != null)
+                                                {
+                                                    <div class="col-12">
+                                                        <div class="tour-details-gallery-thumb position-relative">
+                                                            <a href="/@thirdImage.ImagePath" data-fancybox="tour-gallery">
+                                                                <img src="/@thirdImage.ImagePath"
+                                                                     alt="@(thirdImage.Caption ?? "Tour image")">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden images -->
+                                @if (hiddenImages.Any())
+                                {
+                                    <div style="display: none;">
+                                        @foreach (var image in hiddenImages)
+                                        {
+                                            <a href="/@image.ImagePath" data-fancybox="tour-gallery"></a>
+                                        }
+                                    </div>
+                                }
+                            }
+                            <div class="section-divider mt-30 mb-25"></div>
+
+                            <div class="post-details-tag d-flex flex-wrap gap-10 align-items-center justify-content-between">
+                                <!-- post tags -->
+                                <div class="tagcloud">
+                                    <a href="#" rel="tag">Spiritual</a>
+                                    <a href="#" rel="tag">Trek</a>
+                                    <a href="#" rel="tag">Adventure</a>
+                                </div>
+
+                                <!-- social share -->
+                                <div class="theme-social">
+                                    <a href="#" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                                    <a class="twit" target="_blank" href="#" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                                    <a href="#" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                       
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@* <section class="bd-breadcrumb-area p-relative fix">
     <div class="bd-breadcrumb-bg" style="background-image: url('@(!string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/" + Model.HeroImagePath : "/assets/images/breadcrumb/breadcrumb-bg.jpg")');"></div>
     <div class="container">
         <div class="row">
@@ -47,4 +180,4 @@
             </div>
         }
     </div>
-</section>
+</section> *@
