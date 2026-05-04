@@ -3,38 +3,66 @@
     ViewData["Title"] = Model.Title;
 }
 
-<section class="w-full pt-30">
-    <div class="relative h-[360px] md:h-[460px] overflow-hidden">
-        <img src="@(string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/customer/assets/img/contact.jpg" : $"/{Model.HeroImagePath}")" alt="@Model.Title" class="w-full h-full object-cover" />
-        <div class="absolute inset-0 bg-black/45 flex items-center">
-            <div class="px-6 sm:px-12 md:px-20 lg:px-28 max-w-5xl text-white">
-                <h1 class="text-4xl md:text-5xl font-semibold leading-tight">@Model.Title</h1>
-                <p class="mt-4 text-sm">@Model.PublishedOnUtc?.ToString("MMMM d, yyyy")</p>
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="assets/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">@Model.Title</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>Blog Details</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="w-full py-12 px-6 sm:px-12 md:px-20 lg:px-28 bg-white">
-    <div class="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-10">
-        <article class="prose max-w-none prose-p:text-neutral-700 prose-headings:text-[#d08b2d]">
-            @Html.Raw(Model.ContentHtml)
-        </article>
+<section class="bd-blog-details-area section-space">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <article class="post-details mb-50">
+                    <div class="post-details-thumb mb-25">
+                        <img src="@(string.IsNullOrWhiteSpace(Model.HeroImagePath) ? "/customer/assets/img/contact.jpg" : $"/{Model.HeroImagePath}")" alt="@Model.Title">
+                    </div>
 
-        <aside>
-            <h3 class="text-xl text-neutral-700 border-l-2 border-[#d08b2d] pl-3 mb-4">Latest Blog Posts</h3>
-            <div class="space-y-3">
-                @foreach (var post in Model.LatestPosts)
-                {
-                    <a href="/our-blogs/@post.Slug" class="grid grid-cols-[90px_1fr] gap-3 items-center">
-                        <img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? "/customer/assets/img/skydiving.png" : $"/{post.ThumbnailImagePath}")" alt="@post.Title" class="w-[90px] h-[55px] object-cover" />
-                        <div>
-                            <p class="text-xs text-neutral-500">@post.PublishedOnUtc?.ToString("MMMM d, yyyy")</p>
-                            <p class="text-sm text-neutral-700 leading-tight">@post.Title</p>
+                    <div class="post-details-content">
+                        <h3 class="post-details-title mb-15">@Model.Title</h3>
+
+                        <div class="post-details-meta mb-20">
+                            <ul>
+                                <li><i class="icon-person"></i> Admin</li>
+                                <li><i class="icon-cleander-check"></i> @Model.PublishedOnUtc?.ToString("MMMM yyyy")</li>
+                            </ul>
                         </div>
-                    </a>
-                }
+
+                        <div class="post-content mb-30">
+                            @Html.Raw(Model.ContentHtml)
+                        </div>
+
+                        <div class="post-details-tag d-flex justify-content-between flex-wrap">
+                            <div class="tagcloud">
+                                <a href="#">Kailash</a>
+                                <a href="#">Trek</a>
+                                <a href="#">Spiritual</a>
+                            </div>
+
+                            <div class="theme-social">
+                                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             </div>
-        </aside>
+        </div>
     </div>
 </section>
