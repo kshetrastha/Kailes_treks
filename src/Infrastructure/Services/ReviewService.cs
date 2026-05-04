@@ -11,7 +11,8 @@ public sealed class ReviewService(AppDbContext dbContext) : GenericRepository<Re
     public async Task<IReadOnlyList<Review>> ListOrderedAsync(bool publishedOnly, CancellationToken ct)
     {
         var query = Query().AsNoTracking();
-        if (publishedOnly) query = query.Where(x => x.IsPublished);
+        if (publishedOnly)
+            query = query.Where(x => x.IsPublished);
         return await query.OrderBy(x => x.Ordering).ThenBy(x => x.Id).ToListAsync(ct);
     }
 }

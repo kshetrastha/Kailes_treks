@@ -437,8 +437,8 @@
                 @for (int i = 0; i < items.Count; i++)
                 {
                     var item = items[i];
-
-                    var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
+					var url = $"/Package?destination={item.Country}&page=1";
+					var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
                         ? item.ImageUrl
                         : Url.Content("~/cusassests/images/trip/trip-img-1.png");
 
@@ -453,7 +453,7 @@
                     <div class="@gridClass">
                         <div class="trip-wrapper trip-style-one p-relative h-100">
                             <div class="trip-thumb image-overly">
-                                <a href="#">
+                                <a href="@url">
                                     <img src="@imageUrl" alt="@item.Country">
                                 </a>
                             </div>
@@ -461,12 +461,12 @@
                             <div class="trip-tag">
                                 <div class="trip-number">
                                     <span>
-                                        <a href="#">@item.TourCount Tours</a>
+                                        <a href="@url">@item.TourCount Tours</a>
                                     </span>
                                 </div>
                                 <div class="trip-location">
                                     <span>
-                                        <a href="#">@item.Country</a>
+                                        <a href="@url">@item.Country</a>
                                     </span>
                                 </div>
                             </div>
@@ -3003,7 +3003,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <p class="testimonial-desc">@review.ReviewText</p>
+                                            <p class="testimonial-desc">@Html.Raw(review.ReviewText)</p>
                                         </div>
                                     </div>
                                 </div>
