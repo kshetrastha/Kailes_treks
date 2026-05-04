@@ -174,6 +174,17 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         return View(vm);
     }
 
+
+    [HttpGet("faq")]
+    public async Task<IActionResult> Faq(CancellationToken ct)
+    {
+        var faqs = (await uow.MasterFaqService.ListOrderedAsync(true, ct))
+            .Select(x => new MasterFaqItemViewModel { Question = x.Question, Answer = x.Answer })
+            .ToList();
+
+        return View(new MasterFaqPageViewModel { Faqs = faqs });
+    }
+
     [HttpGet("routes/{destination}")]
     public async Task<IActionResult> MapDestination(string destination, CancellationToken ct)
     {

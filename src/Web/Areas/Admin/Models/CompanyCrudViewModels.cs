@@ -118,6 +118,16 @@ public sealed class TermsAndConditionFormViewModel
     public bool IsPublished { get; set; } = true;
 }
 
+
+public sealed class MasterFaqFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(500)] public string Question { get; set; } = string.Empty;
+    [Required, StringLength(4000)] public string Answer { get; set; } = string.Empty;
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+}
+
 public sealed class ServiceTypeFormViewModel
 {
     public int? Id { get; set; }
