@@ -1,86 +1,88 @@
 @model TravelCleanArch.Web.Models.Home.BlogListViewModel
 @{
-    ViewData["Title"] = "Our Blogs";
-    var featured = Model.FeaturedPost;
+    ViewData["Title"] = "Blog List";
 }
 
-<div class="w-full min-h-screen">
-    <!-- Hero section -->
-    <section class="w-full relative overflow-hidden">
-        <div class="w-full md:aspect-[16/5.3] aspect-[9/12] bg-[url('/customer/assets/img/contact.jpg')] bg-cover bg-top bg-no-repeat relative">
-            <div class="w-full flex items-start justify-center h-full bg-black/50 pt-16 md:px-39 sm:px-20 px-4 flex-col">
-                <h1 class="text-[35px] md:text-[42px] text-neutral-50 font-semibold mb-2">Our Blog</h1>
-                <p class="text-base font-normal text-neutral-200 leading-[1.5] tracking-wide">
-                    News and Events
-                </p>
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="assets/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">Blog List</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>Blog List</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Blog card section -->
-    <section class="w-full md:px-39 sm:px-20 px-4 md:py-20 py-10 space-y-12">
-        <div class="w-full grid md:grid-cols-3 col-span-1 gap-8">
-            @if (featured is not null)
-            {
-                <div class="w-full col-span-3 group">
-                    <a href="/our-blogs/@featured.Slug" class="w-full md:aspect-[16/6.7] aspect-[9/12] block relative overflow-hidden">
-                        <img src="@(string.IsNullOrWhiteSpace(featured.ThumbnailImagePath) ? "/customer/assets/img/hero/hero1.jpg" : $"/{featured.ThumbnailImagePath}")"
-                             alt="@featured.Title"
-                             class="w-full h-full object-cover object-center">
-                        <div class="w-full h-full absolute top-0 left-0 bg-black/50 flex items-center justify-start">
-                            <div class="max-w-2xl flex flex-col items-start justify-start gap-y-2 p-10">
-                                <p class="text-neutral-100 font-light text-base mb-2">@featured.PublishedOnUtc?.ToString("MMM dd, yyyy")</p>
-                                <h3 class="text-2xl md:text-[32px] font-semibold text-neutral-50 leading-[1.2] mb-6">
-                                    @featured.Title
-                                </h3>
-                                @if (!string.IsNullOrWhiteSpace(featured.Summary))
-                                {
-                                    <p class="text-base font-normal text-neutral-100">
-                                        @featured.Summary
-                                    </p>
-                                }
+<section class="section-space">
+    <div class="bd-blog-list-area">
+        <div class="container">
+            <div class="row gy-24">
+                <div class="col-lg-8 mx-auto">
+                    <div class="blog-list">
+                        @foreach (var post in Model.Posts)
+                        {
+                            <div class="blog-list-single-wrapper">
+                                <div class="blog-list-thumb mb-25">
+                                    <a href="/our-blogs/@post.Slug">
+                                        <img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? "/customer/assets/img/hero/hero1.jpg" : $"/{post.ThumbnailImagePath}")"
+                                             alt="@post.Title">
+                                    </a>
+                                </div>
+                                <div class="blog-content">
+                                    <div class="blog-meta-list mb-15">
+                                        <div class="blog-meta-item">
+                                            <i class="icon-person"></i> Admin
+                                        </div>
+                                        <div class="blog-meta-item">
+                                            <i class="icon-cleander-check"></i> @post.PublishedOnUtc?.ToString("MMM yyyy")
+                                        </div>
+                                    </div>
+
+                                    <h4 class="blog-title mb-15">
+                                        <a href="/our-blogs/@post.Slug">@post.Title</a>
+                                    </h4>
+
+                                    @if (!string.IsNullOrWhiteSpace(post.Summary))
+                                    {
+                                        <p class="blog-description">@post.Summary</p>
+                                    }
+
+                                    <div class="about-btn">
+                                        <a href="/our-blogs/@post.Slug" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                            <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
+                                            <span class="bd-primary-btn-text">Read More</span>
+                                            <span class="bd-primary-btn-circle"></span>
+                                            <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
-            }
+                        }
+                    </div>
 
-            @foreach (var post in Model.OtherPosts)
-            {
-                <div class="w-full md:col-span-1 col-span-3 group ease-in-out duration-1000">
-                    <a href="/our-blogs/@post.Slug" class="w-full flex flex-col overflow-hidden">
-                        <div class="w-full aspect-[16/8.2] overflow-hidden">
-                            <img src="@(string.IsNullOrWhiteSpace(post.ThumbnailImagePath) ? "/customer/assets/img/hero/hero1.jpg" : $"/{post.ThumbnailImagePath}")"
-                                 alt="@post.Title"
-                                 class="w-full h-full object-cover object-center grayscale-50 group-hover:grayscale-0 group-hover:scale-110 ease-in-out duration-1000">
+                    <div class="pagination-wrapper">
+                        <div class="basic-pagination">
+                            <nav>
+                                <ul class="page-pagination mb-0 p-0 ">
+                                    <li><span aria-label="Page 1" aria-current="page" class="page-numbers current">1</span></li>
+                                </ul>
+                            </nav>
                         </div>
-                        <div class="w-full h-full">
-                            <div class="flex flex-col items-start justify-start gap-y-2 py-2">
-                                <p class="text-neutral-500 font-light text-base">@post.PublishedOnUtc?.ToString("MMM dd, yyyy")</p>
-                                <h3 class="text-lg md:text-xl font-normal text-neutral-500 hover:text-[#e1a74e] ease-in-out duration-300">
-                                    @post.Title
-                                </h3>
-                            </div>
-                        </div>
-                    </a>
+                    </div>
+
                 </div>
-            }
+            </div>
         </div>
-
-        <div class="w-full flex justify-center py-6">
-            <nav class="flex flex-wrap items-center gap-4 text-gray-500 text-sm sm:text-base" aria-label="Blog list pagination">
-                <span class="flex items-center gap-1 text-gray-400 cursor-not-allowed">
-                    ← <span class="hidden xs:inline">Previous</span>
-                </span>
-
-                <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                    <span class="text-neutral-700 font-medium">1</span>
-                </div>
-
-                <span class="flex items-center gap-1 text-gray-400 cursor-not-allowed">
-                    <span class="hidden xs:inline">Next</span> →
-                </span>
-            </nav>
-        </div>
-    </section>
-</div>
+    </div>
+</section>
