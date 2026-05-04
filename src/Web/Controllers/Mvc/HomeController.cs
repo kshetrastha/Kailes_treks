@@ -42,7 +42,7 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         var model = new BlogListViewModel
         {
             FeaturedPost = featured,
-            OtherPosts = posts.Where(x => x.Slug != featured?.Slug).ToList()
+            OtherPosts = posts.ToList()
         };
 
         return View(model);
