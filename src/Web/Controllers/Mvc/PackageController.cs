@@ -112,6 +112,48 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             return View(trekkingPackage);
         }
 
+        [HttpPost("packages/{slug}/inquiries")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTrekkingInquiry(string slug, TrekkingInquiryFormViewModel model, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return NotFound();
+            }
+
+            var trekkingPackage = await uow.TrekkingService.GetPublicBySlugAsync(slug.Trim(), ct);
+            if (trekkingPackage is null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["InquiryErrorMessage"] = "Please fill all required inquiry fields.";
+                return Redirect($"{Url.Action(nameof(TrekkingDetails), new { slug = trekkingPackage.Slug })}#trekking-inquiry");
+            }
+
+            var now = DateTime.UtcNow;
+            var inquiry = new TrekkingInquiry
+            {
+                TrekkingId = trekkingPackage.Id,
+                FullName = model.Name.Trim(),
+                EmailAddress = model.Email.Trim(),
+                Comment = model.Comment.Trim(),
+                SubmittedAtUtc = now,
+                SourcePage = HttpContext.Request.Path.Value,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now
+            };
+
+            db.TrekkingInquiries.Add(inquiry);
+            await db.SaveChangesAsync(ct);
+
+            TempData["InquirySuccessMessage"] = "Thanks for your inquiry. Our team will contact you soon.";
+            return Redirect($"{Url.Action(nameof(TrekkingDetails), new { slug = trekkingPackage.Slug })}#trekking-inquiry");
+        }
+
         [HttpPost("packages/{slug}/reviews")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTrekkingReview(string slug, TrekkingReviewFormViewModel model, CancellationToken ct)
