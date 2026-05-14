@@ -524,7 +524,7 @@
                                                                     <div class="media">
                                                                         <div class="thumbnail">
                                                                             <a href="#">
-                                                                                <img src="@(string.IsNullOrWhiteSpace(review.UserPhotoPath) ? Url.Content("~/assets/images/logo-icon.png") : review.UserPhotoPath)"
+                                                                                <img src="@(string.IsNullOrWhiteSpace(review.UserPhotoPath) ? Url.Content("~/cusassests/images/logo-icon.png") : review.UserPhotoPath)"
                                                                                      alt="@review.FullName">
                                                                             </a>
                                                                         </div>
@@ -669,6 +669,95 @@
                                             </div>
                                         </div>
                                     </div>
+                                     <div class="tour-details-related-tour">
+                                        <h4 class="mb-20">Related Tour</h4>
+                                        <div class="row gy-24">
+                                            <div class="col-xxl-6 col-xl-6 col-md-6">
+                                                <div class="tour-wrapper style-one">
+                                                    <div class="p-relative">
+                                                        <div class="tour-thumb image-overly">
+                                                            <a href="tour-details.html"><img src="~/cusassests/images/tour/tour-img-11.png" alt="image"></a>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="tour-content">
+                                                        <div class="tour-rating d-flex align-items-center gap-10 mb-10">
+                                                            <div class="tour-rating-icon fs-14 d-flex rating-color">
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                            </div>
+                                                            <div class="tour-rating-text">
+                                                                <span>4.8 (320 Ratings)</span>
+                                                            </div>
+                                                        </div>
+                                                        <h5 class="tour-title fw-5 underline mb-5"><a href="tour-details.html">City Explorer Icons, History, and Urban Charm</a></h5>
+                                                        <span class="tour-price b3">$189,25</span>
+                                                        <div class="tour-divider"></div>
+
+                                                        <div class="tour-meta d-flex align-items-center justify-content-between">
+                                                            <div class="time d-flex align-items-center gap--5">
+                                                                <i class="icon-heart"></i>
+                                                                <span>4 days</span>
+                                                            </div>
+                                                            <div class="tour-btn">
+                                                                <button class="bd-text-btn style-two" type="button" data-bs-toggle="modal" data-bs-target="#popUpBookingForm">Book Now
+                                                                    <span class="icon__box">
+                        <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                        <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                    </span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xxl-6 col-xl-6 col-md-6">
+                                                <div class="tour-wrapper style-one">
+                                                    <div class="p-relative">
+                                                        <div class="tour-thumb image-overly">
+                                                            <a href="tour-details.html"><img src="~/cusassests/images/tour/tour-img-12.png" alt="image"></a>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="tour-content">
+                                                        <div class="tour-rating d-flex align-items-center gap-10 mb-10">
+                                                            <div class="tour-rating-icon fs-14 d-flex rating-color">
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                                <i class="fa-solid fa-star"></i>
+                                                            </div>
+                                                            <div class="tour-rating-text">
+                                                                <span>4.8 (320 Ratings)</span>
+                                                            </div>
+                                                        </div>
+                                                        <h5 class="tour-title fw-5 underline mb-5"><a href="tour-details.html">City Explorer Icons, History, and Urban Charm</a></h5>
+                                                        <span class="tour-price b3">$189,25</span>
+                                                        <div class="tour-divider"></div>
+
+                                                        <div class="tour-meta d-flex align-items-center justify-content-between">
+                                                            <div class="time d-flex align-items-center gap--5">
+                                                                <i class="icon-heart"></i>
+                                                                <span>4 days</span>
+                                                            </div>
+                                                            <div class="tour-btn">
+                                                                <button class="bd-text-btn style-two" type="button" data-bs-toggle="modal" data-bs-target="#popUpBookingForm">Book Now
+                                                                    <span class="icon__box">
+                        <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                        <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                    </span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -678,22 +767,31 @@
                             <div class="sidebar-widget-wrapper mb-30">
                                 <div class="sidebar-widget widget">
                                     <div class="booking-btn">
-                                                <button class="bd-btn btn-tertiary btn-style radius-4 w-100" type="submit"><i class="fa-regular fa-check me-4"></i> Book Now<span></span></button>
-                                            </div>
+                                        <a class="bd-btn btn-tertiary btn-style radius-4 w-100" href="#trekking-inquiry"><i class="fa-regular fa-check me-4"></i> Book Now<span></span></a>
+                                    </div>
                                 </div>
                                 <div class="sidebar-widget-divider"></div>
-                                <div class="sidebar-widget widget">
+                                <div class="sidebar-widget widget" id="trekking-inquiry">
                                     <h6 class="sidebar-widget-title small mb-15">Contact for Inquiry</h6>
+                                    @if (TempData["InquirySuccessMessage"] is string inquirySuccessMessage)
+                                    {
+                                        <div class="alert alert-success" role="alert">@inquirySuccessMessage</div>
+                                    }
+                                    @if (TempData["InquiryErrorMessage"] is string inquiryErrorMessage)
+                                    {
+                                        <div class="alert alert-danger" role="alert">@inquiryErrorMessage</div>
+                                    }
                                     <div class="sidebar-booking">
-                                        <form class="sidebar-booking-form" action="#" method="get">
+                                        <form class="sidebar-booking-form" asp-action="AddTrekkingInquiry" asp-controller="Package" asp-route-slug="@Model.Slug" method="post">
+                                            @Html.AntiForgeryToken()
                                             <div class="input-box">
-                                                <input type="text" placeholder="Name">
+                                                <input type="text" name="Name" maxlength="220" placeholder="Name" required>
                                             </div>
                                             <div class="input-box">
-                                                <input type="email" placeholder="Email">
+                                                <input type="email" name="Email" maxlength="320" placeholder="Email" required>
                                             </div>
                                             <div class="input-box">
-                                                <textarea cols="30" rows="10" placeholder="Type Comment here"></textarea>
+                                                <textarea name="Comment" cols="30" rows="10" maxlength="4000" placeholder="Type Comment here" required></textarea>
                                             </div>
                                             <div class="booking-btn">
                                                 <button class="bd-btn btn-style radius-4 w-100" type="submit">Send Now<span><i class="fa-regular fa-arrow-right"></i></span></button>

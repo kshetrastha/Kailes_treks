@@ -83,6 +83,7 @@ public sealed class AppDbContext:
     public DbSet<MapDestination> MapDestinations => Set<MapDestination>();
     public DbSet<MapDestinationImage> MapDestinationImages => Set<MapDestinationImage>();
     public DbSet<NewsletterSubscription> NewsletterSubscriptions => Set<NewsletterSubscription>();
+    public DbSet<TrekkingInquiry> TrekkingInquiries => Set<TrekkingInquiry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -130,6 +131,22 @@ public sealed class AppDbContext:
             b.Property(x => x.IpAddress).HasMaxLength(64);
             b.HasIndex(x => x.Email).IsUnique();
             b.HasIndex(x => x.SubscribedAtUtc);
+        });
+
+        builder.Entity<TrekkingInquiry>(b =>
+        {
+            b.ToTable("trekking_inquiries");
+            b.Property(x => x.FullName).HasMaxLength(220).IsRequired();
+            b.Property(x => x.EmailAddress).HasMaxLength(320).IsRequired();
+            b.Property(x => x.Comment).HasMaxLength(4000).IsRequired();
+            b.Property(x => x.SourcePage).HasMaxLength(500);
+            b.Property(x => x.IpAddress).HasMaxLength(64);
+            b.HasIndex(x => x.SubmittedAtUtc);
+            b.HasIndex(x => x.TrekkingId);
+            b.HasOne(x => x.Trekking)
+                .WithMany()
+                .HasForeignKey(x => x.TrekkingId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<Banner>(b =>
