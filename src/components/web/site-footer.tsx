@@ -1,0 +1,3 @@
+export function SiteFooter() {
+  return <footer className="mt-20 border-t bg-slate-950 text-white"><div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-3"><div><h2 className="text-lg font-bold">Kailes Treks</h2><p className="mt-2 text-sm text-slate-300">Production-ready Next.js rebuild of the legacy .NET trekking website.</p></div><div><h3 className="font-semibold">Admin</h3><p className="mt-2 text-sm text-slate-300">Role-based management for treks, regions, media, reviews, FAQs and content.</p></div><div><h3 className="font-semibold">Contact</h3><p className="mt-2 text-sm text-slate-300">info@kailestreks.local</p></div></div></footer>;
+}

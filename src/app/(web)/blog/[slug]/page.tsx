@@ -1,0 +1,3 @@
+import { notFound } from "next/navigation";
+import { prisma } from "@/core/infrastructure/database/prisma";
+export default async function BlogDetails({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const blog = await prisma.blogPost.findFirst({ where: { slug, isPublished: true, isActive: true } }); if (!blog) notFound(); return <article className="mx-auto max-w-4xl px-4 py-12"><h1 className="text-5xl font-black">{blog.title}</h1><p className="mt-4 text-muted-foreground">{blog.summary}</p><div className="prose mt-10 max-w-none" dangerouslySetInnerHTML={{ __html: blog.contentHtml }} /></article>; }

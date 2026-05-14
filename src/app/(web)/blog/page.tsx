@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { prisma } from "@/core/infrastructure/database/prisma";
+export default async function BlogPage() { const blogs = await prisma.blogPost.findMany({ where: { isPublished: true, isActive: true }, orderBy: { publishedOnUtc: "desc" } }); return <section className="mx-auto max-w-7xl px-4 py-12"><h1 className="text-4xl font-black">Journal</h1><div className="mt-8 grid gap-6 md:grid-cols-3">{blogs.map((blog) => <Link href={`/blog/${blog.slug}`} key={blog.id} className="rounded-2xl border p-6"><h2 className="text-xl font-bold">{blog.title}</h2><p className="mt-3 text-sm text-muted-foreground">{blog.summary}</p></Link>)}</div></section>; }
