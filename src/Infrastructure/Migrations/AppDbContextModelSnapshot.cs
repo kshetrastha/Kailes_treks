@@ -2418,6 +2418,67 @@ namespace TravelCleanArch.Infrastructure.Migrations
                     b.ToTable("newsletter_subscriptions", (string)null);
                 });
 
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.TrekkingInquiry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SourcePage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TrekkingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubmittedAtUtc");
+
+                    b.HasIndex("TrekkingId");
+
+                    b.ToTable("trekking_inquiries", (string)null);
+                });
+
             modelBuilder.Entity("TravelCleanArch.Domain.Entities.Patron", b =>
                 {
                     b.Property<int>("Id")
@@ -4106,6 +4167,17 @@ namespace TravelCleanArch.Infrastructure.Migrations
                 {
                     b.HasOne("TravelCleanArch.Domain.Entities.Trekking", "Trekking")
                         .WithMany("MediaItems")
+                        .HasForeignKey("TrekkingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trekking");
+                });
+
+            modelBuilder.Entity("TravelCleanArch.Domain.Entities.TrekkingInquiry", b =>
+                {
+                    b.HasOne("TravelCleanArch.Domain.Entities.Trekking", "Trekking")
+                        .WithMany()
                         .HasForeignKey("TrekkingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
