@@ -24,6 +24,23 @@ public sealed record TrekkingListItemDto(
     string? DifficultyLevel,
     string? Country);
 
+
+public sealed record TrekkingTourCardDto(
+    int Id,
+    string Name,
+    string Slug,
+    string? HeroImageUrl,
+    string? ShortDescription,
+    string Destination,
+    int DurationDays,
+    bool PriceOnRequest,
+    decimal? Price,
+    string? CurrencyCode,
+    decimal? AverageRating,
+    int? ReviewCount,
+    int? TrekkingTypeId,
+    string? TrekkingTypeTitle);
+
 public sealed record TrekkingFaqDto(int Id, string Question, string Answer, int Ordering);
 public sealed record TrekkingMediaDto(int Id, string Url, string? Caption, string MediaType, int Ordering, string? FilePath = null, string? VideoUrl = null);
 public sealed record TrekkingItineraryDayDto(int Id, int TrekkingItineraryId, int DayNumber, string? ShortDescription, string? Description, string? Meals, string? AccommodationType);

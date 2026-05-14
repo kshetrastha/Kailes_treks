@@ -109,6 +109,14 @@ namespace TravelCleanArch.Web.Controllers.Mvc
             if (trekkingPackage is null)
                 return NotFound();
 
+            ViewBag.RelatedTours = await uow.TrekkingService.GetRelatedPublicToursAsync(
+                trekkingPackage.Id,
+                trekkingPackage.TrekkingTypeId,
+                trekkingPackage.Destination,
+                2,
+                ct);
+            ViewBag.RecentTours = await uow.TrekkingService.GetRecentPublicToursAsync(trekkingPackage.Id, 3, ct);
+
             return View(trekkingPackage);
         }
 
