@@ -460,55 +460,6 @@
                                               </div>
                                             </div>
 
-                                            <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
-                                                <div class="tour-details-gallery mb-35">
-                                                    <h5 class="mb-20">Tour Gallery</h5>
-                                                    @if (!galleryImages.Any())
-                                                    {
-                                                        <p class="mb-0">Gallery images will be available soon.</p>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="row gy-24">
-                                                            @foreach (var image in galleryImages)
-                                                            {
-                                                                <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
-                                                                    <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                        <img src="@image.Url" alt="@(string.IsNullOrWhiteSpace(image.Caption) ? Model.Name : image.Caption)" loading="lazy" decoding="async">
-                                                                    </div>
-                                                                    @if (!string.IsNullOrWhiteSpace(image.Caption))
-                                                                    {
-                                                                        <p class="mt-10 mb-0">@image.Caption</p>
-                                                                    }
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                </div>
-
-                                                @if (videoItems.Any())
-                                                {
-                                                    <div class="tour-details-location mb-35">
-                                                        <h5 class="mb-20">Videos</h5>
-                                                        <div class="tour-details-list-include">
-                                                            <ul>
-                                                                @foreach (var video in videoItems)
-                                                                {
-                                                                    var videoUrl = string.IsNullOrWhiteSpace(video.VideoUrl) ? video.Url : video.VideoUrl;
-                                                                    <li>
-                                                                        <span class="list-icon success">
-                                                                            <i class="fa-solid fa-video"></i>
-                                                                        </span>
-                                                                        <a href="@videoUrl" target="_blank" rel="noopener">
-                                                                            @(string.IsNullOrWhiteSpace(video.Caption) ? "Watch video" : video.Caption)
-                                                                        </a>
-                                                                    </li>
-                                                                }
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
                                             <div class="tab-pane fade" id="nav-feedback" role="tabpanel" aria-labelledby="nav-feedback-tab" tabindex="0">
                                                 <div class="tour-details-rating-wrapper mb-35">
                                                     <div class="row gy-24 align-items-center">
