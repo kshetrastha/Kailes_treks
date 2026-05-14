@@ -21,8 +21,47 @@
         .SelectMany(x => x.Days)
         .OrderBy(x => x.DayNumber)
         .ToList();
-            var mapFilePath = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath.Trim();
+    var relatedTours = (ViewBag.RelatedTours as IEnumerable<TrekkingTourCardDto> ?? Enumerable.Empty<TrekkingTourCardDto>()).ToList();
+    var recentTours = (ViewBag.RecentTours as IEnumerable<TrekkingTourCardDto> ?? Enumerable.Empty<TrekkingTourCardDto>()).ToList();
+    var mapFilePath = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath.Trim();
     var mapHtml = Model.Maps?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.FilePath))?.FilePath?.Trim();
+}
+
+@functions {
+    private string ResolveTourImage(string? imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl))
+        {
+            return Url.Content("~/cusassests/images/tour/tour-img-9.png");
+        }
+
+        var trimmed = imageUrl.Trim();
+        return trimmed.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(trimmed) : trimmed;
+    }
+
+    private static string FormatTourPrice(TrekkingTourCardDto tour)
+    {
+        if (tour.PriceOnRequest || !tour.Price.HasValue || tour.Price.Value <= 0)
+        {
+            return "On request";
+        }
+
+        var currency = string.IsNullOrWhiteSpace(tour.CurrencyCode) ? "$" : tour.CurrencyCode.Trim();
+        return $"{currency} {tour.Price.Value:N0}";
+    }
+
+    private static string FormatTourRating(TrekkingTourCardDto tour)
+    {
+        if (!tour.AverageRating.HasValue || tour.AverageRating.Value <= 0)
+        {
+            return tour.TrekkingTypeTitle ?? "Top Rated";
+        }
+
+        var reviewCount = tour.ReviewCount.GetValueOrDefault();
+        return reviewCount > 0
+            ? $"{tour.AverageRating.Value:0.0} ({reviewCount} Ratings)"
+            : $"{tour.AverageRating.Value:0.0} Rating";
+    }
 }
 <style>
 .upload-wrapper {
@@ -669,95 +708,63 @@
                                             </div>
                                         </div>
                                     </div>
-                                     <div class="tour-details-related-tour">
-                                        <h4 class="mb-20">Related Tour</h4>
-                                        <div class="row gy-24">
-                                            <div class="col-xxl-6 col-xl-6 col-md-6">
-                                                <div class="tour-wrapper style-one">
-                                                    <div class="p-relative">
-                                                        <div class="tour-thumb image-overly">
-                                                            <a href="tour-details.html"><img src="~/cusassests/images/tour/tour-img-11.png" alt="image"></a>
-                                                        </div>
-                                                        
-                                                    </div>
-                                                    <div class="tour-content">
-                                                        <div class="tour-rating d-flex align-items-center gap-10 mb-10">
-                                                            <div class="tour-rating-icon fs-14 d-flex rating-color">
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
+                                     @if (relatedTours.Any())
+                                    {
+                                        <div class="tour-details-related-tour">
+                                            <h4 class="mb-20">Related Tour</h4>
+                                            <div class="row gy-24">
+                                                @foreach (var tour in relatedTours)
+                                                {
+                                                    <div class="col-xxl-6 col-xl-6 col-md-6">
+                                                        <div class="tour-wrapper style-one">
+                                                            <div class="p-relative">
+                                                                <div class="tour-thumb image-overly">
+                                                                    <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@tour.Slug">
+                                                                        <img src="@ResolveTourImage(tour.HeroImageUrl)" alt="@tour.Name">
+                                                                    </a>
+                                                                </div>
                                                             </div>
-                                                            <div class="tour-rating-text">
-                                                                <span>4.8 (320 Ratings)</span>
-                                                            </div>
-                                                        </div>
-                                                        <h5 class="tour-title fw-5 underline mb-5"><a href="tour-details.html">City Explorer Icons, History, and Urban Charm</a></h5>
-                                                        <span class="tour-price b3">$189,25</span>
-                                                        <div class="tour-divider"></div>
+                                                            <div class="tour-content">
+                                                                <div class="tour-rating d-flex align-items-center gap-10 mb-10">
+                                                                    <div class="tour-rating-icon fs-14 d-flex rating-color">
+                                                                        <i class="fa-solid fa-star"></i>
+                                                                        <i class="fa-solid fa-star"></i>
+                                                                        <i class="fa-solid fa-star"></i>
+                                                                        <i class="fa-solid fa-star"></i>
+                                                                        <i class="fa-solid fa-star"></i>
+                                                                    </div>
+                                                                    <div class="tour-rating-text">
+                                                                        <span>@FormatTourRating(tour)</span>
+                                                                    </div>
+                                                                </div>
+                                                                <h5 class="tour-title fw-5 underline mb-5">
+                                                                    <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@tour.Slug">@tour.Name</a>
+                                                                </h5>
+                                                                <span class="tour-price b3">@FormatTourPrice(tour)</span>
+                                                                <div class="tour-divider"></div>
 
-                                                        <div class="tour-meta d-flex align-items-center justify-content-between">
-                                                            <div class="time d-flex align-items-center gap--5">
-                                                                <i class="icon-heart"></i>
-                                                                <span>4 days</span>
-                                                            </div>
-                                                            <div class="tour-btn">
-                                                                <button class="bd-text-btn style-two" type="button" data-bs-toggle="modal" data-bs-target="#popUpBookingForm">Book Now
-                                                                    <span class="icon__box">
-                        <i class="fa-regular fa-arrow-right-long icon__first"></i>
-                        <i class="fa-regular fa-arrow-right-long icon__second"></i>
-                    </span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xxl-6 col-xl-6 col-md-6">
-                                                <div class="tour-wrapper style-one">
-                                                    <div class="p-relative">
-                                                        <div class="tour-thumb image-overly">
-                                                            <a href="tour-details.html"><img src="~/cusassests/images/tour/tour-img-12.png" alt="image"></a>
-                                                        </div>
-                                                        
-                                                    </div>
-                                                    <div class="tour-content">
-                                                        <div class="tour-rating d-flex align-items-center gap-10 mb-10">
-                                                            <div class="tour-rating-icon fs-14 d-flex rating-color">
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                                <i class="fa-solid fa-star"></i>
-                                                            </div>
-                                                            <div class="tour-rating-text">
-                                                                <span>4.8 (320 Ratings)</span>
-                                                            </div>
-                                                        </div>
-                                                        <h5 class="tour-title fw-5 underline mb-5"><a href="tour-details.html">City Explorer Icons, History, and Urban Charm</a></h5>
-                                                        <span class="tour-price b3">$189,25</span>
-                                                        <div class="tour-divider"></div>
-
-                                                        <div class="tour-meta d-flex align-items-center justify-content-between">
-                                                            <div class="time d-flex align-items-center gap--5">
-                                                                <i class="icon-heart"></i>
-                                                                <span>4 days</span>
-                                                            </div>
-                                                            <div class="tour-btn">
-                                                                <button class="bd-text-btn style-two" type="button" data-bs-toggle="modal" data-bs-target="#popUpBookingForm">Book Now
-                                                                    <span class="icon__box">
-                        <i class="fa-regular fa-arrow-right-long icon__first"></i>
-                        <i class="fa-regular fa-arrow-right-long icon__second"></i>
-                    </span>
-                                                                </button>
+                                                                <div class="tour-meta d-flex align-items-center justify-content-between">
+                                                                    <div class="time d-flex align-items-center gap--5">
+                                                                        <i class="icon-heart"></i>
+                                                                        <span>@tour.DurationDays days</span>
+                                                                    </div>
+                                                                    <div class="tour-btn">
+                                                                        <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@tour.Slug" class="bd-text-btn style-two">
+                                                                            View Details
+                                                                            <span class="icon__box">
+                                                                                <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                                                                                <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                                                                            </span>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                }
                                             </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -799,56 +806,31 @@
                                         </form>
                                     </div>
                                 </div>
-                                <div class="sidebar-widget-divider"></div>
-                                <div class="sidebar-widget widget">
-                                    <h6 class="sidebar-widget-title small mb-15">Recent Tour List</h6>
-                                    <div class="sidebar-widget-post">
-                                        <div class="recent-post">
-                                            <div class="recent-post-thumb mr-10">
-                                                <a href="blog-details.html">
-                                                    <img src="~/cusassests/images/blog/blog-image-14.png" alt="image">
-                                                </a>
-                                            </div>
-                                            <div class="recent-post-content">
-                                                <h6 class="recent-post-title small underline">
-                                                    <a href="blog-details.html">Trekker's Tales: Navigating the
-                                                        World's
-                                                        Wonders</a>
-                                                </h6>
-                                                <span class="recent-post-price">$1999</span>
-                                            </div>
-                                        </div>
-                                        <div class="recent-post">
-                                            <div class="recent-post-thumb mr-10">
-                                                <a href="blog-details.html">
-                                                    <img src="~/cusassests/images/blog/blog-image-15.png" alt="image">
-                                                </a>
-                                            </div>
-                                            <div class="recent-post-content">
-                                                <h6 class="recent-post-title small underline">
-                                                    <a href="blog-details.html">Exploring the World, One Adventure
-                                                        at a
-                                                        Time</a>
-                                                </h6>
-                                                <span class="recent-post-price">$1499</span>
-                                            </div>
-                                        </div>
-                                        <div class="recent-post">
-                                            <div class="recent-post-thumb mr-10">
-                                                <a href="blog-details.html">
-                                                    <img src="~/cusassests/images/blog/blog-image-16.png" alt="image">
-                                                </a>
-                                            </div>
-                                            <div class="recent-post-content">
-                                                <h6 class="recent-post-title small underline">
-                                                    <a href="blog-details.html">Fast-Track to Your Dream
-                                                        Destinations</a>
-                                                </h6>
-                                                <span class="recent-post-price">$2599</span>
-                                            </div>
+                                @if (recentTours.Any())
+                                {
+                                    <div class="sidebar-widget-divider"></div>
+                                    <div class="sidebar-widget widget">
+                                        <h6 class="sidebar-widget-title small mb-15">Recent Tour List</h6>
+                                        <div class="sidebar-widget-post">
+                                            @foreach (var tour in recentTours)
+                                            {
+                                                <div class="recent-post">
+                                                    <div class="recent-post-thumb mr-10">
+                                                        <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@tour.Slug">
+                                                            <img src="@ResolveTourImage(tour.HeroImageUrl)" alt="@tour.Name">
+                                                        </a>
+                                                    </div>
+                                                    <div class="recent-post-content">
+                                                        <h6 class="recent-post-title small underline">
+                                                            <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@tour.Slug">@tour.Name</a>
+                                                        </h6>
+                                                        <span class="recent-post-price">@FormatTourPrice(tour)</span>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
-                                </div>
+                                }
                             </div>
                             <div class="sidebar-widget-banner p-relative">
                                 <div class="sidebar-widget-thumb p-relative">

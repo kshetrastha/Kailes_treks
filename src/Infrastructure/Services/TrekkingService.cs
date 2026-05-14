@@ -141,6 +141,68 @@ public sealed class TrekkingService(AppDbContext db) : ITrekkingService
         return entity is null ? null : MapDetails(entity);
     }
 
+    public async Task<IReadOnlyCollection<TrekkingTourCardDto>> GetRecentPublicToursAsync(int excludeTrekkingId, int count, CancellationToken ct)
+    {
+        return await PublicTourCards()
+            .Where(x => x.Id != excludeTrekkingId)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ThenByDescending(x => x.Id)
+            .Take(count)
+            .Select(x => new TrekkingTourCardDto(
+                x.Id,
+                x.Name,
+                x.Slug,
+                x.HeroImageUrl,
+                x.ShortDescription,
+                x.Destination,
+                x.DurationDays,
+                x.PriceOnRequest,
+                x.Price,
+                x.CurrencyCode,
+                x.AverageRating,
+                x.ReviewCount,
+                x.TrekkingTypeId,
+                x.TrekkingType != null ? x.TrekkingType.Title : null))
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyCollection<TrekkingTourCardDto>> GetRelatedPublicToursAsync(int trekkingId, int? trekkingTypeId, string? destination, int count, CancellationToken ct)
+    {
+        var normalizedDestination = destination?.Trim();
+        var hasDestination = !string.IsNullOrWhiteSpace(normalizedDestination);
+
+        return await PublicTourCards()
+            .Where(x => x.Id != trekkingId)
+            .OrderByDescending(x => trekkingTypeId.HasValue && x.TrekkingTypeId == trekkingTypeId.Value)
+            .ThenByDescending(x => hasDestination && x.Destination == normalizedDestination)
+            .ThenByDescending(x => x.Featured)
+            .ThenBy(x => x.Ordering)
+            .ThenBy(x => x.Name)
+            .Take(count)
+            .Select(x => new TrekkingTourCardDto(
+                x.Id,
+                x.Name,
+                x.Slug,
+                x.HeroImageUrl,
+                x.ShortDescription,
+                x.Destination,
+                x.DurationDays,
+                x.PriceOnRequest,
+                x.Price,
+                x.CurrencyCode,
+                x.AverageRating,
+                x.ReviewCount,
+                x.TrekkingTypeId,
+                x.TrekkingType != null ? x.TrekkingType.Title : null))
+            .ToListAsync(ct);
+    }
+
+    private IQueryable<Trekking> PublicTourCards()
+        => db.Trekking
+            .AsNoTracking()
+            .Include(x => x.TrekkingType)
+            .Where(x => x.Status == TravelStatus.published);
+
     private static TrekkingDetailsDto MapDetails(Trekking x)
         => new(
             x.Id, x.Name, x.Slug, x.ShortDescription, x.Destination, x.Region, x.DurationDays, x.MaxAltitudeMeters, x.MaxAltitudeFeet,
