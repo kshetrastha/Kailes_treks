@@ -1,0 +1,1102 @@
+@using System.Text.Json
+@model List<TravelCleanArch.Application.Abstractions.Travel.KailashYatraPackageDto>
+
+@{
+    ViewData["Title"] = "Kailash Manasarovar Yatra – Booking";
+
+    // Months in table order: Apr(4) → Jan(1)
+    var tableMonths = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 1 };
+    string MonthLabel(int m) => m switch { 1 => "Jan", 2 => "Feb", 3 => "Mar", 4 => "Apr", 5 => "May", 6 => "Jun", 7 => "Jul", 8 => "Aug", 9 => "Sep", 10 => "Oct", 11 => "Nov", 12 => "Dec", _ => "" };
+
+    var packagesJson = JsonSerializer.Serialize(Model.Select(p => new { p.Id, p.Name, p.Price, p.AvailableMonths, p.FullMoonMonths }));
+
+    var healthConditions = new[] {
+        "High BP", "Low BP", "Bypass Heart Surgery", "Diabetes",
+        "Spondylitis", "Asthma / Breathing Difficulty", "Prostate Gland Issue", "Allergy to Sulpha Drugs"
+    };
+}
+
+@section Head {
+<link rel="stylesheet" href="~/cusassests/css/plugins/flatpickr.min.css" media="print" onload="this.media='all'" />
+<style>
+    /************************ Booking page css fixes: */
+        .bk-booking-wrap input[type=text],
+        .bk-booking-wrap input[type=email],
+        .bk-booking-wrap input[type=tel],
+        .bk-booking-wrap input[type=number],
+        .bk-booking-wrap input[type=password],
+        .bk-booking-wrap input[type=date],
+        .bk-booking-wrap textarea {
+            height: auto;
+            min-height: 42px;
+            background-color: #fdfdfd;
+            padding: 9px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            font-size: 15px;
+            color: #1a1a2e;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .bk-booking-wrap input[type=text]:focus,
+        .bk-booking-wrap input[type=email]:focus,
+        .bk-booking-wrap input[type=tel]:focus,
+        .bk-booking-wrap input[type=number]:focus,
+        .bk-booking-wrap input[type=date]:focus,
+        .bk-booking-wrap textarea:focus {
+            border-color: #c8392b;
+            box-shadow: 0 0 0 3px rgba(200,57,43,0.1);
+            background-color: #fff;
+            outline: none;
+        }
+        .bk-booking-wrap textarea {
+            min-height: 90px;
+            resize: vertical;
+            height: auto;
+            padding: 9px 12px;
+        }
+
+        /* 2. Checkboxes — main.css does display:none on ALL
+              input[type=checkbox]. We need the table ones visible. */
+        .bk-booking-wrap input[type=checkbox] {
+            display: inline-block;
+            appearance: auto;
+            -webkit-appearance: checkbox;
+            width: 16px;
+            height: 16px;
+            accent-color: #c8392b;
+            cursor: pointer;
+            position: static;
+            opacity: 1;
+        }
+        /* But consent checkboxes also need the label style reset */
+        .bk-consent-row input[type=checkbox] ~ label {
+    padding-inline-start: 0;
+    font-size: 13px;
+    line-height: 22px;
+}
+        .bk-consent-row input[type=checkbox] ~ label::before,
+        .bk-consent-row input[type=checkbox] ~ label::after {
+            display: none;
+        }
+
+        /* 3. Radio buttons — main.css does opacity:0; position:absolute */
+        .bk-booking-wrap input[type=radio] {
+            opacity: 1;
+            position: static;
+            width: 15px;
+            height: 15px;
+            accent-color: #c8392b;
+            display: inline-block;
+        }
+        .bk-booking-wrap .bk-gender-row label::before,
+        .bk-booking-wrap .bk-gender-row label::after {
+            display: none;
+        }
+        .bk-booking-wrap .bk-gender-row label {
+            padding-inline-start: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 4. Buttons — main.css strips border and background from ALL buttons */
+        .bk-booking-wrap .bk-qty-btn,
+        .bk-booking-wrap .bk-toggle-btn,
+        .bk-booking-wrap .bk-policy-toggle {
+            border: 1.5px solid #e2e8f0;
+        }
+        .bk-booking-wrap .bk-qty-btn {
+            background: #f8f9fb;
+            color: #c8392b;
+            width: 34px;
+            height: 34px;
+            font-size: 16px;
+        }
+        .bk-booking-wrap .bk-qty-btn:hover {
+            background: #fde8e7;
+        }
+        .bk-booking-wrap .bk-toggle-btn {
+            background: #fff;
+            color: #6b7280;
+            padding: 2px 9px;
+            font-size: 13px;
+        }
+        .bk-booking-wrap .bk-toggle-btn.yes.active {
+            background: #f15826;
+            border-color: #dc2626;
+            color: #fff;
+        }
+        .bk-booking-wrap .bk-toggle-btn.no.active {
+            background: #f15826;
+            border-color: #dc2626;
+            color: #fff;
+        }
+        .bk-booking-wrap .bk-policy-toggle {
+            background: #f8f9fb;
+            color: #1a1a2e;
+            border: none;
+            border-bottom: none;
+        }
+        .bk-booking-wrap .bk-policy-toggle:hover {
+            background: #f1f5f9;
+        }
+
+        /* 5. SVG inside section icons — main.css adds transition to all SVGs
+              which can mess up the fill/size. Scope and lock it. */
+        .bk-booking-wrap .bk-section-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #c8392b;
+            flex-shrink: 0;
+            transition: none;
+        }
+
+        /* 6. Select — same conflicts as input */
+        .bk-booking-wrap select {
+            height: auto;
+            min-height: 42px;
+            background-color: #fdfdfd;
+            padding: 9px 32px 9px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            font-size: 15px;
+            color: #1a1a2e;
+            width: 100%;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        .bk-booking-wrap select:focus {
+            border-color: #c8392b;
+            box-shadow: 0 0 0 3px rgba(200,57,43,0.1);
+            outline: none;
+        }
+
+        /* 7. bk-section-icon — ensure flex layout isn't broken */
+        .bk-section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── BOOKING SECTION STYLES ── */
+        .bk-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--bd-heading, #1a1a2e);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bk-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .bk-section-icon {
+            width: 28px; height: 28px;
+            background: #fdf3f2;
+            border-radius: 6px;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .bk-section-icon svg { width: 14px; height: 14px; fill: #c8392b; }
+
+        /* Sub-section labels */
+        .bk-sub-section {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #c8392b;
+            margin: 22px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #f0cbc8;
+        }
+
+        /* Form grid helpers */
+        .bk-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .bk-form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+        .bk-form-grid.full  { grid-template-columns: 1fr; }
+        @@media (max-width: 580px) {
+            .bk-form-grid, .bk-form-grid.three { grid-template-columns: 1fr; }
+        }
+
+        .bk-form-group { display: flex; flex-direction: column; gap: 5px; }
+        .bk-form-group label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: 0.01em;
+        }
+        .bk-form-group label .req { color: #c8392b; margin-left: 2px; }
+        .bk-form-group input,
+        .bk-form-group select,
+        .bk-form-group textarea {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 15px;
+            color: #1a1a2e;
+            background: #fdfdfd;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+            font-family: inherit;
+        }
+        .bk-form-group input:focus,
+        .bk-form-group select:focus,
+        .bk-form-group textarea:focus {
+            border-color: #c8392b;
+            box-shadow: 0 0 0 3px rgba(200,57,43,0.1);
+            background: #fff;
+        }
+        .bk-form-group textarea { resize: vertical; min-height: 90px; }
+        .bk-form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        /* Gender radio row */
+        .bk-gender-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            padding: 9px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            background: #fdfdfd;
+            cursor: pointer;
+        }
+        .bk-gender-row label {
+            display: flex; align-items: center; gap: 6px;
+            font-weight: 600; font-size: 15px; cursor: pointer;
+        }
+        .bk-gender-row input[type="radio"] { accent-color: #c8392b; width: 15px; height: 15px; }
+
+        /* Yatra selection table */
+        .bk-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .bk-yatra-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 680px;
+        }
+        .bk-yatra-table thead tr {
+            background: #c8392b;
+            color: #fff;
+        }
+        .bk-yatra-table th {
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .bk-yatra-table th:first-child,
+        .bk-yatra-table th:nth-child(2) { text-align: left; }
+        .bk-yatra-table td {
+            padding: 9px 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .bk-yatra-table td:nth-child(2) { text-align: left; font-weight: 600; }
+        .bk-yatra-table td:first-child { font-weight: 700; color: #6b7280; }
+        .bk-yatra-table tbody tr:nth-child(even) { background: #fafafa; }
+        .bk-yatra-table tbody tr:hover { background: #fdf3f2; }
+        .bk-yatra-table .na { color: #bbb; font-size: 13px; }
+        .bk-yatra-table input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: #c8392b;
+            cursor: pointer;
+        }
+        .bk-fm-badge {
+            font-size: 0.65rem;
+            background: #e8a020;
+            color: #fff;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 3px;
+            vertical-align: middle;
+            font-weight: 700;
+        }
+        .bk-table-legend {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        /* Date grid */
+        .bk-date-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        @@media (max-width: 520px) { .bk-date-grid { grid-template-columns: 1fr; } }
+
+        /* Health declaration */
+        .bk-health-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .bk-health-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fb;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 180px;
+            flex: 1 1 180px;
+        }
+        .bk-health-item .bk-toggle-group {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+        }
+        .bk-toggle-btn {
+            padding: 2px 9px;
+            border-radius: 20px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: #fff;
+            color: #6b7280;
+            transition: all 0.15s;
+        }
+        .bk-toggle-btn.yes.active { background: #d1fae5; border-color: #059669; color: #065f46; }
+        .bk-toggle-btn.no.active  { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+        .bk-toggle-btn:hover { opacity: 0.8; }
+
+        /* Declaration box */
+        .bk-declaration-box {
+            background: #fdf3f2;
+            border: 1px solid #f0cbc8;
+            border-radius: 10px;
+            padding: 20px 22px;
+            font-size: 0.86rem;
+            color: #4a1a16;
+            line-height: 1.7;
+            margin-top: 6px;
+        }
+        .bk-declaration-box p + p { margin-top: 10px; }
+
+        /* Policy accordion */
+        .bk-policy-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .bk-policy-toggle {
+            width: 100%;
+            background: #f8f9fb;
+            border: none;
+            padding: 13px 18px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .bk-policy-toggle:hover { background: #f1f5f9; }
+        .bk-policy-toggle .bk-chevron { transition: transform 0.2s; font-size: 20px; line-height: 7px; color: #6b7280; }
+        .bk-policy-toggle.open .bk-chevron { transform: rotate(180deg); }
+        .bk-policy-body {
+            display: none;
+            padding: 14px 18px;
+            font-size: 0.84rem;
+            color: #6b7280;
+            border-top: 1px solid #e2e8f0;
+            line-height: 1.8;
+        }
+        .bk-policy-body.open { display: block; }
+        .bk-policy-body ul { padding-left: 18px; }
+        .bk-policy-body ul li { margin-bottom: 4px; font-size: 14px; }
+
+        /* Qty control */
+        .bk-qty-control {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .bk-qty-btn {
+            width: 34px; height: 34px;
+            border: none; background: #f8f9fb;
+            font-size: 1.1rem; cursor: pointer;
+            font-weight: 700; color: #c8392b;
+            transition: background 0.15s;
+        }
+        .bk-qty-btn:hover { background: #fde8e7; }
+        #bkQtyDisplay {
+            width: 42px; text-align: center;
+            font-weight: 700; font-size: 15px;
+            border: none;
+            border-left: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            padding: 0; height: 34px; line-height: 34px;
+            background: #fff; color: #1a1a2e;
+        }
+
+        /* Price rows */
+        .bk-price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 15px;
+            font-weight: 600;
+            border-bottom: 1px solid #f8f9fb;
+        }
+        .bk-price-row.total {
+            font-weight: 800;
+            font-size: 16px;
+            border-top: 2px solid #e2e8f0;
+            border-bottom: none;
+            padding-top: 14px;
+            margin-top: 4px;
+            color: #c8392b;
+        }
+
+        /* Consent */
+        .bk-consent-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+        .bk-consent-row input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: #c8392b;
+            width: 16px; height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Note text */
+        .bk-note-text {
+            font-size: 13px;
+            color: #6b7280;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 8px;
+        }
+
+        /* Card wrapper — mirrors the site's existing booking card style */
+        .bk-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        }
+        @@media (max-width: 600px) { .bk-card { padding: 18px 14px; } }
+
+        .bk-divider {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 24px 0;
+        }
+</style>
+@* <style>
+    .bk-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; }
+    .bk-section-title { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; color: var(--bd-secondary); margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; }
+    .bk-section-icon { width: 30px; height: 30px; border-radius: 50%; background: var(--bd-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bk-section-icon svg { width: 16px; height: 16px; fill: #fff; }
+    .booking-sidebar-price-item { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+    .booking-sidebar-price-item:last-child { border-bottom: none; }
+    .bk-table-scroll { overflow-x: auto; margin-bottom: 14px; }
+    .bk-yatra-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+    .bk-yatra-table th, .bk-yatra-table td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: center; }
+    .bk-yatra-table th { background: var(--bd-secondary); color: #fff; font-weight: 600; white-space: nowrap; }
+    .bk-yatra-table td:nth-child(2) { text-align: left; min-width: 220px; }
+    .bk-yatra-table td.na { background: #f3f4f6; color: #9ca3af; font-size: 12px; }
+    .bk-yatra-table input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--bd-primary); }
+    .bk-fm-badge { font-size: 9px; background: var(--bd-tertiary); color: #000; border-radius: 3px; padding: 1px 4px; margin-left: 3px; font-weight: 700; vertical-align: middle; }
+    .bk-table-legend { font-size: 11px; color: #6b7280; margin-bottom: 18px; }
+    .bk-date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+    @@media (max-width: 576px) { .bk-date-grid { grid-template-columns: 1fr; } }
+    .bk-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .bk-form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    @@media (max-width: 768px) { .bk-form-grid { grid-template-columns: 1fr; } .bk-form-grid.three { grid-template-columns: 1fr 1fr; } }
+    @@media (max-width: 480px) { .bk-form-grid.three { grid-template-columns: 1fr; } }
+    .bk-form-group { display: flex; flex-direction: column; gap: 5px; }
+    .bk-form-group label { font-size: 13px; font-weight: 600; color: var(--bd-secondary); }
+    .bk-form-group input, .bk-form-group select, .bk-form-group textarea { border: 1px solid #d1d5db; border-radius: 8px; padding: 9px 12px; font-size: 14px; width: 100%; transition: border-color .2s; }
+    .bk-form-group input:focus, .bk-form-group select:focus, .bk-form-group textarea:focus { outline: none; border-color: var(--bd-primary); }
+    .bk-form-group textarea { resize: vertical; min-height: 90px; }
+    .req { color: #ef4444; }
+    .bk-sub-section { font-size: 13px; font-weight: 700; color: var(--bd-primary); margin: 18px 0 10px; }
+    .bk-gender-row { display: flex; gap: 16px; padding: 9px 0; }
+    .bk-gender-row label { font-size: 14px; font-weight: 400; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+    .bk-health-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .bk-health-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+    .bk-toggle-group { display: flex; gap: 4px; }
+    .bk-toggle-btn { border: 1px solid #d1d5db; border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer; background: #fff; transition: all .15s; }
+    .bk-toggle-btn.yes.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .bk-toggle-btn.no.active { background: #10b981; color: #fff; border-color: #10b981; }
+    .bk-note-text { font-size: 12px; color: #6b7280; margin-top: 6px; }
+    .bk-declaration-box { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 13px; color: #374151; line-height: 1.7; }
+    .bk-declaration-box p { margin-bottom: 10px; }
+    .bk-declaration-box p:last-child { margin-bottom: 0; }
+    .bk-policy-item { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+    .bk-policy-toggle { width: 100%; text-align: left; background: #f9fafb; border: none; padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; }
+    .bk-policy-toggle.open { background: #eff6ff; color: var(--bd-primary); }
+    .bk-chevron { transition: transform .2s; }
+    .bk-policy-toggle.open .bk-chevron { transform: rotate(180deg); }
+    .bk-policy-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; padding: 0 16px; }
+    .bk-policy-body.open { max-height: 400px; padding: 12px 16px; }
+    .bk-policy-body ul { padding-left: 18px; font-size: 13px; color: #374151; line-height: 1.8; }
+    .bk-qty-control { display: flex; align-items: center; gap: 12px; }
+    .bk-qty-btn { width: 30px; height: 30px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 18px; cursor: pointer; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .bk-qty-btn:hover { background: var(--bd-primary); color: #fff; border-color: var(--bd-primary); }
+    .bk-price-row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+    .bk-price-row.total { font-size: 16px; font-weight: 700; color: var(--bd-secondary); border-top: 2px solid #e5e7eb; margin-top: 6px; padding-top: 10px; }
+    .bk-divider { border: none; border-top: 1px solid #e5e7eb; margin: 18px 0; }
+    .bk-consent-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+    .bk-consent-row input { flex-shrink: 0; margin-top: 2px; }
+    .bk-selected-package-info { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .bk-selected-package-info.show { display: block; }
+    .field-validation-error { color: #ef4444; font-size: 12px; }
+</style>
+} *@
+}
+
+<!-- Breadcrumb -->
+<div class="hero-area hero-style-two" style="background: linear-gradient(135deg, var(--bd-secondary) 0%, var(--bd-quaternary) 100%); padding: 60px 0 40px;">
+    <div class="container">
+        <div class="bd-breadcrumb-content text-center text-white">
+            <h2 class="mb-10">Complete Your Booking</h2>
+            <p class="mb-0">Kailash Manasarovar Yatra Package</p>
+        </div>
+    </div>
+</div>
+
+<main class="main-area fix">
+    <section class="bd-booking-area section-space">
+        <div class="container">
+            <form method="post" action="/kailash-booking" id="kailashBookingForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="HealthDeclaration" id="healthDeclarationInput" value="{}" />
+
+                <div class="row justify-content-center">
+                    <div class="col-xxl-10 col-xl-11 col-12">
+
+                        <!-- ① TOUR SUMMARY (dynamic) -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 3a4 4 0 110 8 4 4 0 010-8zm6 13H6v-.5c0-2.2 3.6-4 6-4s6 1.8 6 4v.5z"/></svg></span>
+                                Tour Summary
+                            </div>
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Package</span><span id="summaryPackageName">—</span>
+                            </div>
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Selected Month</span><span id="summaryMonth">—</span>
+                            </div>
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Price Per Person</span><span id="summaryPrice">—</span>
+                            </div>
+                        </div>
+
+                        <!-- ② YATRA SELECTION -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg></span>
+                                Yatra Selection &amp; Batch Dates
+                            </div>
+
+                            <div class="bk-table-scroll">
+                                <table class="bk-yatra-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Yatra Package</th>
+                                            @foreach (var m in tableMonths)
+                                            {
+                                                var fmMonths = Model.SelectMany(p => p.FullMoonMonths).ToHashSet();
+                                                <th>@MonthLabel(m)@if (fmMonths.Contains(m)){<span class="bk-fm-badge">FM</span>}</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (!Model.Any())
+                                        {
+                                            <tr><td colspan="@(tableMonths.Length + 2)" class="text-center py-3">No packages available at this time. Please contact us.</td></tr>
+                                        }
+                                        @for (int pi = 0; pi < Model.Count; pi++)
+                                        {
+                                            var pkg = Model[pi];
+                                            <tr>
+                                                <td>@(pi + 1)</td>
+                                                <td>@pkg.Name</td>
+                                                @foreach (var m in tableMonths)
+                                                {
+                                                    if (pkg.AvailableMonths.Contains(m))
+                                                    {
+                                                        <td>
+                                                            <input type="radio" name="packageMonth"
+                                                                   value="@pkg.Id-@m"
+                                                                   data-package-id="@pkg.Id"
+                                                                   data-month="@m"
+                                                                   data-package-name="@pkg.Name"
+                                                                   data-price="@pkg.Price.ToString("F2")" />
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="na">N/A</td>
+                                                    }
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="bk-table-legend">KM = Kailash Manasarovar &nbsp;|&nbsp; N/A = Not Available &nbsp;|&nbsp; FM = Full Moon batch</p>
+
+                            <input type="hidden" name="PackageId" id="hiddenPackageId" value="0" />
+                            <input type="hidden" name="SelectedMonth" id="hiddenSelectedMonth" value="0" />
+
+                            <div class="bk-date-grid mt-3">
+                                <div class="bk-form-group">
+                                    <label>Arrival Date in Kathmandu <span class="req">*</span></label>
+                                    <input type="text" id="arrivalDate" name="ArrivalDate" class="flatpickr-input" placeholder="Select date" readonly required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Departure Date from Kathmandu <span class="req">*</span></label>
+                                    <input type="text" id="departureDate" name="DepartureDate" class="flatpickr-input" placeholder="Select date" readonly required />
+                                </div>
+                            </div>
+                            <div class="bk-form-group mt-3" style="max-width:320px;">
+                                <label>Booking Amount (USD)</label>
+                                <input type="number" name="BookingAmount" value="200" min="0" step="1" />
+                                <div class="bk-note-text">Non-refundable deposit of USD 200 required to confirm booking.</div>
+                            </div>
+                        </div>
+
+                        <!-- ③ PERSONAL DETAILS -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/></svg></span>
+                                Personal Details
+                            </div>
+                            <div class="bk-form-grid three">
+                                <div class="bk-form-group">
+                                    <label>Last Name (as in passport) <span class="req">*</span></label>
+                                    <input type="text" name="LastName" placeholder="Surname" required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Given Name <span class="req">*</span></label>
+                                    <input type="text" name="GivenName" placeholder="First name" required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Middle Name</label>
+                                    <input type="text" name="MiddleName" placeholder="Middle name" />
+                                </div>
+                            </div>
+                            <div class="bk-form-grid mt-3">
+                                <div class="bk-form-group">
+                                    <label>Date of Birth <span class="req">*</span></label>
+                                    <input type="text" id="dateOfBirth" name="DateOfBirth" class="flatpickr-input" placeholder="Select date" readonly required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Gender <span class="req">*</span></label>
+                                    <div class="bk-gender-row">
+                                        <label><input type="radio" name="Gender" value="Male" required /> Male</label>
+                                        <label><input type="radio" name="Gender" value="Female" /> Female</label>
+                                        <label><input type="radio" name="Gender" value="Other" /> Other</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bk-form-grid mt-3">
+                                <div class="bk-form-group">
+                                    <label>Email <span class="req">*</span></label>
+                                    <input type="email" name="Email" placeholder="you@example.com" required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Nationality <span class="req">*</span></label>
+                                    <input type="text" name="Nationality" placeholder="e.g. Nepali, Indian, American" required />
+                                </div>
+                            </div>
+                            <div class="bk-sub-section">Contact Numbers</div>
+                            <div class="bk-form-grid three">
+                                <div class="bk-form-group">
+                                    <label>Telephone (Country Code)</label>
+                                    <input type="text" name="TelCountryCode" placeholder="+977" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Area Code</label>
+                                    <input type="text" name="TelAreaCode" placeholder="01" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Number</label>
+                                    <input type="text" name="TelNumber" placeholder="5912501" />
+                                </div>
+                            </div>
+                            <div class="bk-form-grid mt-3">
+                                <div class="bk-form-group">
+                                    <label>Mobile (Country Code + Number)</label>
+                                    <input type="text" name="MobileNumber" placeholder="+977-98XXXXXXXX" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Occupation</label>
+                                    <input type="text" name="Occupation" placeholder="Your occupation" />
+                                </div>
+                            </div>
+                            <div class="bk-sub-section">Mailing Address</div>
+                            <div class="bk-form-group">
+                                <label>Address / State</label>
+                                <input type="text" name="Address" placeholder="Street address" />
+                            </div>
+                            <div class="bk-form-grid three mt-3">
+                                <div class="bk-form-group">
+                                    <label>City</label>
+                                    <input type="text" name="City" placeholder="City" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Postal Code</label>
+                                    <input type="text" name="PostalCode" placeholder="00000" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Country <span class="req">*</span></label>
+                                    <input type="text" name="Country" placeholder="Country" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ④ PASSPORT & TRAVEL DETAILS -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm-9 3h2v2h-2V7zm0 4h2v6h-2v-6zm-4-4h2v2H7V7zm0 4h2v6H7v-6zm10 6h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></span>
+                                Passport &amp; Travel Details
+                            </div>
+                            <div class="bk-form-grid">
+                                <div class="bk-form-group">
+                                    <label>Passport Number <span class="req">*</span></label>
+                                    <input type="text" name="PassportNumber" placeholder="e.g. A1234567" required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Place of Issue <span class="req">*</span></label>
+                                    <input type="text" name="PlaceOfIssue" placeholder="City / Country of issue" required />
+                                </div>
+                            </div>
+                            <div class="bk-form-grid mt-3">
+                                <div class="bk-form-group">
+                                    <label>Date of Issue <span class="req">*</span></label>
+                                    <input type="text" id="dateOfIssue" name="DateOfIssue" class="flatpickr-input" placeholder="Select date" readonly required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Expiry Date <span class="req">*</span></label>
+                                    <input type="text" id="expiryDate" name="ExpiryDate" class="flatpickr-input" placeholder="Select date" readonly required />
+                                </div>
+                            </div>
+                            <div class="bk-sub-section">Insurance</div>
+                            <div class="bk-form-group">
+                                <label>Insurance (Company, Contact No. &amp; Policy No.)</label>
+                                <input type="text" name="Insurance" placeholder="e.g. XYZ Insurance – +1 800 000 000 – Policy #INS123456" />
+                            </div>
+                        </div>
+
+                        <!-- ⑤ EMERGENCY CONTACT -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></span>
+                                Emergency Contact Details
+                            </div>
+                            <div class="bk-form-grid">
+                                <div class="bk-form-group">
+                                    <label>Full Name <span class="req">*</span></label>
+                                    <input type="text" name="EmergencyName" placeholder="Emergency contact name" required />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Relationship <span class="req">*</span></label>
+                                    <input type="text" name="EmergencyRelationship" placeholder="e.g. Spouse, Parent, Sibling" required />
+                                </div>
+                            </div>
+                            <div class="bk-form-grid three mt-3">
+                                <div class="bk-form-group">
+                                    <label>Tel (Country Code)</label>
+                                    <input type="text" name="EmergencyTelCountryCode" placeholder="+977" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Area Code</label>
+                                    <input type="text" name="EmergencyTelAreaCode" placeholder="01" />
+                                </div>
+                                <div class="bk-form-group">
+                                    <label>Number</label>
+                                    <input type="text" name="EmergencyTelNumber" placeholder="XXXXXXXX" />
+                                </div>
+                            </div>
+                            <div class="bk-form-group mt-3">
+                                <label>Mobile (Country Code + Number)</label>
+                                <input type="text" name="EmergencyMobile" placeholder="+977-98XXXXXXXX" />
+                            </div>
+                        </div>
+
+                        <!-- ⑥ SELF-HEALTH DECLARATION -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+                                Self-Health Declaration
+                            </div>
+                            <p style="font-size:14px;color:#6b7280;margin-bottom:14px;">Please indicate whether you currently have or have a history of the following. &nbsp;<strong>✓ = Having &nbsp;|&nbsp; ✗ = Not Having</strong></p>
+                            <div class="bk-health-grid" id="healthGrid">
+                                @foreach (var cond in healthConditions)
+                                {
+                                    <div class="bk-health-item">
+                                        <span>@cond</span>
+                                        <div class="bk-toggle-group">
+                                            <button type="button" class="bk-toggle-btn yes" data-condition="@cond" data-val="true" onclick="bkToggle(this,'yes')">✓</button>
+                                            <button type="button" class="bk-toggle-btn no active" data-condition="@cond" data-val="false" onclick="bkToggle(this,'no')">✗</button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="bk-form-group mt-3">
+                                <label>Any other health concerns</label>
+                                <textarea name="OtherHealthConcerns" placeholder="Please describe any additional health conditions…"></textarea>
+                            </div>
+                            <div class="bk-note-text mt-2">I confirm I am not addicted to any narcotic items or alcohol. A doctor's certificate may be required prior to departure.</div>
+                        </div>
+
+                        <!-- ⑦ ASSUMPTION OF RISKS -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V9h2v3z"/></svg></span>
+                                Assumption of Risks &amp; Release of Liability
+                            </div>
+                            <div class="bk-declaration-box">
+                                <p>I am aware of the risks involved, including high altitude sickness, while performing this trip. I attach a medical certificate declaring that I am physically fit to undertake the trip, which may take me to an altitude of <strong>18,600 feet</strong> under various climatic conditions.</p>
+                                <p>Visit Kailash Treks Pvt. Ltd. (VKT), or its agents, shall not be liable for any injury, damage or loss — including consequential loss — to me or my possessions, including personal injury, disease or death.</p>
+                                <p>VKT shall not be held liable for any claims or additional expenses incurred through delays, accidents, or disruption of planned itineraries beyond their control (e.g. flight delays, strikes, weather, political unrest), and such expenses are to be borne by me.</p>
+                            </div>
+                        </div>
+
+                        <!-- ⑧ BOOKING PROCEDURE & PAYMENT -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 14H4V10h16v8zm0-10H4V6h16v2z"/></svg></span>
+                                Booking Procedure &amp; Payment
+                            </div>
+                            <div style="font-size:0.86rem;color:#6b7280;line-height:1.9;">
+                                <p><strong style="color:#1a1a2e;">3.1</strong> A non-refundable booking deposit of <strong>USD 200</strong> is required with this application form (and doctor's certificate if available). This amount is refunded only if VKT cancels the Yatra.</p>
+                                <p style="margin-top:8px;"><strong style="color:#1a1a2e;">3.2</strong> Approximately <strong>25% of the total amount</strong> should be wired after receiving the second trip confirmation letter from us.</p>
+                                <p style="margin-top:8px;"><strong style="color:#1a1a2e;">3.3</strong> The <strong>remaining balance</strong> must be paid upon arrival in Kathmandu. Receipt must be submitted before departure.</p>
+                                <p style="margin-top:8px;"><strong style="color:#1a1a2e;">3.4–3.6</strong> Itinerary may change due to political unrest, natural calamities, or authority directives.</p>
+                            </div>
+                        </div>
+
+                        <!-- ⑨ CANCELLATION POLICY -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>
+                                Cancellation Policy
+                            </div>
+                            <div class="bk-policy-item">
+                                <button type="button" class="bk-policy-toggle" onclick="bkTogglePolicy(this)">If the trip is cancelled by VKT <span class="bk-chevron">▾</span></button>
+                                <div class="bk-policy-body">
+                                    <ul>
+                                        <li>VKT reserves the right to cancel or revise the itinerary; participants will be informed in advance with justification.</li>
+                                        <li>All deposit amounts will be fully reimbursed if VKT cancels under unavoidable circumstances.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="bk-policy-item">
+                                <button type="button" class="bk-policy-toggle" onclick="bkTogglePolicy(this)">If the trip is cancelled by the participant <span class="bk-chevron">▾</span></button>
+                                <div class="bk-policy-body">
+                                    <ul>
+                                        <li><strong>Booking deposit:</strong> Non-refundable in all cases.</li>
+                                        <li><strong>Less than 3 days before departure:</strong> Full amount payable.</li>
+                                        <li><strong>4–11 days before departure:</strong> 50% of total amount payable.</li>
+                                        <li><strong>12–25 days before departure:</strong> 25% of total amount payable.</li>
+                                        <li><strong>More than 26 days before departure:</strong> Full refund (except booking deposit).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ⑩ SPECIAL REQUESTS -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg></span>
+                                Special Requests
+                            </div>
+                            <div class="bk-form-group">
+                                <label>Additional Notes / Dietary or Physical Requirements</label>
+                                <textarea name="SpecialRequests" rows="4" placeholder="Any special needs, dietary restrictions, or additional notes…"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- ⑪ PRICE SUMMARY + CONFIRM -->
+                        <div class="bk-card">
+                            <div class="bk-section-title">
+                                <span class="bk-section-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
+                                Price Summary
+                            </div>
+
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+                                <span style="font-size:13px;font-weight:600;">Number of Travellers:</span>
+                                <div class="bk-qty-control">
+                                    <button type="button" class="bk-qty-btn" onclick="bkChangeQty(-1)">−</button>
+                                    <span id="bkQtyDisplay">1</span>
+                                    <button type="button" class="bk-qty-btn" onclick="bkChangeQty(1)">+</button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="NumberOfTravellers" id="hiddenQty" value="1" />
+
+                            <div class="bk-price-row">
+                                <span id="bkPriceLabel">Select a package above to see pricing</span>
+                                <span id="bkSubtotal"></span>
+                            </div>
+                            <div class="bk-price-row total">
+                                <span>Total</span>
+                                <span id="bkTotalFinal">—</span>
+                            </div>
+
+                            <hr class="bk-divider" />
+
+                            <div class="bk-consent-row mb-3">
+                                <input type="checkbox" id="bkConsent1" required />
+                                <label for="bkConsent1">I have read and agree to the <strong>Assumption of Risks &amp; Release of Liability</strong>, and I confirm all health information provided is accurate.</label>
+                            </div>
+                            <div class="bk-consent-row mb-4">
+                                <input type="checkbox" id="bkConsent2" required />
+                                <label for="bkConsent2">I agree to the <strong>Cancellation Policy</strong> and <strong>Booking Terms</strong> of Visit Kailash Treks Pvt. Ltd.</label>
+                            </div>
+
+                            <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                Confirm Booking
+                                <span class="icon__box">
+                                    <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                                    <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                                </span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+@section scripts {
+<script src="~/cusassests/js/plugins/flatpickr.js"></script>
+<script>
+    // ── flatpickr date pickers ────────────────────────────────────────────────
+    const fpOpts = { dateFormat: 'Y-m-d', allowInput: false };
+    flatpickr('#arrivalDate',   { ...fpOpts, minDate: 'today' });
+    flatpickr('#departureDate', { ...fpOpts, minDate: 'today' });
+    flatpickr('#dateOfBirth',   { ...fpOpts, maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)), defaultDate: null });
+    flatpickr('#dateOfIssue',   fpOpts);
+    flatpickr('#expiryDate',    { ...fpOpts, minDate: 'today' });
+
+    // ── Package & month selection ─────────────────────────────────────────────
+    const packages = @Html.Raw(packagesJson);
+    let selectedPrice = 0;
+    let bkQty = 1;
+
+    function formatUsd(n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+
+    const monthNames = { 1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec' };
+
+    document.querySelectorAll('input[name="packageMonth"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const pkgId  = parseInt(this.dataset.packageId);
+            const month  = parseInt(this.dataset.month);
+            const name   = this.dataset.packageName;
+            const price  = parseFloat(this.dataset.price);
+
+            document.getElementById('hiddenPackageId').value    = pkgId;
+            document.getElementById('hiddenSelectedMonth').value = month;
+
+            selectedPrice = price;
+            document.getElementById('summaryPackageName').textContent = name;
+            document.getElementById('summaryMonth').textContent       = monthNames[month];
+            document.getElementById('summaryPrice').textContent       = formatUsd(price) + ' / person';
+            updateTotal();
+        });
+    });
+
+    function bkChangeQty(d) {
+        bkQty = Math.max(1, bkQty + d);
+        document.getElementById('bkQtyDisplay').textContent = bkQty;
+        document.getElementById('hiddenQty').value = bkQty;
+        updateTotal();
+    }
+
+    function updateTotal() {
+        if (!selectedPrice) return;
+        const total = selectedPrice * bkQty;
+        document.getElementById('bkPriceLabel').textContent = formatUsd(selectedPrice) + ' × ' + bkQty + ' person(s)';
+        document.getElementById('bkSubtotal').textContent   = formatUsd(total);
+        document.getElementById('bkTotalFinal').textContent = formatUsd(total);
+    }
+
+    // ── Health declaration ────────────────────────────────────────────────────
+    const healthState = {};
+    document.querySelectorAll('.bk-toggle-btn').forEach(btn => {
+        const cond = btn.dataset.condition;
+        healthState[cond] = false; // default: not having
+    });
+
+    function bkToggle(btn, type) {
+        const group = btn.closest('.bk-toggle-group');
+        group.querySelectorAll('.bk-toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cond = btn.dataset.condition;
+        healthState[cond] = (type === 'yes');
+        document.getElementById('healthDeclarationInput').value = JSON.stringify(healthState);
+    }
+
+    // ── Policy accordion ──────────────────────────────────────────────────────
+    function bkTogglePolicy(btn) {
+        const body   = btn.nextElementSibling;
+        const isOpen = body.classList.contains('open');
+        document.querySelectorAll('.bk-policy-body').forEach(b => b.classList.remove('open'));
+        document.querySelectorAll('.bk-policy-toggle').forEach(b => b.classList.remove('open'));
+        if (!isOpen) { body.classList.add('open'); btn.classList.add('open'); }
+    }
+
+    // ── Form validation before submit ────────────────────────────────────────
+    document.getElementById('kailashBookingForm').addEventListener('submit', function (e) {
+        if (!document.getElementById('hiddenPackageId').value || document.getElementById('hiddenPackageId').value === '0') {
+            e.preventDefault();
+            alert('Please select a Yatra Package and Month from the table above.');
+        }
+    });
+</script>
+}

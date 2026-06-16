@@ -1,0 +1,250 @@
+@model List<TravelCleanArch.Application.Abstractions.Travel.KailashYatraPackageDto>
+@{
+    ViewData["Title"] = "Kailash Yatra Packages";
+    // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    // Month definitions: value → label (Apr to Jan)
+    var allMonths = new[] {
+        (4,"Apr"),(5,"May"),(6,"Jun"),(7,"Jul"),(8,"Aug"),(9,"Sep"),
+        (10,"Oct"),(11,"Nov"),(12,"Dec"),(1,"Jan")
+    };
+}
+
+<style>
+    .month-checkbox-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .month-checkbox-grid label { background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 12px; user-select: none; }
+    .month-checkbox-grid input[type=checkbox]:checked + span { font-weight: 700; }
+    .month-checkbox-grid label:has(input:checked) { background: var(--bs-primary); color: #fff; border-color: var(--bs-primary); }
+</style>
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row mb-3 align-items-center">
+            <div class="col">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-2">← Bookings</a>
+                <span class="fw-bold fs-5">Yatra Package Management</span>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
+                    <i class="fa-solid fa-plus me-1"></i>Add Package
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Package Name</th>
+                        <th>Price (USD/person)</th>
+                        <th>Available Months</th>
+                        <th>Full Moon Months</th>
+                        <th>Order</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center py-4 text-muted">No packages yet. Add one above.</td></tr>
+                    }
+                    @foreach (var p in Model)
+                    {
+                        string MonthLabels(List<int> months) => months.Count == 0 ? "—" :
+                            string.Join(", ", allMonths.Where(m => months.Contains(m.Item1)).Select(m => m.Item2));
+
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>@p.Name</td>
+                            <td>$@p.Price.ToString("N0")</td>
+                            <td style="font-size:12px;">@MonthLabels(p.AvailableMonths)</td>
+                            <td style="font-size:12px;">@MonthLabels(p.FullMoonMonths)</td>
+                            <td class="text-center">@p.Ordering</td>
+                            <td class="text-center">
+                                @if (p.IsActive) { <span class="badge bg-success">Active</span> }
+                                else { <span class="badge bg-secondary">Inactive</span> }
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm py-0 px-2"
+                                        onclick="openEditModal(@p.Id, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.Name)), @p.Price, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.AvailableMonths)), @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.FullMoonMonths)), @p.Ordering, @p.IsActive.ToString().ToLower())">
+                                    Edit
+                                </button>
+                                <form method="post" asp-action="DeletePackage" asp-route-id="@p.Id" class="d-inline"
+                                      onsubmit="return confirm('Delete this package? Existing bookings will be preserved.')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form method="post" asp-action="CreatePackage">
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Yatra Package</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Package Name <span class="text-danger">*</span></label>
+                        <input name="Name" type="text" class="form-control" required />
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Price per Person (USD) <span class="text-danger">*</span></label>
+                            <input name="Price" type="number" step="1" min="0" class="form-control" value="0" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Display Order</label>
+                            <input name="Ordering" type="number" class="form-control" value="0" />
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check">
+                                <input name="IsActive" type="checkbox" class="form-check-input" value="true" checked />
+                                <input type="hidden" name="IsActive" value="false" />
+                                <label class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Available Months</label>
+                        <div class="month-checkbox-grid">
+                            @foreach (var (val, lbl) in allMonths)
+                            {
+                                <label>
+                                    <input type="checkbox" name="AvailableMonths" value="@val" />
+                                    <span>@lbl</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Full Moon Months <span class="text-muted" style="font-size:12px;">(FM badge in booking table)</span></label>
+                        <div class="month-checkbox-grid">
+                            @foreach (var (val, lbl) in allMonths)
+                            {
+                                <label>
+                                    <input type="checkbox" name="FullMoonMonths" value="@val" />
+                                    <span>@lbl</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Package</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form method="post" id="editForm">
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Yatra Package</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Package Name <span class="text-danger">*</span></label>
+                        <input name="Name" id="editName" type="text" class="form-control" required />
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Price per Person (USD) <span class="text-danger">*</span></label>
+                            <input name="Price" id="editPrice" type="number" step="1" min="0" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Display Order</label>
+                            <input name="Ordering" id="editOrdering" type="number" class="form-control" value="0" />
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check">
+                                <input name="IsActive" id="editIsActive" type="checkbox" class="form-check-input" value="true" />
+                                <input type="hidden" name="IsActive" value="false" />
+                                <label class="form-check-label" for="editIsActive">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Available Months</label>
+                        <div class="month-checkbox-grid" id="editAvailableMonths">
+                            @foreach (var (val, lbl) in allMonths)
+                            {
+                                <label>
+                                    <input type="checkbox" name="AvailableMonths" value="@val" id="editAM_@val" />
+                                    <span>@lbl</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Full Moon Months <span class="text-muted" style="font-size:12px;">(badge shown in table header)</span></label>
+                        <div class="month-checkbox-grid" id="editFullMoonMonths">
+                            @foreach (var (val, lbl) in allMonths)
+                            {
+                                <label>
+                                    <input type="checkbox" name="FullMoonMonths" value="@val" id="editFM_@val" />
+                                    <span>@lbl</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    function openEditModal(id, name, price, availableMonths, fullMoonMonths, ordering, isActive) {
+        document.getElementById('editForm').action = '/admin/kailash/packages/' + id + '/edit';
+        document.getElementById('editName').value     = name;
+        document.getElementById('editPrice').value    = price;
+        document.getElementById('editOrdering').value = ordering;
+        document.getElementById('editIsActive').checked = isActive;
+
+        // Reset all checkboxes
+        document.querySelectorAll('#editAvailableMonths input[type=checkbox]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#editFullMoonMonths input[type=checkbox]').forEach(cb => cb.checked = false);
+
+        (availableMonths || []).forEach(m => {
+            const cb = document.getElementById('editAM_' + m);
+            if (cb) cb.checked = true;
+        });
+        (fullMoonMonths || []).forEach(m => {
+            const cb = document.getElementById('editFM_' + m);
+            if (cb) cb.checked = true;
+        });
+
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    }
+</script>
+}

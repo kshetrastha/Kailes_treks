@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Booking Confirmed";
+    var bookingId = ViewBag.BookingId as int? ?? 0;
+}
+
+<div class="hero-area hero-style-two" style="background: linear-gradient(135deg, var(--bd-secondary) 0%, #198754 100%); padding: 60px 0 40px;">
+    <div class="container">
+        <div class="bd-breadcrumb-content text-center text-white">
+            <h2 class="mb-10">Booking Received!</h2>
+            <p class="mb-0">Thank you for choosing Visit Kailash Treks</p>
+        </div>
+    </div>
+</div>
+
+<main class="main-area fix">
+    <section class="section-space">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-6 col-lg-7 col-md-9 col-12 text-center">
+                    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:16px;padding:40px 30px;">
+                        <div style="width:64px;height:64px;background:#16a34a;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                            <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <h4 class="mb-10" style="color:#15803d;">Your booking has been submitted!</h4>
+                        <p style="color:#166534;font-size:15px;">Booking Reference: <strong>#BK@bookingId.ToString("D6")</strong></p>
+                        <p style="color:#4b5563;font-size:14px;margin-top:10px;">Our team will review your application and contact you within 24–48 hours to confirm your spot and share payment instructions.</p>
+                        <div class="mt-30">
+                            <a href="/" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                Back to Home
+                                <span class="icon__box">
+                                    <i class="fa-regular fa-arrow-right-long icon__first"></i>
+                                    <i class="fa-regular fa-arrow-right-long icon__second"></i>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>

@@ -1,0 +1,143 @@
+@model TravelCleanArch.Application.Abstractions.Travel.KailashBookingDetailsDto
+@{
+    ViewData["Title"] = $"Booking #{Model.Id}";
+    // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string MonthLabel(int m) => m switch { 1=>"January",2=>"February",3=>"March",4=>"April",5=>"May",6=>"June",7=>"July",8=>"August",9=>"September",10=>"October",11=>"November",12=>"December",_=>"" };
+    string StatusClass(string s) => s switch { "Confirmed" => "badge bg-success", "Cancelled" => "badge bg-danger", _ => "badge bg-warning text-dark" };
+}
+
+<div class="page-content">
+    <div class="container-fluid">
+
+        <div class="row mb-3 align-items-center">
+            <div class="col">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-2">← Back</a>
+                <span class="fw-bold fs-5">Booking #@Model.Id</span>
+                <span class="@StatusClass(Model.Status) ms-2">@Model.Status</span>
+            </div>
+            <div class="col-auto">
+                <form method="post" asp-action="UpdateStatus" asp-route-id="@Model.Id" class="d-flex gap-2 align-items-center">
+                    @Html.AntiForgeryToken()
+                    <select name="status" class="form-select form-select-sm" style="width:auto;">
+                        <option value="Pending"   selected="@(Model.Status == "Pending"   ? "selected" : null)">Pending</option>
+                        <option value="Confirmed" selected="@(Model.Status == "Confirmed" ? "selected" : null)">Confirmed</option>
+                        <option value="Cancelled" selected="@(Model.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm">Update Status</button>
+                </form>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        }
+
+        <div class="row gy-3">
+            <!-- Tour selection -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Tour Selection</div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Package</dt><dd class="col-sm-7">@Model.PackageName</dd>
+                            <dt class="col-sm-5">Month</dt><dd class="col-sm-7">@MonthLabel(Model.SelectedMonth)</dd>
+                            <dt class="col-sm-5">Arrival Date</dt><dd class="col-sm-7">@Model.ArrivalDate.ToString("dd MMM yyyy")</dd>
+                            <dt class="col-sm-5">Departure Date</dt><dd class="col-sm-7">@Model.DepartureDate.ToString("dd MMM yyyy")</dd>
+                            <dt class="col-sm-5">Travellers</dt><dd class="col-sm-7">@Model.NumberOfTravellers</dd>
+                            <dt class="col-sm-5">Booking Deposit</dt><dd class="col-sm-7">USD @Model.BookingAmount.ToString("N0")</dd>
+                            <dt class="col-sm-5">Submitted</dt><dd class="col-sm-7">@Model.SubmittedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal details -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Personal Details</div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Full Name</dt><dd class="col-sm-7">@Model.GivenName @Model.MiddleName @Model.LastName</dd>
+                            <dt class="col-sm-5">Date of Birth</dt><dd class="col-sm-7">@Model.DateOfBirth.ToString("dd MMM yyyy")</dd>
+                            <dt class="col-sm-5">Gender</dt><dd class="col-sm-7">@Model.Gender</dd>
+                            <dt class="col-sm-5">Email</dt><dd class="col-sm-7"><a href="mailto:@Model.Email">@Model.Email</a></dd>
+                            <dt class="col-sm-5">Nationality</dt><dd class="col-sm-7">@Model.Nationality</dd>
+                            <dt class="col-sm-5">Telephone</dt><dd class="col-sm-7">@Model.TelCountryCode @Model.TelAreaCode @Model.TelNumber</dd>
+                            <dt class="col-sm-5">Mobile</dt><dd class="col-sm-7">@Model.MobileNumber</dd>
+                            <dt class="col-sm-5">Occupation</dt><dd class="col-sm-7">@Model.Occupation</dd>
+                            <dt class="col-sm-5">Address</dt><dd class="col-sm-7">@Model.Address, @Model.City @Model.PostalCode, @Model.Country</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passport -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Passport &amp; Travel</div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Passport No.</dt><dd class="col-sm-7">@Model.PassportNumber</dd>
+                            <dt class="col-sm-5">Place of Issue</dt><dd class="col-sm-7">@Model.PlaceOfIssue</dd>
+                            <dt class="col-sm-5">Date of Issue</dt><dd class="col-sm-7">@Model.DateOfIssue.ToString("dd MMM yyyy")</dd>
+                            <dt class="col-sm-5">Expiry Date</dt><dd class="col-sm-7">@Model.ExpiryDate.ToString("dd MMM yyyy")</dd>
+                            <dt class="col-sm-5">Insurance</dt><dd class="col-sm-7">@(Model.Insurance ?? "—")</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency contact -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Emergency Contact</div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Name</dt><dd class="col-sm-7">@Model.EmergencyName</dd>
+                            <dt class="col-sm-5">Relationship</dt><dd class="col-sm-7">@Model.EmergencyRelationship</dd>
+                            <dt class="col-sm-5">Telephone</dt><dd class="col-sm-7">@Model.EmergencyTelCountryCode @Model.EmergencyTelAreaCode @Model.EmergencyTelNumber</dd>
+                            <dt class="col-sm-5">Mobile</dt><dd class="col-sm-7">@Model.EmergencyMobile</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health declaration -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header fw-bold">Self-Health Declaration</div>
+                    <div class="card-body">
+                        @if (Model.HealthDeclaration.Any())
+                        {
+                            <div class="row g-2">
+                                @foreach (var kv in Model.HealthDeclaration)
+                                {
+                                    <div class="col-md-3 col-sm-4 col-6">
+                                        <span class="badge @(kv.Value ? "bg-danger" : "bg-success") me-1">@(kv.Value ? "✓" : "✗")</span>
+                                        <small>@kv.Key</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.OtherHealthConcerns))
+                        {
+                            <p class="mt-2 mb-0 text-muted" style="font-size:13px;"><strong>Other:</strong> @Model.OtherHealthConcerns</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special requests -->
+            @if (!string.IsNullOrWhiteSpace(Model.SpecialRequests))
+            {
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header fw-bold">Special Requests</div>
+                        <div class="card-body"><p class="mb-0">@Model.SpecialRequests</p></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

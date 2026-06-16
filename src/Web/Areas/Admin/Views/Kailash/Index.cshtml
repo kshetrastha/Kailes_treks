@@ -1,0 +1,114 @@
+@model TravelCleanArch.Application.Abstractions.Travel.KailashBookingPagedResult
+@{
+    ViewData["Title"] = "Kailash Bookings";
+    // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var search = ViewBag.Search as string ?? "";
+    var statusFilter = ViewBag.Status as string ?? "";
+    int totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize);
+
+    string MonthLabel(int m) => m switch { 1=>"Jan",2=>"Feb",3=>"Mar",4=>"Apr",5=>"May",6=>"Jun",7=>"Jul",8=>"Aug",9=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec",_=>"" };
+    string StatusClass(string s) => s switch { "Confirmed" => "badge bg-success", "Cancelled" => "badge bg-danger", _ => "badge bg-warning text-dark" };
+}
+
+<div class="page-content">
+    <div class="container-fluid">
+
+        <div class="row mb-3 align-items-center">
+            <div class="col">
+                <h4 class="mb-0">Kailash Manasarovar Yatra – Bookings</h4>
+                <small class="text-muted">@Model.TotalCount total booking(s)</small>
+            </div>
+            <div class="col-auto">
+                <a asp-action="Packages" class="btn btn-outline-primary btn-sm">
+                    <i class="fa-solid fa-list me-1"></i>Manage Packages
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Filters -->
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <input name="search" type="text" class="form-control form-control-sm" placeholder="Search name or email…" value="@search" />
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="Pending"   selected="@(statusFilter == "Pending"   ? "selected" : null)">Pending</option>
+                    <option value="Confirmed" selected="@(statusFilter == "Confirmed" ? "selected" : null)">Confirmed</option>
+                    <option value="Cancelled" selected="@(statusFilter == "Cancelled" ? "selected" : null)">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary btn-sm" type="submit">Filter</button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Package</th>
+                        <th>Month</th>
+                        <th>Travellers</th>
+                        <th>Deposit (USD)</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Items.Any())
+                    {
+                        <tr><td colspan="10" class="text-center py-4 text-muted">No bookings found.</td></tr>
+                    }
+                    @foreach (var b in Model.Items)
+                    {
+                        <tr>
+                            <td>@b.Id</td>
+                            <td>@b.FullName</td>
+                            <td><a href="mailto:@b.Email">@b.Email</a></td>
+                            <td style="max-width:180px;white-space:normal;font-size:12px;">@b.PackageName</td>
+                            <td>@MonthLabel(b.SelectedMonth)</td>
+                            <td class="text-center">@b.NumberOfTravellers</td>
+                            <td>$@b.BookingAmount.ToString("N0")</td>
+                            <td><span class="@StatusClass(b.Status)">@b.Status</span></td>
+                            <td style="font-size:12px;">@b.SubmittedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                            <td>
+                                <a asp-action="BookingDetail" asp-route-id="@b.Id" class="btn btn-outline-primary btn-sm py-0 px-2">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i"
+                               asp-route-search="@search" asp-route-status="@statusFilter">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

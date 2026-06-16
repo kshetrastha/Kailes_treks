@@ -30,5 +30,6 @@ public interface IUnitOfWork
     IServiceRegionService ServiceRegionService { get; }
     IServiceRegionFaqService ServiceRegionFaqService { get; }
     IPackageService PackageService { get; }
+    IKailashService KailashService { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

@@ -84,6 +84,8 @@ public sealed class AppDbContext:
     public DbSet<MapDestinationImage> MapDestinationImages => Set<MapDestinationImage>();
     public DbSet<NewsletterSubscription> NewsletterSubscriptions => Set<NewsletterSubscription>();
     public DbSet<TrekkingInquiry> TrekkingInquiries => Set<TrekkingInquiry>();
+    public DbSet<KailashYatraPackage> KailashYatraPackages => Set<KailashYatraPackage>();
+    public DbSet<KailashBooking> KailashBookings => Set<KailashBooking>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -178,6 +180,54 @@ public sealed class AppDbContext:
             b.HasIndex(x => x.BannerId);
             b.HasIndex(x => x.Ordering);
             b.HasIndex(x => x.IsPublished);
+        });
+
+        builder.Entity<KailashYatraPackage>(b =>
+        {
+            b.ToTable("kailash_yatra_packages");
+            b.Property(x => x.Name).HasMaxLength(300).IsRequired();
+            b.Property(x => x.AvailableMonths).HasMaxLength(50);
+            b.Property(x => x.FullMoonMonths).HasMaxLength(50);
+            b.Property(x => x.Price).HasColumnType("numeric(12,2)");
+            b.HasIndex(x => x.Ordering);
+            b.HasMany(x => x.Bookings).WithOne(x => x.Package).HasForeignKey(x => x.PackageId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<KailashBooking>(b =>
+        {
+            b.ToTable("kailash_bookings");
+            b.Property(x => x.LastName).HasMaxLength(100).IsRequired();
+            b.Property(x => x.GivenName).HasMaxLength(100).IsRequired();
+            b.Property(x => x.MiddleName).HasMaxLength(100);
+            b.Property(x => x.Gender).HasMaxLength(20).IsRequired();
+            b.Property(x => x.Email).HasMaxLength(320).IsRequired();
+            b.Property(x => x.Nationality).HasMaxLength(100).IsRequired();
+            b.Property(x => x.TelCountryCode).HasMaxLength(10);
+            b.Property(x => x.TelAreaCode).HasMaxLength(10);
+            b.Property(x => x.TelNumber).HasMaxLength(30);
+            b.Property(x => x.MobileNumber).HasMaxLength(30);
+            b.Property(x => x.Occupation).HasMaxLength(100);
+            b.Property(x => x.Address).HasMaxLength(300);
+            b.Property(x => x.City).HasMaxLength(100);
+            b.Property(x => x.PostalCode).HasMaxLength(20);
+            b.Property(x => x.Country).HasMaxLength(100);
+            b.Property(x => x.PassportNumber).HasMaxLength(50).IsRequired();
+            b.Property(x => x.PlaceOfIssue).HasMaxLength(100).IsRequired();
+            b.Property(x => x.Insurance).HasMaxLength(300);
+            b.Property(x => x.EmergencyName).HasMaxLength(200).IsRequired();
+            b.Property(x => x.EmergencyRelationship).HasMaxLength(100).IsRequired();
+            b.Property(x => x.EmergencyTelCountryCode).HasMaxLength(10);
+            b.Property(x => x.EmergencyTelAreaCode).HasMaxLength(10);
+            b.Property(x => x.EmergencyTelNumber).HasMaxLength(30);
+            b.Property(x => x.EmergencyMobile).HasMaxLength(30);
+            b.Property(x => x.HealthDeclaration).HasColumnType("text");
+            b.Property(x => x.OtherHealthConcerns).HasColumnType("text");
+            b.Property(x => x.SpecialRequests).HasColumnType("text");
+            b.Property(x => x.BookingAmount).HasColumnType("numeric(12,2)");
+            b.Property(x => x.IpAddress).HasMaxLength(64);
+            b.HasIndex(x => x.SubmittedAtUtc);
+            b.HasIndex(x => x.Status);
+            b.HasIndex(x => x.Email);
         });
     }
 
