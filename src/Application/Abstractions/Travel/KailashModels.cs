@@ -65,7 +65,7 @@ public sealed class KailashBookingCreateDto
     public string? EmergencyTelNumber { get; set; }
     public string? EmergencyMobile { get; set; }
 
-    public Dictionary<string, bool> HealthDeclaration { get; set; } = [];
+    public string HealthDeclarationJson { get; set; } = "{}";
     public string? OtherHealthConcerns { get; set; }
 
     public string? SpecialRequests { get; set; }

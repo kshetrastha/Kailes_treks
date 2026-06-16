@@ -55,7 +55,7 @@
 
                                     @if (!string.IsNullOrWhiteSpace(post.Summary))
                                     {
-                                        <p class="blog-description">@post.Summary</p>
+                                        <p class="blog-description">@Html.Raw(post.Summary)</p>
                                     }
 
                                     <div class="about-btn">
