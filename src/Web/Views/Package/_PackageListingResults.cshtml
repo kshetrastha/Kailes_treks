@@ -16,16 +16,23 @@
     {
         @foreach (var package in Model.Items)
         {
-            <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6">
-                <div class="tour-wrapper style-one">
+            var heroImg = string.IsNullOrWhiteSpace(package.HeroImageUrl)
+                ? Url.Content("~/cusassests/images/tour/tour-img-9.png")
+                : package.HeroImageUrl;
+            var priceDisplay = package.Price <= 0
+                ? "Price on request"
+                : $"$ {package.Price:N0}";
+
+            <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6 d-flex">
+                <div class="tour-wrapper style-one w-100 d-flex flex-column">
                     <div class="p-relative">
                         <div class="tour-thumb image-overly">
                             <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">
-                                <img src="@(string.IsNullOrWhiteSpace(package.HeroImageUrl) ? "assets/images/tour/tour-img-9.png" : package.HeroImageUrl)" alt="@package.Name">
+                                <img src="@heroImg" alt="@package.Name" loading="lazy">
                             </a>
                         </div>
                     </div>
-                    <div class="tour-content">
+                    <div class="tour-content flex-grow-1 d-flex flex-column">
                         <div class="tour-rating d-flex align-items-center gap-10 mb-10">
                             <div class="tour-rating-icon fs-14 d-flex rating-color">
                                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -35,8 +42,8 @@
                         <h5 class="tour-title fw-5 underline mb-5">
                             <a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@package.Slug">@package.Name</a>
                         </h5>
-                        <span class="tour-price b3">$@package.Price.ToString("N2")</span>
-                        <div class="tour-divider"></div>
+                        <span class="tour-price b3">@priceDisplay</span>
+                        <div class="tour-divider mt-auto"></div>
                         <div class="tour-meta d-flex align-items-center justify-content-between">
                             <div class="time d-flex align-items-center gap--5"><i class="icon-heart"></i><span>@package.DurationDays days</span></div>
                             <div class="tour-btn">

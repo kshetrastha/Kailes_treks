@@ -5,30 +5,36 @@
     var navs = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
 }
 <!DOCTYPE html>
-<html class="no-js" lang="zxx">
+<html class="no-js" lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>@ViewData["Title"] | Visit Kailash Treks</title>
-    <meta name="description" content="">
+    <meta name="description" content="@(ViewData["Description"] ?? "Visit Kailash Treks - Your gateway to Kailash Manasarovar Yatra, Himalayan trekking, and spiritual pilgrimage tours in Nepal, Tibet, India, and Bhutan.")">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Place favicon.ico in the root directory -->
     <link rel="shortcut icon" type="image/x-icon" href="~/cusassests/images/favicon.png">
-    <!-- CSS here -->
+    <!-- Resource hints -->
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://www.google.com">
+    <link rel="dns-prefetch" href="https://wa.me">
+    <!-- Critical CSS -->
     <link href="~/cusassests/css/vendor/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/vendor/animate.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/swiper.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/flatpickr.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/chosen.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/nice-select.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/dropzone.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/plugins/nouislider.min.css" rel="stylesheet" />
-    <link href="~/cusassests/css/vendor/magnific-popup.css" rel="stylesheet" />
     <link href="~/cusassests/css/vendor/fontawesome-pro.css" rel="stylesheet" />
     <link href="~/cusassests/css/vendor/icomoon.css" rel="stylesheet" />
-    <link href="~/cusassests/css/vendor/spacing.css" rel="stylesheet" />
     <link href="~/cusassests/css/main.css" rel="stylesheet" />
+    <!-- Non-critical CSS deferred -->
+    <link href="~/cusassests/css/vendor/animate.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/swiper.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/flatpickr.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/chosen.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/nice-select.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/dropzone.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/nouislider.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/vendor/magnific-popup.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/plugins/jquery.fancybox.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="~/cusassests/css/vendor/spacing.css" rel="stylesheet" media="print" onload="this.media='all'">
+    @await RenderSectionAsync("Head", required: false)
 </head>
 
 <body>
@@ -123,7 +129,7 @@
                                     }
                                 }
                                 <li><a href="/our-blogs">Blogs</a></li>
-                                <li><a href="contact.html">Contact</a></li>
+                                <li><a href="/contact">Contact</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -141,7 +147,7 @@
                                 </div>
                                 <div class="d-flex h-gap-55">
                                     <div class="">
-                                        <a class="bd-btn btn-style text-btn" href="contact.html">Help</a>
+                                        <a class="bd-btn btn-style text-btn" href="/contact">Help</a>
                                     </div>
                                 </div>
                             </div>
@@ -169,11 +175,9 @@
                 <div class="offcanvas-content">
                     <div class="offcanvas-top d-flex justify-content-between align-items-center mb-25">
                         <div class="offcanvas-logo">
-                            <a href="index.html">
-                                <img src="~/cusassests/images/logo/logo.png" alt="logo not found">
+                            <a href="/">
+                                <img src="~/cusassests/images/logo/logo.png" alt="Visit Kailash Treks">
                             </a>
-                            <img src="" 
-
                         </div>
                         <div class="offcanvas-close">
                             <button class="offcanvas-close-icon animation--flip">
@@ -292,7 +296,7 @@
                         <div class="footer-1-col-1">
                             <div class="footer-widget">
                                 <div class="footer-widget-logo mb-40">
-                                    <a href="index.html">
+                                    <a href="/">
                                         <img src="~/cusassests/images/logo/logo.png" alt="logo not found">
                                     </a>
                                 </div>
@@ -316,10 +320,10 @@
                                 <div class="footer-widget-links">
                                     <ul>
                                         <li class="underline"><a href="about.html">About Us</a></li>
-                                        <li class="underline"><a href="contact.html">Careers</a></li>
+                                        <li class="underline"><a href="/contact">Careers</a></li>
                                         <li class="underline"><a href="team.html">Travel Guides</a></li>
                                         <li class="underline"><a href="destinations-right.html">Destinations</a></li>
-                                        <li class="underline"><a href="contact.html">Contact Now</a></li>
+                                        <li class="underline"><a href="/contact">Contact Now</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -335,7 +339,7 @@
                                             <a href="tour-details-right.html">Traveler Review</a><span class="bd-badge warning">New</span>
                                         </li>
                                         <li class="underline"><a href="team.html">Travel Agents</a></li>
-                                        <li class="underline"><a href="contact.html">Help</a></li>
+                                        <li class="underline"><a href="/contact">Help</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -368,7 +372,7 @@
                                             <span class="footer-widget-list-text-top">
                                                 Our office
                                             </span>
-                                            <a href="contact.html">Kathmandu, Nepal</a>
+                                            <a href="/contact">Kathmandu, Nepal</a>
                                         </span>
                                     </li>
                                 </ul>
@@ -388,7 +392,7 @@
                     </div>
                     <div class="col-xl-3 col-lg-5 col-md-6 col-12">
                         <div class="footer-card">
-                            <img src="cusassests/images/icons/payment-option-black.png" alt="">
+                            <img src="~/cusassests/images/icons/payment-option-black.png" alt="Payment options" loading="lazy">
                         </div>
                     </div>
                 </div>
@@ -411,7 +415,6 @@
     </a>
 
     <!-- JS here -->
-    <link href="~/cusassests/css/plugins/jquery.fancybox.min.css" rel="stylesheet" />
     <script src="~/cusassests/js/vendor/jquery-3.7.1.min.js"></script>
     <script src="~/cusassests/js/plugins/waypoints.min.js"></script>
     <script src="~/cusassests/js/vendor/bootstrap.bundle.min.js"></script>

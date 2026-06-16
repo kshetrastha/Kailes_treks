@@ -175,6 +175,9 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
     }
 
 
+    [HttpGet("contact")]
+    public IActionResult Contact() => View();
+
     [HttpGet("faq")]
     public async Task<IActionResult> Faq(CancellationToken ct)
     {

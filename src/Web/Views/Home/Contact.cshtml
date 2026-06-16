@@ -1,0 +1,129 @@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<main class="main-area fix">
+    <div class="section-space-top"></div>
+    <!-- breadcrumb area start -->
+    <section class="bd-breadcrumb-area p-relative fix">
+        <div class="bd-breadcrumb-bg" data-background="cusassests/images/bg/breadcrumb-bg.png"></div>
+        <div class="bd-breadcrumb-wrapper p-relative">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-xl-10">
+                        <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                            <div class="bd-breadcrumb-content text-center">
+                                <h1 class="bd-breadcrumb-title">Contact Us</h1>
+                                <div class="bd-breadcrumb-list">
+                                    <span><a asp-controller="Home" asp-action="Index"><i class="icon-home"></i>Home</a></span>
+                                    <span>Contact Us</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb area end -->
+
+    <section class="contact-area section-space">
+        <div class="container">
+            <!-- CONTACT INFO BOXES -->
+            <div class="row gy-24 justify-content-center mb-50">
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-box">
+                        <div class="contact-icon mb-30">
+                            <i class="icon-call-ring"></i>
+                        </div>
+                        <h5 class="contact-title mb-15">Call Us On</h5>
+                        <div class="contact-content">
+                            <a href="tel:9851210987">+977 9851210987</a>
+                            <a href="tel:9851008008">+977 9851008008</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-box">
+                        <div class="contact-icon mb-30">
+                            <i class="icon-envelope-b"></i>
+                        </div>
+                        <h5 class="contact-title mb-15">Email Us</h5>
+                        <div class="contact-content">
+                            <a href="mailto:support@@visitkailashtreks.com">support@@visitkailashtreks.com</a>
+                            <a href="mailto:visitkailashtreks@@gmail.com">visitkailashtreks@@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-box">
+                        <div class="contact-icon mb-30">
+                            <i class="icon-location-fill"></i>
+                        </div>
+                        <h5 class="contact-title mb-15">Our Location</h5>
+                        <div class="contact-content">
+                            <a href="#">Visit Kailash Treks Pvt. Ltd.<br>Kathmandu, Nepal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACT FORM + TEXT -->
+            <div class="row align-items-start gy-40">
+                <div class="col-lg-6">
+                    <span class="section-subtitle mb-10">CONTACT US</span>
+                    <h3 class="section-title mb-15">Get In Touch With Us</h3>
+                    <p class="mb-30">
+                        Have questions about our trekking packages, Kailash Manasarovar tours, or any other adventures?
+                        We'd love to hear from you. Drop us a message and our team will get back to you shortly.
+                    </p>
+                    <p class="mb-10"><strong>Follow Us here:</strong></p>
+                    <div class="social-icons d-flex gap-10">
+                        <a href="#" aria-label="Facebook"><i class="icon-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="icon-twitter-x"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="icon-instagram"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="icon-linkedin"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="icon-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="contact-form">
+                        <h5 class="mb-20">Drop Us a Line...</h5>
+                        <form asp-controller="Newsletter" asp-action="Subscribe" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-15">
+                                <input type="text" name="fullName" class="form-control" placeholder="Full Name" required>
+                            </div>
+                            <div class="mb-15">
+                                <input type="email" name="email" class="form-control" placeholder="Your Email" required>
+                            </div>
+                            <div class="mb-15">
+                                <textarea name="message" class="form-control" rows="5" placeholder="Your message"></textarea>
+                            </div>
+                            <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
+                                <span class="bd-primary-btn-text">Send Now</span>
+                                <span class="bd-primary-btn-circle"></span>
+                                <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GOOGLE MAP -->
+            <div class="google-map mt-60">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.0946771950607!2d85.30898775117318!3d27.71436292411691!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1985a8aba883%3A0x33e64e24f4f13f49!2sVisit%20Kailash%20Treks!5e0!3m2!1sen!2snp!4v1777367301302!5m2!1sen!2snp"
+                    width="100%"
+                    height="450"
+                    style="border:0;"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Visit Kailash Treks Location">
+                </iframe>
+            </div>
+        </div>
+    </section>
+</main>

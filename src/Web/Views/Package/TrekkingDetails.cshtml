@@ -289,7 +289,7 @@
                                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                                 <button class="nav-link active" id="nav-overview-tab" data-bs-toggle="tab" data-bs-target="#nav-overview" type="button" role="tab" aria-controls="nav-overview" aria-selected="true">Overview</button>
                                                 <button class="nav-link" id="nav-gallery-tab" data-bs-toggle="tab" data-bs-target="#nav-gallery" type="button" role="tab" aria-controls="nav-gallery" aria-selected="false">Gallery</button>
-                                                <button class="nav-link" id="nav-feedback-tab" data-bs-toggle="tab" data-bs-target="#nav-feedback" type="button" role="tab" aria-controls="nav-feedback" aria-selected="false">Feedbacks</button>
+                                                <button class="nav-link" id="nav-feedback-tab" data-bs-toggle="tab" data-bs-target="#nav-feedback" type="button" role="tab" aria-controls="nav-feedback" aria-selected="false">Feedback</button>
                                                 <button class="nav-link" id="nav-gear-list-tab" data-bs-toggle="tab" data-bs-target="#nav-gear-list" type="button" role="tab" aria-controls="nav-gear-list" aria-selected="false">Gear List</button>
                                             </div>
                                         </nav>
@@ -389,57 +389,40 @@
 </div>
                                             </div>
 
-                                                <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
+                                            <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
                                                 <div class="tour-details-gallery mb-35">
-                                                    <h5 class="mb-20">Tour Galley</h5>
-                                                  @if (galleryImages != null && galleryImages.Any())
+                                                    <h5 class="mb-20">Tour Gallery</h5>
+                                                    @{
+                                                        var galleryList = galleryImages.ToList();
+                                                    }
+                                                    @if (!galleryList.Any())
                                                     {
-                                                        var images = galleryImages.ToList();
-
+                                                        <p class="mb-0">Gallery images will be available soon.</p>
+                                                    }
+                                                    else
+                                                    {
                                                         <div class="row gy-24">
-                                                            @if (images.Count >= 1)
-                                                            {
-                                                                var firstImage = images[0];
-                                                                var firstAlt = string.IsNullOrWhiteSpace(firstImage.Caption) ? Model.Name : firstImage.Caption;
-
-                                                                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
-                                                                    <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                        <img src="@firstImage.Url"
-                                                                             alt="@firstAlt"
-                                                                             class="img-fluid w-100"
-                                                                             loading="lazy"
-                                                                             decoding="async" />
-                                                                    </div>
-
-                                                                    @if (!string.IsNullOrWhiteSpace(firstImage.Caption))
-                                                                    {
-                                                                        <p class="mt-10 mb-0">@firstImage.Caption</p>
-                                                                    }
+                                                            <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
+                                                                <div class="tour-details-gallery-thumb position-relative">
+                                                                    <a href="@galleryList[0].Url" data-fancybox="tour-gallery" aria-label="@(string.IsNullOrWhiteSpace(galleryList[0].Caption) ? Model.Name : galleryList[0].Caption)">
+                                                                        <img src="@galleryList[0].Url" alt="@(string.IsNullOrWhiteSpace(galleryList[0].Caption) ? Model.Name : galleryList[0].Caption)" class="img-fluid w-100" loading="lazy" decoding="async">
+                                                                    </a>
                                                                 </div>
-                                                            }
-
-                                                            @if (images.Count >= 2)
+                                                            </div>
+                                                            @if (galleryList.Count >= 2)
                                                             {
                                                                 <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6">
                                                                     <div class="row gy-24">
-                                                                        @for (int i = 1; i < images.Count && i < 3; i++)
+                                                                        @for (int gi = 1; gi < galleryList.Count; gi++)
                                                                         {
-                                                                            var image = images[i];
-                                                                            var altText = string.IsNullOrWhiteSpace(image.Caption) ? Model.Name : image.Caption;
-
-                                                                            <div class="col-xxl-12">
-                                                                                <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                                    <img src="@image.Url"
-                                                                                         alt="@altText"
-                                                                                         class="img-fluid w-100"
-                                                                                         loading="lazy"
-                                                                                         decoding="async" />
+                                                                            var gImg = galleryList[gi];
+                                                                            var gAlt = string.IsNullOrWhiteSpace(gImg.Caption) ? Model.Name : gImg.Caption;
+                                                                            <div class="col-12">
+                                                                                <div class="tour-details-gallery-thumb position-relative">
+                                                                                    <a href="@gImg.Url" data-fancybox="tour-gallery" aria-label="@gAlt">
+                                                                                        <img src="@gImg.Url" alt="@gAlt" class="img-fluid w-100" loading="lazy" decoding="async">
+                                                                                    </a>
                                                                                 </div>
-
-                                                                                @if (!string.IsNullOrWhiteSpace(image.Caption))
-                                                                                {
-                                                                                    <p class="mt-10 mb-0">@image.Caption</p>
-                                                                                }
                                                                             </div>
                                                                         }
                                                                     </div>
@@ -448,44 +431,6 @@
                                                         </div>
                                                     }
                                                 </div>
-                                                <div class="tour-details-location mb-35">
-                                                    <h5 class="mb-20">Tour Location</h5>
-                                                    <div class="tour-details-location-map">
-                                                    @if (!string.IsNullOrWhiteSpace(mapHtml))
-                                                    {
-                                                        @Html.Raw(mapHtml)
-                                                    }
-                                                </div>
-
-                                              </div>
-                                            </div>
-
-                                            <div class="tab-pane fade" id="nav-gallery" role="tabpanel" aria-labelledby="nav-gallery-tab" tabindex="0">
-                                                <div class="tour-details-gallery mb-35">
-                                                    <h5 class="mb-20">Tour Gallery</h5>
-                                                    @if (!galleryImages.Any())
-                                                    {
-                                                        <p class="mb-0">Gallery images will be available soon.</p>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="row gy-24">
-                                                            @foreach (var image in galleryImages)
-                                                            {
-                                                                <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
-                                                                    <div class="tour-details-gallery-thumb image-hover-effect-two position-relative">
-                                                                        <img src="@image.Url" alt="@(string.IsNullOrWhiteSpace(image.Caption) ? Model.Name : image.Caption)" loading="lazy" decoding="async">
-                                                                    </div>
-                                                                    @if (!string.IsNullOrWhiteSpace(image.Caption))
-                                                                    {
-                                                                        <p class="mt-10 mb-0">@image.Caption</p>
-                                                                    }
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                </div>
-
                                                 @if (videoItems.Any())
                                                 {
                                                     <div class="tour-details-location mb-35">
@@ -505,6 +450,15 @@
                                                                     </li>
                                                                 }
                                                             </ul>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(mapHtml))
+                                                {
+                                                    <div class="tour-details-location mb-35">
+                                                        <h5 class="mb-20">Tour Location</h5>
+                                                        <div class="tour-details-location-map">
+                                                            @Html.Raw(mapHtml)
                                                         </div>
                                                     </div>
                                                 }

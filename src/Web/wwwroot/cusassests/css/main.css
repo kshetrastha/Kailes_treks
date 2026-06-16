@@ -18121,6 +18121,37 @@ only screen and (min-width: 576px) and (max-width: 767px),
 
 /*----------------------------------------*/
 
+/* Trending Destination grid */
+.destination-grid-row {
+    align-items: stretch;
+}
+
+.destination-tall {
+    height: 100%;
+    min-height: 500px;
+}
+
+.destination-tall .trip-thumb {
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.destination-tall-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .destination-tall {
+        min-height: 300px;
+    }
+}
+
+/*----------------------------------------*/
+
 /*  4.28 Trip css
 /*----------------------------------------*/
 
@@ -21067,10 +21098,11 @@ only screen and (min-width: 576px) and (max-width: 767px),
 }
 
 .tour-thumb img {
-    width: auto;
-    min-height: 210px;
+    width: 100%;
+    height: 240px;
     border-radius: 10px 10px 0 0;
     object-fit: cover;
+    display: block;
 }
 
 .tour-favorite {

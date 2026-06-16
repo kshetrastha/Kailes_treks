@@ -67,131 +67,6 @@
         : Url.Content("~/cusassests/images/about/about-img-2.png");
 
 }
-<style>
-	.destination-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-auto-rows: 170px;
-    grid-auto-flow: dense;
-    gap: 24px;
-}
-
-.destination-card {
-    grid-column: span 3;
-    grid-row: span 2;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.destination-large {
-    grid-column: span 4;
-    grid-row: span 4;
-}
-
-.destination-small {
-    grid-column: span 3;
-    grid-row: span 2;
-}
-
-.destination-wide {
-    grid-column: span 5;
-    grid-row: span 2;
-}
-
-.destination-card .trip-wrapper,
-.destination-card .trip-thumb,
-.destination-card .trip-thumb a {
-    height: 100%;
-    width: 100%;
-    display: block;
-}
-
-.destination-card .trip-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* keep overlay dark like screenshot */
-.destination-card .image-overly::before {
-    border-radius: 12px;
-}
-
-/* location label */
-.destination-card .trip-location {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 3;
-}
-
-.destination-card .trip-location span a {
-    background: #fff;
-    color: #001b3f;
-    padding: 0px 30px;
-    display: inline-block;
-    border-radius: 0 10px 0 0;
-    font-size: 20px;
-    font-weight: 500;
-}
-
-/* tour count */
-.destination-card .trip-number {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    z-index: 3;
-}
-
-.destination-card .trip-number span a {
-    background: #fff;
-    color: #001b3f;
-    padding: 7px 16px;
-    display: inline-block;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-/* Tablet */
-@@media (max-width: 991px) {
-    .destination-grid {
-        grid-template-columns: repeat(6, 1fr);
-        grid-auto-rows: 160px;
-    }
-
-    .destination-large,
-    .destination-wide,
-    .destination-small,
-    .destination-card {
-        grid-column: span 3;
-        grid-row: span 2;
-    }
-}
-
-/* Mobile */
-@@media (max-width: 575px) {
-    .destination-grid {
-        grid-template-columns: 1fr;
-        grid-auto-rows: 260px;
-        gap: 20px;
-    }
-
-    .destination-large,
-    .destination-wide,
-    .destination-small,
-    .destination-card {
-        grid-column: span 1;
-        grid-row: span 1;
-    }
-}
-.destination-card .trip-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-</style>
 <!-- Banner area start -->
 <section class="banner-area banner-height p-relative z-index-11 image-bg" style="background: url('@bgImage') no-repeat; width: 100%;">
     <div class="banner-shape">
@@ -259,7 +134,7 @@
 
 <!-- Banner area start -->
 <section class="section-space work-with">
-    <div class="container"><img src="~/cusassests/images/partner_web_view.png"></div>
+    <div class="container"><img src="~/cusassests/images/partner_web_view.png" alt="Our partners" loading="lazy" width="100%"></div>
 </section>
 
 <!-- activity area start -->
@@ -374,10 +249,10 @@
     <div class="container">
         <div class="trip-shape">
             <div class="trip-shape-two">
-                <img src="~/cusassests/images/shapes/trip-map.png" alt="shape">
+                <img src="~/cusassests/images/shapes/trip-map.png" alt="shape" loading="lazy">
             </div>
             <div class="trip-shape-three">
-                <img src="~/cusassests/images/shapes/trip-map-small.png" alt="shape">
+                <img src="~/cusassests/images/shapes/trip-map-small.png" alt="shape" loading="lazy">
             </div>
         </div>
 
@@ -391,88 +266,116 @@
         </div>
 
         @{
-            var tourCountByCountry = (Model.TrekkingCountryPackageCountDtos ?? new List<TrekkingCountryPackageCountDto>())
-                .GroupBy(x => x.Country)
-                .ToDictionary(g => g.Key, g => g.First().PackageCount);
-
-            var trekkingDestinations = (Model.TrekkingCountryGroupDtos ?? new List<TrekkingCountryGroupDto>())
-                .SelectMany(countryGroup => countryGroup.TrekkingTypes
-                    .SelectMany(typeGroup => typeGroup.Regions.SelectMany(region => region.Packages)
-                        .Concat(typeGroup.PackagesWithoutRegion))
-                    .Select(pkg => new
-                    {
-                        Title = pkg.Name,
-                        Country = countryGroup.Country.ToString(),
-                        ImageUrl = pkg.ImageURL,
-                        TourCount = tourCountByCountry.TryGetValue(countryGroup.Country.ToString(), out var count) ? count : 1
-                    }))
-                .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+            var destinations = (Model.TrekkingCountryPackageCountDtos ?? new List<TrekkingCountryPackageCountDto>())
+                .Select(x => new
+                {
+                    Country = x.Country,
+                    ImageUrl = !string.IsNullOrWhiteSpace(x.ImageUrl)
+                        ? x.ImageUrl
+                        : Url.Content("~/cusassests/images/trip/trip-img-1.png"),
+                    TourCount = x.PackageCount
+                })
                 .ToList();
 
-            if (!trekkingDestinations.Any())
+            // Pad to at least 6 items using fallback images
+            var fallbackImages = new[]
             {
-                trekkingDestinations = (Model.TrekkingCountryPackageCountDtos ?? new List<TrekkingCountryPackageCountDto>())
-                    .Select(x => new
-                    {
-                        Title = x.Country,
-                        Country = x.Country,
-                        ImageUrl = x.ImageUrl,
-                        TourCount = x.PackageCount
-                    })
-                    .ToList();
-            }
-
-            var items = new List<dynamic>();
-            if (trekkingDestinations.Any())
-            {
-                items = Enumerable.Range(0, 6)
-                    .Select(i => (dynamic)trekkingDestinations[i % trekkingDestinations.Count])
-                    .ToList();
-            }
+                Url.Content("~/cusassests/images/trip/trip-img-1.png"),
+                Url.Content("~/cusassests/images/trip/trip-img-2.png"),
+                Url.Content("~/cusassests/images/trip/trip-img-3.png"),
+                Url.Content("~/cusassests/images/trip/trip-img-4.png"),
+                Url.Content("~/cusassests/images/trip/trip-img-5.png"),
+                Url.Content("~/cusassests/images/trip/trip-img-6.png"),
+            };
         }
 
-        @if (items.Any())
+        @if (destinations.Any())
         {
-            <div class="destination-grid">
-                @for (int i = 0; i < items.Count; i++)
-                {
-                    var item = items[i];
-					var url = $"/Package?destination={item.Country}&page=1";
-					var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
-                        ? item.ImageUrl
-                        : Url.Content("~/cusassests/images/trip/trip-img-1.png");
+            var d = destinations;
+            string Img(int idx) => idx < d.Count ? d[idx].ImageUrl : fallbackImages[idx % fallbackImages.Length];
+            string Label(int idx) => idx < d.Count ? d[idx].Country : string.Empty;
+            int TourCount(int idx) => idx < d.Count ? d[idx].TourCount : 0;
+            string CardUrl(int idx) => idx < d.Count ? $"/Package?destination={Uri.EscapeDataString(d[idx].Country)}&page=1" : "#";
 
-                    var gridClass = i switch
-                    {
-                        0 => "destination-card destination-large",
-                        1 => "destination-card destination-small",
-                        2 => "destination-card destination-wide",
-                        _ => "destination-card"
-                    };
-
-                    <div class="@gridClass">
-                        <div class="trip-wrapper trip-style-one p-relative h-100">
-                            <div class="trip-thumb image-overly">
-                                <a href="@url">
-                                    <img src="@imageUrl" alt="@item.Country">
-                                </a>
-                            </div>
-
-                            <div class="trip-tag">
-                                <div class="trip-number">
-                                    <span>
-                                        <a href="@url">@item.TourCount Tours</a>
-                                    </span>
+            <div class="row gy-24 destination-grid-row">
+                <!-- Left: one tall card spanning both rows -->
+                <div class="col-xl-4 col-lg-4 col-md-4 d-flex">
+                    <div class="trip-wrapper trip-style-one p-relative destination-tall w-100">
+                        <div class="trip-thumb image-overly h-100">
+                            <a href="@CardUrl(0)">
+                                <img src="@Img(0)" alt="@Label(0)" loading="eager" class="destination-tall-img">
+                            </a>
+                        </div>
+                        <div class="trip-tag">
+                            <div class="trip-number"><span><a href="@CardUrl(0)">@TourCount(0) Tours</a></span></div>
+                            <div class="trip-location"><span><a href="@CardUrl(0)">@Label(0)</a></span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: 2 rows of cards -->
+                <div class="col-xl-8 col-lg-8 col-md-8">
+                    <!-- Top row: 2 cards -->
+                    <div class="row gy-24 mb-24">
+                        <div class="col-md-6">
+                            <div class="trip-wrapper trip-style-one p-relative">
+                                <div class="trip-thumb image-overly">
+                                    <a href="@CardUrl(1)"><img src="@Img(1)" alt="@Label(1)" loading="lazy"></a>
                                 </div>
-                                <div class="trip-location">
-                                    <span>
-                                        <a href="@url">@item.Country</a>
-                                    </span>
+                                <div class="trip-tag">
+                                    <div class="trip-number"><span><a href="@CardUrl(1)">@TourCount(1) Tours</a></span></div>
+                                    <div class="trip-location"><span><a href="@CardUrl(1)">@Label(1)</a></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="trip-wrapper trip-style-one p-relative">
+                                <div class="trip-thumb image-overly">
+                                    <a href="@CardUrl(2)"><img src="@Img(2)" alt="@Label(2)" loading="lazy"></a>
+                                </div>
+                                <div class="trip-tag">
+                                    <div class="trip-number"><span><a href="@CardUrl(2)">@TourCount(2) Tours</a></span></div>
+                                    <div class="trip-location"><span><a href="@CardUrl(2)">@Label(2)</a></span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                }
+                    <!-- Bottom row: 3 cards -->
+                    <div class="row gy-24">
+                        <div class="col-md-4">
+                            <div class="trip-wrapper trip-style-one p-relative">
+                                <div class="trip-thumb image-overly">
+                                    <a href="@CardUrl(3)"><img src="@Img(3)" alt="@Label(3)" loading="lazy"></a>
+                                </div>
+                                <div class="trip-tag">
+                                    <div class="trip-number"><span><a href="@CardUrl(3)">@TourCount(3) Tours</a></span></div>
+                                    <div class="trip-location"><span><a href="@CardUrl(3)">@Label(3)</a></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="trip-wrapper trip-style-one p-relative">
+                                <div class="trip-thumb image-overly">
+                                    <a href="@CardUrl(4)"><img src="@Img(4)" alt="@Label(4)" loading="lazy"></a>
+                                </div>
+                                <div class="trip-tag">
+                                    <div class="trip-number"><span><a href="@CardUrl(4)">@TourCount(4) Tours</a></span></div>
+                                    <div class="trip-location"><span><a href="@CardUrl(4)">@Label(4)</a></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="trip-wrapper trip-style-one p-relative">
+                                <div class="trip-thumb image-overly">
+                                    <a href="@CardUrl(5)"><img src="@Img(5)" alt="@Label(5)" loading="lazy"></a>
+                                </div>
+                                <div class="trip-tag">
+                                    <div class="trip-number"><span><a href="@CardUrl(5)">@TourCount(5) Tours</a></span></div>
+                                    <div class="trip-location"><span><a href="@CardUrl(5)">@Label(5)</a></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>
