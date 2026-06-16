@@ -202,8 +202,8 @@ public sealed class AppDbContext:
             b.Property(x => x.Gender).HasMaxLength(20).IsRequired();
             b.Property(x => x.Email).HasMaxLength(320).IsRequired();
             b.Property(x => x.Nationality).HasMaxLength(100).IsRequired();
-            b.Property(x => x.TelCountryCode).HasMaxLength(10);
-            b.Property(x => x.TelAreaCode).HasMaxLength(10);
+            b.Property(x => x.TelCountryCode).HasMaxLength(20);
+            b.Property(x => x.TelAreaCode).HasMaxLength(20);
             b.Property(x => x.TelNumber).HasMaxLength(30);
             b.Property(x => x.MobileNumber).HasMaxLength(30);
             b.Property(x => x.Occupation).HasMaxLength(100);
@@ -216,8 +216,8 @@ public sealed class AppDbContext:
             b.Property(x => x.Insurance).HasMaxLength(300);
             b.Property(x => x.EmergencyName).HasMaxLength(200).IsRequired();
             b.Property(x => x.EmergencyRelationship).HasMaxLength(100).IsRequired();
-            b.Property(x => x.EmergencyTelCountryCode).HasMaxLength(10);
-            b.Property(x => x.EmergencyTelAreaCode).HasMaxLength(10);
+            b.Property(x => x.EmergencyTelCountryCode).HasMaxLength(20);
+            b.Property(x => x.EmergencyTelAreaCode).HasMaxLength(20);
             b.Property(x => x.EmergencyTelNumber).HasMaxLength(30);
             b.Property(x => x.EmergencyMobile).HasMaxLength(30);
             b.Property(x => x.HealthDeclaration).HasColumnType("text");

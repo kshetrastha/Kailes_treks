@@ -130,7 +130,7 @@ public sealed class KailashService(AppDbContext db) : IKailashService
             EmergencyTelAreaCode = dto.EmergencyTelAreaCode,
             EmergencyTelNumber = dto.EmergencyTelNumber,
             EmergencyMobile = dto.EmergencyMobile,
-            HealthDeclaration = JsonSerializer.Serialize(dto.HealthDeclaration, _json),
+            HealthDeclaration = string.IsNullOrWhiteSpace(dto.HealthDeclarationJson) ? "{}" : dto.HealthDeclarationJson,
             OtherHealthConcerns = dto.OtherHealthConcerns,
             SpecialRequests = dto.SpecialRequests,
             NumberOfTravellers = dto.NumberOfTravellers,

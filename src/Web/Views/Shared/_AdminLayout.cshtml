@@ -764,6 +764,13 @@
                                         class="sidebar-link"><i class="mdi mdi-email-alert-outline"></i><span class="hide-menu"> Trekking Inquiries</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/map-destinations"
                                         class="sidebar-link"><i class="mdi mdi-map-marker-multiple"></i><span class="hide-menu"> Map Destinations</span></a> </li>
+                                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
+                                        href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-temple-buddhist"></i><span class="hide-menu"> Kailash Booking</span></a>
+                                    <ul aria-expanded="false" class="collapse first-level">
+                                        <li class="sidebar-item"><a href="/admin/kailash" class="sidebar-link"><i class="mdi mdi-clipboard-list-outline"></i><span class="hide-menu"> Bookings</span></a></li>
+                                        <li class="sidebar-item"><a href="/admin/kailash/packages" class="sidebar-link"><i class="mdi mdi-format-list-bulleted"></i><span class="hide-menu"> Manage Packages</span></a></li>
+                                    </ul>
+                                </li>
                          @*        <li class="sidebar-item"> <a href="/admin/trekking"
                                         class="sidebar-link"><i class="mdi mdi-calendar-range"></i><span class="hide-menu"> Trekking Days</span></a> </li>
                                 <li class="sidebar-item"> <a href="/admin/itineraries"
@@ -853,6 +860,10 @@
                 else if (requestPath.Contains("/admin/company"))
                 {
                     breadcrumbSection = "Company";
+                }
+                else if (requestPath.Contains("/admin/kailash"))
+                {
+                    breadcrumbSection = "Kailash Booking";
                 }
             }
             <div class="row page-titles">
