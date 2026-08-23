@@ -1,0 +1,187 @@
+@using TravelCleanArch.Domain.Entities
+@model TravelCleanArch.Domain.Entities.PackageBooking
+@{
+    ViewData["Title"] = $"Booking {Model.Reference}";
+
+    string BadgeFor(PackageBookingStatus s) => s switch
+    {
+        PackageBookingStatus.Pending => "bg-warning text-dark",
+        PackageBookingStatus.Contacted => "bg-info",
+        PackageBookingStatus.Booked => "bg-success",
+        PackageBookingStatus.Completed => "bg-primary",
+        PackageBookingStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+@functions {
+    // Renders one label/value row, skipping entirely when there is nothing to show.
+    Microsoft.AspNetCore.Html.IHtmlContent Row(string label, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return Microsoft.AspNetCore.Html.HtmlString.Empty;
+
+        return new Microsoft.AspNetCore.Html.HtmlString(
+            $"<div class=\"row border-bottom py-2\"><div class=\"col-5 text-muted small\">{System.Net.WebUtility.HtmlEncode(label)}</div><div class=\"col-7\">{System.Net.WebUtility.HtmlEncode(value)}</div></div>");
+    }
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">Booking @Model.Reference</h2>
+            <span class="badge @BadgeFor(Model.Status)">@Model.Status</span>
+            <span class="text-muted small ms-2">Submitted @Model.SubmittedAtUtc.ToString("dd MMM yyyy HH:mm") UTC</span>
+        </div>
+        <a class="btn btn-outline-secondary" href="/admin/bookings">Back to list</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            <div class="card mb-4">
+                <div class="card-header"><strong>Package (as booked)</strong></div>
+                <div class="card-body">
+                    @Row("Package", Model.PackageName)
+                    @Row("Slug", Model.PackageSlug)
+                    @Row("Destination", Model.PackageDestination)
+                    @Row("Region", Model.PackageRegion)
+                    @Row("Trip type", Model.PackageTrekkingType)
+                    @Row("Difficulty", Model.PackageDifficulty)
+                    @Row("Duration", $"{Model.PackageDurationDays} days")
+                    @Row("Max altitude", Model.PackageMaxAltitudeMeters > 0 ? $"{Model.PackageMaxAltitudeMeters:N0} m" : null)
+                    @Row("Price per person", Model.PriceOnRequest || Model.PricePerPerson is null
+                        ? "On request"
+                        : $"{Model.CurrencyCode} {Model.PricePerPerson.Value:N2}")
+                    @Row("Travellers", Model.NumberOfTravellers.ToString())
+                    @Row("Estimated total", Model.PriceOnRequest || Model.TotalAmount is null
+                        ? "On request"
+                        : $"{Model.CurrencyCode} {Model.TotalAmount.Value:N2}")
+                    @Row("Preferred start date", Model.PreferredStartDate?.ToString("dd MMM yyyy"))
+                    @Row("Fixed departure id", Model.FixedDepartureId?.ToString())
+                    <div class="mt-3">
+                        <a class="btn btn-sm btn-outline-primary" href="/packages/@Model.PackageSlug" target="_blank">Open package page</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><strong>Traveller details</strong></div>
+                <div class="card-body">
+                    @Row("Full name", Model.FullName)
+                    @Row("Email", Model.Email)
+                    @Row("Phone", Model.Phone)
+                    @Row("Alternate phone", Model.AlternatePhone)
+                    @Row("Date of birth", Model.DateOfBirth?.ToString("dd MMM yyyy"))
+                    @Row("Gender", Model.Gender)
+                    @Row("Nationality", Model.Nationality)
+                    @Row("Passport number", Model.PassportNumber)
+                    @Row("Address", Model.Address)
+                    @Row("City", Model.City)
+                    @Row("Postal code", Model.PostalCode)
+                    @Row("Country", Model.Country)
+                    @Row("Emergency contact", Model.EmergencyContactName)
+                    @Row("Emergency phone", Model.EmergencyContactPhone)
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.SpecialRequests))
+            {
+                <div class="card mb-4">
+                    <div class="card-header"><strong>Special requests</strong></div>
+                    <div class="card-body">
+                        <p class="mb-0" style="white-space:pre-wrap">@Model.SpecialRequests</p>
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header"><strong>Request origin &amp; device</strong></div>
+                <div class="card-body">
+                    @Row("IP address", Model.IpAddress)
+                    @Row("Country", string.IsNullOrWhiteSpace(Model.IpCountryCode)
+                        ? Model.IpCountry
+                        : $"{Model.IpCountry} ({Model.IpCountryCode})")
+                    @Row("Region", Model.IpRegion)
+                    @Row("City", Model.IpCity)
+                    @Row("Postal code", Model.IpPostalCode)
+                    @Row("Time zone", Model.IpTimeZone)
+                    @Row("Network / ISP", Model.IpOrganisation)
+                    @Row("Coordinates", Model.IpLatitude is not null && Model.IpLongitude is not null
+                        ? $"{Model.IpLatitude}, {Model.IpLongitude}"
+                        : null)
+                    @Row("Browser language", Model.BrowserLanguage)
+                    @Row("Referrer", Model.Referrer)
+                    @Row("Source page", Model.SourcePage)
+                    @Row("User agent", Model.UserAgent)
+
+                    @if (string.IsNullOrWhiteSpace(Model.IpCountry))
+                    {
+                        <p class="text-muted small mt-3 mb-0">
+                            No geolocation was recorded. This happens for local/private addresses,
+                            or when IP geolocation is disabled or the provider was unreachable.
+                        </p>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><strong>Update status</strong></div>
+                <div class="card-body">
+                    <form method="post" action="/admin/bookings/@Model.Id/status">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label" for="statusSelect">Status</label>
+                            <select id="statusSelect" name="status" class="form-select">
+                                @foreach (var s in Enum.GetValues<PackageBookingStatus>())
+                                {
+                                    <option value="@s" selected="@(s == Model.Status)">@s</option>
+                                }
+                            </select>
+                            <div class="form-text">
+                                Pending &rarr; Contacted &rarr; Booked once the trip is confirmed, then Completed after travel.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="adminNotes">Internal notes</label>
+                            <textarea id="adminNotes" name="adminNotes" rows="6" class="form-control"
+                                      placeholder="Call outcome, deposit received, agreed dates…">@Model.AdminNotes</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Save</button>
+                    </form>
+
+                    @if (Model.StatusChangedAtUtc is not null)
+                    {
+                        <p class="text-muted small mt-3 mb-0">
+                            Status last changed @Model.StatusChangedAtUtc.Value.ToString("dd MMM yyyy HH:mm") UTC.
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><strong>Quick actions</strong></div>
+                <div class="card-body">
+                    <a class="btn btn-outline-primary w-100 mb-2" href="mailto:@Model.Email?subject=Your%20booking%20@Model.Reference">
+                        Email traveller
+                    </a>
+                    <a class="btn btn-outline-primary w-100" href="tel:@Model.Phone">Call traveller</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

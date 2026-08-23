@@ -1,0 +1,171 @@
+@using TravelCleanArch.Domain.Entities
+@model TravelCleanArch.Application.Abstractions.Travel.PackageBookingPagedResult
+@{
+    ViewData["Title"] = "Package Bookings";
+
+    var search = ViewBag.Search as string;
+    var activeStatus = ViewBag.Status as string;
+    var totalPages = Math.Max(1, (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize));
+
+    var firstItemIndex = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var lastItemIndex = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+
+    string BadgeFor(PackageBookingStatus s) => s switch
+    {
+        PackageBookingStatus.Pending => "bg-warning text-dark",
+        PackageBookingStatus.Contacted => "bg-info",
+        PackageBookingStatus.Booked => "bg-success",
+        PackageBookingStatus.Completed => "bg-primary",
+        PackageBookingStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    int CountFor(PackageBookingStatus s) => Model.StatusCounts.TryGetValue(s, out var c) ? c : 0;
+    var allStatuses = Enum.GetValues<PackageBookingStatus>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Package Bookings</h2>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    <div class="row mb-3">
+        <div class="col">
+            <a href="/admin/bookings" class="btn btn-sm @(activeStatus is null ? "btn-dark" : "btn-outline-dark") mb-1">
+                All <span class="badge bg-light text-dark">@Model.StatusCounts.Values.Sum()</span>
+            </a>
+            @foreach (var s in allStatuses)
+            {
+                <a href="/admin/bookings?status=@s"
+                   class="btn btn-sm @(string.Equals(activeStatus, s.ToString(), StringComparison.OrdinalIgnoreCase) ? "btn-dark" : "btn-outline-dark") mb-1">
+                    @s <span class="badge @BadgeFor(s)">@CountFor(s)</span>
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-center mb-3">
+                @if (activeStatus is not null)
+                {
+                    <input type="hidden" name="status" value="@activeStatus" />
+                }
+                <div class="col-md-4">
+                    <input type="search" name="search" value="@search" class="form-control form-control-sm"
+                           placeholder="Search reference, name, email, phone or package" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                    @if (!string.IsNullOrWhiteSpace(search))
+                    {
+                        <a href="/admin/bookings@(activeStatus is null ? "" : $"?status={activeStatus}")" class="btn btn-sm btn-outline-secondary">Clear</a>
+                    }
+                </div>
+                <div class="col-auto ms-auto">
+                    <select name="pageSize" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+                        <option value="20" selected="@(Model.PageSize == 20)">20 Rows/Page</option>
+                        <option value="50" selected="@(Model.PageSize == 50)">50 Rows/Page</option>
+                        <option value="100" selected="@(Model.PageSize == 100)">100 Rows/Page</option>
+                    </select>
+                </div>
+            </form>
+
+            <div id="no-more-tables" class="table-responsive mb-2">
+                <table class="table table-hover color-table info-table align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width:150px;">Reference</th>
+                            <th>Package</th>
+                            <th>Traveller</th>
+                            <th style="width:110px;">Travellers</th>
+                            <th style="width:130px;">Total</th>
+                            <th style="width:150px;">Origin</th>
+                            <th style="width:150px;">Submitted</th>
+                            <th style="width:110px;">Status</th>
+                            <th style="width:90px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Count == 0)
+                        {
+                            <tr><td colspan="9" class="text-center text-muted py-4">No bookings found.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var b in Model.Items)
+                            {
+                                <tr>
+                                    <td data-label="Reference"><code>@b.Reference</code></td>
+                                    <td data-label="Package">
+                                        @b.PackageName
+                                        <div class="text-muted small">@b.PackageDurationDays days@(string.IsNullOrWhiteSpace(b.PackageDestination) ? "" : $" · {b.PackageDestination}")</div>
+                                    </td>
+                                    <td data-label="Traveller">
+                                        @b.FullName
+                                        <div class="text-muted small">@b.Email<br />@b.Phone</div>
+                                    </td>
+                                    <td data-label="Travellers">@b.NumberOfTravellers</td>
+                                    <td data-label="Total">
+                                        @if (b.PriceOnRequest || b.TotalAmount is null)
+                                        {
+                                            <span class="text-muted">On request</span>
+                                        }
+                                        else
+                                        {
+                                            <text>@b.CurrencyCode @b.TotalAmount.Value.ToString("N0")</text>
+                                        }
+                                    </td>
+                                    <td data-label="Origin">
+                                        @if (!string.IsNullOrWhiteSpace(b.IpCountry))
+                                        {
+                                            <span>@b.IpCountry</span>
+                                            <div class="text-muted small">@b.IpCity</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">@(b.IpAddress ?? "unknown")</span>
+                                        }
+                                    </td>
+                                    <td data-label="Submitted">
+                                        @b.SubmittedAtUtc.ToString("dd MMM yyyy")
+                                        <div class="text-muted small">@b.SubmittedAtUtc.ToString("HH:mm") UTC</div>
+                                    </td>
+                                    <td data-label="Status"><span class="badge @BadgeFor(b.Status)">@b.Status</span></td>
+                                    <td data-label="Actions">
+                                        <a class="btn btn-sm btn-outline-primary" href="/admin/bookings/@b.Id">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.Page <= 1 ? "disabled" : null)">
+                            <a class="page-link" href="?page=@(Model.Page - 1)&pageSize=@Model.PageSize&status=@activeStatus&search=@search">Previous</a>
+                        </li>
+                        @for (var p = 1; p <= totalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.Page ? "active" : null)">
+                                <a class="page-link" href="?page=@p&pageSize=@Model.PageSize&status=@activeStatus&search=@search">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.Page >= totalPages ? "disabled" : null)">
+                            <a class="page-link" href="?page=@(Model.Page + 1)&pageSize=@Model.PageSize&status=@activeStatus&search=@search">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="text-muted small">Showing @firstItemIndex to @lastItemIndex of @Model.TotalCount records (Page @Model.Page of @totalPages)</div>
+            </div>
+        </div>
+    </div>
+</div>

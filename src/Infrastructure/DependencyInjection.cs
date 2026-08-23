@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,6 +72,8 @@ public static class DependencyInjection
         services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
         services.AddScoped<IPrivacyPolicyService, PrivacyPolicyService>();
         services.AddScoped<IAboutUsService, AboutUsService>();
+        services.AddScoped<IPackageBookingService, PackageBookingService>();
+        services.AddHttpClient<IIpGeolocationService, IpGeolocationService>();
         services.AddScoped<IServiceTypeService, ServiceTypeService>();
         services.AddScoped<IServiceRegionService, ServiceRegionService>();
         services.AddScoped<IServiceRegionFaqService, ServiceRegionFaqService>();

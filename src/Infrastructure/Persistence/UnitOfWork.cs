@@ -1,4 +1,4 @@
-using TravelCleanArch.Application.Abstractions.Company;
+﻿using TravelCleanArch.Application.Abstractions.Company;
 using TravelCleanArch.Application.Abstractions.Master;
 using TravelCleanArch.Application.Abstractions.Persistence;
 using TravelCleanArch.Application.Abstractions.Travel;
@@ -33,6 +33,7 @@ public sealed class UnitOfWork(AppDbContext dbContext) : IUnitOfWork
     public ITermsAndConditionService TermsAndConditionService => new TermsAndConditionService(dbContext);
     public IPrivacyPolicyService PrivacyPolicyService => new PrivacyPolicyService(dbContext);
     public IAboutUsService AboutUsService => new AboutUsService(dbContext);
+    public IPackageBookingService PackageBookingService => new PackageBookingService(dbContext);
     public IBannerService BannerService => new BannerService(dbContext);
     public IMasterFaqService MasterFaqService => new MasterFaqService(dbContext);
 

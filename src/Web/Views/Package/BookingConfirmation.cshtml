@@ -1,0 +1,93 @@
+@model TravelCleanArch.Web.Models.Package.PackageBookingConfirmationViewModel
+@{
+    ViewData["Title"] = "Booking Received";
+}
+
+<div class="section-space-top"></div>
+
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">Booking Received</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>Booking Received</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xxl-8 col-xl-10 col-lg-10">
+
+                <div class="text-center mb-40">
+                    <h2 class="mb-10">Thank you, @Model.FullName!</h2>
+                    <p>
+                        We have received your booking request for <strong>@Model.PackageName</strong>.
+                        Our team will contact you at <strong>@Model.Email</strong> shortly to confirm availability.
+                    </p>
+                </div>
+
+                <div class="mb-30">
+                    <div class="booking-sidebar-price-item d-flex justify-content-between">
+                        <span>Booking Reference</span>
+                        <strong>@Model.Reference</strong>
+                    </div>
+                    <div class="booking-sidebar-price-item d-flex justify-content-between">
+                        <span>Package</span>
+                        <span>@Model.PackageName</span>
+                    </div>
+                    <div class="booking-sidebar-price-item d-flex justify-content-between">
+                        <span>Travellers</span>
+                        <span>@Model.NumberOfTravellers</span>
+                    </div>
+                    @if (Model.PreferredStartDate is not null)
+                    {
+                        <div class="booking-sidebar-price-item d-flex justify-content-between">
+                            <span>Preferred Start Date</span>
+                            <span>@Model.PreferredStartDate.Value.ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+                    <div class="booking-sidebar-price-item d-flex justify-content-between">
+                        <strong>Estimated Total</strong>
+                        <strong>
+                            @if (Model.PriceOnRequest || Model.TotalAmount is null)
+                            {
+                                <text>On request</text>
+                            }
+                            else
+                            {
+                                <text>@Model.CurrencyCode @Model.TotalAmount.Value.ToString("N0")</text>
+                            }
+                        </strong>
+                    </div>
+                </div>
+
+                <p class="mb-30">
+                    <small>Please quote your reference <strong>@Model.Reference</strong> in any correspondence.
+                    No payment has been taken — this is a request, and our team will send payment instructions once availability is confirmed.</small>
+                </p>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a class="bd-primary-btn btn-style has-arrow is-bg radius-60"
+                       asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@Model.PackageSlug">
+                        Back to Package
+                    </a>
+                    <a class="bd-btn btn-style text-btn" href="/contact">Contact Us</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

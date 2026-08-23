@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TravelCleanArch.Domain.Entities;
@@ -89,6 +89,7 @@ public sealed class AppDbContext:
     public DbSet<TrekkingInquiry> TrekkingInquiries => Set<TrekkingInquiry>();
     public DbSet<KailashYatraPackage> KailashYatraPackages => Set<KailashYatraPackage>();
     public DbSet<KailashBooking> KailashBookings => Set<KailashBooking>();
+    public DbSet<PackageBooking> PackageBookings => Set<PackageBooking>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -97,6 +98,18 @@ public sealed class AppDbContext:
         builder.Entity<AppUser>(b =>
         {
             b.Property(x => x.FullName).HasMaxLength(200);
+        });
+
+        builder.Entity<PackageBooking>(b =>
+        {
+            b.HasIndex(x => x.Reference).IsUnique();
+            b.HasIndex(x => x.Status);
+            b.HasIndex(x => x.SubmittedAtUtc);
+            b.Property(x => x.Reference).HasMaxLength(32);
+            b.HasOne(x => x.Trekking)
+                .WithMany()
+                .HasForeignKey(x => x.TrekkingId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         //ConfigureExpeditions(builder);

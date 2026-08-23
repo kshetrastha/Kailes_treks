@@ -1,4 +1,4 @@
-using TravelCleanArch.Application.Abstractions.Company;
+﻿using TravelCleanArch.Application.Abstractions.Company;
 using TravelCleanArch.Application.Abstractions.Master;
 using TravelCleanArch.Application.Abstractions.Travel;
 
@@ -20,6 +20,7 @@ public interface IUnitOfWork
     ITermsAndConditionService TermsAndConditionService { get; }
     IPrivacyPolicyService PrivacyPolicyService { get; }
     IAboutUsService AboutUsService { get; }
+    IPackageBookingService PackageBookingService { get; }
     IBannerService BannerService { get; }
     IMasterFaqService MasterFaqService { get; }
     IExpeditionService ExpeditionService { get; }

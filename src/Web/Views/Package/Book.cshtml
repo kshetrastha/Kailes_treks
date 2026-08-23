@@ -1,0 +1,405 @@
+@model TravelCleanArch.Web.Models.Package.PackageBookingFormViewModel
+@{
+    ViewData["Title"] = $"Book {Model.Package.Name}";
+    var p = Model.Package;
+    var currency = p.CurrencyCode;
+    var priceText = p.PriceOnRequest || p.Price is null ? "On request" : $"{currency} {p.Price:N0}";
+}
+
+<div class="section-space-top"></div>
+
+<!-- breadcrumb area start -->
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">Complete Your Booking</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span><a asp-controller="Package" asp-action="TrekkingDetails" asp-route-slug="@p.Slug">@p.Name</a></span>
+                                <span>Booking</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb area end -->
+
+<section class="bd-booking-area section-space">
+    <div class="container">
+
+        <div class="text-center mb-40">
+            <h2 class="mb-10">Complete Your Booking</h2>
+            <p>@p.Name</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-xxl-8 col-xl-10 col-lg-10">
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <strong>Please correct the following:</strong>
+                        <div asp-validation-summary="All" class="mb-0"></div>
+                    </div>
+                }
+
+                <form class="booking-form" method="post"
+                      asp-controller="Package" asp-action="Book" asp-route-slug="@p.Slug" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <!-- TOUR SUMMARY -->
+                    <div class="mb-30">
+                        <h5 class="mb-20">Tour Summary</h5>
+
+                        <div class="booking-sidebar-price-item d-flex justify-content-between">
+                            <span>Package</span>
+                            <span>@p.Name</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(p.Destination))
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Destination</span>
+                                <span>@p.Destination@(string.IsNullOrWhiteSpace(p.Region) ? "" : $" — {p.Region}")</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(p.TrekkingType))
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Trip Type</span>
+                                <span>@p.TrekkingType</span>
+                            </div>
+                        }
+                        <div class="booking-sidebar-price-item d-flex justify-content-between">
+                            <span>Duration</span>
+                            <span>@p.DurationDays Days</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(p.Difficulty))
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Difficulty</span>
+                                <span>@p.Difficulty</span>
+                            </div>
+                        }
+                        @if (p.MaxAltitudeMeters > 0)
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Max Altitude</span>
+                                <span>@p.MaxAltitudeMeters.ToString("N0") m</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(p.BestSeason))
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Best Season</span>
+                                <span>@p.BestSeason</span>
+                            </div>
+                        }
+                        <div class="booking-sidebar-price-item d-flex justify-content-between">
+                            <span>Price Per Person</span>
+                            <span id="pricePerPerson" data-price="@(p.Price?.ToString("F2") ?? "")">@priceText</span>
+                        </div>
+                    </div>
+
+                    <hr class="pb-20">
+
+                    <!-- TRIP DETAILS -->
+                    <h5 class="mb-20">Trip Details</h5>
+
+                    <div class="booking-card-grid">
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="NumberOfTravellers">Number of Travellers <span>*</span></label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="NumberOfTravellers" type="number" min="1" max="100" id="travellerCount" />
+                            </div>
+                            <span asp-validation-for="NumberOfTravellers" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="PreferredStartDate">Preferred Start Date</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="PreferredStartDate" type="date" />
+                            </div>
+                            <span asp-validation-for="PreferredStartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    @if (p.FixedDepartures.Count > 0)
+                    {
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="FixedDepartureId">Fixed Departure (optional)</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <select asp-for="FixedDepartureId" class="form-control">
+                                    <option value="">-- Choose a scheduled departure --</option>
+                                    @foreach (var d in p.FixedDepartures)
+                                    {
+                                        <option value="@d.Id">
+                                            @d.StartDate.ToString("dd MMM yyyy") &ndash; @d.EndDate.ToString("dd MMM yyyy")
+                                            (@d.ForDays days@(d.GroupSize is > 0 ? $", {d.GroupSize} seats" : ""))
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+
+                    <hr class="pb-20">
+
+                    <!-- PERSONAL DETAILS -->
+                    <h5 class="mb-20">Personal Details</h5>
+
+                    <div class="booking-card-grid">
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="FirstName">First Name <span>*</span></label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="FirstName" type="text" />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="LastName">Last Name <span>*</span></label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="LastName" type="text" />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="Email">Email <span>*</span></label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="Email" type="email" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="Phone">Phone <span>*</span></label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="Phone" type="text" />
+                            </div>
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="AlternatePhone">Alternate Phone / WhatsApp</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="AlternatePhone" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="DateOfBirth">Date of Birth</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="DateOfBirth" type="date" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="Gender">Gender</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <select asp-for="Gender" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="Nationality">Nationality</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="Nationality" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="PassportNumber">Passport Number</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="PassportNumber" type="text" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADDRESS -->
+                    <div class="booking-form-input-box">
+                        <div class="booking-form-input-title">
+                            <label asp-for="Address">Address</label>
+                        </div>
+                        <div class="booking-form-input">
+                            <input asp-for="Address" type="text" />
+                        </div>
+                    </div>
+
+                    <div class="booking-card-grid">
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="City">City</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="City" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="PostalCode">Postal Code</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="PostalCode" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="Country">Country</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="Country" type="text" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="pb-20">
+
+                    <!-- EMERGENCY CONTACT -->
+                    <h5 class="mb-20">Emergency Contact</h5>
+
+                    <div class="booking-card-grid">
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="EmergencyContactName">Contact Name</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="EmergencyContactName" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="booking-form-input-box">
+                            <div class="booking-form-input-title">
+                                <label asp-for="EmergencyContactPhone">Contact Phone</label>
+                            </div>
+                            <div class="booking-form-input">
+                                <input asp-for="EmergencyContactPhone" type="text" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="pb-20">
+
+                    <!-- SPECIAL REQUEST -->
+                    <div class="booking-form-input-box">
+                        <div class="booking-form-input-title">
+                            <label asp-for="SpecialRequests">Special Requests</label>
+                        </div>
+                        <div class="booking-form-input">
+                            <textarea asp-for="SpecialRequests" class="form-control" rows="4"
+                                      placeholder="Dietary needs, room sharing, medical conditions, arrival flight details…"></textarea>
+                        </div>
+                    </div>
+
+                    <hr class="pb-20">
+
+                    <!-- PRICE SUMMARY -->
+                    <div class="mb-30">
+                        <h5 class="mb-20">Price Summary</h5>
+
+                        @if (p.PriceOnRequest || p.Price is null)
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>Price</span>
+                                <span>On request — our team will confirm by email</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <span>@currency @p.Price?.ToString("N0") &times; <span id="guestCount">@Model.NumberOfTravellers</span></span>
+                                <span id="totalPrice">@currency @((p.Price * Model.NumberOfTravellers)?.ToString("N0"))</span>
+                            </div>
+
+                            <div class="booking-sidebar-price-item d-flex justify-content-between">
+                                <strong>Total</strong>
+                                <strong id="finalPrice">@currency @((p.Price * Model.NumberOfTravellers)?.ToString("N0"))</strong>
+                            </div>
+                        }
+                        <p class="mt-10 mb-0"><small>This is a booking request. No payment is taken now — our team will confirm availability and send payment instructions.</small></p>
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button type="submit" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                        Confirm Booking &rarr;
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var count = document.getElementById("travellerCount");
+            var priceEl = document.getElementById("pricePerPerson");
+            if (!count || !priceEl) return;
+
+            var unitPrice = parseFloat(priceEl.getAttribute("data-price"));
+            if (!isFinite(unitPrice)) return;
+
+            var currency = "@currency";
+            var guest = document.getElementById("guestCount");
+            var total = document.getElementById("totalPrice");
+            var final = document.getElementById("finalPrice");
+
+            function format(value) {
+                return currency + " " + value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+            }
+
+            count.addEventListener("input", function () {
+                var n = parseInt(count.value, 10);
+                if (!isFinite(n) || n < 1) n = 1;
+
+                if (guest) guest.textContent = n;
+                if (total) total.textContent = format(unitPrice * n);
+                if (final) final.textContent = format(unitPrice * n);
+            });
+        })();
+    </script>
+}
