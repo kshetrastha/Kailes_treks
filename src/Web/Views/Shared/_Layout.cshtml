@@ -1,4 +1,4 @@
-@using TravelCleanArch.Application.Abstractions.Persistence
+﻿@using TravelCleanArch.Application.Abstractions.Persistence
 @inject IUnitOfWork unitOfWork
 @{
     var nav = await unitOfWork.TrekkingService.GetPublicTrekkingHierarchyAsync(default);
@@ -324,6 +324,7 @@
                                         <li class="underline"><a href="team.html">Travel Guides</a></li>
                                         <li class="underline"><a href="destinations-right.html">Destinations</a></li>
                                         <li class="underline"><a href="/contact">Contact Now</a></li>
+                                        <li class="underline"><a asp-controller="Home" asp-action="PrivacyPolicy">Privacy Policy</a></li>
                                     </ul>
                                 </div>
                             </div>

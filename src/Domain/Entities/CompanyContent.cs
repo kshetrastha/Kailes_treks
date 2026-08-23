@@ -147,3 +147,12 @@ public sealed class MasterFaq : BaseEntity
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 }
+
+public sealed class PrivacyPolicySection : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string ContentHtml { get; set; } = string.Empty;
+    public int Ordering { get; set; }
+    public bool IsContactBlock { get; set; }
+    public bool IsPublished { get; set; } = true;
+}

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace TravelCleanArch.Web.Areas.Admin.Models;
@@ -118,6 +118,16 @@ public sealed class TermsAndConditionFormViewModel
     public bool IsPublished { get; set; } = true;
 }
 
+
+public sealed class PrivacyPolicySectionFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(280)] public string Title { get; set; } = string.Empty;
+    [Required, StringLength(50000)] public string ContentHtml { get; set; } = string.Empty;
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsContactBlock { get; set; }
+    public bool IsPublished { get; set; } = true;
+}
 
 public sealed class MasterFaqFormViewModel
 {

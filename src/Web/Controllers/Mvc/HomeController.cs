@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TravelCleanArch.Application.Abstractions.Persistence;
@@ -186,6 +186,27 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
             .ToList();
 
         return View(new MasterFaqPageViewModel { Faqs = faqs });
+    }
+
+    [HttpGet("privacy-policy")]
+    public async Task<IActionResult> PrivacyPolicy(CancellationToken ct)
+    {
+        var sections = await uow.PrivacyPolicyService.ListOrderedAsync(true, ct);
+
+        var model = new PrivacyPolicyPageViewModel
+        {
+            Sections = sections
+                .Where(x => !x.IsContactBlock)
+                .Select(x => new PrivacyPolicySectionViewModel { Title = x.Title, ContentHtml = x.ContentHtml })
+                .ToList(),
+            ContactBlocks = sections
+                .Where(x => x.IsContactBlock)
+                .Select(x => new PrivacyPolicySectionViewModel { Title = x.Title, ContentHtml = x.ContentHtml })
+                .ToList(),
+            LastUpdatedUtc = sections.Count == 0 ? null : sections.Max(x => x.UpdatedAtUtc)
+        };
+
+        return View(model);
     }
 
     [HttpGet("routes/{destination}")]

@@ -18,6 +18,7 @@ public interface IUnitOfWork
     IReviewService ReviewService { get; }
     IBlogPostService BlogPostService { get; }
     ITermsAndConditionService TermsAndConditionService { get; }
+    IPrivacyPolicyService PrivacyPolicyService { get; }
     IBannerService BannerService { get; }
     IMasterFaqService MasterFaqService { get; }
     IExpeditionService ExpeditionService { get; }

@@ -1,0 +1,66 @@
+@model TravelCleanArch.Web.Models.Home.PrivacyPolicyPageViewModel
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="section-space-top"></div>
+
+<!-- breadcrumb area start -->
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">Privacy Policy</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>Privacy Policy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb area end -->
+
+<section class="section-space">
+    <div class="container">
+        <div class="policy-wrapper policy-translate p-relative z-index-1">
+            @if (Model.Sections.Count == 0 && Model.ContactBlocks.Count == 0)
+            {
+                <div class="policy-item">
+                    <h4 class="policy-title">Privacy Policy</h4>
+                    <p>Our privacy policy will be published here shortly. Please contact us if you have any questions in the meantime.</p>
+                </div>
+            }
+
+            @foreach (var item in Model.Sections)
+            {
+                <div class="policy-item">
+                    <h4 class="policy-title">@item.Title</h4>
+                    @Html.Raw(item.ContentHtml)
+                </div>
+            }
+
+            @foreach (var contact in Model.ContactBlocks)
+            {
+                <div class="policy-contact">
+                    <h4 class="policy-title">@contact.Title</h4>
+                    @Html.Raw(contact.ContentHtml)
+                </div>
+            }
+
+            @if (Model.LastUpdatedUtc is not null)
+            {
+                <div class="policy-item mt-30">
+                    <p class="mb-0 text-muted"><small>Last updated: @Model.LastUpdatedUtc.Value.ToString("dd MMMM yyyy")</small></p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

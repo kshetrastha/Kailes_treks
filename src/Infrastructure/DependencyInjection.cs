@@ -70,6 +70,7 @@ public static class DependencyInjection
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IBlogPostService, BlogPostService>();
         services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
+        services.AddScoped<IPrivacyPolicyService, PrivacyPolicyService>();
         services.AddScoped<IServiceTypeService, ServiceTypeService>();
         services.AddScoped<IServiceRegionService, ServiceRegionService>();
         services.AddScoped<IServiceRegionFaqService, ServiceRegionFaqService>();
