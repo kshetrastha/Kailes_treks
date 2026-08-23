@@ -1,4 +1,4 @@
-using TravelCleanArch.Application.Abstractions.Travel;
+﻿using TravelCleanArch.Application.Abstractions.Travel;
 using TravelCleanArch.Domain.Entities;
 
 namespace TravelCleanArch.Web.Models.Home;
@@ -32,4 +32,7 @@ public sealed class HomeIndexViewModel
     public List<TrekkingCountryGroupDto> TrekkingCountryGroupDtos { get; set; } =new List<TrekkingCountryGroupDto>();
      public List<TrekkingCountryPackageCountDto> TrekkingCountryPackageCountDtos { get; set; } = new List<TrekkingCountryPackageCountDto>();
     public IReadOnlyList<HomeReviewViewModel> Reviews { get; init; } = [];
+
+    /// <summary>Content for the home page About section, managed under Admin / Company / About Us.</summary>
+    public AboutUsPageViewModel? AboutUs { get; init; }
 }

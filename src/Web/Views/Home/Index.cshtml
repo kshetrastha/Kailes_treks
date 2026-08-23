@@ -1,4 +1,4 @@
-@using TravelCleanArch.Domain.Entities
+﻿@using TravelCleanArch.Domain.Entities
 @using TravelCleanArch.Application.Abstractions.Travel
 @using TravelCleanArch.Web.Models.Home
 @model TravelCleanArch.Web.Models.Home.HomeIndexViewModel
@@ -31,41 +31,24 @@
         ? Url.Content(images[1].ImagePath)
         : Url.Content("~/cusassests/images/banner/banner-1-img-2.png");
 
-    var aboutDesc = !string.IsNullOrWhiteSpace(aboutUs?.Description)
-        ? aboutUs.Description
-        : @"<div class='section-title-wrapper mb-35'>
-                <span class='section-subtitle mb-15'>About Our Company</span>
-                <h2 class='section-title mb-20'>Explore the Himalayas with Trusted Experts</h2>
-                <p style='text-align: justify;'>
-                    Welcome to Visit Kailash Treks Nepal, a professional trekking and tour operator offering unforgettable adventures across Nepal, Tibet, India, and Bhutan. We specialize in organizing Kailash Manasarovar tours, Himalayan trekking, rafting adventures, and spiritual pilgrimage journeys. Our experienced team ensures every trip is safe, comfortable, and perfectly organized for travelers from around the world.
-                </p>
-            </div>
-            <div class='about-feature-list'>
-                <ul>
-                    <li>
-                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
-                        <p>Expert trekking guides and local travel specialists</p>
-                    </li>
-                    <li>
-                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
-                        <p>Kailash Manasarovar and Himalayan pilgrimage tours</p>
-                    </li>
-                    <li>
-                        <span class='list-icon'><i class='fa-solid fa-check'></i></span>
-                        <p>Safe, reliable, and well-planned travel experiences</p>
-                    </li>
-                </ul>
-            </div>";
+    // About section content comes from Admin / Company / About Us (same record as the /about-us page).
+    var about = Model.AboutUs;
 
-    var abtImages = aboutUs?.Images?.ToList() ?? new List<WhoWeAreImageItemViewModel>();
-    var abtmainImage = !string.IsNullOrWhiteSpace(aboutUs?.ImagePath)
-        ? Url.Content(aboutUs.ImagePath)
+    var abtmainImage = !string.IsNullOrWhiteSpace(about?.PrimaryImagePath)
+        ? Url.Content($"~/{about.PrimaryImagePath}")
         : Url.Content("~/cusassests/images/about/about-img-1.png");
 
-    var abtsecondaryImage = abtImages.Count > 0 && !string.IsNullOrWhiteSpace(abtImages[0].ImagePath)
-        ? Url.Content(abtImages[0].ImagePath)
+    var abtsecondaryImage = !string.IsNullOrWhiteSpace(about?.SecondaryImagePath)
+        ? Url.Content($"~/{about.SecondaryImagePath}")
         : Url.Content("~/cusassests/images/about/about-img-2.png");
 
+    var aboutSubtitle = !string.IsNullOrWhiteSpace(about?.Subtitle) ? about.Subtitle : "About Our Company";
+    var aboutTitle = !string.IsNullOrWhiteSpace(about?.Title) ? about.Title : "Explore the Himalayas with Trusted Experts";
+    var aboutBadge = about?.BadgeText;
+    var aboutPhone = !string.IsNullOrWhiteSpace(about?.ContactPhone) ? about.ContactPhone : "+977-9851008008";
+    var aboutButtonText = !string.IsNullOrWhiteSpace(about?.ButtonText) ? about.ButtonText : "Know More";
+    var aboutButtonUrl = !string.IsNullOrWhiteSpace(about?.ButtonUrl) ? about.ButtonUrl : "/about-us";
+    var aboutHighlights = about?.Highlights ?? [];
 }
 <!-- Banner area start -->
 <section class="banner-area banner-height p-relative z-index-11 image-bg" style="background: url('@bgImage') no-repeat; width: 100%;">
@@ -182,9 +165,12 @@
                     <div class="about-thumb-two wow img-custom-anim-right image-hover-effect">
                         <img src="@abtsecondaryImage" alt="image">
                     </div>
-                    <div class="about-text">
-                        <h5 class="about-text-title">12+ Successful Years</h5>
-                    </div>
+                    @if (!string.IsNullOrWhiteSpace(aboutBadge))
+                    {
+                        <div class="about-text">
+                            <h5 class="about-text-title">@aboutBadge</h5>
+                        </div>
+                    }
                     <div class="about-badge">
                         <img src="~/cusassests/images/shapes/white-badge.png" alt="shape">
                                 
@@ -194,49 +180,41 @@
             <div class="col-xl-6 col-lg-6">
                 <div class="about-content">
                     <div class="section-title-wrapper mb-35">
-                        <span class="section-subtitle mb-15">About Our Company</span>
-                        <h2 class="section-title mb-20">Explore the Himalayas with Trusted Experts</h2>
-                        <p style="text-align:justify">
-                            Welcome to Visit Kailash Treks Nepal, a professional trekking and tour operator offering unforgettable adventures across Nepal, Tibet, India, and Bhutan.
-
-                            We specialize in organizing Kailash Manasarovar tours, Himalayan trekking, rafting adventures, and spiritual pilgrimage journeys. Our experienced team ensures every trip is safe, comfortable, and perfectly organized for travelers from around the world.
-                        </p>
+                        <span class="section-subtitle mb-15">@aboutSubtitle</span>
+                        <h2 class="section-title mb-20">@aboutTitle</h2>
+                        @if (!string.IsNullOrWhiteSpace(about?.Description))
+                        {
+                            <p style="text-align:justify">@about.Description</p>
+                        }
                     </div>
-                    <div class="about-feature-list">
-                        <ul>
-                            <li>
-                                <span class="list-icon">
-                                    <i class="fa-solid fa-check"></i>
-                                </span>
-                                <p>Expert trekking guides and local travel specialists</p>
-                            </li>
-                            <li>
-                                <span class="list-icon">
-                                    <i class="fa-solid fa-check"></i>
-                                </span>
-                                <p>Kailash Manasarovar and Himalayan pilgrimage tours</p>
-                            </li>
-                            <li>
-                                <span class="list-icon">
-                                    <i class="fa-solid fa-check"></i>
-                                </span>
-                                <p>Safe, reliable, and well-planned travel experiences</p>
-                            </li>
-                        </ul>
-                    </div>
+                    @if (aboutHighlights.Count > 0)
+                    {
+                        <div class="about-feature-list">
+                            <ul>
+                                @foreach (var highlight in aboutHighlights)
+                                {
+                                    <li>
+                                        <span class="list-icon">
+                                            <i class="fa-solid fa-check"></i>
+                                        </span>
+                                        <p>@highlight</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
                     <div class="about-btn-wrap">
                         <div class="about-btn">
-                            <a href="contact.html" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                            <a href="@aboutButtonUrl" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
                                 <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
-                                <span class="bd-primary-btn-text">Know More</span>
+                                <span class="bd-primary-btn-text">@aboutButtonText</span>
                                 <span class="bd-primary-btn-circle"></span>
                                 <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
                             </a>
-
                         </div>
                         <div class="about-call">
                             <span><i class="icon-support"></i></span>
-                            <a class="fw-5" href="tel:18004536744">+977-9851008008</a>
+                            <a class="fw-5" href="@("tel:" + aboutPhone.Replace(" ", string.Empty).Replace("-", string.Empty))">@aboutPhone</a>
                         </div>
                     </div>
                 </div>

@@ -63,29 +63,53 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="PrimaryImage" class="form-label">Primary image</label>
-                        <input asp-for="PrimaryImage" type="file" accept="image/*" class="form-control" />
+                        <input asp-for="PrimaryImage"
+                               type="file"
+                               accept="image/*"
+                               class="form-control js-crop-image"
+                               data-aspect-ratio="0.8734177215"
+                               data-crop-width="690"
+                               data-crop-height="790"
+                               data-preview-target="about-primary-preview" />
+                        <small class="text-muted">Crop is opened before upload (690:790 portrait).</small>
+                        <div class="mt-2">
+                            <img id="about-primary-preview"
+                                 src="@primaryPreview"
+                                 alt="Primary image"
+                                 style="max-height:150px; @(primaryPreview is null ? "display:none;" : "")"
+                                 class="img-thumbnail" />
+                        </div>
                         @if (primaryPreview is not null)
                         {
-                            <div class="mt-2">
-                                <img src="@primaryPreview" alt="Primary image" style="max-height:120px;" class="img-thumbnail" />
-                                <div class="form-check mt-2">
-                                    <input asp-for="RemovePrimaryImage" class="form-check-input" />
-                                    <label asp-for="RemovePrimaryImage" class="form-check-label">Remove this image</label>
-                                </div>
+                            <div class="form-check mt-2">
+                                <input asp-for="RemovePrimaryImage" class="form-check-input" />
+                                <label asp-for="RemovePrimaryImage" class="form-check-label">Remove this image</label>
                             </div>
                         }
                     </div>
                     <div class="col-md-6 mb-3">
                         <label asp-for="SecondaryImage" class="form-label">Secondary image</label>
-                        <input asp-for="SecondaryImage" type="file" accept="image/*" class="form-control" />
+                        <input asp-for="SecondaryImage"
+                               type="file"
+                               accept="image/*"
+                               class="form-control js-crop-image"
+                               data-aspect-ratio="0.9114927345"
+                               data-crop-width="690"
+                               data-crop-height="757"
+                               data-preview-target="about-secondary-preview" />
+                        <small class="text-muted">Crop is opened before upload (690:757 portrait).</small>
+                        <div class="mt-2">
+                            <img id="about-secondary-preview"
+                                 src="@secondaryPreview"
+                                 alt="Secondary image"
+                                 style="max-height:150px; @(secondaryPreview is null ? "display:none;" : "")"
+                                 class="img-thumbnail" />
+                        </div>
                         @if (secondaryPreview is not null)
                         {
-                            <div class="mt-2">
-                                <img src="@secondaryPreview" alt="Secondary image" style="max-height:120px;" class="img-thumbnail" />
-                                <div class="form-check mt-2">
-                                    <input asp-for="RemoveSecondaryImage" class="form-check-input" />
-                                    <label asp-for="RemoveSecondaryImage" class="form-check-label">Remove this image</label>
-                                </div>
+                            <div class="form-check mt-2">
+                                <input asp-for="RemoveSecondaryImage" class="form-check-input" />
+                                <label asp-for="RemoveSecondaryImage" class="form-check-label">Remove this image</label>
                             </div>
                         }
                     </div>
@@ -151,6 +175,30 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/shared-image-cropper.js"></script>
+    <script>
+        // Bound through jQuery on purpose: the cropper writes the cropped file back to the
+        // input and re-fires "change" with jQuery's .trigger(), which native DOM listeners
+        // never receive. Binding natively would leave the preview showing the pre-crop image.
+        $(function () {
+            $(document).on("change", ".js-crop-image", function () {
+                var input = this;
+                var previewId = input.getAttribute("data-preview-target");
+                if (!previewId || !input.files || !input.files.length) return;
+
+                var preview = document.getElementById(previewId);
+                if (!preview) return;
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if (!e.target || !e.target.result) return;
+                    preview.src = e.target.result;
+                    preview.style.display = "";
+                };
+                reader.readAsDataURL(input.files[0]);
+            });
+        });
+    </script>
     <script>
         (function () {
             var rows = document.getElementById("highlightRows");

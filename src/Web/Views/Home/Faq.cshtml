@@ -53,17 +53,21 @@
                                 var faq = Model.Faqs[i];
                                 var n = i + 1;
                                 var isFirst = i == 0;
+                                // Ids are built in C# so Razor cannot mistake "collapse@n" for an email address.
+                                var headingId = $"faq-heading-{n}";
+                                var collapseId = $"faq-collapse-{n}";
+                                var collapseTarget = $"#{collapseId}";
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading@n">
+                                    <h2 class="accordion-header" id="@headingId">
                                         <button class="accordion-button @(isFirst ? "" : "collapsed")" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapse@n"
-                                                aria-expanded="@(isFirst ? "true" : "false")" aria-controls="collapse@n">
+                                                data-bs-toggle="collapse" data-bs-target="@collapseTarget"
+                                                aria-expanded="@(isFirst ? "true" : "false")" aria-controls="@collapseId">
                                             <span>Q@(n):</span> @faq.Question
                                         </button>
                                     </h2>
-                                    <div id="collapse@n" class="accordion-collapse collapse @(isFirst ? "show" : "")"
-                                         aria-labelledby="heading@n" data-bs-parent="#accordion_id">
+                                    <div id="@collapseId" class="accordion-collapse collapse @(isFirst ? "show" : "")"
+                                         aria-labelledby="@headingId" data-bs-parent="#accordion_id">
                                         <div class="accordion-body">
                                             @faq.Answer
                                         </div>

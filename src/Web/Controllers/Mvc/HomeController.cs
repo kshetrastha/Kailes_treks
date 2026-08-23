@@ -191,28 +191,8 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
     [HttpGet("about-us")]
     public async Task<IActionResult> AboutUs(CancellationToken ct)
     {
-        var page = await uow.AboutUsService.GetPageAsync(asNoTracking: true, publishedOnly: true, ct);
-        if (page is null) return NotFound();
-
-        var model = new AboutUsPageViewModel
-        {
-            Subtitle = page.Subtitle,
-            Title = page.Title,
-            Description = page.Description,
-            ContentHtml = page.ContentHtml,
-            PrimaryImagePath = page.PrimaryImagePath,
-            SecondaryImagePath = page.SecondaryImagePath,
-            BadgeText = page.BadgeText,
-            ContactPhone = page.ContactPhone,
-            ButtonText = page.ButtonText,
-            ButtonUrl = page.ButtonUrl,
-            Highlights = page.Highlights
-                .Where(x => x.IsPublished)
-                .OrderBy(x => x.Ordering)
-                .ThenBy(x => x.Id)
-                .Select(x => x.Text)
-                .ToList()
-        };
+        var model = MapAboutUs(await uow.AboutUsService.GetPageAsync(asNoTracking: true, publishedOnly: true, ct));
+        if (model is null) return NotFound();
 
         return View(model);
     }
@@ -322,6 +302,8 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
                 ReviewerImagePath = x.ReviewerImagePath
             })
             .ToList();
+        var aboutUs = MapAboutUs(await uow.AboutUsService.GetPageAsync(asNoTracking: true, publishedOnly: true, ct));
+
         var countryHierarchy = await uow.TrekkingService.GetPublicTrekkingHierarchyAsync(ct);
         var countryGroups = await uow.TrekkingService.GetPublicTrekkingPackageCountByCountryAsync(ct);
 
@@ -344,7 +326,33 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
             GetBannerContent = bannerContent,
             TrekkingCountryGroupDtos = countryHierarchy,
             TrekkingCountryPackageCountDtos = countryGroups,
-            Reviews = reviews
+            Reviews = reviews,
+            AboutUs = aboutUs
+        };
+    }
+
+    private static AboutUsPageViewModel? MapAboutUs(AboutUsPage? page)
+    {
+        if (page is null) return null;
+
+        return new AboutUsPageViewModel
+        {
+            Subtitle = page.Subtitle,
+            Title = page.Title,
+            Description = page.Description,
+            ContentHtml = page.ContentHtml,
+            PrimaryImagePath = page.PrimaryImagePath,
+            SecondaryImagePath = page.SecondaryImagePath,
+            BadgeText = page.BadgeText,
+            ContactPhone = page.ContactPhone,
+            ButtonText = page.ButtonText,
+            ButtonUrl = page.ButtonUrl,
+            Highlights = page.Highlights
+                .Where(x => x.IsPublished)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => x.Text)
+                .ToList()
         };
     }
 
