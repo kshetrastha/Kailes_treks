@@ -34,6 +34,51 @@
     <link href="~/cusassests/css/vendor/magnific-popup.css" rel="stylesheet" media="print" onload="this.media='all'">
     <link href="~/cusassests/css/plugins/jquery.fancybox.min.css" rel="stylesheet" media="print" onload="this.media='all'">
     <link href="~/cusassests/css/vendor/spacing.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <style>
+        /* Deep dropdowns near the right edge used to run past the viewport, which added a
+           phantom horizontal scrollbar even while closed (they sit at opacity:0 but still
+           occupy layout). These classes are applied by the auto-flip script at the end of
+           the body, which flips only the menus that would actually overflow. */
+        .main-menu > ul > li > .submenu.submenu-flip {
+            left: auto;
+            right: 0;
+        }
+
+        .main-menu .submenu .submenu.submenu-flip {
+            left: auto;
+            right: 100%;
+        }
+
+        /* The theme re-applies left: 0 / left: 100% on :hover (main.css 8864 and 8870), so the
+           flip needs matching hover rules or an opened menu would snap back off-screen. These
+           mirror how the theme's own .last-children variant handles the same problem. */
+        .main-menu > ul > li:hover > ul.submenu-flip {
+            left: auto;
+            right: 0;
+        }
+
+        .main-menu > ul > li:hover > ul.submenu li:hover > ul.submenu-flip {
+            left: auto;
+            right: 100%;
+        }
+
+        /* Shorter breadcrumb hero for form-led pages, where the full 550px banner
+           pushes the actual content too far down. */
+        .bd-breadcrumb-area.breadcrumb-compact .bd-breadcrumb {
+            min-height: 300px;
+        }
+
+        .bd-breadcrumb-area.breadcrumb-compact .bd-breadcrumb-title {
+            font-size: clamp(26px, 2.2vw, 36px);
+            margin-bottom: 15px !important;
+        }
+
+        @@media only screen and (min-width: 576px) and (max-width: 767px), (max-width: 575px) {
+            .bd-breadcrumb-area.breadcrumb-compact .bd-breadcrumb {
+                min-height: 220px;
+            }
+        }
+    </style>
     @await RenderSectionAsync("Head", required: false)
 </head>
 
@@ -437,6 +482,43 @@
     <script src="~/cusassests/js/plugins/jquery.fancybox.min.js"></script>
     <script src="~/cusassests/js/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // Flip any header dropdown that would extend past the right edge of the viewport.
+        // Runs on load and resize so it adapts to the menu data and the window size, rather
+        // than hard-coding which branch of a database-driven menu happens to be widest.
+        (function () {
+            function flipOverflowingSubmenus() {
+                var menus = document.querySelectorAll(".main-menu .submenu");
+                if (!menus.length) return;
+
+                // Reset first so a wider window can un-flip menus that now fit.
+                menus.forEach(function (menu) { menu.classList.remove("submenu-flip"); });
+
+                // Document order means a parent is measured and flipped before its children,
+                // so nested menus measure against their final position.
+                menus.forEach(function (menu) {
+                    if (menu.getBoundingClientRect().right > document.documentElement.clientWidth) {
+                        menu.classList.add("submenu-flip");
+                    }
+                });
+            }
+
+            // Run once as soon as the menu exists, then again after load and shortly after,
+            // since web fonts and late images can change how wide the menu items are.
+            flipOverflowingSubmenus();
+            window.addEventListener("load", function () {
+                flipOverflowingSubmenus();
+                setTimeout(flipOverflowingSubmenus, 300);
+            });
+
+            var resizeTimer;
+            window.addEventListener("resize", function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(flipOverflowingSubmenus, 150);
+            });
+        })();
+    </script>
 
     <script>
             document.addEventListener("DOMContentLoaded", function () {
