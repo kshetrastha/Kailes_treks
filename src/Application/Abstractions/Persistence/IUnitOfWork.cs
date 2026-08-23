@@ -19,6 +19,7 @@ public interface IUnitOfWork
     IBlogPostService BlogPostService { get; }
     ITermsAndConditionService TermsAndConditionService { get; }
     IPrivacyPolicyService PrivacyPolicyService { get; }
+    IAboutUsService AboutUsService { get; }
     IBannerService BannerService { get; }
     IMasterFaqService MasterFaqService { get; }
     IExpeditionService ExpeditionService { get; }

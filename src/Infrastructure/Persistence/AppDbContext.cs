@@ -78,6 +78,8 @@ public sealed class AppDbContext:
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     public DbSet<TermsAndCondition> TermsAndConditions => Set<TermsAndCondition>();
     public DbSet<PrivacyPolicySection> PrivacyPolicySections => Set<PrivacyPolicySection>();
+    public DbSet<AboutUsPage> AboutUsPages => Set<AboutUsPage>();
+    public DbSet<AboutUsHighlight> AboutUsHighlights => Set<AboutUsHighlight>();
     public DbSet<Banner> Banners => Set<Banner>();
     public DbSet<BannerImage> BannerImages => Set<BannerImage>();
     public DbSet<MasterFaq> MasterFaqs => Set<MasterFaq>();

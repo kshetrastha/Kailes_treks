@@ -1,0 +1,184 @@
+@model TravelCleanArch.Web.Areas.Admin.Models.AboutUsFormViewModel
+@{
+    ViewData["Title"] = "About Us";
+    var primaryPreview = string.IsNullOrWhiteSpace(Model.ExistingPrimaryImagePath) ? null : $"/{Model.ExistingPrimaryImagePath}";
+    var secondaryPreview = string.IsNullOrWhiteSpace(Model.ExistingSecondaryImagePath) ? null : $"/{Model.ExistingSecondaryImagePath}";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Company / About Us</h2>
+        <a class="btn btn-outline-secondary" href="/about-us" target="_blank">View public page</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    <form method="post" action="/admin/company/about-us" enctype="multipart/form-data" novalidate>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExistingPrimaryImagePath" />
+        <input type="hidden" asp-for="ExistingSecondaryImagePath" />
+
+        <div class="card mb-4">
+            <div class="card-header"><strong>Page content</strong></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Subtitle" class="form-label">Section subtitle</label>
+                        <input asp-for="Subtitle" class="form-control" placeholder="About Our Company" />
+                        <span asp-validation-for="Subtitle" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label asp-for="Title" class="form-label">Heading</label>
+                        <input asp-for="Title" class="form-control" placeholder="Explore the Himalayas with Trusted Experts" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Intro paragraph</label>
+                    <textarea asp-for="Description" rows="5" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContentHtml" class="form-label">Our story (optional, shown below the intro)</label>
+                    <textarea asp-for="ContentHtml" rows="12" class="form-control textEditor"></textarea>
+                    <span asp-validation-for="ContentHtml" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-0">
+                    <input asp-for="IsPublished" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label">Published</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><strong>Images &amp; badge</strong></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PrimaryImage" class="form-label">Primary image</label>
+                        <input asp-for="PrimaryImage" type="file" accept="image/*" class="form-control" />
+                        @if (primaryPreview is not null)
+                        {
+                            <div class="mt-2">
+                                <img src="@primaryPreview" alt="Primary image" style="max-height:120px;" class="img-thumbnail" />
+                                <div class="form-check mt-2">
+                                    <input asp-for="RemovePrimaryImage" class="form-check-input" />
+                                    <label asp-for="RemovePrimaryImage" class="form-check-label">Remove this image</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SecondaryImage" class="form-label">Secondary image</label>
+                        <input asp-for="SecondaryImage" type="file" accept="image/*" class="form-control" />
+                        @if (secondaryPreview is not null)
+                        {
+                            <div class="mt-2">
+                                <img src="@secondaryPreview" alt="Secondary image" style="max-height:120px;" class="img-thumbnail" />
+                                <div class="form-check mt-2">
+                                    <input asp-for="RemoveSecondaryImage" class="form-check-input" />
+                                    <label asp-for="RemoveSecondaryImage" class="form-check-label">Remove this image</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="BadgeText" class="form-label">Badge text</label>
+                        <input asp-for="BadgeText" class="form-control" placeholder="12+ Successful Years" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ContactPhone" class="form-label">Contact phone</label>
+                        <input asp-for="ContactPhone" class="form-control" placeholder="+977-9851008008" />
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="ButtonText" class="form-label">Button text</label>
+                        <input asp-for="ButtonText" class="form-control" placeholder="Know More" />
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="ButtonUrl" class="form-label">Button link</label>
+                        <input asp-for="ButtonUrl" class="form-control" placeholder="/contact" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Highlights (tick list)</strong>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addHighlight">Add highlight</button>
+            </div>
+            <div class="card-body">
+                <div id="highlightRows">
+                    @for (var i = 0; i < Model.Highlights.Count; i++)
+                    {
+                        <div class="row g-2 align-items-center mb-2 highlight-row">
+                            <input type="hidden" name="Highlights[@i].Id" value="@Model.Highlights[i].Id" />
+                            <div class="col-md-7">
+                                <input name="Highlights[@i].Text" value="@Model.Highlights[i].Text" class="form-control" placeholder="Highlight text" />
+                            </div>
+                            <div class="col-md-2">
+                                <input name="Highlights[@i].Ordering" value="@Model.Highlights[i].Ordering" type="number" min="0" class="form-control" />
+                            </div>
+                            <div class="col-md-1 form-check">
+                                <input name="Highlights[@i].IsPublished" class="form-check-input" type="checkbox" value="true" @(Model.Highlights[i].IsPublished ? "checked" : "") />
+                                <input type="hidden" name="Highlights[@i].IsPublished" value="false" />
+                                <label class="form-check-label small">Show</label>
+                            </div>
+                            <div class="col-md-2 form-check">
+                                <input name="Highlights[@i].Remove" class="form-check-input" type="checkbox" value="true" />
+                                <input type="hidden" name="Highlights[@i].Remove" value="false" />
+                                <label class="form-check-label small">Remove</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <p class="text-muted small mb-0">Blank new rows are ignored. Clearing the text of an existing highlight removes it.</p>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save About Us page</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var rows = document.getElementById("highlightRows");
+            var addBtn = document.getElementById("addHighlight");
+            if (!rows || !addBtn) return;
+
+            var nextIndex = rows.querySelectorAll(".highlight-row").length;
+
+            addBtn.addEventListener("click", function () {
+                var idx = nextIndex++;
+                var row = document.createElement("div");
+                row.className = "row g-2 align-items-center mb-2 highlight-row";
+                row.innerHTML =
+                    '<input type="hidden" name="Highlights[' + idx + '].Id" value="" />' +
+                    '<div class="col-md-7"><input name="Highlights[' + idx + '].Text" class="form-control" placeholder="Highlight text" /></div>' +
+                    '<div class="col-md-2"><input name="Highlights[' + idx + '].Ordering" value="' + idx + '" type="number" min="0" class="form-control" /></div>' +
+                    '<div class="col-md-1 form-check">' +
+                        '<input name="Highlights[' + idx + '].IsPublished" class="form-check-input" type="checkbox" value="true" checked />' +
+                        '<input type="hidden" name="Highlights[' + idx + '].IsPublished" value="false" />' +
+                        '<label class="form-check-label small">Show</label>' +
+                    '</div>' +
+                    '<div class="col-md-2 form-check">' +
+                        '<input name="Highlights[' + idx + '].Remove" class="form-check-input" type="checkbox" value="true" />' +
+                        '<input type="hidden" name="Highlights[' + idx + '].Remove" value="false" />' +
+                        '<label class="form-check-label small">Remove</label>' +
+                    '</div>';
+                rows.appendChild(row);
+            });
+        })();
+    </script>
+}

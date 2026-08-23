@@ -119,6 +119,38 @@ public sealed class TermsAndConditionFormViewModel
 }
 
 
+public sealed class AboutUsHighlightInput
+{
+    public int? Id { get; set; }
+    [StringLength(500)] public string? Text { get; set; }
+    [Range(0, 999)] public int Ordering { get; set; }
+    public bool IsPublished { get; set; } = true;
+    public bool Remove { get; set; }
+}
+
+public sealed class AboutUsFormViewModel
+{
+    public int? Id { get; set; }
+    [Required, StringLength(180)] public string Subtitle { get; set; } = "About Our Company";
+    [Required, StringLength(280)] public string Title { get; set; } = string.Empty;
+    [StringLength(4000)] public string? Description { get; set; }
+    [StringLength(50000)] public string? ContentHtml { get; set; }
+    [StringLength(120)] public string? BadgeText { get; set; }
+    [StringLength(60)] public string? ContactPhone { get; set; }
+    [StringLength(80)] public string? ButtonText { get; set; }
+    [StringLength(400)] public string? ButtonUrl { get; set; }
+    public bool IsPublished { get; set; } = true;
+
+    public string? ExistingPrimaryImagePath { get; set; }
+    public string? ExistingSecondaryImagePath { get; set; }
+    public IFormFile? PrimaryImage { get; set; }
+    public IFormFile? SecondaryImage { get; set; }
+    public bool RemovePrimaryImage { get; set; }
+    public bool RemoveSecondaryImage { get; set; }
+
+    public List<AboutUsHighlightInput> Highlights { get; set; } = [];
+}
+
 public sealed class PrivacyPolicySectionFormViewModel
 {
     public int? Id { get; set; }

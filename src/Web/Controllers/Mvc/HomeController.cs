@@ -188,6 +188,35 @@ public sealed class HomeController(IUnitOfWork uow, AppDbContext db) : Controlle
         return View(new MasterFaqPageViewModel { Faqs = faqs });
     }
 
+    [HttpGet("about-us")]
+    public async Task<IActionResult> AboutUs(CancellationToken ct)
+    {
+        var page = await uow.AboutUsService.GetPageAsync(asNoTracking: true, publishedOnly: true, ct);
+        if (page is null) return NotFound();
+
+        var model = new AboutUsPageViewModel
+        {
+            Subtitle = page.Subtitle,
+            Title = page.Title,
+            Description = page.Description,
+            ContentHtml = page.ContentHtml,
+            PrimaryImagePath = page.PrimaryImagePath,
+            SecondaryImagePath = page.SecondaryImagePath,
+            BadgeText = page.BadgeText,
+            ContactPhone = page.ContactPhone,
+            ButtonText = page.ButtonText,
+            ButtonUrl = page.ButtonUrl,
+            Highlights = page.Highlights
+                .Where(x => x.IsPublished)
+                .OrderBy(x => x.Ordering)
+                .ThenBy(x => x.Id)
+                .Select(x => x.Text)
+                .ToList()
+        };
+
+        return View(model);
+    }
+
     [HttpGet("privacy-policy")]
     public async Task<IActionResult> PrivacyPolicy(CancellationToken ct)
     {

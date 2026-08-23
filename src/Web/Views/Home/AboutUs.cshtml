@@ -1,0 +1,143 @@
+@model TravelCleanArch.Web.Models.Home.AboutUsPageViewModel
+@{
+    ViewData["Title"] = "About Us";
+
+    var primaryImage = string.IsNullOrWhiteSpace(Model.PrimaryImagePath)
+        ? Url.Content("~/cusassests/images/about/about-img-1.png")
+        : Url.Content($"~/{Model.PrimaryImagePath}");
+
+    var secondaryImage = string.IsNullOrWhiteSpace(Model.SecondaryImagePath)
+        ? Url.Content("~/cusassests/images/about/about-img-2.png")
+        : Url.Content($"~/{Model.SecondaryImagePath}");
+
+    var buttonText = string.IsNullOrWhiteSpace(Model.ButtonText) ? "Know More" : Model.ButtonText;
+    var buttonUrl = string.IsNullOrWhiteSpace(Model.ButtonUrl) ? "/contact" : Model.ButtonUrl;
+}
+
+<div class="section-space-top"></div>
+
+<!-- breadcrumb area start -->
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">About Us</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>About Us</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb area end -->
+
+<!-- about area start -->
+<section class="bd-about-area section-space about-bg p-relative image-bg">
+    <div class="container">
+        <div class="about-shape">
+            <div class="about-shape-two">
+                <img src="~/cusassests/images/shapes/circle.png" alt="shape">
+            </div>
+            <div class="about-shape-three">
+                <img src="~/cusassests/images/shapes/plane-3.png" alt="shape">
+            </div>
+            <div class="about-shape-four">
+                <img src="~/cusassests/images/shapes/camera-2.png" alt="shape">
+            </div>
+        </div>
+        <div class="row gy-24 align-items-center">
+            <div class="col-xl-6 col-lg-6">
+                <div class="about-thumb-wrap about-style">
+                    <div class="about-thumb-one wow img-custom-anim-left">
+                        <img src="@primaryImage" alt="@Model.Title">
+                    </div>
+                    <div class="about-thumb-two wow img-custom-anim-right image-hover-effect">
+                        <img src="@secondaryImage" alt="@Model.Title">
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.BadgeText))
+                    {
+                        <div class="about-text">
+                            <h5 class="about-text-title">@Model.BadgeText</h5>
+                        </div>
+                    }
+                    <div class="about-badge">
+                        <img src="~/cusassests/images/shapes/white-badge.png" alt="shape">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-lg-6">
+                <div class="about-content">
+                    <div class="section-title-wrapper mb-35">
+                        <span class="section-subtitle mb-15">@Model.Subtitle</span>
+                        <h2 class="section-title mb-20">@Model.Title</h2>
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            <p style="text-align:justify">@Model.Description</p>
+                        }
+                    </div>
+
+                    @if (Model.Highlights.Count > 0)
+                    {
+                        <div class="about-feature-list">
+                            <ul>
+                                @foreach (var highlight in Model.Highlights)
+                                {
+                                    <li>
+                                        <span class="list-icon">
+                                            <i class="fa-solid fa-check"></i>
+                                        </span>
+                                        <p>@highlight</p>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="about-btn-wrap">
+                        <div class="about-btn">
+                            <a href="@buttonUrl" class="bd-primary-btn btn-style has-arrow is-bg radius-60">
+                                <span class="bd-primary-btn-arrow arrow-right"><i class="fa-regular fa-arrow-right"></i></span>
+                                <span class="bd-primary-btn-text">@buttonText</span>
+                                <span class="bd-primary-btn-circle"></span>
+                                <span class="bd-primary-btn-arrow arrow-left"><i class="fa-regular fa-arrow-right"></i></span>
+                            </a>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.ContactPhone))
+                        {
+                            <div class="about-call">
+                                <span><i class="icon-support"></i></span>
+                                <a class="fw-5" href="tel:@Model.ContactPhone.Replace(" ", "").Replace("-", "")">@Model.ContactPhone</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- about area end -->
+
+@if (!string.IsNullOrWhiteSpace(Model.ContentHtml))
+{
+    <section class="section-space-bottom">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="policy-wrapper policy-translate p-relative z-index-1">
+                        <div class="policy-item">
+                            @Html.Raw(Model.ContentHtml)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

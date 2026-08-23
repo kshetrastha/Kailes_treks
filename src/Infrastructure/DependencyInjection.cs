@@ -71,6 +71,7 @@ public static class DependencyInjection
         services.AddScoped<IBlogPostService, BlogPostService>();
         services.AddScoped<ITermsAndConditionService, TermsAndConditionService>();
         services.AddScoped<IPrivacyPolicyService, PrivacyPolicyService>();
+        services.AddScoped<IAboutUsService, AboutUsService>();
         services.AddScoped<IServiceTypeService, ServiceTypeService>();
         services.AddScoped<IServiceRegionService, ServiceRegionService>();
         services.AddScoped<IServiceRegionFaqService, ServiceRegionFaqService>();
