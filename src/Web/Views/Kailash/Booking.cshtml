@@ -1,4 +1,4 @@
-@using System.Text.Json
+﻿@using System.Text.Json
 @model List<TravelCleanArch.Application.Abstractions.Travel.KailashYatraPackageDto>
 
 @{
@@ -156,17 +156,31 @@
 </style>
 }
 
-<!-- Breadcrumb hero -->
-<div class="hero-area hero-style-two" style="background:linear-gradient(135deg,var(--bd-secondary,#001a3d) 0%,var(--bd-quaternary,#003b95) 100%);padding:60px 0 40px;">
-    <div class="container">
-        <div class="bd-breadcrumb-content text-center text-white">
-            <h2 class="mb-10">Complete Your Booking</h2>
-            <p class="mb-0 opacity-75">Kailash Manasarovar Yatra Package</p>
+<div class="section-space-top"></div>
+
+<!-- breadcrumb area start -->
+<section class="bd-breadcrumb-area p-relative fix">
+    <div class="bd-breadcrumb-bg" data-background="/cusassests/images/bg/breadcrumb-bg.png"></div>
+    <div class="bd-breadcrumb-wrapper p-relative">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="bd-breadcrumb d-flex align-items-center justify-content-center">
+                        <div class="bd-breadcrumb-content text-center">
+                            <h1 class="bd-breadcrumb-title">Complete Your Booking</h1>
+                            <div class="bd-breadcrumb-list">
+                                <span><a href="/"><i class="icon-home"></i>Home</a></span>
+                                <span>Kailash Manasarovar Yatra</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+<!-- breadcrumb area end -->
 
-<main class="main-area fix">
     <section class="section-space">
         <div class="container">
 
@@ -483,7 +497,6 @@
 
         </div>
     </section>
-</main>
 
 @section scripts {
 <script src="~/cusassests/js/plugins/flatpickr.js"></script>
